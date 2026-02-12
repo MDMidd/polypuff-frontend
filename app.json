@@ -1,28 +1,28 @@
 {
   "expo": {
-    "name": "Translation Trainer",
-    "slug": "translation-trainer",
+    "name": "Poly-Puff",
+    "slug": "poly-puff",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "backgroundColor": "#0F172A"
+      "backgroundColor": "#0A0E1A"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.translationtrainer.app",
+      "bundleIdentifier": "com.polypuff.app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Translation Trainer needs microphone access for voice input (speech-to-text).",
-        "NSSpeechRecognitionUsageDescription": "Translation Trainer uses speech recognition to convert your spoken translations to text.",
-        "NSPhotoLibraryUsageDescription": "Translation Trainer allows you to set a profile picture."
+        "NSMicrophoneUsageDescription": "Poly-Puff needs microphone access for voice input.",
+        "NSSpeechRecognitionUsageDescription": "Poly-Puff uses speech recognition for spoken translations.",
+        "NSPhotoLibraryUsageDescription": "Poly-Puff allows you to set a profile picture."
       },
       "buildNumber": "1"
     },
     "android": {
-      "package": "com.translationtrainer.app",
+      "package": "com.polypuff.app",
       "permissions": [
         "RECORD_AUDIO",
         "READ_EXTERNAL_STORAGE"
@@ -34,15 +34,10 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Translation Trainer lets you set a profile picture."
+          "photosPermission": "Poly-Puff lets you set a profile picture."
         }
       ]
     ],
-    "scheme": "translation-trainer",
-    "extra": {
-      "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
-      }
-    }
+    "scheme": "poly-puff"
   }
 }
