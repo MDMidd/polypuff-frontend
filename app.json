@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Translation Trainer",
+    "slug": "translation-trainer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#0F172A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.translationtrainer.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Translation Trainer needs microphone access for voice input (speech-to-text).",
+        "NSSpeechRecognitionUsageDescription": "Translation Trainer uses speech recognition to convert your spoken translations to text.",
+        "NSPhotoLibraryUsageDescription": "Translation Trainer allows you to set a profile picture."
+      },
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.translationtrainer.app",
+      "permissions": [
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "versionCode": 1
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Translation Trainer lets you set a profile picture."
+        }
+      ]
+    ],
+    "scheme": "translation-trainer",
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    }
+  }
+}
