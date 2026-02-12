@@ -24,8 +24,8 @@
     "android": {
       "package": "com.polypuff.app",
       "permissions": [
-        "RECORD_AUDIO",
-        "READ_EXTERNAL_STORAGE"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE"
       ],
       "versionCode": 1
     },
@@ -38,6 +38,13 @@
         }
       ]
     ],
-    "scheme": "poly-puff"
+    "scheme": "poly-puff",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a6e15539-755c-42d5-9e1e-be6ec55fd156"
+      }
+    },
+    "owner": "polypuff"
   }
 }
