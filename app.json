@@ -4,9 +4,12 @@
     "slug": "poly-puff",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "backgroundColor": "#0A0E1A"
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0A1628"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -15,19 +18,37 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.polypuff.app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Poly-Puff needs microphone access for voice input.",
-        "NSSpeechRecognitionUsageDescription": "Poly-Puff uses speech recognition for spoken translations.",
+        "NSMicrophoneUsageDescription": "Poly-Puff needs microphone access for voice input and speaking practice.",
+        "NSSpeechRecognitionUsageDescription": "Poly-Puff uses speech recognition to convert your spoken translations to text.",
         "NSPhotoLibraryUsageDescription": "Poly-Puff allows you to set a profile picture."
       },
       "buildNumber": "1"
     },
     "android": {
       "package": "com.polypuff.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0E1A"
+      },
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35,
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.READ_EXTERNAL_STORAGE"
+        "android.permission.INTERNET",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "versionCode": 1
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#1a1a2e",
+      "translucent": false
+    },
+    "androidNavigationBar": {
+      "visible": "visible",
+      "backgroundColor": "#1a1a2e",
+      "barStyle": "light-content"
     },
     "plugins": [
       "expo-router",
@@ -36,15 +57,34 @@
         {
           "photosPermission": "Poly-Puff lets you set a profile picture."
         }
+      ],
+      "expo-localization",
+      "expo-speech-recognition",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ADD8E6",
+          "sounds": []
+        }
       ]
     ],
     "scheme": "poly-puff",
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "extra": {
       "router": {},
       "eas": {
         "projectId": "a6e15539-755c-42d5-9e1e-be6ec55fd156"
       }
     },
-    "owner": "polypuff"
+    "owner": "polypuff",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a6e15539-755c-42d5-9e1e-be6ec55fd156"
+    }
   }
 }

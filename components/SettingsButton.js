@@ -1,9 +1,8 @@
 /**
- * SettingsButton - Gear icon for top-right corner of every screen
- * 
- * Usage: import SettingsButton from '../components/SettingsButton';
- *        Then place <SettingsButton /> after your screen header.
- * 
+ * SettingsButton - Gear icon (Accessibility Update)
+ *
+ * CHANGES: Added accessibilityRole, accessibilityLabel, minimum touch target 44×44
+ *
  * FILE: components/SettingsButton.js
  */
 
@@ -21,12 +20,16 @@ export default function SettingsButton({ style }) {
     <TouchableOpacity
       style={[{
         position: 'absolute', top: 12, right: 16, zIndex: 10,
-        width: 36, height: 36, borderRadius: 10,
+        width: 44, height: 44, borderRadius: 12,  // ✅ was 36×36 → 44×44
         backgroundColor: C.cardGlass || C.card, alignItems: 'center', justifyContent: 'center',
         borderWidth: 1, borderColor: C.cyan ? C.cyan + '20' : C.border + '30',
       }, style]}
       onPress={() => router.push('/settings')}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      // ✅ ACCESSIBILITY
+      accessibilityRole="button"
+      accessibilityLabel="Settings"
+      accessibilityHint="Opens app settings"
     >
       <Settings size={18} color={C.textMuted} />
     </TouchableOpacity>

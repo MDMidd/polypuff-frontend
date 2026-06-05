@@ -1,379 +1,245 @@
 /**
- * API Service Layer - Translation Trainer v6
- * ===========================================
- * 
- * Connects frontend to backend server v6.
- * Includes: exercise generation, grading, exercise bank, TTS, chat, rules.
- * 
+ * API Service — Poly-Puff
+ * ========================
+ *
+ * Central server URL config + shared API helpers.
+ * All exercises import getServerUrl() from here.
+ *
  * FILE: services/api.js
- * GOES IN: translation-trainer-frontend/services/api.js
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 
-// ============================================================================
-// CONFIGURATION - Can be updated from Settings screen
-// ============================================================================
-let API_BASE_URL = 'http://192.168.10.163:3000';
+// ═══ PRODUCTION SERVER URL ═══
+export const DEFAULT_SERVER = 'https://polypuff-backend-production-bec9.up.railway.app';
+export const LOCAL_SERVER = 'http://127.0.0.1:3000';
+export const ANDROID_EMULATOR_SERVER = 'http://10.0.2.2:3000';
 
-// Load saved server URL on startup
-import AsyncStorage from '@react-native-async-storage/async-storage';
-AsyncStorage.getItem('serverUrl').then(url => { if (url) API_BASE_URL = url; }).catch(() => {});
+// Cached URL for synchronous access (used by Settings screen)
+let _cachedUrl = DEFAULT_SERVER;
 
 /**
- * Update the server URL (called from Settings screen)
+ * Get the server URL (async).
+ * Checks AsyncStorage first (for dev overrides), then falls back to DEFAULT_SERVER.
+ */
+export const getServerUrl = async () => {
+  try {
+    const url = await AsyncStorage.getItem('serverUrl');
+    _cachedUrl = url || DEFAULT_SERVER;
+    return _cachedUrl;
+  } catch {
+    return DEFAULT_SERVER;
+  }
+};
+
+// Synchronous getter — settings.tsx calls getServerUrl() without await
+// This makes it work both ways
+getServerUrl.sync = () => _cachedUrl;
+
+/**
+ * Save a new server URL to AsyncStorage.
+ * Used by Settings screen "Save & Test" button.
  */
 export const setServerUrl = async (url) => {
-  API_BASE_URL = url;
-  await AsyncStorage.setItem('serverUrl', url);
+  try {
+    const normalized = (url || DEFAULT_SERVER).trim().replace(/\/+$/, '');
+    await AsyncStorage.setItem('serverUrl', normalized);
+    _cachedUrl = normalized;
+  } catch (e) {}
 };
 
-export const getServerUrl = () => API_BASE_URL;
-
-// ============================================================================
-// CORE API CALLS
-// ============================================================================
+/**
+ * Ensure the cached URL is loaded from storage.
+ * Call on mount in Settings screen before reading synchronously.
+ */
+export const ensureUrlLoaded = async () => {
+  try {
+    const url = await AsyncStorage.getItem('serverUrl');
+    _cachedUrl = url || DEFAULT_SERVER;
+  } catch {
+    _cachedUrl = DEFAULT_SERVER;
+  }
+  return _cachedUrl;
+};
 
 /**
- * Check server health
+ * Check server health.
+ * Used by Settings screen to show Connected/Not reachable status.
  */
 export const checkHealth = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/health`);
-    return await response.json();
-  } catch (error) {
-    console.error('Health check failed:', error);
-    return { status: 'error', message: error.message };
-  }
+  const BASE = _cachedUrl || DEFAULT_SERVER;
+  const res = await fetch(`${BASE}/api/health`, { method: 'GET' });
+  if (!res.ok) throw new Error('Server not reachable');
+  return res.json();
 };
 
+// ═══ TRANSLATION ═══
+
 /**
- * Generate a new translation exercise (AI-generated)
+ * Generate a translation exercise.
  */
-export const generateExercise = async ({
-  nativeLanguage = 'Spanish',
-  level = 'B1',
-  sentenceLength = 'medium',
-  customRequest = '',
-  previousSentences = [],
-  profile = null,
-  weakAreas = [],
-} = {}) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nativeLanguage, level, sentenceLength, customRequest, previousSentences, profile, weakAreas }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Generate failed:', error);
-    throw error;
-  }
+export const generateExercise = async ({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, profile, weakAreas }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, profile, weakAreas }),
+  });
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
 /**
- * Check/grade a student's translation (Database-First + AI)
+ * Check a translation answer.
+ * Note: server expects 'originalSentence' (not 'original')
  */
-export const checkTranslation = async ({
-  studentAnswer,
-  correctAnswer,
-  originalSentence,
-  nativeLanguage = 'Spanish',
-  level = 'B1',
-}) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/check`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentAnswer, correctAnswer, originalSentence, nativeLanguage, level }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Check failed:', error);
-    throw error;
-  }
+export const checkTranslation = async ({ originalSentence, studentAnswer, correctAnswer, level, nativeLanguage }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/check`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ originalSentence, studentAnswer, correctAnswer, level, nativeLanguage }),
+  });
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
-// ============================================================================
-// EXERCISE BANK
-// ============================================================================
-
 /**
- * Get next pre-built exercise (no repeats)
- * Falls back to cached exercises when offline.
+ * Resolve the correct English answer for an existing prompt.
+ * Used by "Show answer" when the screen does not already have an answer key.
  */
-export const getNextExercise = async ({
-  studentId = 'default',
-  nativeLanguage = 'Spanish',
-  level = 'B1',
-} = {}) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/exercises/next`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, nativeLanguage, level }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    // Cache exercise for offline use
-    try {
-      const cached = await AsyncStorage.getItem('exerciseCache');
-      const list = cached ? JSON.parse(cached) : [];
-      list.push(data);
-      // Keep last 50 exercises cached
-      if (list.length > 50) list.shift();
-      await AsyncStorage.setItem('exerciseCache', JSON.stringify(list));
-    } catch (e) {}
-    return data;
-  } catch (error) {
-    console.error('Exercise bank failed, trying offline cache:', error);
-    // Try serving a random cached exercise
-    try {
-      const cached = await AsyncStorage.getItem('exerciseCache');
-      if (cached) {
-        const list = JSON.parse(cached);
-        const matching = list.filter(e => e.level === level || e.difficulty === level);
-        if (matching.length > 0) {
-          const pick = matching[Math.floor(Math.random() * matching.length)];
-          pick._offline = true;
-          return pick;
-        }
-      }
-    } catch (e) {}
-    return null; // Caller should fall back to generateExercise
-  }
+export const revealTranslationAnswer = async ({ originalSentence, correctAnswer = '', level, nativeLanguage }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/translate-prompt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      originalSentence,
+      correctAnswer,
+      fromNativeLanguage: nativeLanguage,
+      nativeLanguage,
+      level,
+    }),
+  });
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
+// ═══ EXERCISE BANK ═══
+
 /**
- * Check answer against pre-built exercise
+ * Get next exercise from the pre-built bank (avoids repeats).
+ * Server endpoint: /api/exercises/next (with 's')
  */
-export const checkExercise = async ({ exerciseId, studentAnswer, nativeLanguage = 'Spanish' }) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/exercises/check`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ exerciseId, studentAnswer, nativeLanguage }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Exercise check failed:', error);
-    throw error;
-  }
+export const getNextExercise = async ({ level, nativeLanguage, sentenceLength, previousIds = [] }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/exercises/next`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ level, nativeLanguage, sentenceLength, previousIds }),
+  });
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
 /**
- * Get exercise bank stats
+ * Check an exercise bank answer against gold-standard.
+ * Server endpoint: /api/exercises/check (with 's')
  */
-export const getExerciseStats = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/exercises/stats`);
-    return await response.json();
-  } catch (error) {
-    console.error('Stats failed:', error);
-    return null;
-  }
+export const checkExercise = async ({ exerciseId, studentAnswer, level, nativeLanguage }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/exercises/check`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ exerciseId, studentAnswer, level, nativeLanguage }),
+  });
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
-// ============================================================================
-// AI CHAT
-// ============================================================================
+// ═══ AI CHAT ═══
 
 /**
- * Chat with AI tutor
+ * Chat with the AI tutor (follow-up questions about grammar, etc.)
  */
-export const chatWithTutor = async ({ message, nativeLanguage = 'Spanish', context = {} }) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, nativeLanguage, context }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Chat failed:', error);
-    throw error;
-  }
+export const chatWithTutor = async ({ message, context, history = [] }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, context, history }),
+  });
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
-// ============================================================================
-// RULES
-// ============================================================================
+// ═══ GRAMMAR RULES ═══
 
 /**
- * Get grammar rules (with optional filters)
+ * Get all grammar rules (or filtered by category).
  */
-export const getRules = async ({ topic, priority } = {}) => {
-  const cacheKey = `rulesCache_${topic || 'all'}_${priority || 'all'}`;
-  try {
-    const params = new URLSearchParams();
-    if (topic) params.append('topic', topic);
-    if (priority) params.append('priority', priority);
-    const response = await fetch(`${API_BASE_URL}/api/rules?${params}`);
-    const data = await response.json();
-    // Cache for offline use
-    try { await AsyncStorage.setItem(cacheKey, JSON.stringify(data)); } catch (e) {}
-    return data;
-  } catch (error) {
-    console.error('Rules fetch failed, trying cache:', error);
-    try {
-      const cached = await AsyncStorage.getItem(cacheKey);
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
-    return { count: 0, rules: [] };
-  }
+export const getRules = async (category) => {
+  const BASE = await getServerUrl();
+  const url = category ? `${BASE}/api/rules?category=${category}` : `${BASE}/api/rules`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
 /**
- * Get a specific rule by ID
+ * Get a single grammar rule by ID.
  */
 export const getRule = async (ruleId) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/rules/${ruleId}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Rule fetch failed:', error);
-    return null;
-  }
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/rules/${ruleId}`);
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
 /**
- * Get database stats
+ * Get student stats/progress.
  */
 export const getStats = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/stats`);
-    return await response.json();
-  } catch (error) {
-    console.error('Stats failed:', error);
-    return null;
-  }
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/stats`);
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
 };
 
+// ═══ TEXT-TO-SPEECH ═══
+
 /**
- * Test a sentence against rule scanner (debugging)
+ * Speak the correct English version (native speaker playback).
+ * Rate 0.9 for clarity.
  */
-export const testRules = async (sentence, correctSentence = '') => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/test-rules`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sentence, correctSentence }),
-    });
-    return await response.json();
-  } catch (error) {
-    console.error('Test rules failed:', error);
-    throw error;
-  }
+export const speakCorrectVersion = (text) => {
+  Speech.stop();
+  Speech.speak(text, {
+    language: 'en-US',
+    rate: 0.9,
+    pitch: 1.0,
+  });
 };
 
-// ============================================================================
-// TEXT-TO-SPEECH (TTS) - expo-speech
-// ============================================================================
-
 /**
- * Speak the CORRECT version — slow, clear native pronunciation
+ * Speak the student's version back to them.
+ * Rate 0.85 so they can hear their own phrasing clearly.
  */
-export const speakCorrectVersion = async (text, options = {}) => {
-  try {
-    await Speech.stop();
-    await Speech.speak(text, {
-      language: 'en-US',
-      rate: 0.85,
-      pitch: 1.0,
-      onDone: options.onDone,
-      onError: options.onError,
-      ...options,
-    });
-  } catch (error) {
-    console.error('TTS correct error:', error);
-  }
+export const speakStudentVersion = (text) => {
+  Speech.stop();
+  Speech.speak(text, {
+    language: 'en-US',
+    rate: 0.85,
+    pitch: 1.0,
+  });
 };
 
 /**
- * Speak the STUDENT'S version — normal speed to hear flow issues
- */
-export const speakStudentVersion = async (text, options = {}) => {
-  try {
-    await Speech.stop();
-    await Speech.speak(text, {
-      language: 'en-US',
-      rate: 0.95,
-      pitch: 1.0,
-      onDone: options.onDone,
-      onError: options.onError,
-      ...options,
-    });
-  } catch (error) {
-    console.error('TTS student error:', error);
-  }
-};
-
-/**
- * Generic TTS
- */
-export const speakText = async (text, settings = {}) => {
-  try {
-    await Speech.stop();
-    await Speech.speak(text, {
-      language: settings.language || 'en-US',
-      rate: settings.rate || 0.9,
-      pitch: settings.pitch || 1.0,
-      ...settings,
-    });
-  } catch (error) {
-    console.error('TTS error:', error);
-  }
-};
-
-/**
- * Stop speech
+ * Stop any current speech playback.
  */
 export const stopSpeaking = async () => {
-  try { await Speech.stop(); } catch (e) { /* ignore */ }
-};
-
-/**
- * Check if speaking
- */
-export const isSpeaking = async () => {
-  try { return await Speech.isSpeakingAsync(); } catch (e) { return false; }
-};
-
-/**
- * Get available English voices
- */
-export const getAvailableVoices = async () => {
   try {
-    const voices = await Speech.getAvailableVoicesAsync();
-    return voices.filter(v => v.language?.startsWith('en'));
-  } catch (error) {
-    return [];
-  }
-};
-
-export default {
-  getServerUrl,
-  setServerUrl,
-  checkHealth,
-  generateExercise,
-  checkTranslation,
-  getNextExercise,
-  checkExercise,
-  getExerciseStats,
-  chatWithTutor,
-  getRules,
-  getRule,
-  getStats,
-  testRules,
-  speakCorrectVersion,
-  speakStudentVersion,
-  speakText,
-  stopSpeaking,
-  isSpeaking,
-  getAvailableVoices,
+    await Speech.stop();
+  } catch (e) {}
 };

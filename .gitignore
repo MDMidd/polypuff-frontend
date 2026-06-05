@@ -39,3 +39,21 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# one-off recovery / migration scripts
+fixvault.js
+*_recovered.json
+*_recovered.js
+
+# Play Store signing (must never be committed)
+play-store-key.json
+upload-key*.json
+
+# logs and run outputs
+*.log
+*-run.log
+*-run*.log
+
+# build outputs
+*.apk
+*.aab

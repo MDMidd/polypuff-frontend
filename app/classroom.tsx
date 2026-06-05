@@ -1,497 +1,628 @@
 /**
- * Classroom Screen - Poly-Puff v6.2
- * ==============================================
- * 
- * Two modes:
- *   Teacher: Create class → share code → view dashboard (leaderboard, weak areas, submissions)
- *   Student: Enter code → join class → see class info
- * 
+ * Classroom Screen - Poly-Puff Teacher Dashboard v1.0
+ * =====================================================
+ *
+ * Two modes in one file:
+ *   TEACHER MODE — Create a class, view all classes, enter a class dashboard
+ *   STUDENT MODE — Join a class with a 6-character code, see their class
+ *
  * FILE: app/classroom.tsx
+ * LOCATION: D:\Project\MyProject\translation-trainer-frontend\app\classroom.tsx
+ *
+ * Backend endpoints used (all live on Railway):
+ *   POST /api/classroom/create     — teacher creates class
+ *   POST /api/classroom/join       — student joins class
+ *   GET  /api/classrooms           — list all classes (teacher view)
+ *   GET  /api/classroom/:code      — full class data (tap to open detail)
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TouchableOpacity, SafeAreaView, ScrollView,
-  TextInput, ActivityIndicator, Alert, Share, RefreshControl, Modal,
+  View, Text, ScrollView, TouchableOpacity, TextInput,
+  ActivityIndicator, Alert, Modal, KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  Users, UserPlus, Trophy, BookOpen, Share2, Copy,
-  Crown, Target, ChevronRight, Plus, LogIn, BarChart3,
-  Brain, Headphones, Layers, ClipboardList, X as XIcon, Check,
+  Users, Plus, LogIn, ChevronRight, BookOpen,
+  Star, Clock, Award, X, RefreshCw,
 } from 'lucide-react-native';
-import { useFocusEffect } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
+import { scaledFont } from '../utils/accessibility';
 import { getServerUrl } from '../services/api';
-import { hapticSelection, hapticSuccess } from '../services/sounds';
+import { getAuthHeaders } from '../utils/auth';
+import { ensureUserId } from '../utils/userId';
 
+// ── Score colour helper ───────────────────────────────────────────────────────
+function scoreColor(score, C) {
+  if (!score && score !== 0) return C.textMuted;
+  if (score >= 90) return C.emerald || '#34D399';
+  if (score >= 75) return '#60A5FA';
+  if (score >= 60) return '#FBBF24';
+  return C.red || '#F87171';
+}
+
+// ── Mode selector card ────────────────────────────────────────────────────────
+function ModeCard({ icon, title, desc, color, onPress }) {
+  const { colors: C } = useTheme();
+  return (
+    <TouchableOpacity
+      style={{
+        flex: 1, backgroundColor: C.card || '#111827',
+        borderRadius: 16, padding: 20, borderWidth: 1,
+        borderColor: color + '30', alignItems: 'center', gap: 10,
+        minHeight: 140,
+      }}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+    >
+      <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: color + '18', alignItems: 'center', justifyContent: 'center' }}>
+        {icon}
+      </View>
+      <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color, textAlign: 'center' }}>{title}</Text>
+      <Text style={{ fontSize: scaledFont(11), color: C.textMuted, textAlign: 'center', lineHeight: 16 }}>{desc}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// ── Class summary card ────────────────────────────────────────────────────────
+function ClassCard({ room, onPress, C }) {
+  return (
+    <TouchableOpacity
+      style={{
+        backgroundColor: C.card || '#111827', borderRadius: 14,
+        padding: 14, marginBottom: 10, borderWidth: 1,
+        borderColor: (C.cyan || '#00D9FF') + '25', flexDirection: 'row',
+        alignItems: 'center', gap: 12, minHeight: 72,
+      }}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Open class ${room.className}`}
+    >
+      <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: (C.cyan || '#00D9FF') + '15', alignItems: 'center', justifyContent: 'center' }}>
+        <BookOpen size={22} color={C.cyan || '#00D9FF'} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.cyan || '#00D9FF' }}>{room.className}</Text>
+        <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>
+          {room.teacherName} · {room.studentCount} student{room.studentCount !== 1 ? 's' : ''}
+        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+          <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '15', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: C.cyan || '#00D9FF', letterSpacing: 1 }}>{room.code}</Text>
+          </View>
+        </View>
+      </View>
+      <ChevronRight size={16} color={C.textMuted} />
+    </TouchableOpacity>
+  );
+}
+
+// ── Main screen ───────────────────────────────────────────────────────────────
 export default function ClassroomScreen() {
   const { colors: C } = useTheme();
+  const { t, wt } = useLanguage();
+  const router = useRouter();
 
-  const [mode, setMode] = useState(null); // null (pick), 'teacher', 'student'
-  const [name, setName] = useState('');
+  const [mode,         setMode]         = useState(null); // null | 'teacher' | 'student'
+  const [loading,      setLoading]      = useState(false);
+  const [rooms,        setRooms]        = useState([]);
+  const [joinedRoom,   setJoinedRoom]   = useState(null);
+  const [showCreate,   setShowCreate]   = useState(false);
+  const [showJoin,     setShowJoin]     = useState(false);
 
-  // Teacher state
-  const [className, setClassName] = useState('');
-  const [createdCode, setCreatedCode] = useState(null);
-  const [dashboardData, setDashboardData] = useState(null);
-  const [dashboardLoading, setDashboardLoading] = useState(false);
+  // Create form state
+  const [teacherName,  setTeacherName]  = useState('');
+  const [className,    setClassName]    = useState('');
 
-  // Student state
-  const [joinCode, setJoinCode] = useState('');
-  const [joinedClass, setJoinedClass] = useState(null);
-  const [joining, setJoining] = useState(false);
+  // Join form state
+  const [joinCode,     setJoinCode]     = useState('');
+  const [studentName,  setStudentName]  = useState('');
 
-  const [savedClasses, setSavedClasses] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
+  useFocusEffect(useCallback(() => {
+    loadSavedMode();
+  }, []));
 
-  useFocusEffect(useCallback(() => { loadSaved(); }, []));
-
-  const loadSaved = async () => {
+  const loadSavedMode = async () => {
     try {
-      const profile = await AsyncStorage.getItem('userProfile');
-      if (profile) { const p = JSON.parse(profile); if (p.name) setName(p.name); }
-      const classes = await AsyncStorage.getItem('myClassrooms');
-      if (classes) {
-        const list = JSON.parse(classes);
-        setSavedClasses(list);
-        // Auto-load if there's a saved class
-        if (list.length > 0 && list[0].role === 'teacher') {
-          setMode('teacher');
-          setCreatedCode(list[0].code);
-          loadDashboard(list[0].code);
-          loadAssignments(list[0].code);
-        } else if (list.length > 0 && list[0].role === 'student') {
-          setMode('student');
-          setJoinedClass(list[0]);
-        }
+      const savedMode  = await AsyncStorage.getItem('classroomMode');
+      const savedRooms = await AsyncStorage.getItem('classroomRooms');
+      const savedJoined = await AsyncStorage.getItem('classroomJoined');
+
+      // Pre-fill teacher name from profile
+      const profileRaw = await AsyncStorage.getItem('userProfile');
+      if (profileRaw) {
+        const p = JSON.parse(profileRaw);
+        if (p.name) setTeacherName(p.name);
+        if (p.name) setStudentName(p.name);
       }
+
+      if (savedMode) setMode(savedMode);
+      if (savedRooms) setRooms(JSON.parse(savedRooms));
+      if (savedJoined) setJoinedRoom(JSON.parse(savedJoined));
+
+      if (savedMode === 'teacher') refreshRooms(true);
     } catch (e) {}
   };
 
-  const saveClass = async (classInfo) => {
-    try {
-      const existing = await AsyncStorage.getItem('myClassrooms');
-      const list = existing ? JSON.parse(existing) : [];
-      // Avoid duplicates
-      if (!list.find(c => c.code === classInfo.code)) {
-        list.unshift(classInfo);
-        await AsyncStorage.setItem('myClassrooms', JSON.stringify(list));
-        setSavedClasses(list);
-      }
-    } catch (e) {}
+  const selectMode = async (m) => {
+    setMode(m);
+    await AsyncStorage.setItem('classroomMode', m);
+    if (m === 'teacher') refreshRooms(true);
   };
 
-  const loadDashboard = async (code) => {
-    setDashboardLoading(true);
-    try {
-      const resp = await fetch(`${getServerUrl()}/api/classroom/${code}`);
-      if (!resp.ok) throw new Error('Not found');
-      setDashboardData(await resp.json());
-    } catch (e) {
-      console.error('Dashboard load failed:', e);
-    }
-    setDashboardLoading(false);
-  };
-
-  const handleCreate = async () => {
-    if (!name.trim() || !className.trim()) {
-      Alert.alert('Missing Info', 'Please enter your name and a class name.');
+  // ── CREATE CLASS ─────────────────────────────────────────────────────────
+  const createClass = async () => {
+    if (!teacherName.trim() || !className.trim()) {
+      Alert.alert('Missing Info', 'Please enter both your name and the class name.');
       return;
     }
+    setLoading(true);
     try {
-      const resp = await fetch(`${getServerUrl()}/api/classroom/create`, {
+      const serverUrl = await getServerUrl();
+      const userId = await ensureUserId();
+      const authHeaders = await getAuthHeaders();
+      if (!authHeaders || !userId) {
+        setLoading(false);
+        Alert.alert('Sign in required', 'You need to be signed in to create a class.');
+        return;
+      }
+      const res = await fetch(`${serverUrl}/api/classroom/create`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teacherName: name.trim(), className: className.trim() }),
+        headers: { ...authHeaders, 'X-App-User-Id': userId, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teacherName: teacherName.trim(), className: className.trim() }),
       });
-      const data = await resp.json();
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
       if (data.code) {
-        hapticSuccess();
-        setCreatedCode(data.code);
-        saveClass({ code: data.code, className: className.trim(), role: 'teacher' });
-        loadDashboard(data.code);
-        loadAssignments(data.code);
+        const newRoom = { code: data.code, className: data.className, teacherName: data.teacherName, studentCount: 0 };
+        const updated = [...rooms, newRoom];
+        setRooms(updated);
+        await AsyncStorage.setItem('classroomRooms', JSON.stringify(updated));
+        setShowCreate(false);
+        setClassName('');
+        Alert.alert('Class Created! 🎉', `Share this code with your students:\n\n${data.code}`, [{ text: 'Got it' }]);
+      } else {
+        Alert.alert('Error', data.error || 'Failed to create class.');
       }
     } catch (e) {
-      Alert.alert('Error', 'Could not create class. Is the server running?');
+      Alert.alert('Connection Error', 'Could not reach the server. Check your internet connection.');
     }
+    setLoading(false);
   };
 
-  const handleJoin = async () => {
-    if (!name.trim() || !joinCode.trim()) {
-      Alert.alert('Missing Info', 'Please enter your name and the class code.');
+  // ── JOIN CLASS ───────────────────────────────────────────────────────────
+  const joinClass = async () => {
+    const code = joinCode.trim().toUpperCase();
+    if (!code || code.length !== 6) {
+      Alert.alert('Invalid Code', 'Class codes are exactly 6 characters.');
       return;
     }
-    setJoining(true);
+    if (!studentName.trim()) {
+      Alert.alert('Missing Name', 'Please enter your name.');
+      return;
+    }
+    setLoading(true);
     try {
-      const profile = await AsyncStorage.getItem('userProfile');
-      const p = profile ? JSON.parse(profile) : {};
-      const resp = await fetch(`${getServerUrl()}/api/classroom/join`, {
+      const profileRaw = await AsyncStorage.getItem('userProfile');
+      const profile    = profileRaw ? JSON.parse(profileRaw) : {};
+
+      const serverUrl = await getServerUrl();
+      const res = await fetch(`${serverUrl}/api/classroom/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: joinCode.trim().toUpperCase(),
-          studentName: name.trim(),
-          nativeLanguage: p.nativeLanguage || 'Unknown',
-          level: p.level || 'B1',
+          code,
+          studentName: studentName.trim(),
+          nativeLanguage: profile.nativeLanguage || 'English',
+          level: profile.level || 'B1',
         }),
       });
-      const data = await resp.json();
-      if (data.error) { Alert.alert('Error', data.error); }
-      else {
-        hapticSuccess();
-        const info = { code: joinCode.trim().toUpperCase(), className: data.classroom.className, teacherName: data.classroom.teacherName, role: 'student' };
-        setJoinedClass(info);
-        saveClass(info);
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+      if (data.classroom) {
+        const joined = { ...data.classroom, studentName: studentName.trim() };
+        setJoinedRoom(joined);
+        await AsyncStorage.setItem('classroomJoined', JSON.stringify(joined));
+        setShowJoin(false);
+        setJoinCode('');
+        Alert.alert('Joined! 🎉', `You've joined "${data.classroom.className}" taught by ${data.classroom.teacherName}.`);
+      } else {
+        Alert.alert('Error', data.error || 'Failed to join class. Check the code and try again.');
       }
     } catch (e) {
-      Alert.alert('Error', 'Could not join class. Check the code and server connection.');
+      Alert.alert('Connection Error', 'Could not reach the server.');
     }
-    setJoining(false);
+    setLoading(false);
   };
 
-  const handleShare = async (code) => {
+  // ── REFRESH ROOMS LIST ───────────────────────────────────────────────────
+  // Fetches the authoritative list of this teacher's classes from the server,
+  // so a fresh install or new device sees existing classes.
+  const refreshRooms = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
-      await Share.share({ message: `Join my Poly-Puff class! Use code: ${code}` });
-    } catch (e) {}
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    if (createdCode) await loadDashboard(createdCode);
-    setRefreshing(false);
-  };
-
-  const getScoreColor = (s) => s >= 80 ? C.emerald : s >= 60 ? C.amber : C.red;
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [assignments, setAssignments] = useState([]);
-  const [assignTitle, setAssignTitle] = useState('');
-  const [assignType, setAssignType] = useState('quiz');
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  const loadAssignments = async (code) => {
-    try {
-      const resp = await fetch(`${getServerUrl()}/api/classroom/${code}/assignments`);
-      if (resp.ok) { const data = await resp.json(); setAssignments(data.assignments || []); }
-    } catch (e) {}
-  };
-
-  const handleCreateAssignment = async () => {
-    if (!assignTitle.trim()) { Alert.alert('Missing', 'Enter a title.'); return; }
-    try {
-      const resp = await fetch(`${getServerUrl()}/api/classroom/assign`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: createdCode, type: assignType, title: assignTitle.trim(), config: {} }),
+      const serverUrl = await getServerUrl();
+      const userId = await ensureUserId();
+      const authHeaders = await getAuthHeaders();
+      if (!authHeaders || !userId) {
+        if (!silent) setLoading(false);
+        return;
+      }
+      const res = await fetch(`${serverUrl}/api/classrooms`, {
+        headers: { ...authHeaders, 'X-App-User-Id': userId },
       });
-      const data = await resp.json();
-      if (data.assignment) { hapticSuccess(); setShowAssignModal(false); setAssignTitle(''); loadAssignments(createdCode); }
-    } catch (e) { Alert.alert('Error', 'Could not create assignment.'); }
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+      const serverRooms = (data.classrooms || []).map(r => ({
+        code: r.code,
+        className: r.className,
+        teacherName: r.teacherName,
+        studentCount: r.studentCount || 0,
+      }));
+      setRooms(serverRooms);
+      await AsyncStorage.setItem('classroomRooms', JSON.stringify(serverRooms));
+    } catch (e) {}
+    if (!silent) setLoading(false);
   };
 
-  const ASSIGN_TYPES = [
-    { key: 'quiz', label: 'Grammar Quiz', color: '#8B5CF6' },
-    { key: 'listening', label: 'Listening', color: '#3B82F6' },
-    { key: 'vocab', label: 'Vocabulary', color: '#F59E0B' },
-    { key: 'translation', label: 'Translation', color: '#10B981' },
-  ];
+  const leaveClass = async () => {
+    Alert.alert('Leave Class', 'Are you sure you want to leave this class?', [
+      { text: t.cancel, style: 'cancel' },
+      { text: 'Leave', style: 'destructive', onPress: async () => {
+        setJoinedRoom(null);
+        await AsyncStorage.removeItem('classroomJoined');
+      }},
+    ]);
+  };
 
-  // ── MODE PICKER ──
-  if (!mode) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: C.text, marginTop: 10 }}>Classroom</Text>
-          <Text style={{ fontSize: 13, color: C.textSec, marginTop: 2, marginBottom: 24 }}>Learn together with your class</Text>
+  const resetMode = async () => {
+    Alert.alert('Switch Mode', 'This will clear your current classroom data. Continue?', [
+      { text: t.cancel, style: 'cancel' },
+      { text: wt('continue'), style: 'destructive', onPress: async () => {
+        setMode(null);
+        setRooms([]);
+        setJoinedRoom(null);
+        await AsyncStorage.multiRemove(['classroomMode', 'classroomRooms', 'classroomJoined']);
+      }},
+    ]);
+  };
 
-          {/* Saved classes */}
-          {savedClasses.length > 0 && (
-            <View style={{ marginBottom: 24 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: C.textSec, marginBottom: 8 }}>Your Classes</Text>
-              {savedClasses.map((c, i) => (
-                <TouchableOpacity
-                  key={i}
-                  style={{ backgroundColor: C.card, borderRadius: 14, padding: 16, marginBottom: 8, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}
-                  onPress={() => {
-                    if (c.role === 'teacher') { setMode('teacher'); setCreatedCode(c.code); loadDashboard(c.code); }
-                    else { setMode('student'); setJoinedClass(c); }
-                  }}
-                >
-                  {c.role === 'teacher' ? <Crown size={20} color={C.amber} /> : <Users size={20} color={C.blue} />}
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: C.text }}>{c.className}</Text>
-                    <Text style={{ fontSize: 12, color: C.textMuted }}>Code: {c.code} • {c.role === 'teacher' ? 'Teacher' : `Teacher: ${c.teacherName}`}</Text>
-                  </View>
-                  <ChevronRight size={18} color={C.textMuted} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+  // ── RENDER ───────────────────────────────────────────────────────────────
 
-          {/* Mode selection cards */}
-          <TouchableOpacity
-            style={{ backgroundColor: C.card, borderRadius: 16, padding: 24, marginBottom: 12, borderWidth: 1, borderColor: C.amber + '30', borderLeftWidth: 4, borderLeftColor: C.amber }}
-            onPress={() => { hapticSelection(); setMode('teacher'); }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Crown size={28} color={C.amber} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: C.text }}>I'm a Teacher</Text>
-                <Text style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>Create a class and share the code with your students. View their progress, scores, and weak areas.</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+  return (
+    <ScreenBackground style={null}>
+      <BackHeader
+        title={wt('classroom')}
+        subtitle={wt('webapp-classroom-desc')}
+        onPress={() => router.back()}
+        rightElement={null}
+        style={null}
+      />
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
 
-          <TouchableOpacity
-            style={{ backgroundColor: C.card, borderRadius: 16, padding: 24, marginBottom: 12, borderWidth: 1, borderColor: C.blue + '30', borderLeftWidth: 4, borderLeftColor: C.blue }}
-            onPress={() => { hapticSelection(); setMode('student'); }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <UserPlus size={28} color={C.blue} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: C.text }}>I'm a Student</Text>
-                <Text style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>Enter your teacher's class code to join. Your scores will appear on the class leaderboard.</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+        <Text style={{ fontSize: scaledFont(26), fontWeight: '800', color: C.text, marginTop: 10, marginBottom: 4 }}>
+          {wt('classroom')}
+        </Text>
+        <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 20 }}>
+          {wt('webapp-classroom-desc')}
+        </Text>
 
-  // ── TEACHER: CREATE & DASHBOARD ──
-  if (mode === 'teacher') {
-    if (!createdCode) {
-      return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-            <TouchableOpacity onPress={() => setMode(null)}><Text style={{ fontSize: 14, color: C.blue, marginTop: 10 }}>← Back</Text></TouchableOpacity>
-            <Text style={{ fontSize: 24, fontWeight: '800', color: C.text, marginTop: 12 }}>Create a Class</Text>
-            <Text style={{ fontSize: 13, color: C.textSec, marginTop: 2, marginBottom: 24 }}>Students will join using a 6-character code</Text>
-
-            <Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>Your Name</Text>
-            <TextInput style={{ backgroundColor: C.card, borderRadius: 12, padding: 14, fontSize: 16, color: C.text, borderWidth: 1, borderColor: C.border + '30', marginBottom: 16 }} value={name} onChangeText={setName} placeholder="Teacher name" placeholderTextColor={C.textMuted} />
-
-            <Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>Class Name</Text>
-            <TextInput style={{ backgroundColor: C.card, borderRadius: 12, padding: 14, fontSize: 16, color: C.text, borderWidth: 1, borderColor: C.border + '30', marginBottom: 24 }} value={className} onChangeText={setClassName} placeholder="e.g., English B1 - Monday" placeholderTextColor={C.textMuted} />
-
-            <TouchableOpacity style={{ backgroundColor: C.amber, borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={handleCreate}>
-              <Plus size={20} color="#fff" /><Text style={{ fontSize: 17, fontWeight: '700', color: '#fff' }}>Create Class</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </SafeAreaView>
-      );
-    }
-
-    // Dashboard
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={C.emerald} />}>
-          <TouchableOpacity onPress={() => { setMode(null); setCreatedCode(null); setDashboardData(null); }}><Text style={{ fontSize: 14, color: C.blue, marginTop: 10 }}>← Back</Text></TouchableOpacity>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
-            <View>
-              <Text style={{ fontSize: 22, fontWeight: '800', color: C.text }}>{dashboardData?.className || 'Class'}</Text>
-              <Text style={{ fontSize: 13, color: C.textSec }}>{dashboardData?.studentCount || 0} students • {dashboardData?.totalSubmissions || 0} submissions</Text>
-            </View>
-            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.amber + '15', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: C.amber + '30' }} onPress={() => handleShare(createdCode)}>
-              <Share2 size={16} color={C.amber} />
-              <Text style={{ fontSize: 15, fontWeight: '800', color: C.amber, letterSpacing: 1 }}>{createdCode}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Tab toggle */}
-          <View style={{ flexDirection: 'row', backgroundColor: C.cardAlt, borderRadius: 12, padding: 3, marginBottom: 16 }}>
-            {['dashboard','assignments'].map(tab => (
-              <TouchableOpacity key={tab} style={{ flex: 1, paddingVertical: 10, borderRadius: 10, backgroundColor: activeTab === tab ? C.card : 'transparent', alignItems: 'center' }}
-                onPress={() => setActiveTab(tab)}>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: activeTab === tab ? C.text : C.textMuted }}>{tab === 'dashboard' ? 'Dashboard' : 'Assignments'}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {dashboardLoading ? (
-            <ActivityIndicator size="large" color={C.blue} style={{ marginTop: 40 }} />
-          ) : dashboardData ? (<>
-            {activeTab === 'dashboard' && (<>
-            {/* Leaderboard */}
-            <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: C.border + '20' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <Trophy size={18} color={C.amber} />
-                <Text style={{ fontSize: 15, fontWeight: '700', color: C.text }}>Leaderboard</Text>
-              </View>
-              {dashboardData.leaderboard?.length === 0 && <Text style={{ fontSize: 14, color: C.textMuted }}>No students yet. Share the code!</Text>}
-              {dashboardData.leaderboard?.map((s, i) => (
-                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 1 : 0, borderTopColor: C.border + '15', gap: 12 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: i === 0 ? C.amber : i === 1 ? C.textSec : C.textMuted, width: 24 }}>
-                    {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
-                  </Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: C.text }}>{s.name}</Text>
-                    <Text style={{ fontSize: 12, color: C.textMuted }}>{s.nativeLanguage} • {s.level} • {s.exercisesCompleted} exercises</Text>
-                  </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: C.amber }}>{s.totalXP} XP</Text>
-                    <Text style={{ fontSize: 11, color: getScoreColor(s.averageScore) }}>Avg: {s.averageScore}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-
-            {/* Class weak areas */}
-            {dashboardData.weakAreas?.length > 0 && (
-              <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: C.border + '20' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <Target size={18} color={C.red} />
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: C.text }}>Class Weak Areas</Text>
-                </View>
-                {dashboardData.weakAreas.map((w, i) => (
-                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                    <Text style={{ fontSize: 14, color: C.text, flex: 1 }}>{w.topic}</Text>
-                    <View style={{ flex: 1, height: 6, backgroundColor: C.cardAlt, borderRadius: 3, overflow: 'hidden' }}>
-                      <View style={{ height: '100%', width: `${Math.min((w.count / (dashboardData.weakAreas[0]?.count || 1)) * 100, 100)}%`, backgroundColor: C.red, borderRadius: 3 }} />
-                    </View>
-                    <Text style={{ fontSize: 12, color: C.textMuted, width: 30, textAlign: 'right' }}>{w.count}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            {/* Recent submissions */}
-            {dashboardData.recentSubmissions?.length > 0 && (
-              <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: C.border + '20' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <BarChart3 size={18} color={C.blue} />
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: C.text }}>Recent Activity</Text>
-                </View>
-                {dashboardData.recentSubmissions.slice(0, 10).map((sub, i) => (
-                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderTopWidth: i > 0 ? 1 : 0, borderTopColor: C.border + '10' }}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '500', color: C.text }}>{sub.studentName}</Text>
-                      <Text style={{ fontSize: 11, color: C.textMuted }}>{sub.topic || 'Exercise'}</Text>
-                    </View>
-                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: getScoreColor(sub.score) + '15', alignItems: 'center', justifyContent: 'center' }}>
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: getScoreColor(sub.score) }}>{sub.score}</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-            </>)}
-
-            {/* ═══ ASSIGNMENTS TAB ═══ */}
-            {activeTab === 'assignments' && (<>
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.emerald, borderRadius: 14, paddingVertical: 14, marginBottom: 16 }}
-                onPress={() => setShowAssignModal(true)}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#fff' }}>+ Create Assignment</Text>
-              </TouchableOpacity>
-              {assignments.length === 0 && (
-                <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 24, alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: C.text, marginTop: 8 }}>No Assignments Yet</Text>
-                  <Text style={{ fontSize: 13, color: C.textMuted, textAlign: 'center', marginTop: 4 }}>Create quizzes, listening, or vocab reviews for your students.</Text>
-                </View>
-              )}
-              {assignments.map((a, i) => (
-                <View key={i} style={{ backgroundColor: C.card, borderRadius: 14, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: C.border + '20', borderLeftWidth: 4, borderLeftColor: (ASSIGN_TYPES.find(t=>t.key===a.type)||{}).color || C.blue }}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: C.text }}>{a.title}</Text>
-                  <Text style={{ fontSize: 11, color: C.textMuted }}>{a.type} • {a.submissionCount} submitted{a.averageScore !== null ? ` • Avg: ${a.averageScore}%` : ''}</Text>
-                  {a.submissions?.slice(-3).reverse().map((sub, j) => (
-                    <View key={j} style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 6 }}>
-                      <Text style={{ flex: 1, fontSize: 13, color: C.text }}>{sub.studentName}</Text>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: getScoreColor(sub.score) }}>{sub.score}%</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </>)}
-
-          </>) : null}
-
-          {/* Assignment creation modal */}
-          <Modal visible={showAssignModal} transparent animationType="slide">
-            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
-              <View style={{ backgroundColor: C.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                  <Text style={{ fontSize: 20, fontWeight: '800', color: C.text }}>New Assignment</Text>
-                  <TouchableOpacity onPress={() => setShowAssignModal(false)}>
-                    <XIcon size={24} color={C.textMuted} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: C.textMuted, marginBottom: 8, letterSpacing: 1 }}>TYPE</Text>
-                {ASSIGN_TYPES.map(t => (
-                  <TouchableOpacity key={t.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12, marginBottom: 6, borderWidth: 2, borderColor: assignType === t.key ? t.color : C.border, backgroundColor: assignType === t.key ? t.color + '10' : C.card }}
-                    onPress={() => setAssignType(t.key)}>
-                    <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: t.color }} />
-                    <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: C.text }}>{t.label}</Text>
-                    {assignType === t.key && <Check size={16} color={t.color} />}
-                  </TouchableOpacity>
-                ))}
-                <Text style={{ fontSize: 12, fontWeight: '700', color: C.textMuted, marginBottom: 8, marginTop: 16, letterSpacing: 1 }}>TITLE</Text>
-                <TextInput style={{ backgroundColor: C.card, borderRadius: 12, padding: 14, fontSize: 16, color: C.text, borderWidth: 1, borderColor: C.border + '30', marginBottom: 20 }}
-                  value={assignTitle} onChangeText={setAssignTitle} placeholder="e.g., Week 3 Grammar Quiz" placeholderTextColor={C.textMuted} />
-                <TouchableOpacity style={{ backgroundColor: C.emerald, borderRadius: 14, paddingVertical: 16, alignItems: 'center' }}
-                  onPress={handleCreateAssignment}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>Create & Assign</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  // ── STUDENT: JOIN ──
-  if (mode === 'student') {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-          <TouchableOpacity onPress={() => { setMode(null); setJoinedClass(null); }}><Text style={{ fontSize: 14, color: C.blue, marginTop: 10 }}>← Back</Text></TouchableOpacity>
-
-          {joinedClass ? (
-            <View style={{ marginTop: 12 }}>
-              <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 24, alignItems: 'center', borderWidth: 1, borderColor: C.emerald + '30' }}>
-                <Text style={{ fontSize: 40, marginBottom: 12 }}>🎓</Text>
-                <Text style={{ fontSize: 22, fontWeight: '800', color: C.text }}>{joinedClass.className}</Text>
-                <Text style={{ fontSize: 14, color: C.textSec, marginTop: 4 }}>Teacher: {joinedClass.teacherName}</Text>
-                <View style={{ backgroundColor: C.emerald + '15', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, marginTop: 12, borderWidth: 1, borderColor: C.emerald + '30' }}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: C.emerald }}>✓ You're in this class</Text>
-                </View>
-              </View>
-              <Text style={{ fontSize: 14, color: C.textMuted, textAlign: 'center', marginTop: 16, lineHeight: 20 }}>
-                Your practice scores will automatically appear on your teacher's dashboard. Keep practicing!
-              </Text>
-            </View>
-          ) : (
-            <View style={{ marginTop: 12 }}>
-              <Text style={{ fontSize: 24, fontWeight: '800', color: C.text }}>Join a Class</Text>
-              <Text style={{ fontSize: 13, color: C.textSec, marginTop: 2, marginBottom: 24 }}>Enter the code your teacher gave you</Text>
-
-              <Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>Your Name</Text>
-              <TextInput style={{ backgroundColor: C.card, borderRadius: 12, padding: 14, fontSize: 16, color: C.text, borderWidth: 1, borderColor: C.border + '30', marginBottom: 16 }} value={name} onChangeText={setName} placeholder="Your name" placeholderTextColor={C.textMuted} />
-
-              <Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>Class Code</Text>
-              <TextInput
-                style={{ backgroundColor: C.card, borderRadius: 12, padding: 14, fontSize: 24, fontWeight: '800', color: C.text, borderWidth: 1, borderColor: C.border + '30', marginBottom: 24, textAlign: 'center', letterSpacing: 4 }}
-                value={joinCode}
-                onChangeText={(t) => setJoinCode(t.toUpperCase())}
-                placeholder="ABC123"
-                placeholderTextColor={C.textMuted}
-                autoCapitalize="characters"
-                maxLength={6}
+        {/* ── MODE SELECTOR ──────────────────────────────────────────── */}
+        {!mode && (
+          <>
+            <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted, letterSpacing: 1, marginBottom: 12 }}>
+              {wt('tour-cls-s3-title').toUpperCase()}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 24 }}>
+              <ModeCard
+                icon={<Award size={24} color="#A78BFA" />}
+                title="Teacher"
+                desc="Create a class, manage students, view analytics"
+                color="#A78BFA"
+                onPress={() => selectMode('teacher')}
               />
+              <ModeCard
+                icon={<BookOpen size={24} color="#34D399" />}
+                title="Student"
+                desc="Join a class with your teacher's code"
+                color="#34D399"
+                onPress={() => selectMode('student')}
+              />
+            </View>
+          </>
+        )}
 
-              <TouchableOpacity
-                style={{ backgroundColor: C.blue, borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8, opacity: joining ? 0.5 : 1 }}
-                onPress={handleJoin}
-                disabled={joining}
-              >
-                {joining ? <ActivityIndicator color="#fff" /> : (<><LogIn size={20} color="#fff" /><Text style={{ fontSize: 17, fontWeight: '700', color: '#fff' }}>Join Class</Text></>)}
+        {/* ── TEACHER MODE ─────────────────────────────────────────── */}
+        {mode === 'teacher' && (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <Award size={16} color="#A78BFA" />
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#A78BFA', letterSpacing: 0.5 }}>
+                TEACHER MODE
+              </Text>
+              <TouchableOpacity onPress={resetMode} style={{ marginLeft: 'auto', minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button" accessibilityLabel={wt('continue')}>
+                <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>Switch</Text>
               </TouchableOpacity>
             </View>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+
+            {/* Create class button */}
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                gap: 8, backgroundColor: '#A78BFA18', borderRadius: 14,
+                paddingVertical: 14, marginBottom: 16, borderWidth: 1,
+                borderColor: '#A78BFA40', minHeight: 52,
+              }}
+              onPress={() => setShowCreate(true)}
+              accessibilityRole="button" accessibilityLabel="Create new class"
+            >
+              <Plus size={18} color="#A78BFA" />
+              <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>Create New Class</Text>
+            </TouchableOpacity>
+
+            {/* Class list */}
+            {rooms.length > 0 && (
+              <>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                  <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5 }}>
+                    MY CLASSES ({rooms.length})
+                  </Text>
+                  <TouchableOpacity onPress={() => refreshRooms(false)} style={{ minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
+                    accessibilityRole="button" accessibilityLabel={t.retry}>
+                    {loading ? <ActivityIndicator size="small" color={C.textMuted} /> : <RefreshCw size={14} color={C.textMuted} />}
+                  </TouchableOpacity>
+                </View>
+                {rooms.map(room => (
+                  <ClassCard
+                    key={room.code}
+                    room={room}
+                    C={C}
+                    onPress={() => router.push({
+                      pathname: '/classroom-detail',
+                      params: { code: room.code, className: room.className, teacherName: room.teacherName },
+                    })}
+                  />
+                ))}
+              </>
+            )}
+
+            {rooms.length === 0 && (
+              <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+                <Text style={{ fontSize: 40, marginBottom: 12 }}>🏫</Text>
+                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>No classes yet</Text>
+                <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
+                  Create your first class and share the code with your students.
+                </Text>
+              </View>
+            )}
+          </>
+        )}
+
+        {/* ── STUDENT MODE ─────────────────────────────────────────── */}
+        {mode === 'student' && (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <BookOpen size={16} color="#34D399" />
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#34D399', letterSpacing: 0.5 }}>
+                STUDENT MODE
+              </Text>
+              <TouchableOpacity onPress={resetMode} style={{ marginLeft: 'auto', minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button" accessibilityLabel={wt('continue')}>
+                <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>Switch</Text>
+              </TouchableOpacity>
+            </View>
+
+            {!joinedRoom ? (
+              <>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                    gap: 8, backgroundColor: '#34D39918', borderRadius: 14,
+                    paddingVertical: 14, marginBottom: 24, borderWidth: 1,
+                    borderColor: '#34D39940', minHeight: 52,
+                  }}
+                  onPress={() => setShowJoin(true)}
+                  accessibilityRole="button" accessibilityLabel="Join a class"
+                >
+                  <LogIn size={18} color="#34D399" />
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#34D399' }}>Join a Class</Text>
+                </TouchableOpacity>
+
+                <View style={{ alignItems: 'center', paddingVertical: 30 }}>
+                  <Text style={{ fontSize: 40, marginBottom: 12 }}>🎓</Text>
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>Not in a class yet</Text>
+                  <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
+                    Ask your teacher for the 6-character class code, then tap "Join a Class" above.
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <>
+                {/* Joined class card */}
+                <View style={{
+                  backgroundColor: C.card || '#111827', borderRadius: 16, padding: 16,
+                  marginBottom: 16, borderWidth: 1, borderColor: '#34D39930',
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                    <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: '#34D39918', alignItems: 'center', justifyContent: 'center' }}>
+                      <BookOpen size={24} color="#34D399" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#34D399' }}>{joinedRoom.className}</Text>
+                      <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }}>
+                        Teacher: {joinedRoom.teacherName}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <TouchableOpacity
+                      style={{
+                        flex: 1, backgroundColor: '#34D39918', borderRadius: 10, paddingVertical: 10,
+                        alignItems: 'center', borderWidth: 1, borderColor: '#34D39940', minHeight: 44,
+                      }}
+                      onPress={() => router.push({
+                        pathname: '/classroom-detail',
+                        params: { code: joinedRoom.code, className: joinedRoom.className, teacherName: joinedRoom.teacherName, studentMode: 'true' },
+                      })}
+                      accessibilityRole="button" accessibilityLabel={wt('classroom-details')}
+                    >
+                      <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#34D399' }}>View Dashboard</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: (C.red || '#EF4444') + '15', borderRadius: 10, paddingVertical: 10,
+                        paddingHorizontal: 16, alignItems: 'center', borderWidth: 1,
+                        borderColor: (C.red || '#EF4444') + '30', minHeight: 44, justifyContent: 'center',
+                      }}
+                      onPress={leaveClass}
+                      accessibilityRole="button" accessibilityLabel="Leave class"
+                    >
+                      <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.red || '#EF4444' }}>Leave</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={{
+                  backgroundColor: C.card || '#111827', borderRadius: 12, padding: 14,
+                  borderWidth: 1, borderColor: (C.border || '#374151') + '20',
+                }}>
+                  <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 18 }}>
+                    💡 Your scores are automatically submitted to this class when you complete exercises. Keep practising to climb the leaderboard!
+                  </Text>
+                </View>
+              </>
+            )}
+          </>
+        )}
+
+      </ScrollView>
+
+      {/* ── CREATE CLASS MODAL ──────────────────────────────────────────── */}
+      <Modal visible={showCreate} transparent animationType="slide" onRequestClose={() => setShowCreate(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} activeOpacity={1} onPress={() => setShowCreate(false)} />
+          <View style={{
+            backgroundColor: C.card || '#111827', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+            padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#A78BFA30',
+          }} accessibilityViewIsModal={true}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">Create New Class</Text>
+              <TouchableOpacity onPress={() => setShowCreate(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button" accessibilityLabel={t.cancel}>
+                <X size={22} color={C.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>YOUR NAME</Text>
+            <TextInput
+              style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 14 }}
+              placeholder="e.g. Mrs Smith"
+              placeholderTextColor={C.textMuted}
+              value={teacherName}
+              onChangeText={setTeacherName}
+              autoCapitalize="words"
+              accessibilityLabel={t.profile}
+            />
+
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>CLASS NAME</Text>
+            <TextInput
+              style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 20 }}
+              placeholder="e.g. Grade 9 English"
+              placeholderTextColor={C.textMuted}
+              value={className}
+              onChangeText={setClassName}
+              autoCapitalize="words"
+              accessibilityLabel={wt('classroom')}
+            />
+
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#A78BFA18', borderRadius: 12, paddingVertical: 14,
+                alignItems: 'center', borderWidth: 1, borderColor: '#A78BFA40', minHeight: 52,
+                opacity: loading ? 0.7 : 1,
+              }}
+              onPress={createClass}
+              disabled={loading}
+              accessibilityRole="button" accessibilityLabel="Create class"
+            >
+              {loading
+                ? <ActivityIndicator size="small" color="#A78BFA" />
+                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#A78BFA' }}>Create Class</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* ── JOIN CLASS MODAL ─────────────────────────────────────────────── */}
+      <Modal visible={showJoin} transparent animationType="slide" onRequestClose={() => setShowJoin(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} activeOpacity={1} onPress={() => setShowJoin(false)} />
+          <View style={{
+            backgroundColor: C.card || '#111827', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+            padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#34D39930',
+          }} accessibilityViewIsModal={true}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">Join a Class</Text>
+              <TouchableOpacity onPress={() => setShowJoin(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button" accessibilityLabel={t.cancel}>
+                <X size={22} color={C.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>YOUR NAME</Text>
+            <TextInput
+              style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 14 }}
+              placeholder="Your full name"
+              placeholderTextColor={C.textMuted}
+              value={studentName}
+              onChangeText={setStudentName}
+              autoCapitalize="words"
+              accessibilityLabel={t.profile}
+            />
+
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>CLASS CODE</Text>
+            <TextInput
+              style={{
+                backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14,
+                fontSize: scaledFont(22), fontWeight: '800', color: '#34D399',
+                borderWidth: 1, borderColor: '#34D39930', marginBottom: 20,
+                letterSpacing: 4, textAlign: 'center',
+              }}
+              placeholder="ABC123"
+              placeholderTextColor={C.textMuted}
+              value={joinCode}
+              onChangeText={t => setJoinCode(t.toUpperCase())}
+              autoCapitalize="characters"
+              maxLength={6}
+              accessibilityLabel="6-character class code"
+            />
+
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#34D39918', borderRadius: 12, paddingVertical: 14,
+                alignItems: 'center', borderWidth: 1, borderColor: '#34D39940', minHeight: 52,
+                opacity: loading ? 0.7 : 1,
+              }}
+              onPress={joinClass}
+              disabled={loading}
+              accessibilityRole="button" accessibilityLabel="Join class"
+            >
+              {loading
+                ? <ActivityIndicator size="small" color="#34D399" />
+                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#34D399' }}>Join Class</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+    </ScreenBackground>
+  );
 }

@@ -1,20 +1,12 @@
 /**
- * VoiceInput Component - Poly-Puff v6.2
- * =================================================
- * 
- * Microphone button for speech-to-text.
- * 
- * IMPORTANT: Voice input requires a DEVELOPMENT BUILD.
- * It does NOT work in Expo Go because expo-speech-recognition
- * needs native code that isn't included in Expo Go.
- * 
- * To enable voice input:
- *   npx expo install expo-speech-recognition
- *   eas build --profile development --platform android
- *   (then install the .apk on your phone)
- * 
- * In Expo Go, tapping the mic will show a helpful message.
- * 
+ * VoiceInput Component (Accessibility Update)
+ *
+ * CHANGES:
+ *   - accessibilityRole="button" + dynamic label based on recording state
+ *   - accessibilityState for disabled + busy
+ *   - Minimum 46×46 touch target (already OK)
+ *   - opacity 0.6 when disabled (was 0.4)
+ *
  * FILE: components/VoiceInput.js
  */
 
@@ -24,22 +16,18 @@ import { Mic, MicOff } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { hapticMedium } from '../services/sounds';
 
-// Try to load speech recognition — will be null in Expo Go
 let SpeechModule = null;
 let useSpeechEvent = null;
 try {
   const mod = require('expo-speech-recognition');
   SpeechModule = mod.ExpoSpeechRecognitionModule || mod;
   useSpeechEvent = mod.useSpeechRecognitionEvent;
-} catch (e) {
-  // Not available — expected in Expo Go
-}
+} catch (e) {}
 
 export default function VoiceInput({ onTranscript, disabled = false }) {
   const { colors: C } = useTheme();
   const [isListening, setIsListening] = useState(false);
 
-  // Register events if available
   if (useSpeechEvent && SpeechModule) {
     try {
       useSpeechEvent('result', (event) => {
@@ -99,8 +87,20 @@ export default function VoiceInput({ onTranscript, disabled = false }) {
         borderWidth: 2,
         borderColor: isListening ? C.red : C.blue + '40',
         alignItems: 'center', justifyContent: 'center',
-        opacity: disabled ? 0.4 : 1,
+        opacity: disabled ? 0.6 : 1, // ✅ was 0.4 → 0.6
       }}
+      // ✅ ACCESSIBILITY
+      accessibilityRole="button"
+      accessibilityLabel={
+        isListening ? 'Stop voice recording' :
+        disabled ? 'Voice input unavailable' :
+        'Start voice input'
+      }
+      accessibilityHint={
+        isListening ? 'Double tap to stop recording' :
+        'Double tap to speak your translation instead of typing'
+      }
+      accessibilityState={{ disabled, busy: isListening }}
     >
       {isListening ? (
         <MicOff size={20} color={C.red} />

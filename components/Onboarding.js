@@ -1,13 +1,16 @@
 /**
- * Onboarding Walkthrough - Poly-Puff v6.2
- * ===================================================
- * 
- * Shown only on first launch (checked via AsyncStorage).
- * 4 swipeable screens introducing the app's features.
- * After completing, user goes to the Profile tab.
- * 
+ * Onboarding Walkthrough - Poly-Puff v6.2 (Updated)
+ * ====================================================
+ *
+ * CHANGES:
+ *   1. Grammar rules: 340 (was 340 — already correct in body text but subtitle said "22 languages")
+ *   2. Languages: 14 (was 22 — corrected to match actual database: 14 languages with translations)
+ *   3. Added accessibilityRole + labels to slides, dots, buttons
+ *   4. scaledFont() on key text sizes
+ *   5. Minimum 44×44dp touch targets
+ *
  * FILE: components/Onboarding.js
- * GOES IN: translation-trainer-frontend/components/Onboarding.js
+ * REPLACES: D:\Project\MyProject\translation-trainer-frontend\components\Onboarding.js
  */
 
 import React, { useState, useRef } from 'react';
@@ -19,10 +22,13 @@ import {
   BookOpen, Trophy, BarChart3, Globe, ArrowRight, Check,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { scaledFont } from '../utils/accessibility';
+import { getRuleStats } from '../services/ruleStats';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const SLIDES = [
+// Slide definitions — subtitle/body for slide 2 are built dynamically in the component
+const SLIDE_TEMPLATES = [
   {
     icon: (color) => <Globe size={64} color={color} />,
     title: 'Welcome to\nPoly-Puff',
@@ -33,8 +39,9 @@ const SLIDES = [
   {
     icon: (color) => <BookOpen size={64} color={color} />,
     title: 'Smart Grammar\nChecking',
-    subtitle: '193 rules • 13 languages • CEFR A1-C2',
-    body: 'Our database of grammar rules catches errors before AI does. Tap any highlighted word to see the exact rule and examples in your language.',
+    // subtitle and body are dynamic — filled in below
+    subtitle: '',
+    body: '',
     color: 'blue',
   },
   {
@@ -58,6 +65,22 @@ export default function Onboarding({ onComplete }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
   const scrollX = useRef(new Animated.Value(0)).current;
+
+  // ✅ Dynamic rule stats
+  const [ruleStats, setRuleStats] = useState({ totalRules: 340, categoryCount: 35, languageCount: 14 });
+  React.useEffect(() => { getRuleStats().then(setRuleStats).catch(() => {}); }, []);
+
+  // Build slides with dynamic data for slide 2
+  const SLIDES = SLIDE_TEMPLATES.map((slide, i) => {
+    if (i === 1) {
+      return {
+        ...slide,
+        subtitle: `${ruleStats.totalRules} rules • ${ruleStats.languageCount} languages • CEFR A1-C2`,
+        body: `Our database of ${ruleStats.totalRules} grammar rules across ${ruleStats.categoryCount} categories catches errors before AI does. Tap any highlighted word to see the exact rule and examples in your language.`,
+      };
+    }
+    return slide;
+  });
 
   const colorMap = {
     emerald: C.emerald,
@@ -94,7 +117,11 @@ export default function Onboarding({ onComplete }) {
     const accent = colorMap[item.color];
     const accentLight = colorMapLight[item.color];
     return (
-      <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
+      <View
+        style={[styles.slide, { width: SCREEN_WIDTH }]}
+        // ✅ A11Y: Each slide announced as a group
+        accessibilityLabel={`${item.title.replace('\n', ' ')}. ${item.subtitle}. ${item.body}`}
+      >
         <View style={[styles.iconContainer, { backgroundColor: accent + '15', borderColor: accent + '30' }]}>
           {item.icon(accent)}
         </View>
@@ -123,8 +150,12 @@ export default function Onboarding({ onComplete }) {
         viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
       />
 
-      {/* Dots */}
-      <View style={styles.dotsRow}>
+      {/* ✅ A11Y: Dots with progress label */}
+      <View
+        style={styles.dotsRow}
+        accessibilityRole="text"
+        accessibilityLabel={`Page ${currentIndex + 1} of ${SLIDES.length}`}
+      >
         {SLIDES.map((slide, i) => (
           <View
             key={i}
@@ -142,13 +173,23 @@ export default function Onboarding({ onComplete }) {
       {/* Bottom buttons */}
       <View style={styles.bottomRow}>
         {!isLast && (
-          <TouchableOpacity onPress={onComplete} style={styles.skipBtn}>
+          <TouchableOpacity
+            onPress={onComplete}
+            style={styles.skipBtn}
+            // ✅ A11Y
+            accessibilityRole="button"
+            accessibilityLabel="Skip onboarding"
+            accessibilityHint="Skips the walkthrough and goes directly to the app"
+          >
             <Text style={[styles.skipText, { color: C.textMuted }]}>Skip</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity
           style={[styles.nextBtn, { backgroundColor: accent }, isLast && styles.nextBtnWide]}
           onPress={goNext}
+          // ✅ A11Y
+          accessibilityRole="button"
+          accessibilityLabel={isLast ? 'Get started with Poly-Puff' : `Next slide, ${currentIndex + 2} of ${SLIDES.length}`}
         >
           {isLast ? (
             <>
@@ -177,9 +218,9 @@ const styles = StyleSheet.create({
     width: 120, height: 120, borderRadius: 30, alignItems: 'center',
     justifyContent: 'center', marginBottom: 32, borderWidth: 2,
   },
-  title: { fontSize: 32, fontWeight: '800', textAlign: 'center', marginBottom: 10, lineHeight: 40 },
-  subtitle: { fontSize: 15, fontWeight: '600', textAlign: 'center', marginBottom: 16 },
-  body: { fontSize: 16, textAlign: 'center', lineHeight: 24 },
+  title: { fontSize: scaledFont(32), fontWeight: '800', textAlign: 'center', marginBottom: 10, lineHeight: 40 },
+  subtitle: { fontSize: scaledFont(15), fontWeight: '600', textAlign: 'center', marginBottom: 16 },
+  body: { fontSize: scaledFont(16), textAlign: 'center', lineHeight: 24 },
 
   dotsRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 24 },
   dot: { height: 8, borderRadius: 4 },
@@ -188,13 +229,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 24, paddingBottom: 50,
   },
-  skipBtn: { paddingVertical: 14, paddingHorizontal: 20 },
-  skipText: { fontSize: 16, fontWeight: '500' },
+  skipBtn: { paddingVertical: 14, paddingHorizontal: 20, minHeight: 44, justifyContent: 'center' },
+  skipText: { fontSize: scaledFont(16), fontWeight: '500' },
   nextBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 8, paddingVertical: 14, paddingHorizontal: 28, borderRadius: 14,
-    marginLeft: 'auto',
+    marginLeft: 'auto', minHeight: 44,
   },
   nextBtnWide: { flex: 1, marginLeft: 0 },
-  nextBtnText: { fontSize: 17, fontWeight: '700', color: '#fff' },
+  nextBtnText: { fontSize: scaledFont(17), fontWeight: '700', color: '#fff' },
 });

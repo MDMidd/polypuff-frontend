@@ -23,8 +23,8 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 function getScoreTheme(score, C) {
   if (score >= 90) return { primary: C.emerald, light: C.emeraldLight, dark: C.emeraldDark, label: 'Excellent' };
-  if (score >= 75) return { primary: C.blue, light: C.blueLight, dark: C.blueDark || '#1E40AF', label: 'Good' };
-  if (score >= 60) return { primary: C.amber, light: C.amberLight, dark: C.amberDark || '#92400E', label: 'Fair' };
+  if (score >= 70) return { primary: C.blue, light: C.blueLight, dark: C.blueDark || '#1E40AF', label: 'Good' };
+  if (score >= 50) return { primary: C.amber, light: C.amberLight, dark: C.amberDark || '#92400E', label: 'OK' };
   return { primary: C.red, light: C.redLight || '#FCA5A5', dark: C.redDark || '#991B1B', label: 'Needs Work' };
 }
 
@@ -212,7 +212,7 @@ const FeedbackDashboard = ({
       <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
         {onChatPress && (
           <TouchableOpacity style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, borderRadius: 12, borderWidth: 1, backgroundColor: (C.blueDark || '#1E40AF') + '30', borderColor: C.blue + '40' }} onPress={onChatPress}>
-            <Info size={18} color={C.blue} /><Text style={{ fontSize: 15, fontWeight: '600', color: C.blueLight }}>Ask Tutor</Text>
+            <Info size={18} color={C.blue} /><Text style={{ fontSize: 15, fontWeight: '600', color: C.blueLight }}>Ask Poly-Puff</Text>
           </TouchableOpacity>
         )}
         {onNextPress && (
