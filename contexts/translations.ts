@@ -126,6 +126,7 @@ export interface Translations {
   reminderTime?: string;
   appVersion?: string;
   backendVersion?: string;
+  totalCards?: string;
 }
 
 const t: Record<LangCode, Translations> = {
