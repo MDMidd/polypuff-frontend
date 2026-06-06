@@ -190,7 +190,7 @@ export default function ClassroomDetailScreen() {
   const params = useLocalSearchParams();
 
   const code         = params.code as string || '';
-  const className    = params.className as string || 'Class';
+  const className    = params.className as string || 'Teacher Group';
   const teacherName  = params.teacherName as string || '';
   const isStudent    = params.studentMode === 'true';
 
@@ -222,7 +222,7 @@ export default function ClassroomDetailScreen() {
       setClassData(classJson);
       setAssignments(assignJson.assignments || []);
     } catch (e) {
-      Alert.alert('Error', 'Could not load class data. Check your connection.');
+      Alert.alert('Error', 'Could not load teacher group data. Check your connection.');
     }
     setLoading(false);
     setRefreshing(false);
@@ -256,7 +256,7 @@ export default function ClassroomDetailScreen() {
         setShowAssign(false);
         setAssignTitle('');
         await fetchData(true);
-        Alert.alert('Assignment Created! 📋', `"${assignTitle}" has been assigned to the class.`);
+        Alert.alert('Assignment Created!', `"${assignTitle}" has been assigned to the teacher group.`);
       } else {
         Alert.alert('Error', data.error || 'Failed to create assignment.');
       }
@@ -305,7 +305,7 @@ export default function ClassroomDetailScreen() {
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text }}>{className}</Text>
             <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginTop: 2 }}>
-              {isStudent ? `Taught by ${teacherName}` : `Your class · ${teacherName}`}
+              {isStudent ? `Taught by ${teacherName}` : `Your group · ${teacherName}`}
             </Text>
           </View>
           <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '18', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: (C.cyan || '#00D9FF') + '30' }}>
@@ -319,7 +319,7 @@ export default function ClassroomDetailScreen() {
           {[
             { label: 'Students',    value: String(studentCount),                     color: C.cyan || '#00D9FF',  icon: Users    },
             { label: 'Submissions', value: String(totalSubs),                         color: '#A78BFA',            icon: ClipboardList },
-            { label: 'Class Avg',   value: classAvg !== null ? `${classAvg}%` : '—', color: classAvg !== null ? scoreColor(classAvg, C) : C.textMuted, icon: Target },
+            { label: 'Average score', value: classAvg !== null ? `${classAvg}%` : '—', color: classAvg !== null ? scoreColor(classAvg, C) : C.textMuted, icon: Target },
             { label: 'Assignments', value: String(assignments.length),                color: '#FBBF24',            icon: BookOpen },
           ].map((stat, i) => (
             <View key={i} style={{
@@ -371,7 +371,7 @@ export default function ClassroomDetailScreen() {
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>🏆</Text>
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>No students yet</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  Share the class code <Text style={{ fontWeight: '800', color: C.cyan || '#00D9FF' }}>{code}</Text> with your students to get started.
+                  Share the group code <Text style={{ fontWeight: '800', color: C.cyan || '#00D9FF' }}>{code}</Text> with your students to get started.
                 </Text>
               </View>
             ) : (
@@ -403,7 +403,7 @@ export default function ClassroomDetailScreen() {
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#EF444430' }}>
                 <View style={{ padding: 14, borderBottomWidth: 1, borderBottomColor: (C.border || '#374151') + '20' }}>
                   <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 17 }}>
-                    These are the most common error categories across the whole class — ranked by frequency. Use this to focus your teaching.
+                    These are the most common error categories across the whole group — ranked by frequency. Use this to focus your teaching.
                   </Text>
                 </View>
                 {weakAreas.map((area, i) => (
@@ -445,7 +445,7 @@ export default function ClassroomDetailScreen() {
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>📋</Text>
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>No assignments yet</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  {isStudent ? 'Your teacher hasn\'t created any assignments yet.' : 'Create an assignment to set structured exercises for your class.'}
+                  {isStudent ? 'Your teacher hasn\'t created any assignments yet.' : 'Create an assignment to set structured exercises for your teacher group.'}
                 </Text>
               </View>
             ) : (
