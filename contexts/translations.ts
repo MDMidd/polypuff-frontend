@@ -145,6 +145,31 @@ export interface Translations {
   scoreOk?: string;
   chunksDone?: string;
   averageAbbrev?: string;
+  nextExercise?: string;
+  doneLabel?: string;
+  averageLabel?: string;
+  chooseMode?: string;
+  grammarIntro?: string;
+  errorCorrection?: string;
+  errorCorrectionDesc?: string;
+  sentenceBuilder?: string;
+  sentenceBuilderDesc?: string;
+  fillInTheBlank?: string;
+  fillInTheBlankDesc?: string;
+  findFixGrammarMistakes?: string;
+  correctedSentenceLabel?: string;
+  correctedSentencePlaceholder?: string;
+  buildSentenceInstruction?: string;
+  dropZonePlaceholder?: string;
+  resetSentence?: string;
+  wordBankTapToAdd?: string;
+  fillMissingWordPhrase?: string;
+  missingWordPlaceholder?: string;
+  typeMissingWordPhrase?: string;
+  skipExerciseNewOne?: string;
+  skipThisOne?: string;
+  resultLabel?: string;
+  generatingExercise?: string;
 }
 
 const t: Record<LangCode, Translations> = {
@@ -186,6 +211,31 @@ const t: Record<LangCode, Translations> = {
     scoreOk: 'OK',
     chunksDone: 'done',
     averageAbbrev: 'avg',
+    nextExercise: 'Next Exercise',
+    doneLabel: 'Done',
+    averageLabel: 'Avg',
+    chooseMode: 'Choose a mode',
+    grammarIntro: "Let's sharpen your grammar! Pick a mode to practice.",
+    errorCorrection: 'Error Correction',
+    errorCorrectionDesc: 'Find and fix the grammar mistakes',
+    sentenceBuilder: 'Sentence Builder',
+    sentenceBuilderDesc: 'Tap words to build the correct sentence',
+    fillInTheBlank: 'Fill in the Blank',
+    fillInTheBlankDesc: 'Type the missing word or phrase',
+    findFixGrammarMistakes: 'Find and fix the grammar mistake(s):',
+    correctedSentenceLabel: 'Your corrected sentence:',
+    correctedSentencePlaceholder: 'Type the corrected sentence...',
+    buildSentenceInstruction: 'Tap words in the correct order to build the sentence:',
+    dropZonePlaceholder: 'Tap words below to place them here...',
+    resetSentence: 'Reset',
+    wordBankTapToAdd: 'Word bank - tap to add:',
+    fillMissingWordPhrase: 'Fill in the missing word or phrase:',
+    missingWordPlaceholder: 'Type the missing word(s)...',
+    typeMissingWordPhrase: 'Type the missing word or phrase',
+    skipExerciseNewOne: 'Skip this exercise and get a new one',
+    skipThisOne: 'Skip this one',
+    resultLabel: 'Result',
+    generatingExercise: 'Generating exercise...',
   },
   af: {
     home: 'Tuis', practice: 'Oefen', progress: 'Vordering',
