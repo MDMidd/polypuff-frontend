@@ -68,6 +68,28 @@ export interface Translations {
   chooseModule?: string;
   findYourCefrLevel?: string;
   customisePracticeList?: string;
+  sentenceLength?: string;
+  customRequestPlaceholder?: string;
+  customTopicRequest?: string;
+  retrySentence?: string;
+  voiceInputUnavailable?: string;
+  tap?: string;
+  saveToVaultPrompt?: string;
+  fullPhrase?: string;
+  aiIntroMessage?: string;
+  reportAiResponse?: string;
+  polyPuffTyping?: string;
+  askAboutGrammarPlaceholder?: string;
+  askGrammarQuestion?: string;
+  sendMessage?: string;
+  closeSettings?: string;
+  opensSettingsHint?: string;
+  newSentenceHint?: string;
+  startSessionHint?: string;
+  typeTranslationHint?: string;
+  revealClueHint?: string;
+  revealAnswerHint?: string;
+  submitTranslationHint?: string;
 }
 
 const t: Record<LangCode, Translations> = {
