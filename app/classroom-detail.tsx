@@ -35,6 +35,7 @@ import {
   CheckCircle, Clock,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { getServerUrl } from '../services/api';
@@ -68,6 +69,7 @@ const ASSIGNMENT_TYPES = [
 
 // ── Leaderboard row ───────────────────────────────────────────────────────────
 function LeaderRow({ student, rank, C, isCurrentUser }) {
+  const { t } = useLanguage();
   const medal = rank <= 3 ? MEDALS[rank - 1] : null;
   const rankColor = rank <= 3 ? RANK_COLORS[rank - 1] : C.textMuted;
 
@@ -93,7 +95,7 @@ function LeaderRow({ student, rank, C, isCurrentUser }) {
           </Text>
           {isCurrentUser && (
             <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '20', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
-              <Text style={{ fontSize: 9, fontWeight: '700', color: C.cyan || '#00D9FF' }}>YOU</Text>
+              <Text style={{ fontSize: 9, fontWeight: '700', color: C.cyan || '#00D9FF' }}>{t.teacherGroupYouBadge ?? 'YOU'}</Text>
             </View>
           )}
         </View>
@@ -187,6 +189,7 @@ function AssignmentCard({ assignment, C }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ClassroomDetailScreen() {
   const { colors: C } = useTheme();
+  const { t } = useLanguage();
   const params = useLocalSearchParams();
 
   const code         = params.code as string || '';
@@ -309,7 +312,7 @@ export default function ClassroomDetailScreen() {
             </Text>
           </View>
           <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '18', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: (C.cyan || '#00D9FF') + '30' }}>
-            <Text style={{ fontSize: 10, fontWeight: '700', color: C.textMuted, letterSpacing: 1 }}>CODE</Text>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: C.textMuted, letterSpacing: 1 }}>{(t.teacherGroupCode ?? 'Code').toUpperCase()}</Text>
             <Text style={{ fontSize: scaledFont(18), fontWeight: '900', color: C.cyan || '#00D9FF', letterSpacing: 2 }}>{code}</Text>
           </View>
         </View>
@@ -369,9 +372,9 @@ export default function ClassroomDetailScreen() {
             {leaderboard.length === 0 ? (
               <View style={{ padding: 32, alignItems: 'center' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>🏆</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>No students yet</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoStudents ?? 'No students yet'}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  Share the group code <Text style={{ fontWeight: '800', color: C.cyan || '#00D9FF' }}>{code}</Text> with your students to get started.
+                  {t.teacherGroupShareCodeDesc ?? 'Share the group code with your students to get started.'} <Text style={{ fontWeight: '800', color: C.cyan || '#00D9FF' }}>{code}</Text>
                 </Text>
               </View>
             ) : (
@@ -394,16 +397,16 @@ export default function ClassroomDetailScreen() {
             {weakAreas.length === 0 ? (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, padding: 32, alignItems: 'center', borderWidth: 1, borderColor: (C.border || '#374151') + '20' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>📊</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>No data yet</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoData ?? 'No data yet'}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  Weak areas will appear once students start submitting exercises.
+                  {t.teacherGroupWeakDesc ?? 'Weak areas will appear once students start submitting exercises.'}
                 </Text>
               </View>
             ) : (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#EF444430' }}>
                 <View style={{ padding: 14, borderBottomWidth: 1, borderBottomColor: (C.border || '#374151') + '20' }}>
                   <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 17 }}>
-                    These are the most common error categories across the whole group — ranked by frequency. Use this to focus your teaching.
+                    {t.teacherGroupWeakHelp ?? 'These are the most common error categories across the whole group — ranked by frequency. Use this to focus your teaching.'}
                   </Text>
                 </View>
                 {weakAreas.map((area, i) => (
@@ -436,16 +439,18 @@ export default function ClassroomDetailScreen() {
                 accessibilityRole="button" accessibilityLabel="Create new assignment"
               >
                 <Plus size={16} color="#FBBF24" />
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: '#FBBF24' }}>Create Assignment</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: '#FBBF24' }}>{t.teacherGroupCreateAssignment ?? 'Create Assignment'}</Text>
               </TouchableOpacity>
             )}
 
             {assignments.length === 0 ? (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: (C.border || '#374151') + '20' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>📋</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>No assignments yet</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoAssignments ?? 'No assignments yet'}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  {isStudent ? 'Your teacher hasn\'t created any assignments yet.' : 'Create an assignment to set structured exercises for your teacher group.'}
+                  {isStudent
+                    ? (t.teacherGroupNoAssignmentsStudent ?? "Your teacher hasn't created any assignments yet.")
+                    : (t.teacherGroupNoAssignmentsTeacher ?? 'Create an assignment to set structured exercises for your teacher group.')}
                 </Text>
               </View>
             ) : (
@@ -464,9 +469,9 @@ export default function ClassroomDetailScreen() {
             {recentSubs.length === 0 ? (
               <View style={{ padding: 28, alignItems: 'center' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>⚡</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>No activity yet</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoActivity ?? 'No activity yet'}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  Student submissions will appear here in real time.
+                  {t.teacherGroupNoActivityDesc ?? 'Student submissions will appear here in real time.'}
                 </Text>
               </View>
             ) : (
@@ -511,7 +516,7 @@ export default function ClassroomDetailScreen() {
           padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#FBBF2430',
         }} accessibilityViewIsModal={true}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">New Assignment</Text>
+            <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{t.teacherGroupNewAssignment ?? 'New Assignment'}</Text>
             <TouchableOpacity onPress={() => setShowAssign(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
               accessibilityRole="button" accessibilityLabel="Close">
               <X size={22} color={C.textMuted} />
@@ -519,7 +524,7 @@ export default function ClassroomDetailScreen() {
           </View>
 
           {/* Type picker */}
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>EXERCISE TYPE</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>{(t.teacherGroupExerciseType ?? 'Exercise type').toUpperCase()}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {ASSIGNMENT_TYPES.map(type => (
@@ -544,14 +549,14 @@ export default function ClassroomDetailScreen() {
           </ScrollView>
 
           {/* Title input */}
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>ASSIGNMENT TITLE</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{(t.teacherGroupAssignmentTitle ?? 'Assignment title').toUpperCase()}</Text>
           <TextInput
             style={{
               backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14,
               fontSize: scaledFont(15), color: C.text, borderWidth: 1,
               borderColor: (C.border || '#374151') + '30', marginBottom: 20,
             }}
-            placeholder="e.g. Past tense practice — Unit 3"
+            placeholder={t.teacherGroupAssignmentPlaceholder ?? 'e.g. Past tense practice - Business English'}
             placeholderTextColor={C.textMuted}
             value={assignTitle}
             onChangeText={setAssignTitle}

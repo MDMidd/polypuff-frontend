@@ -219,6 +219,24 @@ export interface Translations {
   classroomStudentTip?: string;
   teacherModeDesc?: string;
   studentModeDesc?: string;
+  // Teacher group detail page (matches website CLASSROOM_TEXT.en)
+  teacherGroupCode?: string;
+  teacherGroupYouBadge?: string;
+  teacherGroupNoStudents?: string;
+  teacherGroupShareCodeDesc?: string;
+  teacherGroupNoData?: string;
+  teacherGroupWeakDesc?: string;
+  teacherGroupWeakHelp?: string;
+  teacherGroupNoAssignments?: string;
+  teacherGroupNoAssignmentsTeacher?: string;
+  teacherGroupNoAssignmentsStudent?: string;
+  teacherGroupNoActivity?: string;
+  teacherGroupNoActivityDesc?: string;
+  teacherGroupCreateAssignment?: string;
+  teacherGroupNewAssignment?: string;
+  teacherGroupExerciseType?: string;
+  teacherGroupAssignmentTitle?: string;
+  teacherGroupAssignmentPlaceholder?: string;
 }
 
 const t: Record<LangCode, Translations> = {
@@ -334,6 +352,23 @@ const t: Record<LangCode, Translations> = {
     classroomStudentTip: 'Your exercise progress can be shared with this teacher group. Keep practising so your teacher can see what to support next.',
     teacherModeDesc: 'Create groups, share join codes, and view student progress.',
     studentModeDesc: 'Join a teacher group with a code and share your progress.',
+    teacherGroupCode: 'Code',
+    teacherGroupYouBadge: 'YOU',
+    teacherGroupNoStudents: 'No students yet',
+    teacherGroupShareCodeDesc: 'Share the group code with your students to get started.',
+    teacherGroupNoData: 'No data yet',
+    teacherGroupWeakDesc: 'Weak areas will appear once students start submitting exercises.',
+    teacherGroupWeakHelp: 'These are the most common error categories across the whole group — ranked by frequency. Use this to focus your teaching.',
+    teacherGroupNoAssignments: 'No assignments yet',
+    teacherGroupNoAssignmentsTeacher: 'Create an assignment to set structured exercises for your teacher group.',
+    teacherGroupNoAssignmentsStudent: "Your teacher hasn't created any assignments yet.",
+    teacherGroupNoActivity: 'No activity yet',
+    teacherGroupNoActivityDesc: 'Student submissions will appear here in real time.',
+    teacherGroupCreateAssignment: 'Create Assignment',
+    teacherGroupNewAssignment: 'New Assignment',
+    teacherGroupExerciseType: 'Exercise type',
+    teacherGroupAssignmentTitle: 'Assignment title',
+    teacherGroupAssignmentPlaceholder: 'e.g. Past tense practice - Business English',
   },
   af: {
     home: 'Tuis', practice: 'Oefen', progress: 'Vordering',
