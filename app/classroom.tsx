@@ -69,7 +69,7 @@ function ModeCard({ icon, title, desc, color, onPress }) {
   );
 }
 
-// ── Class summary card ────────────────────────────────────────────────────────
+// ── Teacher group summary card ────────────────────────────────────────────────
 function ClassCard({ room, onPress, C }) {
   return (
     <TouchableOpacity
@@ -81,7 +81,7 @@ function ClassCard({ room, onPress, C }) {
       }}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Open class ${room.className}`}
+      accessibilityLabel={`Open teacher group ${room.className}`}
     >
       <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: (C.cyan || '#00D9FF') + '15', alignItems: 'center', justifyContent: 'center' }}>
         <BookOpen size={22} color={C.cyan || '#00D9FF'} />
@@ -156,10 +156,10 @@ export default function ClassroomScreen() {
     if (m === 'teacher') refreshRooms(true);
   };
 
-  // ── CREATE CLASS ─────────────────────────────────────────────────────────
+  // ── CREATE TEACHER GROUP ────────────────────────────────────────────────
   const createClass = async () => {
     if (!teacherName.trim() || !className.trim()) {
-      Alert.alert('Missing Info', 'Please enter both your name and the class name.');
+      Alert.alert('Missing Info', 'Please enter your name and the group name.');
       return;
     }
     setLoading(true);
@@ -169,7 +169,7 @@ export default function ClassroomScreen() {
       const authHeaders = await getAuthHeaders();
       if (!authHeaders || !userId) {
         setLoading(false);
-        Alert.alert('Sign in required', 'You need to be signed in to create a class.');
+        Alert.alert('Sign in required', 'You need to be signed in to create a group.');
         return;
       }
       const res = await fetch(`${serverUrl}/api/classroom/create`, {
@@ -186,9 +186,9 @@ export default function ClassroomScreen() {
         await AsyncStorage.setItem('classroomRooms', JSON.stringify(updated));
         setShowCreate(false);
         setClassName('');
-        Alert.alert('Class Created! 🎉', `Share this code with your students:\n\n${data.code}`, [{ text: 'Got it' }]);
+        Alert.alert('Group Created!', `Share this group code with your students:\n\n${data.code}`, [{ text: 'Got it' }]);
       } else {
-        Alert.alert('Error', data.error || 'Failed to create class.');
+        Alert.alert('Error', data.error || 'Failed to create group.');
       }
     } catch (e) {
       Alert.alert('Connection Error', 'Could not reach the server. Check your internet connection.');
@@ -196,11 +196,11 @@ export default function ClassroomScreen() {
     setLoading(false);
   };
 
-  // ── JOIN CLASS ───────────────────────────────────────────────────────────
+  // ── JOIN TEACHER GROUP ──────────────────────────────────────────────────
   const joinClass = async () => {
     const code = joinCode.trim().toUpperCase();
     if (!code || code.length !== 6) {
-      Alert.alert('Invalid Code', 'Class codes are exactly 6 characters.');
+      Alert.alert('Invalid Code', 'Group codes are exactly 6 characters.');
       return;
     }
     if (!studentName.trim()) {
@@ -231,9 +231,9 @@ export default function ClassroomScreen() {
         await AsyncStorage.setItem('classroomJoined', JSON.stringify(joined));
         setShowJoin(false);
         setJoinCode('');
-        Alert.alert('Joined! 🎉', `You've joined "${data.classroom.className}" taught by ${data.classroom.teacherName}.`);
+        Alert.alert('Joined!', `You have joined "${data.classroom.className}" taught by ${data.classroom.teacherName}.`);
       } else {
-        Alert.alert('Error', data.error || 'Failed to join class. Check the code and try again.');
+        Alert.alert('Error', data.error || 'Failed to join group. Check the code and try again.');
       }
     } catch (e) {
       Alert.alert('Connection Error', 'Could not reach the server.');
@@ -242,8 +242,8 @@ export default function ClassroomScreen() {
   };
 
   // ── REFRESH ROOMS LIST ───────────────────────────────────────────────────
-  // Fetches the authoritative list of this teacher's classes from the server,
-  // so a fresh install or new device sees existing classes.
+  // Fetches the authoritative list of this teacher's groups from the server,
+  // so a fresh install or new device sees existing groups.
   const refreshRooms = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
@@ -272,7 +272,7 @@ export default function ClassroomScreen() {
   };
 
   const leaveClass = async () => {
-    Alert.alert('Leave Class', 'Are you sure you want to leave this class?', [
+    Alert.alert('Leave Group', 'Are you sure you want to leave this teacher group?', [
       { text: t.cancel, style: 'cancel' },
       { text: 'Leave', style: 'destructive', onPress: async () => {
         setJoinedRoom(null);
@@ -282,7 +282,7 @@ export default function ClassroomScreen() {
   };
 
   const resetMode = async () => {
-    Alert.alert('Switch Mode', 'This will clear your current classroom data. Continue?', [
+    Alert.alert('Switch Mode', 'This will clear your current Share with Teacher data. Continue?', [
       { text: t.cancel, style: 'cancel' },
       { text: wt('continue'), style: 'destructive', onPress: async () => {
         setMode(null);
@@ -323,14 +323,14 @@ export default function ClassroomScreen() {
               <ModeCard
                 icon={<Award size={24} color="#A78BFA" />}
                 title={ui('teacher', 'Teacher')}
-                desc={ui('teacherModeDesc', 'Create a class, manage students, view analytics')}
+                desc={ui('teacherModeDesc', 'Create groups, share join codes, and view student progress.')}
                 color="#A78BFA"
                 onPress={() => selectMode('teacher')}
               />
               <ModeCard
                 icon={<BookOpen size={24} color="#34D399" />}
                 title={ui('student', 'Student')}
-                desc={ui('studentModeDesc', "Join a class with your teacher's code")}
+                desc={ui('studentModeDesc', 'Join a teacher group with a code and share your progress.')}
                 color="#34D399"
                 onPress={() => selectMode('student')}
               />
@@ -352,7 +352,7 @@ export default function ClassroomScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Create class button */}
+            {/* Create group button */}
             <TouchableOpacity
               style={{
                 flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -361,18 +361,18 @@ export default function ClassroomScreen() {
                 borderColor: '#A78BFA40', minHeight: 52,
               }}
               onPress={() => setShowCreate(true)}
-              accessibilityRole="button" accessibilityLabel={ui('createNewClass', 'Create New Class')}
+              accessibilityRole="button" accessibilityLabel={ui('createNewClass', 'Create New Group')}
             >
               <Plus size={18} color="#A78BFA" />
-              <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>{ui('createNewClass', 'Create New Class')}</Text>
+              <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>{ui('createNewClass', 'Create New Group')}</Text>
             </TouchableOpacity>
 
-            {/* Class list */}
+            {/* Group list */}
             {rooms.length > 0 && (
               <>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                   <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5 }}>
-                    {ui('myClasses', 'My Classes').toUpperCase()} ({rooms.length})
+                    {ui('myClasses', 'My groups').toUpperCase()} ({rooms.length})
                   </Text>
                   <TouchableOpacity onPress={() => refreshRooms(false)} style={{ minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
                     accessibilityRole="button" accessibilityLabel={t.retry}>
@@ -396,9 +396,9 @@ export default function ClassroomScreen() {
             {rooms.length === 0 && (
               <View style={{ alignItems: 'center', paddingVertical: 40 }}>
                 <Text style={{ fontSize: 40, marginBottom: 12 }}>🏫</Text>
-                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('noClassesYet', 'No classes yet')}</Text>
+                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('noClassesYet', 'No groups yet')}</Text>
                 <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
-                  {ui('noClassesHelp', 'Create your first class and share the code with your students.')}
+                  {ui('noClassesHelp', 'Create your first group and share the join code with your students.')}
                 </Text>
               </View>
             )}
@@ -429,23 +429,23 @@ export default function ClassroomScreen() {
                     borderColor: '#34D39940', minHeight: 52,
                   }}
                   onPress={() => setShowJoin(true)}
-                  accessibilityRole="button" accessibilityLabel={ui('joinAClass', 'Join a Class')}
+                  accessibilityRole="button" accessibilityLabel={ui('joinAClass', 'Join a Group')}
                 >
                   <LogIn size={18} color="#34D399" />
-                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#34D399' }}>{ui('joinAClass', 'Join a Class')}</Text>
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#34D399' }}>{ui('joinAClass', 'Join a Group')}</Text>
                 </TouchableOpacity>
 
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                   <Text style={{ fontSize: 40, marginBottom: 12 }}>🎓</Text>
-                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('notInClassYet', 'Not in a class yet')}</Text>
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('notInClassYet', 'Not sharing with a teacher yet')}</Text>
                   <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
-                    {ui('notInClassHelp', 'Ask your teacher for the 6-character class code, then tap "Join a Class" above.')}
+                    {ui('notInClassHelp', 'Ask your teacher for the 6-character group code, then join here.')}
                   </Text>
                 </View>
               </>
             ) : (
               <>
-                {/* Joined class card */}
+                {/* Joined group card */}
                 <View style={{
                   backgroundColor: C.card || '#111827', borderRadius: 16, padding: 16,
                   marginBottom: 16, borderWidth: 1, borderColor: '#34D39930',
@@ -457,7 +457,7 @@ export default function ClassroomScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#34D399' }}>{joinedRoom.className}</Text>
                       <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }}>
-                        Teacher: {joinedRoom.teacherName}
+                        {ui('teacher', 'Teacher')}: {joinedRoom.teacherName}
                       </Text>
                     </View>
                   </View>
@@ -482,7 +482,7 @@ export default function ClassroomScreen() {
                         borderColor: (C.red || '#EF4444') + '30', minHeight: 44, justifyContent: 'center',
                       }}
                       onPress={leaveClass}
-                      accessibilityRole="button" accessibilityLabel={ui('leaveClass', 'Leave class')}
+                      accessibilityRole="button" accessibilityLabel={ui('leaveClass', 'Leave group')}
                     >
                       <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.red || '#EF4444' }}>{ui('leave', 'Leave')}</Text>
                     </TouchableOpacity>
@@ -494,7 +494,7 @@ export default function ClassroomScreen() {
                   borderWidth: 1, borderColor: (C.border || '#374151') + '20',
                 }}>
                   <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 18 }}>
-                    💡 {ui('classroomStudentTip', 'Your scores are automatically submitted to this class when you complete exercises. Keep practising to climb the leaderboard!')}
+                    💡 {ui('classroomStudentTip', 'Your exercise progress can be shared with this teacher group. Keep practising so your teacher can see what to support next.')}
                   </Text>
                 </View>
               </>
@@ -513,7 +513,7 @@ export default function ClassroomScreen() {
             padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#A78BFA30',
           }} accessibilityViewIsModal={true}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{ui('createNewClass', 'Create New Class')}</Text>
+              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{ui('createNewClass', 'Create New Group')}</Text>
               <TouchableOpacity onPress={() => setShowCreate(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                 accessibilityRole="button" accessibilityLabel={t.cancel}>
                 <X size={22} color={C.textMuted} />
@@ -531,15 +531,15 @@ export default function ClassroomScreen() {
               accessibilityLabel={t.profile}
             />
 
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('classNameLabel', 'Class Name').toUpperCase()}</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('classNameLabel', 'Group name').toUpperCase()}</Text>
             <TextInput
               style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 20 }}
-              placeholder={ui('classNamePlaceholder', 'e.g. Grade 9 English')}
+              placeholder={ui('classNamePlaceholder', 'e.g. Business English')}
               placeholderTextColor={C.textMuted}
               value={className}
               onChangeText={setClassName}
               autoCapitalize="words"
-              accessibilityLabel={wt('classroom')}
+              accessibilityLabel={ui('classNameLabel', 'Group name')}
             />
 
             <TouchableOpacity
@@ -550,11 +550,11 @@ export default function ClassroomScreen() {
               }}
               onPress={createClass}
               disabled={loading}
-              accessibilityRole="button" accessibilityLabel={ui('createClass', 'Create Class')}
+              accessibilityRole="button" accessibilityLabel={ui('createClass', 'Create Group')}
             >
               {loading
                 ? <ActivityIndicator size="small" color="#A78BFA" />
-                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#A78BFA' }}>{ui('createClass', 'Create Class')}</Text>
+                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#A78BFA' }}>{ui('createClass', 'Create Group')}</Text>
               }
             </TouchableOpacity>
           </View>
@@ -570,7 +570,7 @@ export default function ClassroomScreen() {
             padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#34D39930',
           }} accessibilityViewIsModal={true}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{ui('joinAClass', 'Join a Class')}</Text>
+              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{ui('joinAClass', 'Join a Group')}</Text>
               <TouchableOpacity onPress={() => setShowJoin(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                 accessibilityRole="button" accessibilityLabel={t.cancel}>
                 <X size={22} color={C.textMuted} />
@@ -588,7 +588,7 @@ export default function ClassroomScreen() {
               accessibilityLabel={t.profile}
             />
 
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('classCodeLabel', 'Class Code').toUpperCase()}</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('classCodeLabel', 'Group code').toUpperCase()}</Text>
             <TextInput
               style={{
                 backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14,
@@ -602,7 +602,7 @@ export default function ClassroomScreen() {
               onChangeText={t => setJoinCode(t.toUpperCase())}
               autoCapitalize="characters"
               maxLength={6}
-              accessibilityLabel={ui('classCodeA11y', '6-character class code')}
+              accessibilityLabel={ui('classCodeA11y', '6-character group code')}
             />
 
             <TouchableOpacity
@@ -613,11 +613,11 @@ export default function ClassroomScreen() {
               }}
               onPress={joinClass}
               disabled={loading}
-              accessibilityRole="button" accessibilityLabel={ui('joinClass', 'Join Class')}
+              accessibilityRole="button" accessibilityLabel={ui('joinClass', 'Join Group')}
             >
               {loading
                 ? <ActivityIndicator size="small" color="#34D399" />
-                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#34D399' }}>{ui('joinClass', 'Join Class')}</Text>
+                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#34D399' }}>{ui('joinClass', 'Join Group')}</Text>
               }
             </TouchableOpacity>
           </View>
