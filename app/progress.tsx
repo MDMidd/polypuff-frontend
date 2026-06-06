@@ -30,6 +30,7 @@ import {
   getAllTimeRecords, getTotalTimeSeconds, formatDuration,
 } from '../services/timerService';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 
@@ -139,6 +140,7 @@ function WeekHeatmap({ streak, C }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ProgressScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   const [loading,         setLoading]         = useState(true);
@@ -471,7 +473,7 @@ export default function ProgressScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 6 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>MY PROGRESS</Text>
+          <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('my-progress').toUpperCase()}</Text>
           </View>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -499,7 +501,7 @@ export default function ProgressScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 6 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>MY PROGRESS</Text>
+          <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('my-progress').toUpperCase()}</Text>
           </View>
         </View>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>

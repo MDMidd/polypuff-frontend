@@ -49,6 +49,7 @@ import {
   VoiceRecording,
 } from '../services/recordingService';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, GlassCard, NeonButton, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import { hapticSuccess, hapticError, feedbackForScore } from '../services/sounds';
@@ -455,6 +456,7 @@ function SpeakingQuestion({ question, onDone, C }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function PlacementScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
 
   const bgTimerStartRef = useRef(null);
   useFocusEffect(useCallback(() => {
@@ -599,7 +601,7 @@ export default function PlacementScreen() {
               style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
               accessibilityLabel="Poly-Puff"
             />
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>PLACEMENT TEST</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('placement-test').toUpperCase()}</Text>
           </View>
           <View style={{ width: 52 }} />
         </View>
@@ -847,7 +849,7 @@ export default function PlacementScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>PLACEMENT TEST</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('placement-test').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
       </View>

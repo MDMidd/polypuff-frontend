@@ -40,6 +40,7 @@ import {
   PenTool, ChevronRight, Star, BookOpen, AlertTriangle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import DiscussWithPuff from '../components/DiscussWithPuff';
@@ -86,6 +87,7 @@ function scoreLabel(score) {
 
 export default function WritingScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
   const ds = dynamicStyles(C);
 
@@ -237,7 +239,7 @@ export default function WritingScreen() {
               style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
               accessibilityLabel="Poly-Puff"
             />
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>WRITING</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('writing').toUpperCase()}</Text>
             <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>Write in English and get AI feedback on grammar, structure, and style.</Text>
           </View>
           <View style={{ width: 44 }} />

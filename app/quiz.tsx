@@ -36,6 +36,7 @@ import {
 } from 'lucide-react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { hapticSuccess, hapticError, feedbackForScore } from '../services/sounds';
@@ -139,6 +140,7 @@ const QUESTION_BANK = [
 
 export default function QuizScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   // ── Hidden Background Timer ─────────────────────────────────────────────
@@ -322,7 +324,7 @@ export default function QuizScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>GRAMMAR QUIZ</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('grammar-quiz').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
       </View>
@@ -411,7 +413,7 @@ export default function QuizScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>GRAMMAR QUIZ</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('grammar-quiz').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
       </View>

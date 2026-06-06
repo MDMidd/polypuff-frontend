@@ -41,6 +41,7 @@ import {
   Volume2, ChevronRight, Star, BookOpen, Zap,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, GlassCard } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import DiscussWithPuff from '../components/DiscussWithPuff';
@@ -70,6 +71,7 @@ function scoreLabel(score) {
 
 export default function WordChunksScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
   const ds = dynamicStyles(C);
 
@@ -272,7 +274,7 @@ export default function WordChunksScreen() {
                 style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
                 accessibilityLabel="Poly-Puff"
               />
-              <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>WORD CHUNKS</Text>
+              <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('word-chunks').toUpperCase()}</Text>
               <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>{nativeLanguage} → English</Text>
             </View>
             <View style={{ width: 44 }} />

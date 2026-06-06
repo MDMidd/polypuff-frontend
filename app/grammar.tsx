@@ -46,6 +46,7 @@ import {
   ArrowLeft,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, GlassCard, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import DiscussWithPuff from '../components/DiscussWithPuff';
@@ -233,6 +234,7 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function GrammarScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   const [level,          setLevel]          = useState('B1');
@@ -397,7 +399,7 @@ export default function GrammarScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>GRAMMAR</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('grammar-practice').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
       </View>
@@ -753,7 +755,7 @@ export default function GrammarScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>GRAMMAR</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('grammar-practice').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
       </View>

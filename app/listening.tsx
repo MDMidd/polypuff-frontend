@@ -38,6 +38,7 @@ import {
   ChevronRight, ArrowRight, ArrowLeft, Settings2, Eye,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { hapticSuccess, hapticError, hapticMedium, feedbackForScore } from '../services/sounds';
@@ -106,6 +107,7 @@ const SENTENCES = {
 
 export default function ListeningScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   // ✅ NEW: Screen reader detection — auto-shows transcript
@@ -309,7 +311,7 @@ export default function ListeningScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>LISTENING</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('listening').toUpperCase()}</Text>
           <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>Listen to English sentences and type exactly what you hear</Text>
         </View>
         <View style={{ width: 52 }} />

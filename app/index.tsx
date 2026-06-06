@@ -49,7 +49,7 @@ const PRACTICE_CONFIG_KEY = 'practiceModuleConfig';
 
 export default function PracticeHub() {
   const { colors: C } = useTheme();
-  const { t } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
 
   const [practiceModules, setPracticeModules] = useState(ALL_MODULES);
@@ -108,7 +108,7 @@ export default function PracticeHub() {
           accessibilityRole="header"
           accessibilityLabel="Poly-Puff"
         />
-        <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>PRACTICE</Text>
+        <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('practice').toUpperCase()}</Text>
         <View style={{ width: 52 }} />
       </View>
 
@@ -183,13 +183,13 @@ export default function PracticeHub() {
           onPress={() => router.push('/challenges')}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel="Daily Challenge: Complete today's challenge for bonus XP"
+          accessibilityLabel={`${wt('daily-challenge')}: ${wt('webapp-daily-desc')}`}
           accessibilityHint="Opens the daily challenge mode"
         >
           <Award size={28} color={C.amber || '#FFBE0B'} />
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <Text style={[s.cardLabel, { color: C.text }]}>Daily Challenge</Text>
-            <Text style={[s.cardDesc, { color: C.textMuted }]}>Complete today's challenge for bonus XP</Text>
+            <Text style={[s.cardLabel, { color: C.text }]}>{wt('daily-challenge')}</Text>
+            <Text style={[s.cardDesc, { color: C.textMuted }]}>{wt('webapp-daily-desc')}</Text>
           </View>
           <ChevronRight size={18} color={C.textMuted} />
         </TouchableOpacity>
