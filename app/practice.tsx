@@ -18,6 +18,8 @@ import { useRouter } from 'expo-router';
 import {
   ClipboardCheck, BookOpen, Headphones, PenTool,
   Brain, Layers, Award, Puzzle, Pencil,
+  ChevronDown, ChevronUp, Wrench, Target, Archive,
+  School, Briefcase, GraduationCap, Star,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -36,25 +38,56 @@ type SkillLevels = {
 
 type ModuleColor = 'cyan' | 'purple' | 'pink' | 'emerald' | 'amber';
 
-const MODULES = [
-  { id: 'placement',   label: 'Placement Test',        labelKey: 'placementTest',         desc: 'Find your level',                    descKey: 'findYourCefrLevel', icon: ClipboardCheck, color: 'cyan',    route: '/placement',   badge: '⭐' },
-  { id: 'translation', label: 'Sentence Trainer',       labelKey: 'translationTrainer',    desc: 'Translate sentences into English',                                  icon: BookOpen,       color: 'purple',  route: '/translation' },
-  { id: 'wordchunks',  label: 'Word Chunks',            labelKey: 'wordChunks',            desc: 'Practise phrases & expressions',                                    icon: Puzzle,         color: 'emerald', route: '/wordchunks' },
-  { id: 'listening',   label: 'Listening',              labelKey: 'listening',             desc: 'Listen and type what you hear',                                     icon: Headphones,     color: 'cyan',    route: '/listening' },
-  { id: 'writing',     label: 'Writing',                labelKey: 'writing',               desc: 'Free-form writing practice',                                        icon: PenTool,        color: 'emerald', route: '/writing' },
-  { id: 'quiz',        label: 'Grammar Quiz',           labelKey: 'grammarQuiz',           desc: 'Test your grammar knowledge',                                       icon: Brain,          color: 'amber',   route: '/quiz' },
-  { id: 'vocab',       label: 'Vocabulary',             labelKey: 'vocabularyFlashcards',  desc: 'Flashcard review',                                                  icon: Layers,         color: 'purple',  route: '/vocab' },
-  { id: 'grammar',     label: 'Grammar',                labelKey: 'grammarPractice',       desc: 'Correct, build & fill sentences',                                   icon: Pencil,         color: 'pink',    route: '/grammar' },
+type MenuItem = {
+  id: string;
+  label: string;
+  labelKey: string;
+  route: string;
+  icon: React.ComponentType<{ size?: number; color?: string }>;
+  color: ModuleColor;
+};
+
+const MAIN_EXERCISE: MenuItem = {
+  id: 'translation',
+  label: 'Translation Trainer',
+  labelKey: 'translation-trainer',
+  route: '/translation',
+  icon: BookOpen,
+  color: 'cyan',
+};
+
+const ADDITIONAL_EXERCISES: MenuItem[] = [
+  { id: 'wordchunks', label: 'Word Chunks', labelKey: 'word-chunks', route: '/wordchunks', icon: Puzzle, color: 'emerald' },
+  { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/wordchunks', icon: Archive, color: 'amber' },
+  { id: 'grammar', label: 'Grammar Practice', labelKey: 'grammar-practice', route: '/grammar', icon: Pencil, color: 'pink' },
+  { id: 'grammar-vault', label: 'Grammar Vault', labelKey: 'grammar-vault', route: '/grammar', icon: Archive, color: 'purple' },
+  { id: 'quiz', label: 'Grammar Quiz', labelKey: 'grammar-quiz', route: '/quiz', icon: Brain, color: 'amber' },
+  { id: 'vocab', label: 'Vocabulary', labelKey: 'vocabulary', route: '/vocab', icon: Layers, color: 'emerald' },
+  { id: 'vault', label: 'Vocabulary Vault', labelKey: 'vocabulary-vault', route: '/vault', icon: Archive, color: 'cyan' },
+  { id: 'listening', label: 'Listening', labelKey: 'listening', route: '/listening', icon: Headphones, color: 'amber' },
+  { id: 'writing', label: 'Writing', labelKey: 'writing', route: '/writing', icon: PenTool, color: 'pink' },
+  { id: 'classroom', label: 'Share with Teacher', labelKey: 'classroom', route: '/classroom', icon: School, color: 'pink' },
+];
+
+const GOAL_EXERCISES: MenuItem[] = [
+  { id: 'challenges', label: 'Daily Challenge', labelKey: 'daily-challenge', route: '/challenges', icon: Star, color: 'amber' },
+  { id: 'placement', label: 'Placement Test', labelKey: 'placement-test', route: '/placement', icon: ClipboardCheck, color: 'cyan' },
+  { id: 'business', label: 'Business English', labelKey: 'business-english', route: '/business', icon: Briefcase, color: 'amber' },
+  { id: 'ielts', label: 'IELTS', labelKey: 'ielts', route: '/ielts', icon: GraduationCap, color: 'cyan' },
+  { id: 'toefl', label: 'TOEFL', labelKey: 'toefl', route: '/toefl', icon: GraduationCap, color: 'purple' },
+  { id: 'cae', label: 'CAE', labelKey: 'cae', route: '/cae', icon: BookOpen, color: 'emerald' },
 ];
 
 export default function PracticeHub() {
   const { colors: C } = useTheme();
-  const { t } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
   const { mascotEnabled } = useMascot();
 
   const [skillLevels, setSkillLevels] = useState<SkillLevels | null>(null);
   const [placementDone, setPlacementDone] = useState(false);
+  const [additionalOpen, setAdditionalOpen] = useState(true);
+  const [goalsOpen, setGoalsOpen] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem('placementComplete').then(v => setPlacementDone(v === 'true')).catch(() => {});
@@ -68,6 +101,93 @@ export default function PracticeHub() {
   };
 
   const translate = (key: string, fallback: string) => (t as unknown as Record<string, string | undefined>)[key] || fallback;
+  const webText = (key: string, fallback: string) => {
+    const value = wt(key);
+    return value && value !== key ? value : translate(key, fallback);
+  };
+
+  const renderMenuItem = (item: MenuItem, variant: 'primary' | 'standard' = 'standard') => {
+    const Icon = item.icon;
+    const color = getColor(item.color);
+    const isPrimary = variant === 'primary';
+    const label = webText(item.labelKey, item.label);
+
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={{
+          width: '100%',
+          minHeight: isPrimary ? 48 : 44,
+          borderRadius: isPrimary ? 8 : 6,
+          paddingHorizontal: isPrimary ? 14 : 12,
+          paddingVertical: isPrimary ? 12 : 10,
+          backgroundColor: isPrimary ? color + '14' : (C.card || '#121829') + (item.id === 'classroom' ? 'CC' : '70'),
+          borderWidth: isPrimary ? 1 : 0,
+          borderColor: color + '55',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+        }}
+        activeOpacity={0.72}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        onPress={() => router.push(item.route)}
+      >
+        <View style={{
+          width: 22,
+          height: 22,
+          borderRadius: 6,
+          backgroundColor: color + '18',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Icon size={16} color={color} />
+        </View>
+        <Text style={{ flex: 1, fontSize: isPrimary ? 14 : 13, fontWeight: '800', color: C.text }} numberOfLines={2}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderSectionHeader = (
+    labelKey: string,
+    fallback: string,
+    Icon: React.ComponentType<{ size?: number; color?: string }>,
+    color: string,
+    open: boolean,
+    onPress: () => void,
+  ) => {
+    const label = webText(labelKey, fallback);
+    const Chevron = open ? ChevronUp : ChevronDown;
+
+    return (
+      <TouchableOpacity
+        style={{
+          width: '100%',
+          minHeight: 46,
+          borderRadius: 8,
+          paddingHorizontal: 14,
+          paddingVertical: 12,
+          backgroundColor: (C.card || '#121829') + 'B8',
+          borderWidth: 1,
+          borderColor: (C.border || '#2A3450') + 'AA',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+        }}
+        activeOpacity={0.72}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ expanded: open }}
+        onPress={onPress}
+      >
+        <Icon size={17} color={color} />
+        <Text style={{ flex: 1, fontSize: 14, fontWeight: '800', color: C.text }}>{label}</Text>
+        <Chevron size={16} color={C.textMuted || '#8B94A8'} />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScreenBackground style={null}>
@@ -125,54 +245,40 @@ export default function PracticeHub() {
           </GlassCard>
         )}
 
-        {/* Module List */}
+        {/* Website-synced exercise menu */}
         <View style={{ gap: 10 }}>
-          {MODULES.map((mod) => {
-            const Icon = mod.icon;
-            const color = getColor(mod.color as ModuleColor);
-            const isPlacement = mod.id === 'placement';
-            const isSentenceTrainer = mod.id === 'translation';
-            const label = translate(mod.labelKey, mod.label);
-            const desc = mod.descKey ? translate(mod.descKey, mod.desc) : mod.desc;
+          <Text style={{ fontSize: 11, fontWeight: '900', color: C.textMuted, letterSpacing: 1, marginLeft: 6 }}>
+            {webText('main-exercise', 'Main Exercise').toUpperCase()}
+          </Text>
+          {renderMenuItem(MAIN_EXERCISE, 'primary')}
 
-            return (
-              <TouchableOpacity
-                key={mod.id}
-                style={{
-                  width: '100%',
-                  borderRadius: isSentenceTrainer ? 16 : 14,
-                  padding: isSentenceTrainer ? 18 : 12,
-                  backgroundColor: (C.card || '#121829') + 'B8',
-                  borderWidth: 1,
-                  borderColor: color + (isPlacement && !placementDone ? '60' : isSentenceTrainer ? '40' : '25'),
-                  shadowColor: isPlacement && !placementDone ? color : isSentenceTrainer ? color : 'transparent',
-                  shadowOpacity: isPlacement && !placementDone ? 0.3 : isSentenceTrainer ? 0.2 : 0,
-                  shadowRadius: 12, elevation: isPlacement && !placementDone ? 6 : isSentenceTrainer ? 4 : 0,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 14,
-                }}
-                activeOpacity={0.7}
-                onPress={() => router.push(mod.route)}
-              >
-                {mod.badge && !placementDone && (
-                  <Text style={{ position: 'absolute', top: 8, right: 10, fontSize: 14 }}>{mod.badge}</Text>
-                )}
-                <View style={{
-                  width: isSentenceTrainer ? 48 : 38,
-                  height: isSentenceTrainer ? 48 : 38,
-                  borderRadius: isSentenceTrainer ? 14 : 10,
-                  backgroundColor: color + '15', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon size={isSentenceTrainer ? 24 : 20} color={color} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: isSentenceTrainer ? 17 : 14, fontWeight: '700', color: C.text, marginBottom: 2 }}>{label}</Text>
-                  <Text style={{ fontSize: 11, color: C.textMuted }}>{desc}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          {renderSectionHeader(
+            'additional-exercises',
+            'Additional Exercises',
+            Wrench,
+            getColor('amber'),
+            additionalOpen,
+            () => setAdditionalOpen(open => !open),
+          )}
+          {additionalOpen && (
+            <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
+              {ADDITIONAL_EXERCISES.map(item => renderMenuItem(item))}
+            </View>
+          )}
+
+          {renderSectionHeader(
+            'goals',
+            'Goals',
+            Target,
+            getColor('pink'),
+            goalsOpen,
+            () => setGoalsOpen(open => !open),
+          )}
+          {goalsOpen && (
+            <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
+              {GOAL_EXERCISES.map(item => renderMenuItem(item))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </ScreenBackground>
