@@ -120,7 +120,7 @@ function WordTile({ word, onPress, active, color, position, total, inSentence })
 // ─── ResultCard — ✅ ACCESSIBILITY UPDATED ──────────────────────────────────
 function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
   const { colors: C } = useTheme();
-  const { t } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
   const color = scoreColor(result.score);
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
@@ -135,6 +135,38 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
   React.useEffect(() => {
     announce(scoreAnnouncement(result.score));
   }, [result.score]);
+
+  const saveToGrammarVault = async () => {
+    const text = String(result.rule_explanation || result.correct_answer || exerciseData?.correctAnswer || '').trim();
+    if (!text) return;
+    const keys = ['pp_grammar_vault', 'pp_grammar_practice_vault'];
+    try {
+      const raw = await AsyncStorage.getItem(keys[0]);
+      const existing = raw ? JSON.parse(raw) : [];
+      const vault = Array.isArray(existing) ? existing : [];
+      const exists = vault.some(item => String(item.text || item.rule || item.correctAnswer || '').trim().toLowerCase() === text.toLowerCase());
+      if (exists) {
+        Alert.alert(wt('grammar-vault'), wt('vault-already-saved', { word: text }));
+        return;
+      }
+      const item = {
+        text,
+        rule: result.rule_explanation || text,
+        prompt: exerciseData?.prompt || exerciseData?.mode || '',
+        correctAnswer: result.correct_answer || exerciseData?.correctAnswer || '',
+        studentAnswer: exerciseData?.studentAnswer || '',
+        score: result.score,
+        category: 'Grammar Rule',
+        source: 'grammar',
+        date: new Date().toISOString(),
+      };
+      const updated = [item, ...vault].slice(0, 500);
+      await Promise.all(keys.map(key => AsyncStorage.setItem(key, JSON.stringify(updated))));
+      Alert.alert(wt('grammar-vault'), wt('vault-save-to-vault'));
+    } catch {
+      Alert.alert(wt('grammar-vault'), wt('vault-search-error'));
+    }
+  };
 
   return (
     <GlassCard style={styles.resultCard}>
@@ -212,6 +244,17 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
       {!!result.encouragement && (
         <Text style={styles.encouragement}>{result.encouragement}</Text>
       )}
+
+      <TouchableOpacity
+        style={[styles.vaultSaveBtn, { borderColor: (C.emerald || '#00E5A0') + '44', backgroundColor: (C.emerald || '#00E5A0') + '12' }]}
+        onPress={saveToGrammarVault}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={`${wt('vault-save-to-vault')} ${wt('grammar-vault')}`}
+      >
+        <Lightbulb size={16} color={C.emerald || '#00E5A0'} />
+        <Text style={[styles.vaultSaveText, { color: C.emerald || '#00E5A0' }]}>{wt('grammar-vault')}</Text>
+      </TouchableOpacity>
 
       <DiscussWithPuff
         exerciseType="grammar"
@@ -737,6 +780,7 @@ export default function GrammarScreen() {
             result={result}
             exerciseData={{
               mode: activeMode?.id,
+              prompt: exercise?.prompt || exercise?.sentence || exercise?.question || exercise?.native_sentence || exercise?.incorrect_sentence || exercise?.topic || '',
               correctAnswer: exercise?.correct_sentence || exercise?.correct_answer || '',
               studentAnswer: activeMode?.id === 'sentence_builder' ? builtWords.join(' ') : textInput,
             }}
@@ -858,4 +902,6 @@ const styles = StyleSheet.create({
   encouragement: { fontSize: scaledFont(13), color: '#A78BFA', fontStyle: 'italic', textAlign: 'center', marginBottom: 16, lineHeight: 19 },
   nextBtn: { borderRadius: 14, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   nextBtnText: { fontSize: scaledFont(16), fontWeight: '800', color: '#fff' },
+  vaultSaveBtn: { minHeight: 44, borderRadius: 14, borderWidth: 1, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12, marginBottom: 12 },
+  vaultSaveText: { fontSize: scaledFont(14), fontWeight: '800' },
 });

@@ -58,9 +58,9 @@ const MAIN_EXERCISE: MenuItem = {
 
 const ADDITIONAL_EXERCISES: MenuItem[] = [
   { id: 'wordchunks', label: 'Word Chunks', labelKey: 'word-chunks', route: '/wordchunks', icon: Puzzle, color: 'emerald' },
-  { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/wordchunks', icon: Archive, color: 'amber' },
+  { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/word-chunks-vault', icon: Archive, color: 'amber' },
   { id: 'grammar', label: 'Grammar Practice', labelKey: 'grammar-practice', route: '/grammar', icon: Pencil, color: 'pink' },
-  { id: 'grammar-vault', label: 'Grammar Vault', labelKey: 'grammar-vault', route: '/grammar', icon: Archive, color: 'purple' },
+  { id: 'grammar-vault', label: 'Grammar Vault', labelKey: 'grammar-vault', route: '/grammar-vault', icon: Archive, color: 'purple' },
   { id: 'quiz', label: 'Grammar Quiz', labelKey: 'grammar-quiz', route: '/quiz', icon: Brain, color: 'amber' },
   { id: 'vocab', label: 'Vocabulary', labelKey: 'vocabulary', route: '/vocab', icon: Layers, color: 'emerald' },
   { id: 'vault', label: 'Vocabulary Vault', labelKey: 'vocabulary-vault', route: '/vault', icon: Archive, color: 'cyan' },

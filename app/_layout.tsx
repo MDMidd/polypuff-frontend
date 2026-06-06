@@ -223,7 +223,9 @@ function TabsLayout() {
         <Tabs.Screen name="placement"           options={{ href: null }} />
         <Tabs.Screen name="translation"         options={{ href: null }} />
         <Tabs.Screen name="wordchunks"          options={{ href: null }} />
+        <Tabs.Screen name="word-chunks-vault"   options={{ href: null }} />
         <Tabs.Screen name="grammar"             options={{ href: null }} />
+        <Tabs.Screen name="grammar-vault"       options={{ href: null }} />
         <Tabs.Screen name="feedback"            options={{ href: null }} />
         <Tabs.Screen name="vault"               options={{ href: null }} />
         <Tabs.Screen name="help"                options={{ href: null }} />

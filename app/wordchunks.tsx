@@ -177,19 +177,26 @@ export default function WordChunksScreen() {
   const addToVault = async (phrase) => {
     if (!phrase?.trim()) return;
     try {
-      const raw = await AsyncStorage.getItem('vocabVault');
+      const keys = ['pp_word_chunks_vault', 'pp_wordchunks_vault'];
+      const raw = await AsyncStorage.getItem(keys[0]);
       const vault = raw ? JSON.parse(raw) : [];
-      const exists = vault.some(w => w.word.toLowerCase() === phrase.trim().toLowerCase());
-      if (exists) { Alert.alert('Already in Vault', `"${phrase.trim()}" is already in your Vocabulary Vault.`); return; }
+      const exists = Array.isArray(vault) && vault.some(w => String(w.text || w.phrase || w.english || '').toLowerCase() === phrase.trim().toLowerCase());
+      if (exists) { Alert.alert('Already in Vault', `"${phrase.trim()}" is already in your Word Chunks Vault.`); return; }
       const entry = {
-        word: phrase.trim(), definition: '',
-        example: chunk?.native ? `(from Word Chunks: ${chunk.native})` : '',
-        meanings: [], category: 'Word Chunks', source: 'wordchunks',
-        addedAt: new Date().toISOString(), practiceCount: 0,
+        text: phrase.trim(),
+        phrase: phrase.trim(),
+        native: chunk?.native || '',
+        english: chunk?.english || phrase.trim(),
+        studentAnswer: input.trim(),
+        category: 'Word Chunk',
+        source: 'wordchunks',
+        date: new Date().toISOString(),
+        score: result?.score,
       };
-      const updated = [...vault, entry].sort((a, b) => a.word.toLowerCase().localeCompare(b.word.toLowerCase()));
-      await AsyncStorage.setItem('vocabVault', JSON.stringify(updated));
-      Alert.alert('Added! 🎉', `"${phrase.trim()}" saved to your Vocabulary Vault.`);
+      const updated = [...(Array.isArray(vault) ? vault : []), entry].sort((a, b) =>
+        String(a.text || a.phrase || '').toLowerCase().localeCompare(String(b.text || b.phrase || '').toLowerCase()));
+      await Promise.all(keys.map(key => AsyncStorage.setItem(key, JSON.stringify(updated))));
+      Alert.alert('Added!', `"${phrase.trim()}" saved to your Word Chunks Vault.`);
     } catch (e) { Alert.alert('Error', 'Could not save to vault.'); }
   };
 
@@ -569,7 +576,7 @@ export default function WordChunksScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => { setVaultPhrase(result.correct); setVaultModal(true); }}
-                  accessibilityRole="button" accessibilityLabel={ui('saveToVocabularyVault', 'Save to Vocabulary Vault')}
+                  accessibilityRole="button" accessibilityLabel={`${wt('vault-save-to-vault')} ${wt('word-chunks-vault')}`}
                   style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Text style={{ fontSize: 18 }}>💾</Text>
@@ -621,8 +628,8 @@ export default function WordChunksScreen() {
       <Modal visible={vaultModal} transparent animationType="fade" onRequestClose={() => setVaultModal(false)}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.65)', padding: 24 }}>
           <View style={{ backgroundColor: C.card || '#1F2937', borderRadius: 16, padding: 20, width: '100%', maxWidth: 380, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '40' }}>
-            <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text, marginBottom: 4 }}>💾 {wt('vault-save-to-vault')}</Text>
-            <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 14 }}>{ui('saveToVaultPrompt', 'Tap to save to your Vocabulary Vault:')}</Text>
+            <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text, marginBottom: 4 }}>💾 {wt('word-chunks-vault')}</Text>
+            <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 14 }}>{wt('vault-save-to-vault')}: {wt('word-chunks-vault')}</Text>
             <TouchableOpacity
               onPress={() => { addToVault(vaultPhrase); setVaultModal(false); }}
               style={{ backgroundColor: (C.emerald || '#00E5A0') + '18', borderRadius: 10, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '40' }}
