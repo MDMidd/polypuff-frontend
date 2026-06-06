@@ -20,6 +20,7 @@ import {
   Volume2, Clock, Calendar, HardDrive, Settings, AlertCircle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import {
@@ -134,6 +135,7 @@ function PlaybackBar({ rec, C }: { rec: VoiceRecording; C: any }) {
 // ── Main Screen ────────────────────────────────────────────────────────────────
 export default function RecordingsScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router        = useRouter();
 
   const [recordings,  setRecordings]  = useState<VoiceRecording[]>([]);
@@ -229,7 +231,7 @@ export default function RecordingsScreen() {
 
   return (
     <ScreenBackground>
-      <BackHeader title="My Recordings" onPress={() => router.push('/progress')} />
+      <BackHeader title={wt('recordings')} onPress={() => router.push('/progress')} />
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
 

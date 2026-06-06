@@ -37,6 +37,7 @@ import {
   MessageSquare, Bug, Lightbulb, Send, CheckCircle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { getServerUrl } from '../services/api';
 import { scaledFont } from '../utils/accessibility';
@@ -52,6 +53,7 @@ const MESSAGE_MAX = 2000;
 
 export default function FeedbackScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
 
   const [category, setCategory] = useState('general');
   const [message,  setMessage]  = useState('');
@@ -150,7 +152,7 @@ export default function FeedbackScreen() {
   if (sent) {
     return (
       <ScreenBackground>
-        <BackHeader title="Feedback" />
+        <BackHeader title={wt('feedback')} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 }}>
           <CheckCircle size={64} color={C.emerald || '#00E5A0'} style={{ marginBottom: 20 }} />
           <Text style={{ fontSize: scaledFont(24), fontWeight: '800', color: C.text, textAlign: 'center', marginBottom: 8 }}>
@@ -186,7 +188,7 @@ export default function FeedbackScreen() {
   // ══════════════════════════════════════════════════════
   return (
     <ScreenBackground>
-      <BackHeader title="Feedback" />
+      <BackHeader title={wt('feedback')} />
 
       {/*
         KeyboardAvoidingView wraps both the ScrollView AND the pinned footer.

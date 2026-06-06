@@ -24,6 +24,7 @@ import {
   Zap, Star, Users, Globe, Award, X, Info,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 
@@ -197,6 +198,7 @@ export async function savePracticeConfig(active: string[], order: string[]): Pro
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CustomisePracticeScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   const [active,        setActive]        = useState<string[]>(DEFAULT_ACTIVE);
@@ -288,7 +290,7 @@ export default function CustomisePracticeScreen() {
 
   return (
     <ScreenBackground>
-      <BackHeader title="Customise Practice" onPress={() => router.back()} />
+      <BackHeader title={wt('customise-practice')} onPress={() => router.back()} />
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
 

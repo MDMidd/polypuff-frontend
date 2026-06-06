@@ -186,7 +186,7 @@ function getInitials(name: string): string {
 
 export default function ProfileScreen() {
   const { colors: C } = useTheme();
-  const { setLang } = useLanguage();
+  const { setLang, wt } = useLanguage();
 
   const [mode, setMode] = useState('view');
   const [hasProfile, setHasProfile] = useState(false);
@@ -370,7 +370,7 @@ export default function ProfileScreen() {
     const al = getAppLang(appLanguage);
     return (
       <ScreenBackground>
-        <BackHeader title="My Profile" />
+        <BackHeader title={wt('profile')} />
         <ScrollView contentContainerStyle={sty.content}>
 
           {/* ── 3D POLY-PUFF MASCOT ── */}
@@ -438,7 +438,7 @@ export default function ProfileScreen() {
   // ═══ EDIT MODE ═══
   return (
     <ScreenBackground>
-        <BackHeader title="Edit Profile" />
+        <BackHeader title={wt('profile')} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
       <ScrollView contentContainerStyle={sty.content} keyboardShouldPersistTaps="handled">
 

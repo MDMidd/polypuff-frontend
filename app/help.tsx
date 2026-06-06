@@ -29,6 +29,7 @@ import {
   Briefcase, Settings, BarChart3,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 
@@ -141,11 +142,12 @@ function FAQ({ q, a, C }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function HelpScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   return (
     <ScreenBackground>
-      <BackHeader title="Help & Tutorial" />
+      <BackHeader title={wt('help')} />
       <ScrollView contentContainerStyle={st.content} showsVerticalScrollIndicator={false}>
 
         {/* Mascot */}
