@@ -107,7 +107,7 @@ const SENTENCES = {
 
 export default function ListeningScreen() {
   const { colors: C } = useTheme();
-  const { wt } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
 
   // ✅ NEW: Screen reader detection — auto-shows transcript
@@ -338,7 +338,7 @@ export default function ListeningScreen() {
         {/* ═══ SETUP — No current sentence ═══ */}
         {!currentSentence && (<>
           {/* Level */}
-          <Text style={s.label} accessibilityRole="header">LEVEL</Text>
+          <Text style={s.label} accessibilityRole="header">{t.level.toUpperCase()}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.levelRow}
             accessibilityRole="tablist" accessibilityLabel="Select CEFR level" // ✅ A11Y
           >
@@ -356,7 +356,7 @@ export default function ListeningScreen() {
           </ScrollView>
 
           {/* Difficulty */}
-          <Text style={s.label} accessibilityRole="header">DIFFICULTY</Text>
+          <Text style={s.label} accessibilityRole="header">{wt('exercise-difficulty').toUpperCase()}</Text>
           <View style={s.diffRow}>
             {DIFFICULTIES.map(d => (
               <TouchableOpacity
@@ -464,7 +464,7 @@ export default function ListeningScreen() {
           </View>
 
           <View style={s.inputCard}>
-            <Text style={s.label} accessibilityRole="header">TYPE WHAT YOU HEARD</Text>
+            <Text style={s.label} accessibilityRole="header">{wt('type-what-you-hear').replace(/[.…]+$/, '').toUpperCase()}</Text>
             <TextInput
               style={s.input}
               value={userInput}
@@ -513,7 +513,7 @@ export default function ListeningScreen() {
               </Text>
             </View>
 
-            <Text style={s.label} accessibilityRole="header">CORRECT SENTENCE</Text>
+            <Text style={s.label} accessibilityRole="header">{wt('correct-text').toUpperCase()}</Text>
             <Text
               style={s.correctText}
               accessibilityLabel={`Correct sentence: ${currentSentence}`}
@@ -521,7 +521,7 @@ export default function ListeningScreen() {
               ✅ {currentSentence}
             </Text>
 
-            <Text style={s.label} accessibilityRole="header">YOUR ANSWER</Text>
+            <Text style={s.label} accessibilityRole="header">{wt('your-answer').toUpperCase()}</Text>
             <Text style={s.yourText}>
               {/* ✅ CHANGED: Each word gets accessibilityLabel + error prefix */}
               {result.userWords.map((w, i) => {

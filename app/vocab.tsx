@@ -117,7 +117,7 @@ const BOX_COLORS  = ['#EF4444', '#F97316', '#F59E0B', '#10B981', '#3B82F6'];
 // ─────────────────────────────────────────────────────────────────────────────
 export default function VocabScreen() {
   const { colors: C } = useTheme();
-  const { wt } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
 
   const [cards,          setCards]          = useState([]);
@@ -409,7 +409,7 @@ export default function VocabScreen() {
         </TouchableOpacity>
 
         <View style={s.menuCard}>
-          <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, marginBottom: 10, letterSpacing: 1 }} accessibilityRole="header">SELECT LEVEL</Text>
+          <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, marginBottom: 10, letterSpacing: 1 }} accessibilityRole="header">{t.level.toUpperCase()}</Text>
           {/* ✅ A11Y: Level pills with tablist + tab roles */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.levelRow}
             accessibilityRole="tablist" accessibilityLabel="Select vocabulary level">
@@ -439,7 +439,7 @@ export default function VocabScreen() {
 
         {totalCards > 0 && (
           <View style={s.menuCard}>
-            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, marginBottom: 10, letterSpacing: 1 }} accessibilityRole="header">YOUR PROGRESS</Text>
+            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, marginBottom: 10, letterSpacing: 1 }} accessibilityRole="header">{t.progress.toUpperCase()}</Text>
             {/* ✅ A11Y: Stats with grouped label */}
             <View
               style={s.statsRow}

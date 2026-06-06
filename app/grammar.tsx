@@ -120,6 +120,7 @@ function WordTile({ word, onPress, active, color, position, total, inSentence })
 // ─── ResultCard — ✅ ACCESSIBILITY UPDATED ──────────────────────────────────
 function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
   const { colors: C } = useTheme();
+  const { t } = useLanguage();
   const router = useRouter();
   const color = scoreColor(result.score);
 
@@ -164,7 +165,7 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
 
       {/* ✅ A11Y: Correct answer box */}
       <View style={styles.answerBox} accessibilityLabel={`Correct answer: ${result.correct_answer}`}>
-        <Text style={styles.answerBoxLabel}>CORRECT ANSWER</Text>
+        <Text style={styles.answerBoxLabel}>{t.correct.toUpperCase()}</Text>
         <Text style={styles.answerBoxText}>{result.correct_answer}</Text>
       </View>
 
@@ -234,7 +235,7 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function GrammarScreen() {
   const { colors: C } = useTheme();
-  const { wt } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
 
   const [level,          setLevel]          = useState('B1');
@@ -416,7 +417,7 @@ export default function GrammarScreen() {
           <AIDisclosureBanner compact />
 
           {/* ✅ A11Y: Level pills */}
-          <Text style={[styles.sectionLabel, { color: C.textMuted }]} accessibilityRole="header">YOUR LEVEL</Text>
+          <Text style={[styles.sectionLabel, { color: C.textMuted }]} accessibilityRole="header">{t.level.toUpperCase()}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.levelRow}
             accessibilityRole="tablist" accessibilityLabel="Select CEFR level">
             <View style={styles.levelInner}>
