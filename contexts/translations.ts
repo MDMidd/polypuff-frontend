@@ -90,6 +90,42 @@ export interface Translations {
   revealClueHint?: string;
   revealAnswerHint?: string;
   submitTranslationHint?: string;
+  sending?: string;
+  opening?: string;
+  emailLearningReminders?: string;
+  refreshAccountDetails?: string;
+  sendPasswordReset?: string;
+  signOutDevice?: string;
+  openBillingPortal?: string;
+  moneyBackGuarantee?: string;
+  customBackendServerUrl?: string;
+  saveTestBackendUrl?: string;
+  saveAndTest?: string;
+  useLocalBackend?: string;
+  useEmulatorBackend?: string;
+  useProductionBackend?: string;
+  testBackendConnection?: string;
+  showMascot?: string;
+  soundEffects?: string;
+  hapticFeedback?: string;
+  dailyStreakReminder?: string;
+  clearOfflineCache?: string;
+  resetDefaults?: string;
+  resetOnboarding?: string;
+  clearProfileInfo?: string;
+  clearAllProgressPermanently?: string;
+  viewTermsExternal?: string;
+  deleteAllDataPermanently?: string;
+  cefrLevels?: string;
+  chooseReminderTime?: string;
+  backend?: string;
+  currentServer?: string;
+  mascot?: string;
+  streakReminders?: string;
+  dailyReminder?: string;
+  reminderTime?: string;
+  appVersion?: string;
+  backendVersion?: string;
 }
 
 const t: Record<LangCode, Translations> = {
