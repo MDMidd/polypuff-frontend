@@ -122,6 +122,7 @@ function determineLevelFromScore(correctCount, total) {
 // Extracted so it can manage its own recognition state without re-rendering
 // the whole test screen on every transcript update.
 function SpeakingQuestion({ question, onDone, C }) {
+  const { wt } = useLanguage();
   const [permissionStatus, setPermissionStatus] = useState('unknown');
   const [isRecording,      setIsRecording]      = useState(false);
   const [transcript,       setTranscript]        = useState('');
@@ -297,7 +298,7 @@ function SpeakingQuestion({ question, onDone, C }) {
               fontSize: scaledFont(15), color: C.text, borderWidth: 1,
               borderColor: C.border + '40', minHeight: 90, textAlignVertical: 'top', marginBottom: 12,
             }}
-            placeholder="Type what you would say..."
+            placeholder={wt('type-would-say')}
             placeholderTextColor={C.textMuted}
             value={fallbackText}
             onChangeText={setFallbackText}
@@ -428,7 +429,7 @@ function SpeakingQuestion({ question, onDone, C }) {
               accessibilityRole="button"
               accessibilityLabel="I struggled with this"
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.red || '#FF4D6A' }}>Struggled</Text>
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.red || '#FF4D6A' }}>{wt('struggled')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleRating(0.6)}
@@ -436,7 +437,7 @@ function SpeakingQuestion({ question, onDone, C }) {
               accessibilityRole="button"
               accessibilityLabel="I did okay with this"
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.amber || '#FFBE0B' }}>Okay</Text>
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.amber || '#FFBE0B' }}>{wt('okay')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleRating(1)}
@@ -444,7 +445,7 @@ function SpeakingQuestion({ question, onDone, C }) {
               accessibilityRole="button"
               accessibilityLabel="I felt confident with this"
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.emerald || '#00E5A0' }}>Confident</Text>
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.emerald || '#00E5A0' }}>{wt('confident')}</Text>
             </TouchableOpacity>
           </View>
         </>
@@ -927,7 +928,7 @@ export default function PlacementScreen() {
             <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 12 }}>Min {question.minWords} words</Text>
             <TextInput
               style={{ backgroundColor: C.inputBg || C.bg, borderRadius: 12, padding: 14, fontSize: scaledFont(16), color: C.text, borderWidth: 1, borderColor: C.border + '40', minHeight: 100, textAlignVertical: 'top', marginBottom: 12 }}
-              placeholder="Write here..."
+              placeholder={wt('write-response-here')}
               placeholderTextColor={C.textMuted}
               value={writingInput}
               onChangeText={setWritingInput}
