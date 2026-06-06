@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { Archive, Download, Plus, Search, Trash2, Upload } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
+import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { BackHeader, ScreenBackground } from './PolyPuffUI';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -94,6 +95,21 @@ function csvEscape(value: unknown) {
   return `"${String(value ?? '').replace(/"/g, '""')}"`;
 }
 
+function escapeHtml(value: unknown) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function displayDate(value?: string) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-ZA');
+}
+
 export default function LearningVaultScreen({ kind }: { kind: VaultKind }) {
   const cfg = CONFIG[kind];
   const { colors: C } = useTheme();
@@ -174,6 +190,60 @@ export default function LearningVaultScreen({ kind }: { kind: VaultKind }) {
     const path = `${FileSystem.documentDirectory}Poly-Puff ${title}.csv`;
     await FileSystem.writeAsStringAsync(path, csv, { encoding: 'utf8' });
     await Sharing.shareAsync(path, { mimeType: 'text/csv', dialogTitle: `Poly-Puff ${title}` });
+  };
+
+  const exportWordChunksPdf = async () => {
+    if (!items.length) {
+      Alert.alert(title, `Your ${title} is empty.`);
+      return;
+    }
+    const dateFull = new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+    const rows = items.map(item => `
+      <tr>
+        <td class="chunk-cell">${escapeHtml(item.text)}</td>
+        <td>${escapeHtml(item.native || item.prompt || '')}</td>
+        <td>${escapeHtml(item.category || '')}</td>
+        <td>${escapeHtml(displayDate(item.date))}</td>
+      </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head>
+<meta charset="utf-8"><title>${escapeHtml(title)}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;color:#111827;background:#fff;padding:40px;font-size:12px;-webkit-font-smoothing:antialiased}
+body::before{content:'POLY-PUFF';position:fixed;top:45%;left:16%;font-size:72px;font-weight:900;color:#7ee8fa;opacity:.07;transform:rotate(-45deg);white-space:nowrap;z-index:0;pointer-events:none}
+.header{text-align:center;border-bottom:2px solid #7ee8fa;padding-bottom:20px;margin-bottom:24px}
+.stamp{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border:3px solid #7ee8fa;border-radius:50%;font-size:10px;font-weight:900;color:#0A0E1A;margin-bottom:10px}
+.wordmark{font-size:28px;font-weight:900;letter-spacing:.04em;color:#0A0E1A;margin-bottom:10px}
+.report-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px}
+.report-badge{display:inline-block;background:#e7fbff;border:1px solid #7ee8fa;color:#0A0E1A;padding:5px 18px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.05em}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+.stat-box{background:#f0fbff;border:1px solid #b9f3ff;border-radius:10px;padding:14px;text-align:center}
+.stat-value{font-size:24px;font-weight:800;color:#0A0E1A}.stat-label{font-size:9px;color:#6b7280;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+.section-title{font-size:13px;font-weight:700;color:#0A0E1A;text-transform:uppercase;letter-spacing:.08em;border-left:4px solid #7ee8fa;padding-left:10px;margin:20px 0 10px}
+table{width:100%;border-collapse:collapse;margin-bottom:16px}th{background:#0A0E1A;color:#7ee8fa;padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+td{padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:10px;vertical-align:top;line-height:1.45}tr:nth-child(even) td{background:#f9fafb}
+.chunk-cell{font-weight:700;color:#111827}.footer{margin-top:32px;text-align:center;border-top:1px solid #e5e7eb;padding-top:14px;color:#9ca3af;font-size:10px;line-height:1.7}
+</style></head><body>
+<div class="header">
+  <div class="stamp">CERTIFIED<br>POLY-PUFF</div>
+  <div class="wordmark">POLY-PUFF</div>
+  <div class="report-title">${escapeHtml(title)}</div>
+  <div class="report-badge">EXPORTED · ${escapeHtml(dateFull)} · ${items.length} ITEM${items.length === 1 ? '' : 'S'}</div>
+</div>
+<div class="stats-grid">
+  <div class="stat-box"><div class="stat-value">${items.length}</div><div class="stat-label">Saved Word Chunks</div></div>
+  <div class="stat-box"><div class="stat-value">${items.filter(item => item.native || item.prompt).length}</div><div class="stat-label">With Source Prompt</div></div>
+</div>
+<div class="section-title">Word Chunks Collection</div>
+<table><tr><th>Word Chunk</th><th>Prompt / Native</th><th>Category</th><th>Date</th></tr>${rows}</table>
+<div class="footer"><p>Generated by Poly-Puff ESL Trainer · polypuff.app</p><p>Developed by Mark Middleton, Cape Town, South Africa</p></div>
+</body></html>`;
+    const { uri } = await Print.printToFileAsync({ html, base64: false });
+    await Sharing.shareAsync(uri, {
+      mimeType: 'application/pdf',
+      dialogTitle: `Poly-Puff ${title}`,
+      UTI: 'com.adobe.pdf',
+    });
   };
 
   const importToVocabularyVault = async () => {
@@ -257,13 +327,19 @@ export default function LearningVaultScreen({ kind }: { kind: VaultKind }) {
           />
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-          <TouchableOpacity onPress={exportCsv} style={{ flex: 1, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: accent + '44', backgroundColor: accent + '12', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }} accessibilityRole="button" accessibilityLabel={`Export ${title}`}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+          <TouchableOpacity onPress={cfg.kind === 'wordchunks' ? exportWordChunksPdf : exportCsv} style={{ flex: 1, minWidth: 120, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: accent + '44', backgroundColor: accent + '12', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }} accessibilityRole="button" accessibilityLabel={`Export ${title}`}>
             <Download size={16} color={accent} />
-            <Text style={{ color: accent, fontSize: scaledFont(13), fontWeight: '800' }}>{wt('vault-export')}</Text>
+            <Text style={{ color: accent, fontSize: scaledFont(13), fontWeight: '800' }}>{cfg.kind === 'wordchunks' ? wt('vault-export-pdf') : wt('vault-export')}</Text>
           </TouchableOpacity>
           {cfg.kind === 'wordchunks' && (
-            <TouchableOpacity onPress={importToVocabularyVault} style={{ flex: 1, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '44', backgroundColor: (C.emerald || '#00E5A0') + '12', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }} accessibilityRole="button" accessibilityLabel="Import to Vocabulary Vault">
+            <TouchableOpacity onPress={exportCsv} style={{ flex: 1, minWidth: 120, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: accent + '30', backgroundColor: (C.card || '#121829') + '88', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }} accessibilityRole="button" accessibilityLabel={wt('vault-export-csv')}>
+              <Download size={16} color={C.textMuted} />
+              <Text style={{ color: C.textMuted, fontSize: scaledFont(13), fontWeight: '800' }}>{wt('vault-export-csv')}</Text>
+            </TouchableOpacity>
+          )}
+          {cfg.kind === 'wordchunks' && (
+            <TouchableOpacity onPress={importToVocabularyVault} style={{ flex: 1, minWidth: 120, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '44', backgroundColor: (C.emerald || '#00E5A0') + '12', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }} accessibilityRole="button" accessibilityLabel="Import to Vocabulary Vault">
               <Upload size={16} color={C.emerald || '#00E5A0'} />
               <Text style={{ color: C.emerald || '#00E5A0', fontSize: scaledFont(13), fontWeight: '800' }}>Import</Text>
             </TouchableOpacity>
