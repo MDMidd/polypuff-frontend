@@ -127,6 +127,24 @@ export interface Translations {
   appVersion?: string;
   backendVersion?: string;
   totalCards?: string;
+  selectCefrLevel?: string;
+  selectChunkCategory?: string;
+  translatePhraseToEnglish?: string;
+  englishTranslationPlaceholder?: string;
+  englishChunkTranslation?: string;
+  getHint?: string;
+  showCorrectAnswer?: string;
+  hearCorrectAnswer?: string;
+  saveToVocabularyVault?: string;
+  nextChunk?: string;
+  wordChunksStartHint?: string;
+  generatingChunk?: string;
+  hearInLanguage?: string;
+  scoreExcellent?: string;
+  scoreGood?: string;
+  scoreOk?: string;
+  chunksDone?: string;
+  averageAbbrev?: string;
 }
 
 const t: Record<LangCode, Translations> = {
@@ -150,6 +168,24 @@ const t: Record<LangCode, Translations> = {
     chooseModule: '📚 Choose a module to practise!',
     findYourCefrLevel: 'Find your CEFR level',
     customisePracticeList: 'Customise Practice List',
+    selectCefrLevel: 'Select CEFR level',
+    selectChunkCategory: 'Select chunk category',
+    translatePhraseToEnglish: 'Translate this phrase into English',
+    englishTranslationPlaceholder: 'Type your English translation...',
+    englishChunkTranslation: 'Your English translation of the chunk',
+    getHint: 'Get a hint',
+    showCorrectAnswer: 'Show the correct answer',
+    hearCorrectAnswer: 'Hear correct answer',
+    saveToVocabularyVault: 'Save to Vocabulary Vault',
+    nextChunk: 'Next chunk',
+    wordChunksStartHint: 'Translate short phrases and expressions from your language into English. Select a category, then tap Start.',
+    generatingChunk: 'Generating chunk',
+    hearInLanguage: 'Hear in',
+    scoreExcellent: 'Excellent',
+    scoreGood: 'Good',
+    scoreOk: 'OK',
+    chunksDone: 'done',
+    averageAbbrev: 'avg',
   },
   af: {
     home: 'Tuis', practice: 'Oefen', progress: 'Vordering',
