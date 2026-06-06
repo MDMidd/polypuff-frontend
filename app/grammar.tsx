@@ -667,7 +667,7 @@ export default function GrammarScreen() {
             >
               {checking
                 ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.checkBtnText}>Check Answer</Text>}
+                : <Text style={styles.checkBtnText}>{wt('check-answer')}</Text>}
             </TouchableOpacity>
 
             {/* ✅ A11Y: Skip */}

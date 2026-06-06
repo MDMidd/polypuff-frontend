@@ -380,7 +380,7 @@ export default function WordChunksScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Start Word Chunks session"
                 >
-                  <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: '#000' }}>Start Session</Text>
+                  <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: '#000' }}>{wt('start-session')}</Text>
                   <ChevronRight size={20} color="#000" />
                 </TouchableOpacity>
               </View>
@@ -494,7 +494,7 @@ export default function WordChunksScreen() {
                   accessibilityLabel="Show the correct answer"
                   accessibilityHint="Reveals the answer without scoring"
                 >
-                  <Text style={ds.revealText}>Show answer</Text>
+                  <Text style={ds.revealText}>{wt('show-answer')}</Text>
                 </TouchableOpacity>
                 {/* ✅ A11Y: Submit button */}
                 <TouchableOpacity
@@ -597,7 +597,7 @@ export default function WordChunksScreen() {
                 accessibilityLabel="Next chunk"
                 accessibilityHint="Generates a new word chunk to translate"
               >
-                <Text style={ds.nextText}>Next Chunk</Text>
+                <Text style={ds.nextText}>{wt('next')}</Text>
                 <ChevronRight size={18} color="#000" />
               </TouchableOpacity>
             </Animated.View>

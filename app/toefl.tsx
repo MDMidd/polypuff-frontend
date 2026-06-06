@@ -27,6 +27,7 @@ import {
   GraduationCap, Globe, Award, RefreshCw, Layers, ArrowLeft,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { getServerUrl } from '../services/api';
@@ -340,6 +341,7 @@ const SCORE_REQUIREMENTS = [
 // ────────────────────────────────────────────────────────────────────────────
 export default function TOEFLScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
 
   const [activeTab,        setActiveTab]        = useState('overview');
@@ -982,7 +984,7 @@ export default function TOEFLScreen() {
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
                 onPress={() => { setPracticeInput(''); setPracticeResult(null); }}
               >
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>Try Again</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
             </View>
           )}

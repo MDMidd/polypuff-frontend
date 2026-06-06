@@ -399,7 +399,7 @@ export default function ListeningScreen() {
             accessibilityHint="Generates a sentence and plays it as audio"
           >
             <Headphones size={20} color="#fff" />
-            <Text style={s.submitText}>Start Listening</Text>
+            <Text style={s.submitText}>{wt('start-listening')}</Text>
           </TouchableOpacity>
         </>)}
 
@@ -488,7 +488,7 @@ export default function ListeningScreen() {
               accessibilityState={{ disabled: !userInput.trim() }}
             >
               <Send size={16} color="#fff" />
-              <Text style={s.submitText}>Check Answer</Text>
+              <Text style={s.submitText}>{wt('check-answer')}</Text>
             </TouchableOpacity>
           </View>
         </>)}
@@ -558,7 +558,7 @@ export default function ListeningScreen() {
                 accessibilityLabel="Try again with the same sentence"
               >
                 <RotateCcw size={16} color={C.textMuted} />
-                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.textMuted }}>Try Again</Text>
+                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.textMuted }}>{wt('try-again')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[s.nextBtn, { flex: 1, marginTop: 0 }]}
@@ -568,7 +568,7 @@ export default function ListeningScreen() {
                 accessibilityHint="Generates a new sentence to practice"
               >
                 <ArrowRight size={16} color="#fff" />
-                <Text style={s.submitText}>Next Sentence</Text>
+                <Text style={s.submitText}>{wt('next-sentence')}</Text>
               </TouchableOpacity>
             </View>
           </View>

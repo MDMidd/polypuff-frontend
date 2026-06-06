@@ -34,6 +34,7 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import { generateExercise, checkTranslation } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
@@ -52,6 +53,7 @@ const CHALLENGES = [
 
 export default function ChallengesScreen() {
   const { colors: C } = useTheme();
+  const { wt } = useLanguage();
   const router = useRouter();
   const [nativeLanguage, setNativeLanguage] = useState('Spanish');
   const [level, setLevel] = useState('B1');
@@ -265,7 +267,7 @@ export default function ChallengesScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`Try ${activeChallenge.title} again`}
               >
-                <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#fff' }}>Try Again</Text>
+                <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#fff' }}>{wt('try-again')}</Text>
               </TouchableOpacity>
             </View>
           </View>

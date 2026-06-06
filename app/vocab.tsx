@@ -433,7 +433,7 @@ export default function VocabScreen() {
             accessibilityHint="Reviews flashcards due for study using spaced repetition"
           >
             <Brain size={20} color="#fff" />
-            <Text style={s.startText}>Start Review</Text>
+            <Text style={s.startText}>{wt('vocab-start-review')}</Text>
           </TouchableOpacity>
         </View>
 

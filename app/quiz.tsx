@@ -379,7 +379,7 @@ export default function QuizScreen() {
             accessibilityHint="Begins a new grammar quiz with shuffled questions"
           >
             <Zap size={20} color="#fff" />
-            <Text style={s.startText}>Start Quiz</Text>
+            <Text style={s.startText}>{wt('start-quiz')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
