@@ -54,6 +54,10 @@ upload-key*.json
 *-run.log
 *-run*.log
 
+# audit/diagnostic script outputs
+tmp-hardcoded.json
+audit-*.json
+
 # build outputs
 *.apk
 *.aab
