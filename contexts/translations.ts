@@ -170,6 +170,27 @@ export interface Translations {
   skipThisOne?: string;
   resultLabel?: string;
   generatingExercise?: string;
+  aboutMe?: string;
+  hobbiesInterests?: string;
+  editProfile?: string;
+  setUpYourProfile?: string;
+  personalInfo?: string;
+  profileDetailsNote?: string;
+  namePlaceholder?: string;
+  professionPlaceholder?: string;
+  qualificationsPlaceholder?: string;
+  agePlaceholder?: string;
+  hobbiesPlaceholder?: string;
+  optionalLabel?: string;
+  bioHelpText?: string;
+  bioPlaceholder?: string;
+  nativeLanguageHelp?: string;
+  appLanguageHelp?: string;
+  appLanguageNote?: string;
+  englishLevelCefr?: string;
+  levelDifficultyHelp?: string;
+  savedBang?: string;
+  saveProfile?: string;
 }
 
 const t: Record<LangCode, Translations> = {
@@ -236,6 +257,27 @@ const t: Record<LangCode, Translations> = {
     skipThisOne: 'Skip this one',
     resultLabel: 'Result',
     generatingExercise: 'Generating exercise...',
+    aboutMe: 'About Me',
+    hobbiesInterests: 'Hobbies & Interests',
+    editProfile: 'Edit Profile',
+    setUpYourProfile: 'Set Up Your Profile',
+    personalInfo: 'Personal Info',
+    profileDetailsNote: "Your profile details are for your benefit. We don't use this information for anything else; it simply helps the AI create exercises that match your needs, goals, interests, and English level.",
+    namePlaceholder: 'Your name *',
+    professionPlaceholder: 'Profession (e.g., Teacher, Engineer, Student)',
+    qualificationsPlaceholder: 'Qualifications (optional)',
+    agePlaceholder: 'Age (optional)',
+    hobbiesPlaceholder: 'Hobbies & interests (e.g., cooking, football, travel)',
+    optionalLabel: 'Optional',
+    bioHelpText: 'Describe your work duties, daily tasks, or anything about yourself. This helps us create more relevant exercises.',
+    bioPlaceholder: 'e.g., I work as a project manager at a construction company. My daily tasks include writing reports, attending meetings, and communicating with international clients.\n\nI also enjoy cooking Italian food and playing chess on weekends.',
+    nativeLanguageHelp: 'Grammar tips and translations shown in this language',
+    appLanguageHelp: 'Change the interface language',
+    appLanguageNote: 'Note: Full interface translations coming soon. Grammar tips already use your native language.',
+    englishLevelCefr: 'English Level (CEFR)',
+    levelDifficultyHelp: 'Exercises will match this difficulty',
+    savedBang: 'Saved!',
+    saveProfile: 'Save Profile',
   },
   af: {
     home: 'Tuis', practice: 'Oefen', progress: 'Vordering',

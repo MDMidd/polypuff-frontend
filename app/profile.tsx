@@ -186,7 +186,8 @@ function getInitials(name: string): string {
 
 export default function ProfileScreen() {
   const { colors: C } = useTheme();
-  const { setLang, wt } = useLanguage();
+  const { t, setLang, wt } = useLanguage();
+  const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
 
   const [mode, setMode] = useState('view');
   const [hasProfile, setHasProfile] = useState(false);
@@ -369,7 +370,7 @@ export default function ProfileScreen() {
     const lv = getLevelInfo(level);
     const al = getAppLang(appLanguage);
     return (
-      <ScreenBackground>
+      <ScreenBackground style={null}>
         <BackHeader title={wt('profile')} />
         <ScrollView contentContainerStyle={sty.content}>
 
@@ -409,7 +410,7 @@ export default function ProfileScreen() {
             <View style={ds.sectionCard}>
               <View style={sty.sectionHeader}>
                 <FileText size={18} color={C.blue} />
-                <Text style={[sty.sectionTitle, { color: C.text }]}>About Me</Text>
+                <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('aboutMe', 'About Me')}</Text>
               </View>
               <Text style={{ fontSize: 14, color: C.textSec, lineHeight: 22, marginTop: 8 }}>{bio}</Text>
             </View>
@@ -420,14 +421,14 @@ export default function ProfileScreen() {
             <View style={ds.sectionCard}>
               <View style={sty.sectionHeader}>
                 <Heart size={18} color={C.red} />
-                <Text style={[sty.sectionTitle, { color: C.text }]}>Hobbies & Interests</Text>
+                <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('hobbiesInterests', 'Hobbies & Interests')}</Text>
               </View>
               <Text style={{ fontSize: 14, color: C.textSec, lineHeight: 22, marginTop: 8 }}>{hobbies}</Text>
             </View>
           ) : null}
 
           {/* Edit button */}
-          <NeonButton title="Edit Profile" onPress={() => enterEditMode()} icon={<Edit3 size={18} color="#000" />} style={{ marginBottom: 12 }} />
+          <NeonButton title={ui('editProfile', 'Edit Profile')} onPress={() => enterEditMode()} icon={<Edit3 size={18} color="#000" />} style={{ marginBottom: 12 }} />
 
           <View style={{ height: 40 }} />
         </ScrollView>
@@ -437,7 +438,7 @@ export default function ProfileScreen() {
 
   // ═══ EDIT MODE ═══
   return (
-    <ScreenBackground>
+    <ScreenBackground style={null}>
         <BackHeader title={wt('profile')} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
       <ScrollView contentContainerStyle={sty.content} keyboardShouldPersistTaps="handled">
@@ -463,7 +464,7 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
           <Text style={{ fontSize: 22, fontWeight: '800', color: C.text, marginTop: 8 }}>
-            {hasProfile ? 'Edit Profile' : 'Set Up Your Profile'}
+            {hasProfile ? ui('editProfile', 'Edit Profile') : ui('setUpYourProfile', 'Set Up Your Profile')}
           </Text>
         </View>
 
@@ -471,29 +472,29 @@ export default function ProfileScreen() {
         <View style={ds.sectionCard}>
           <View style={sty.sectionHeader}>
             <UserCircle size={18} color={C.blue} />
-            <Text style={[sty.sectionTitle, { color: C.text }]}>Personal Info</Text>
+            <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('personalInfo', 'Personal Info')}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26, lineHeight: 18 }}>Your profile details are for your benefit. We don't use this information for anything else; it simply helps the AI create exercises that match your needs, goals, interests, and English level.</Text>
+          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26, lineHeight: 18 }}>{ui('profileDetailsNote', "Your profile details are for your benefit. We don't use this information for anything else; it simply helps the AI create exercises that match your needs, goals, interests, and English level.")}</Text>
 
           <View style={sty.fieldRow}>
             <UserCircle size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder="Your name *" placeholderTextColor={C.textMuted} value={name} onChangeText={setName} autoCapitalize="words" />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('namePlaceholder', 'Your name *')} placeholderTextColor={C.textMuted} value={name} onChangeText={setName} autoCapitalize="words" />
           </View>
           <View style={sty.fieldRow}>
             <Briefcase size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder="Profession (e.g., Teacher, Engineer, Student)" placeholderTextColor={C.textMuted} value={profession} onChangeText={setProfession} autoCapitalize="words" />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('professionPlaceholder', 'Profession (e.g., Teacher, Engineer, Student)')} placeholderTextColor={C.textMuted} value={profession} onChangeText={setProfession} autoCapitalize="words" />
           </View>
           <View style={sty.fieldRow}>
             <GraduationCap size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder="Qualifications (optional)" placeholderTextColor={C.textMuted} value={qualifications} onChangeText={setQualifications} autoCapitalize="words" />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('qualificationsPlaceholder', 'Qualifications (optional)')} placeholderTextColor={C.textMuted} value={qualifications} onChangeText={setQualifications} autoCapitalize="words" />
           </View>
           <View style={sty.fieldRow}>
             <Calendar size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder="Age (optional)" placeholderTextColor={C.textMuted} value={age} onChangeText={setAge} keyboardType="number-pad" maxLength={3} />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('agePlaceholder', 'Age (optional)')} placeholderTextColor={C.textMuted} value={age} onChangeText={setAge} keyboardType="number-pad" maxLength={3} />
           </View>
           <View style={sty.fieldRow}>
             <Heart size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} placeholder="Hobbies & interests (e.g., cooking, football, travel)" placeholderTextColor={C.textMuted} value={hobbies} onChangeText={setHobbies} multiline autoCapitalize="sentences" />
+            <TextInput style={[ds.input, sty.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} placeholder={ui('hobbiesPlaceholder', 'Hobbies & interests (e.g., cooking, football, travel)')} placeholderTextColor={C.textMuted} value={hobbies} onChangeText={setHobbies} multiline autoCapitalize="sentences" />
           </View>
         </View>
 
@@ -501,17 +502,17 @@ export default function ProfileScreen() {
         <View style={ds.sectionCard}>
           <View style={sty.sectionHeader}>
             <FileText size={18} color={C.purple} />
-            <Text style={[sty.sectionTitle, { color: C.text }]}>About Me</Text>
+            <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('aboutMe', 'About Me')}</Text>
             <View style={{ marginLeft: 'auto', backgroundColor: C.cardAlt, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-              <Text style={{ fontSize: 10, color: C.textMuted, fontWeight: '600' }}>OPTIONAL</Text>
+              <Text style={{ fontSize: 10, color: C.textMuted, fontWeight: '600' }}>{ui('optionalLabel', 'Optional').toUpperCase()}</Text>
             </View>
           </View>
           <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 12, marginLeft: 26 }}>
-            Describe your work duties, daily tasks, or anything about yourself. This helps us create more relevant exercises.
+            {ui('bioHelpText', 'Describe your work duties, daily tasks, or anything about yourself. This helps us create more relevant exercises.')}
           </Text>
           <TextInput
             style={[ds.input, { minHeight: 120, textAlignVertical: 'top', lineHeight: 22 }]}
-            placeholder={"e.g., I work as a project manager at a construction company. My daily tasks include writing reports, attending meetings, and communicating with international clients.\n\nI also enjoy cooking Italian food and playing chess on weekends."}
+            placeholder={ui('bioPlaceholder', "e.g., I work as a project manager at a construction company. My daily tasks include writing reports, attending meetings, and communicating with international clients.\n\nI also enjoy cooking Italian food and playing chess on weekends.")}
             placeholderTextColor={C.textMuted}
             value={bio} onChangeText={setBio}
             multiline autoCapitalize="sentences" maxLength={500}
@@ -523,9 +524,9 @@ export default function ProfileScreen() {
         <View style={ds.sectionCard}>
           <View style={sty.sectionHeader}>
             <Globe size={18} color={C.blue} />
-            <Text style={[sty.sectionTitle, { color: C.text }]}>Native Language</Text>
+            <Text style={[sty.sectionTitle, { color: C.text }]}>{t.nativeLanguage}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>Grammar tips and translations shown in this language</Text>
+          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('nativeLanguageHelp', 'Grammar tips and translations shown in this language')}</Text>
           {/* Scrollable list — shows 5 rows at a time */}
           <View style={{ height: 260, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '30' }}>
             <ScrollView
@@ -584,9 +585,9 @@ export default function ProfileScreen() {
         <View style={ds.sectionCard}>
           <View style={sty.sectionHeader}>
             <Languages size={18} color={C.amber} />
-            <Text style={[sty.sectionTitle, { color: C.text }]}>App Language</Text>
+            <Text style={[sty.sectionTitle, { color: C.text }]}>{t.appLanguage}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>Change the interface language</Text>
+          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('appLanguageHelp', 'Change the interface language')}</Text>
           {/* Scrollable list — matches Native Language style */}
           <View style={{ height: 260, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '30' }}>
             <ScrollView
@@ -616,7 +617,7 @@ export default function ProfileScreen() {
             </ScrollView>
           </View>
           <Text style={{ fontSize: 11, color: C.textMuted, marginTop: 8, fontStyle: 'italic' }}>
-            Note: Full interface translations coming soon. Grammar tips already use your native language.
+            {ui('appLanguageNote', 'Note: Full interface translations coming soon. Grammar tips already use your native language.')}
           </Text>
         </View>
 
@@ -624,9 +625,9 @@ export default function ProfileScreen() {
         <View style={ds.sectionCard}>
           <View style={sty.sectionHeader}>
             <BookOpen size={18} color={C.purple} />
-            <Text style={[sty.sectionTitle, { color: C.text }]}>English Level (CEFR)</Text>
+            <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('englishLevelCefr', 'English Level (CEFR)')}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>Exercises will match this difficulty</Text>
+          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('levelDifficultyHelp', 'Exercises will match this difficulty')}</Text>
           {LEVELS.map(l => (
             <TouchableOpacity key={l.code} style={[sty.levelRow, level === l.code && { backgroundColor: C.emeraldDark }]} onPress={() => setLevel(l.code)}>
               <View style={[sty.levelBadge, { backgroundColor: level === l.code ? C.emerald + '30' : C.cardAlt }]}>
@@ -644,15 +645,15 @@ export default function ProfileScreen() {
         {/* ── SAVE ── */}
         <TouchableOpacity style={[sty.saveBtn, { backgroundColor: C.emerald }]} onPress={saveProfile}>
           {saved ? (
-            <><CheckCircle size={20} color="#fff" /><Text style={sty.saveBtnText}>Saved!</Text></>
+            <><CheckCircle size={20} color="#fff" /><Text style={sty.saveBtnText}>{ui('savedBang', 'Saved!')}</Text></>
           ) : (
-            <><Save size={20} color="#fff" /><Text style={sty.saveBtnText}>Save Profile</Text></>
+            <><Save size={20} color="#fff" /><Text style={sty.saveBtnText}>{ui('saveProfile', 'Save Profile')}</Text></>
           )}
         </TouchableOpacity>
 
         {hasProfile && (
           <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 12 }} onPress={() => setMode('view')}>
-            <Text style={{ fontSize: 14, color: C.textMuted }}>Cancel</Text>
+            <Text style={{ fontSize: 14, color: C.textMuted }}>{t.cancel}</Text>
           </TouchableOpacity>
         )}
 
