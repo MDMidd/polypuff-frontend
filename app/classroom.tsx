@@ -107,6 +107,7 @@ export default function ClassroomScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
 
   const [mode,         setMode]         = useState(null); // null | 'teacher' | 'student'
   const [loading,      setLoading]      = useState(false);
@@ -321,15 +322,15 @@ export default function ClassroomScreen() {
             <View style={{ flexDirection: 'row', gap: 10, marginBottom: 24 }}>
               <ModeCard
                 icon={<Award size={24} color="#A78BFA" />}
-                title="Teacher"
-                desc="Create a class, manage students, view analytics"
+                title={ui('teacher', 'Teacher')}
+                desc={ui('teacherModeDesc', 'Create a class, manage students, view analytics')}
                 color="#A78BFA"
                 onPress={() => selectMode('teacher')}
               />
               <ModeCard
                 icon={<BookOpen size={24} color="#34D399" />}
-                title="Student"
-                desc="Join a class with your teacher's code"
+                title={ui('student', 'Student')}
+                desc={ui('studentModeDesc', "Join a class with your teacher's code")}
                 color="#34D399"
                 onPress={() => selectMode('student')}
               />
@@ -343,11 +344,11 @@ export default function ClassroomScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <Award size={16} color="#A78BFA" />
               <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#A78BFA', letterSpacing: 0.5 }}>
-                TEACHER MODE
+                {ui('teacherMode', 'Teacher Mode').toUpperCase()}
               </Text>
               <TouchableOpacity onPress={resetMode} style={{ marginLeft: 'auto', minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
-                accessibilityRole="button" accessibilityLabel={wt('continue')}>
-                <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>Switch</Text>
+                accessibilityRole="button" accessibilityLabel={ui('switchMode', 'Switch')}>
+                <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{ui('switchMode', 'Switch')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -360,10 +361,10 @@ export default function ClassroomScreen() {
                 borderColor: '#A78BFA40', minHeight: 52,
               }}
               onPress={() => setShowCreate(true)}
-              accessibilityRole="button" accessibilityLabel="Create new class"
+              accessibilityRole="button" accessibilityLabel={ui('createNewClass', 'Create New Class')}
             >
               <Plus size={18} color="#A78BFA" />
-              <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>Create New Class</Text>
+              <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>{ui('createNewClass', 'Create New Class')}</Text>
             </TouchableOpacity>
 
             {/* Class list */}
@@ -371,7 +372,7 @@ export default function ClassroomScreen() {
               <>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                   <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5 }}>
-                    MY CLASSES ({rooms.length})
+                    {ui('myClasses', 'My Classes').toUpperCase()} ({rooms.length})
                   </Text>
                   <TouchableOpacity onPress={() => refreshRooms(false)} style={{ minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
                     accessibilityRole="button" accessibilityLabel={t.retry}>
@@ -395,9 +396,9 @@ export default function ClassroomScreen() {
             {rooms.length === 0 && (
               <View style={{ alignItems: 'center', paddingVertical: 40 }}>
                 <Text style={{ fontSize: 40, marginBottom: 12 }}>🏫</Text>
-                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>No classes yet</Text>
+                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('noClassesYet', 'No classes yet')}</Text>
                 <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
-                  Create your first class and share the code with your students.
+                  {ui('noClassesHelp', 'Create your first class and share the code with your students.')}
                 </Text>
               </View>
             )}
@@ -410,11 +411,11 @@ export default function ClassroomScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <BookOpen size={16} color="#34D399" />
               <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#34D399', letterSpacing: 0.5 }}>
-                STUDENT MODE
+                {ui('studentMode', 'Student Mode').toUpperCase()}
               </Text>
               <TouchableOpacity onPress={resetMode} style={{ marginLeft: 'auto', minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
-                accessibilityRole="button" accessibilityLabel={wt('continue')}>
-                <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>Switch</Text>
+                accessibilityRole="button" accessibilityLabel={ui('switchMode', 'Switch')}>
+                <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{ui('switchMode', 'Switch')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -428,17 +429,17 @@ export default function ClassroomScreen() {
                     borderColor: '#34D39940', minHeight: 52,
                   }}
                   onPress={() => setShowJoin(true)}
-                  accessibilityRole="button" accessibilityLabel="Join a class"
+                  accessibilityRole="button" accessibilityLabel={ui('joinAClass', 'Join a Class')}
                 >
                   <LogIn size={18} color="#34D399" />
-                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#34D399' }}>Join a Class</Text>
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#34D399' }}>{ui('joinAClass', 'Join a Class')}</Text>
                 </TouchableOpacity>
 
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                   <Text style={{ fontSize: 40, marginBottom: 12 }}>🎓</Text>
-                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>Not in a class yet</Text>
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('notInClassYet', 'Not in a class yet')}</Text>
                   <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
-                    Ask your teacher for the 6-character class code, then tap "Join a Class" above.
+                    {ui('notInClassHelp', 'Ask your teacher for the 6-character class code, then tap "Join a Class" above.')}
                   </Text>
                 </View>
               </>
@@ -472,7 +473,7 @@ export default function ClassroomScreen() {
                       })}
                       accessibilityRole="button" accessibilityLabel={wt('classroom-details')}
                     >
-                      <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#34D399' }}>View Dashboard</Text>
+                      <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#34D399' }}>{ui('viewDashboard', 'View Dashboard')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={{
@@ -481,9 +482,9 @@ export default function ClassroomScreen() {
                         borderColor: (C.red || '#EF4444') + '30', minHeight: 44, justifyContent: 'center',
                       }}
                       onPress={leaveClass}
-                      accessibilityRole="button" accessibilityLabel="Leave class"
+                      accessibilityRole="button" accessibilityLabel={ui('leaveClass', 'Leave class')}
                     >
-                      <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.red || '#EF4444' }}>Leave</Text>
+                      <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.red || '#EF4444' }}>{ui('leave', 'Leave')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -493,7 +494,7 @@ export default function ClassroomScreen() {
                   borderWidth: 1, borderColor: (C.border || '#374151') + '20',
                 }}>
                   <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 18 }}>
-                    💡 Your scores are automatically submitted to this class when you complete exercises. Keep practising to climb the leaderboard!
+                    💡 {ui('classroomStudentTip', 'Your scores are automatically submitted to this class when you complete exercises. Keep practising to climb the leaderboard!')}
                   </Text>
                 </View>
               </>
@@ -512,17 +513,17 @@ export default function ClassroomScreen() {
             padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#A78BFA30',
           }} accessibilityViewIsModal={true}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">Create New Class</Text>
+              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{ui('createNewClass', 'Create New Class')}</Text>
               <TouchableOpacity onPress={() => setShowCreate(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                 accessibilityRole="button" accessibilityLabel={t.cancel}>
                 <X size={22} color={C.textMuted} />
               </TouchableOpacity>
             </View>
 
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>YOUR NAME</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('yourNameLabel', 'Your Name').toUpperCase()}</Text>
             <TextInput
               style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 14 }}
-              placeholder="e.g. Mrs Smith"
+              placeholder={ui('teacherNamePlaceholder', 'e.g. Mrs Smith')}
               placeholderTextColor={C.textMuted}
               value={teacherName}
               onChangeText={setTeacherName}
@@ -530,10 +531,10 @@ export default function ClassroomScreen() {
               accessibilityLabel={t.profile}
             />
 
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>CLASS NAME</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('classNameLabel', 'Class Name').toUpperCase()}</Text>
             <TextInput
               style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 20 }}
-              placeholder="e.g. Grade 9 English"
+              placeholder={ui('classNamePlaceholder', 'e.g. Grade 9 English')}
               placeholderTextColor={C.textMuted}
               value={className}
               onChangeText={setClassName}
@@ -549,11 +550,11 @@ export default function ClassroomScreen() {
               }}
               onPress={createClass}
               disabled={loading}
-              accessibilityRole="button" accessibilityLabel="Create class"
+              accessibilityRole="button" accessibilityLabel={ui('createClass', 'Create Class')}
             >
               {loading
                 ? <ActivityIndicator size="small" color="#A78BFA" />
-                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#A78BFA' }}>Create Class</Text>
+                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#A78BFA' }}>{ui('createClass', 'Create Class')}</Text>
               }
             </TouchableOpacity>
           </View>
@@ -569,17 +570,17 @@ export default function ClassroomScreen() {
             padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#34D39930',
           }} accessibilityViewIsModal={true}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">Join a Class</Text>
+              <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{ui('joinAClass', 'Join a Class')}</Text>
               <TouchableOpacity onPress={() => setShowJoin(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                 accessibilityRole="button" accessibilityLabel={t.cancel}>
                 <X size={22} color={C.textMuted} />
               </TouchableOpacity>
             </View>
 
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>YOUR NAME</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('yourNameLabel', 'Your Name').toUpperCase()}</Text>
             <TextInput
               style={{ backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: (C.border || '#374151') + '30', marginBottom: 14 }}
-              placeholder="Your full name"
+              placeholder={ui('fullNamePlaceholder', 'Your full name')}
               placeholderTextColor={C.textMuted}
               value={studentName}
               onChangeText={setStudentName}
@@ -587,7 +588,7 @@ export default function ClassroomScreen() {
               accessibilityLabel={t.profile}
             />
 
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>CLASS CODE</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{ui('classCodeLabel', 'Class Code').toUpperCase()}</Text>
             <TextInput
               style={{
                 backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14,
@@ -595,13 +596,13 @@ export default function ClassroomScreen() {
                 borderWidth: 1, borderColor: '#34D39930', marginBottom: 20,
                 letterSpacing: 4, textAlign: 'center',
               }}
-              placeholder="ABC123"
+              placeholder={ui('classCodePlaceholder', 'ABC123')}
               placeholderTextColor={C.textMuted}
               value={joinCode}
               onChangeText={t => setJoinCode(t.toUpperCase())}
               autoCapitalize="characters"
               maxLength={6}
-              accessibilityLabel="6-character class code"
+              accessibilityLabel={ui('classCodeA11y', '6-character class code')}
             />
 
             <TouchableOpacity
@@ -612,11 +613,11 @@ export default function ClassroomScreen() {
               }}
               onPress={joinClass}
               disabled={loading}
-              accessibilityRole="button" accessibilityLabel="Join class"
+              accessibilityRole="button" accessibilityLabel={ui('joinClass', 'Join Class')}
             >
               {loading
                 ? <ActivityIndicator size="small" color="#34D399" />
-                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#34D399' }}>Join Class</Text>
+                : <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: '#34D399' }}>{ui('joinClass', 'Join Class')}</Text>
               }
             </TouchableOpacity>
           </View>

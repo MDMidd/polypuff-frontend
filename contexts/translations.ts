@@ -191,6 +191,34 @@ export interface Translations {
   levelDifficultyHelp?: string;
   savedBang?: string;
   saveProfile?: string;
+  teacher?: string;
+  student?: string;
+  teacherMode?: string;
+  studentMode?: string;
+  switchMode?: string;
+  createNewClass?: string;
+  createClass?: string;
+  noClassesYet?: string;
+  noClassesHelp?: string;
+  myClasses?: string;
+  joinAClass?: string;
+  joinClass?: string;
+  notInClassYet?: string;
+  notInClassHelp?: string;
+  viewDashboard?: string;
+  leaveClass?: string;
+  leave?: string;
+  yourNameLabel?: string;
+  classNameLabel?: string;
+  teacherNamePlaceholder?: string;
+  classNamePlaceholder?: string;
+  classCodeLabel?: string;
+  fullNamePlaceholder?: string;
+  classCodePlaceholder?: string;
+  classCodeA11y?: string;
+  classroomStudentTip?: string;
+  teacherModeDesc?: string;
+  studentModeDesc?: string;
 }
 
 const t: Record<LangCode, Translations> = {
@@ -278,6 +306,34 @@ const t: Record<LangCode, Translations> = {
     levelDifficultyHelp: 'Exercises will match this difficulty',
     savedBang: 'Saved!',
     saveProfile: 'Save Profile',
+    teacher: 'Teacher',
+    student: 'Student',
+    teacherMode: 'Teacher Mode',
+    studentMode: 'Student Mode',
+    switchMode: 'Switch',
+    createNewClass: 'Create New Class',
+    createClass: 'Create Class',
+    noClassesYet: 'No classes yet',
+    noClassesHelp: 'Create your first class and share the code with your students.',
+    myClasses: 'My Classes',
+    joinAClass: 'Join a Class',
+    joinClass: 'Join Class',
+    notInClassYet: 'Not in a class yet',
+    notInClassHelp: 'Ask your teacher for the 6-character class code, then tap "Join a Class" above.',
+    viewDashboard: 'View Dashboard',
+    leaveClass: 'Leave class',
+    leave: 'Leave',
+    yourNameLabel: 'Your Name',
+    classNameLabel: 'Class Name',
+    teacherNamePlaceholder: 'e.g. Mrs Smith',
+    classNamePlaceholder: 'e.g. Grade 9 English',
+    classCodeLabel: 'Class Code',
+    fullNamePlaceholder: 'Your full name',
+    classCodePlaceholder: 'ABC123',
+    classCodeA11y: '6-character class code',
+    classroomStudentTip: 'Your scores are automatically submitted to this class when you complete exercises. Keep practising to climb the leaderboard!',
+    teacherModeDesc: 'Create a class, manage students, view analytics',
+    studentModeDesc: "Join a class with your teacher's code",
   },
   af: {
     home: 'Tuis', practice: 'Oefen', progress: 'Vordering',
