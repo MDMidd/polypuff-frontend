@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import {
   ClipboardCheck, BookOpen, Headphones, PenTool,
-  Brain, Layers, Puzzle, ChevronRight, Pencil,
+  Brain, Layers, Puzzle, ChevronLeft, ChevronRight, Pencil,
   Archive, GraduationCap, Briefcase, Settings,
   ChevronDown, ChevronUp, Wrench, Target, School, Star,
 } from 'lucide-react-native';
@@ -24,6 +24,7 @@ import StreakBanner from '../components/StreakBanner';
 import LanguageSelector from '../components/LanguageSelector';
 import { scaledFont } from '../utils/accessibility';
 import { recordPracticeToday } from '../services/notifications';
+import { isRtlLanguage } from '../utils/languages';
 
 type MenuColor = 'cyan' | 'purple' | 'emerald' | 'amber' | 'pink';
 
@@ -71,8 +72,12 @@ const GOAL_EXERCISES: MenuItem[] = [
 
 export default function PracticeHub() {
   const { colors: C } = useTheme();
-  const { t, wt } = useLanguage();
+  const { t, wt, lang } = useLanguage();
   const router = useRouter();
+  const isRTL = isRtlLanguage(lang);
+  const rowDirection = isRTL ? 'row-reverse' : 'row';
+  const textAlign = isRTL ? 'right' : 'left';
+  const DirectionChevron = isRTL ? ChevronLeft : ChevronRight;
 
   const [placementDone,   setPlacementDone]   = useState(false);
   const [skillLevels,     setSkillLevels]     = useState<Record<string, string | number> | null>(null);
@@ -123,7 +128,7 @@ export default function PracticeHub() {
           backgroundColor: isPrimary ? color + '14' : (C.card || '#121829') + (item.id === 'classroom' ? 'CC' : '70'),
           borderWidth: isPrimary ? 1 : 0,
           borderColor: color + '55',
-          flexDirection: 'row',
+          flexDirection: rowDirection,
           alignItems: 'center',
           gap: 12,
         }}
@@ -142,7 +147,7 @@ export default function PracticeHub() {
         }}>
           <Icon size={16} color={color} />
         </View>
-        <Text style={{ flex: 1, fontSize: scaledFont(isPrimary ? 14 : 13), fontWeight: '800', color: C.text }} numberOfLines={2}>
+        <Text style={{ flex: 1, fontSize: scaledFont(isPrimary ? 14 : 13), fontWeight: '800', color: C.text, textAlign }} numberOfLines={2}>
           {label}
         </Text>
       </TouchableOpacity>
@@ -171,7 +176,7 @@ export default function PracticeHub() {
           backgroundColor: (C.card || '#121829') + 'B8',
           borderWidth: 1,
           borderColor: (C.border || '#2A3450') + 'AA',
-          flexDirection: 'row',
+          flexDirection: rowDirection,
           alignItems: 'center',
           gap: 12,
         }}
@@ -182,7 +187,7 @@ export default function PracticeHub() {
         onPress={onPress}
       >
         <Icon size={17} color={color} />
-        <Text style={{ flex: 1, fontSize: scaledFont(14), fontWeight: '800', color: C.text }}>{label}</Text>
+        <Text style={{ flex: 1, fontSize: scaledFont(14), fontWeight: '800', color: C.text, textAlign }}>{label}</Text>
         <Chevron size={16} color={C.textMuted || '#8B94A8'} />
       </TouchableOpacity>
     );
@@ -202,7 +207,7 @@ export default function PracticeHub() {
         />
         <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('practice').toUpperCase()}</Text>
         <View style={{ width: 52 }} />
-        <LanguageSelector style={s.languageSelector} />
+        <LanguageSelector style={[s.languageSelector, isRTL && s.languageSelectorRtl]} />
       </View>
 
       <ScrollView contentContainerStyle={s.scroll}>
@@ -212,10 +217,10 @@ export default function PracticeHub() {
 
         {/* ── GREETING ── */}
         <View style={s.greetingRow}>
-          <Text style={[s.greeting, { color: C.text }]}>
+          <Text style={[s.greeting, { color: C.text, textAlign }]}>
             {userName ? `${t.hi ?? 'Hi'}, ${userName}!` : (t.welcome ?? 'Welcome!')}
           </Text>
-          <Text style={[s.greetingSub, { color: C.textMuted }]}>
+          <Text style={[s.greetingSub, { color: C.textMuted, textAlign }]}>
             {!placementDone
               ? (t.takePlacementTest ?? '⭐ Take the Placement Test to find your level!')
               : (t.chooseModule ?? '📚 Choose a module to practise!')}
@@ -224,7 +229,7 @@ export default function PracticeHub() {
 
         {/* ── SKILL BADGES ── */}
         {placementDone && skillLevels && (
-          <View style={s.badgeRow}>
+          <View style={[s.badgeRow, isRTL && s.badgeRowRtl]}>
             {Object.entries(skillLevels).map(([skill, lvl]) => (
               <View
                 key={skill}
@@ -240,7 +245,7 @@ export default function PracticeHub() {
 
         {/* ── WEBSITE-SYNCED EXERCISE MENU ── */}
         <View style={{ gap: 10, marginBottom: 10 }}>
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '900', color: C.textMuted, letterSpacing: 1, marginLeft: 6 }}>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '900', color: C.textMuted, letterSpacing: 1, textAlign, marginLeft: isRTL ? 0 : 6, marginRight: isRTL ? 6 : 0 }}>
             {webText('main-exercise', 'Main Exercise').toUpperCase()}
           </Text>
           {renderMenuItem(MAIN_EXERCISE, 'primary')}
@@ -254,7 +259,7 @@ export default function PracticeHub() {
             () => setAdditionalOpen(open => !open),
           )}
           {additionalOpen && (
-            <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
+            <View style={{ gap: 4, paddingLeft: isRTL ? 2 : 6, paddingRight: isRTL ? 6 : 2 }}>
               {ADDITIONAL_EXERCISES.map(item => renderMenuItem(item))}
             </View>
           )}
@@ -268,7 +273,7 @@ export default function PracticeHub() {
             () => setGoalsOpen(open => !open),
           )}
           {goalsOpen && (
-            <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
+            <View style={{ gap: 4, paddingLeft: isRTL ? 2 : 6, paddingRight: isRTL ? 6 : 2 }}>
               {GOAL_EXERCISES.map(item => renderMenuItem(item))}
             </View>
           )}
@@ -276,16 +281,16 @@ export default function PracticeHub() {
 
         {/* ── CUSTOMISE LINK ── */}
         <TouchableOpacity
-          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4, borderRadius: 14, backgroundColor: (C.emerald || '#00E5A0') + '10', borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '25' }}
+          style={{ flexDirection: rowDirection, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4, borderRadius: 14, backgroundColor: (C.emerald || '#00E5A0') + '10', borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '25' }}
           onPress={() => router.push('/customise')}
           accessibilityRole="button"
-          accessibilityLabel="Customise your practice list"
+          accessibilityLabel={t.customisePracticeList ?? 'Customise Practice List'}
         >
           <Settings size={16} color={C.emerald || '#00E5A0'} />
-          <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.emerald || '#00E5A0' }}>
+          <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.emerald || '#00E5A0', textAlign }}>
             {t.customisePracticeList ?? 'Customise Practice List'}
           </Text>
-          <ChevronRight size={14} color={C.emerald || '#00E5A0'} />
+          <DirectionChevron size={14} color={C.emerald || '#00E5A0'} />
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />
@@ -312,12 +317,17 @@ const s = StyleSheet.create({
     top: 36,
     right: 14,
   },
+  languageSelectorRtl: {
+    right: undefined,
+    left: 14,
+  },
   headerTitle:   { fontSize: scaledFont(20), fontWeight: '800', textAlign: 'center', flex: 1 },
   scroll:        { padding: 16, paddingTop: 10, paddingBottom: 100 },
   greetingRow:   { marginBottom: 16, paddingHorizontal: 4 },
   greeting:      { fontSize: scaledFont(24), fontWeight: '800' },
   greetingSub:   { fontSize: scaledFont(13), marginTop: 4 },
   badgeRow:      { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  badgeRowRtl:   { flexDirection: 'row-reverse' },
   badge:         { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
   badgeLabel:    { fontSize: scaledFont(9), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
   badgeLevel:    { fontSize: scaledFont(14), fontWeight: '800', marginTop: 1 },

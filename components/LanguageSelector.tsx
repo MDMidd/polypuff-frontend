@@ -15,68 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
 import type { LangCode } from '../contexts/translations';
 import { scaledFont } from '../utils/accessibility';
-
-type LanguageOption = {
-  code: LangCode;
-  label: string;
-  nativeLabel: string;
-};
-
-const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { code: 'en', label: 'English', nativeLabel: 'English' },
-  { code: 'af', label: 'Afrikaans', nativeLabel: 'Afrikaans' },
-  { code: 'am', label: 'Amharic', nativeLabel: 'Amharic' },
-  { code: 'ar', label: 'Arabic', nativeLabel: 'Arabic' },
-  { code: 'bn', label: 'Bengali', nativeLabel: 'Bengali' },
-  { code: 'bg', label: 'Bulgarian', nativeLabel: 'Bulgarian' },
-  { code: 'cs', label: 'Czech', nativeLabel: 'Czech' },
-  { code: 'da', label: 'Danish', nativeLabel: 'Danish' },
-  { code: 'nl', label: 'Dutch', nativeLabel: 'Dutch' },
-  { code: 'fi', label: 'Finnish', nativeLabel: 'Finnish' },
-  { code: 'fr', label: 'French', nativeLabel: 'French' },
-  { code: 'de', label: 'German', nativeLabel: 'German' },
-  { code: 'el', label: 'Greek', nativeLabel: 'Greek' },
-  { code: 'gu', label: 'Gujarati', nativeLabel: 'Gujarati' },
-  { code: 'ha', label: 'Hausa', nativeLabel: 'Hausa' },
-  { code: 'he', label: 'Hebrew', nativeLabel: 'Hebrew' },
-  { code: 'hi', label: 'Hindi', nativeLabel: 'Hindi' },
-  { code: 'hu', label: 'Hungarian', nativeLabel: 'Hungarian' },
-  { code: 'ig', label: 'Igbo', nativeLabel: 'Igbo' },
-  { code: 'id', label: 'Indonesian', nativeLabel: 'Indonesian' },
-  { code: 'it', label: 'Italian', nativeLabel: 'Italian' },
-  { code: 'ja', label: 'Japanese', nativeLabel: 'Japanese' },
-  { code: 'ko', label: 'Korean', nativeLabel: 'Korean' },
-  { code: 'ms', label: 'Malay', nativeLabel: 'Malay' },
-  { code: 'zh', label: 'Chinese', nativeLabel: 'Chinese' },
-  { code: 'mr', label: 'Marathi', nativeLabel: 'Marathi' },
-  { code: 'ne', label: 'Nepali', nativeLabel: 'Nepali' },
-  { code: 'no', label: 'Norwegian', nativeLabel: 'Norwegian' },
-  { code: 'fa', label: 'Persian', nativeLabel: 'Persian' },
-  { code: 'pl', label: 'Polish', nativeLabel: 'Polish' },
-  { code: 'pt', label: 'Portuguese', nativeLabel: 'Portuguese' },
-  { code: 'pa', label: 'Punjabi', nativeLabel: 'Punjabi' },
-  { code: 'ro', label: 'Romanian', nativeLabel: 'Romanian' },
-  { code: 'ru', label: 'Russian', nativeLabel: 'Russian' },
-  { code: 'si', label: 'Sinhala', nativeLabel: 'Sinhala' },
-  { code: 'es', label: 'Spanish', nativeLabel: 'Spanish' },
-  { code: 'sw', label: 'Swahili', nativeLabel: 'Swahili' },
-  { code: 'sv', label: 'Swedish', nativeLabel: 'Swedish' },
-  { code: 'ta', label: 'Tamil', nativeLabel: 'Tamil' },
-  { code: 'th', label: 'Thai', nativeLabel: 'Thai' },
-  { code: 'tr', label: 'Turkish', nativeLabel: 'Turkish' },
-  { code: 'uk', label: 'Ukrainian', nativeLabel: 'Ukrainian' },
-  { code: 'ur', label: 'Urdu', nativeLabel: 'Urdu' },
-  { code: 'vi', label: 'Vietnamese', nativeLabel: 'Vietnamese' },
-  { code: 'yo', label: 'Yoruba', nativeLabel: 'Yoruba' },
-  { code: 'zu', label: 'Zulu', nativeLabel: 'Zulu' },
-  { code: 'fil', label: 'Filipino', nativeLabel: 'Filipino' },
-  { code: 'gn', label: 'Guarani', nativeLabel: 'Guarani' },
-  { code: 'ht', label: 'Haitian Creole', nativeLabel: 'Haitian Creole' },
-  { code: 'ps', label: 'Pashto', nativeLabel: 'Pashto' },
-  { code: 'qu', label: 'Quechua', nativeLabel: 'Quechua' },
-  { code: 'sk', label: 'Slovak', nativeLabel: 'Slovak' },
-  { code: 'te', label: 'Telugu', nativeLabel: 'Telugu' },
-];
+import { LANGUAGE_OPTIONS, formatLanguageName, isRtlLanguage } from '../utils/languages';
 
 type Props = {
   style?: StyleProp<ViewStyle>;
@@ -86,6 +25,7 @@ export default function LanguageSelector({ style }: Props) {
   const { colors: C } = useTheme();
   const { lang, setLang, wt } = useLanguage();
   const [open, setOpen] = useState(false);
+  const isRTL = isRtlLanguage(lang);
 
   const currentLanguage = useMemo(
     () => LANGUAGE_OPTIONS.find(option => option.code === lang) ?? LANGUAGE_OPTIONS[0],
@@ -102,14 +42,20 @@ export default function LanguageSelector({ style }: Props) {
   const activeColor = C.cyan || '#00E5FF';
   const title = wt('website-language');
   const titleText = title && title !== 'website-language' ? title : 'Language';
+  const currentName = formatLanguageName(currentLanguage);
 
   return (
     <>
       <TouchableOpacity
-        style={[styles.trigger, { borderColor: activeColor + '55', backgroundColor: panelBackground + 'E6' }, style]}
+        style={[
+          styles.trigger,
+          isRTL && styles.rowReverse,
+          { borderColor: activeColor + '55', backgroundColor: panelBackground + 'E6' },
+          style,
+        ]}
         activeOpacity={0.78}
         accessibilityRole="button"
-        accessibilityLabel={`${titleText}: ${currentLanguage.label}`}
+        accessibilityLabel={`${titleText}: ${currentName}`}
         onPress={() => setOpen(true)}
       >
         <Globe2 size={14} color={activeColor} />
@@ -125,11 +71,13 @@ export default function LanguageSelector({ style }: Props) {
             style={[styles.panel, { backgroundColor: panelBackground, borderColor }]}
             onPress={() => {}}
           >
-            <View style={styles.panelHeader}>
-              <View>
-                <Text style={[styles.panelTitle, { color: C.text || '#F8FAFC' }]}>{titleText}</Text>
-                <Text style={[styles.panelSubtitle, { color: C.textMuted || '#9CA3AF' }]}>
-                  {currentLanguage.label}
+            <View style={[styles.panelHeader, isRTL && styles.rowReverse]}>
+              <View style={styles.panelTitleWrap}>
+                <Text style={[styles.panelTitle, isRTL && styles.textRight, { color: C.text || '#F8FAFC' }]}>
+                  {titleText}
+                </Text>
+                <Text style={[styles.panelSubtitle, isRTL && styles.textRight, { color: C.textMuted || '#9CA3AF' }]}>
+                  {currentName}
                 </Text>
               </View>
               <TouchableOpacity
@@ -160,18 +108,20 @@ export default function LanguageSelector({ style }: Props) {
                     activeOpacity={0.72}
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
-                    accessibilityLabel={option.label}
+                    accessibilityLabel={formatLanguageName(option)}
                     onPress={() => chooseLanguage(option.code)}
                   >
-                    <View style={styles.optionTextWrap}>
-                      <Text style={[styles.optionLabel, { color: C.text || '#F8FAFC' }]} numberOfLines={1}>
-                        {option.label}
-                      </Text>
-                      <Text style={[styles.optionCode, { color: C.textMuted || '#9CA3AF' }]}>
-                        {option.code.toUpperCase()}
-                      </Text>
+                    <View style={[styles.optionInner, isRTL && styles.rowReverse]}>
+                      <View style={styles.optionTextWrap}>
+                        <Text style={[styles.optionLabel, isRTL && styles.textRight, { color: C.text || '#F8FAFC' }]} numberOfLines={1}>
+                          {formatLanguageName(option)}
+                        </Text>
+                        <Text style={[styles.optionCode, isRTL && styles.textRight, { color: C.textMuted || '#9CA3AF' }]}>
+                          {option.code.toUpperCase()}
+                        </Text>
+                      </View>
+                      {selected && <Check size={18} color={activeColor} />}
                     </View>
-                    {selected && <Check size={18} color={activeColor} />}
                   </TouchableOpacity>
                 );
               })}
@@ -184,6 +134,12 @@ export default function LanguageSelector({ style }: Props) {
 }
 
 const styles = StyleSheet.create({
+  rowReverse: {
+    flexDirection: 'row-reverse',
+  },
+  textRight: {
+    textAlign: 'right',
+  },
   trigger: {
     minWidth: 64,
     height: 34,
@@ -221,6 +177,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
+  panelTitleWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
   panelTitle: {
     fontSize: scaledFont(18),
     fontWeight: '900',
@@ -252,6 +212,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 9,
+  },
+  optionInner: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
