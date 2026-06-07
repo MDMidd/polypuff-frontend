@@ -1,0 +1,273 @@
+import React, { useMemo, useState } from 'react';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
+import { Check, ChevronDown, Globe2, X } from 'lucide-react-native';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
+import type { LangCode } from '../contexts/translations';
+import { scaledFont } from '../utils/accessibility';
+
+type LanguageOption = {
+  code: LangCode;
+  label: string;
+  nativeLabel: string;
+};
+
+const LANGUAGE_OPTIONS: LanguageOption[] = [
+  { code: 'en', label: 'English', nativeLabel: 'English' },
+  { code: 'af', label: 'Afrikaans', nativeLabel: 'Afrikaans' },
+  { code: 'am', label: 'Amharic', nativeLabel: 'Amharic' },
+  { code: 'ar', label: 'Arabic', nativeLabel: 'Arabic' },
+  { code: 'bn', label: 'Bengali', nativeLabel: 'Bengali' },
+  { code: 'bg', label: 'Bulgarian', nativeLabel: 'Bulgarian' },
+  { code: 'cs', label: 'Czech', nativeLabel: 'Czech' },
+  { code: 'da', label: 'Danish', nativeLabel: 'Danish' },
+  { code: 'nl', label: 'Dutch', nativeLabel: 'Dutch' },
+  { code: 'fi', label: 'Finnish', nativeLabel: 'Finnish' },
+  { code: 'fr', label: 'French', nativeLabel: 'French' },
+  { code: 'de', label: 'German', nativeLabel: 'German' },
+  { code: 'el', label: 'Greek', nativeLabel: 'Greek' },
+  { code: 'gu', label: 'Gujarati', nativeLabel: 'Gujarati' },
+  { code: 'ha', label: 'Hausa', nativeLabel: 'Hausa' },
+  { code: 'he', label: 'Hebrew', nativeLabel: 'Hebrew' },
+  { code: 'hi', label: 'Hindi', nativeLabel: 'Hindi' },
+  { code: 'hu', label: 'Hungarian', nativeLabel: 'Hungarian' },
+  { code: 'ig', label: 'Igbo', nativeLabel: 'Igbo' },
+  { code: 'id', label: 'Indonesian', nativeLabel: 'Indonesian' },
+  { code: 'it', label: 'Italian', nativeLabel: 'Italian' },
+  { code: 'ja', label: 'Japanese', nativeLabel: 'Japanese' },
+  { code: 'ko', label: 'Korean', nativeLabel: 'Korean' },
+  { code: 'ms', label: 'Malay', nativeLabel: 'Malay' },
+  { code: 'zh', label: 'Chinese', nativeLabel: 'Chinese' },
+  { code: 'mr', label: 'Marathi', nativeLabel: 'Marathi' },
+  { code: 'ne', label: 'Nepali', nativeLabel: 'Nepali' },
+  { code: 'no', label: 'Norwegian', nativeLabel: 'Norwegian' },
+  { code: 'fa', label: 'Persian', nativeLabel: 'Persian' },
+  { code: 'pl', label: 'Polish', nativeLabel: 'Polish' },
+  { code: 'pt', label: 'Portuguese', nativeLabel: 'Portuguese' },
+  { code: 'pa', label: 'Punjabi', nativeLabel: 'Punjabi' },
+  { code: 'ro', label: 'Romanian', nativeLabel: 'Romanian' },
+  { code: 'ru', label: 'Russian', nativeLabel: 'Russian' },
+  { code: 'si', label: 'Sinhala', nativeLabel: 'Sinhala' },
+  { code: 'es', label: 'Spanish', nativeLabel: 'Spanish' },
+  { code: 'sw', label: 'Swahili', nativeLabel: 'Swahili' },
+  { code: 'sv', label: 'Swedish', nativeLabel: 'Swedish' },
+  { code: 'ta', label: 'Tamil', nativeLabel: 'Tamil' },
+  { code: 'th', label: 'Thai', nativeLabel: 'Thai' },
+  { code: 'tr', label: 'Turkish', nativeLabel: 'Turkish' },
+  { code: 'uk', label: 'Ukrainian', nativeLabel: 'Ukrainian' },
+  { code: 'ur', label: 'Urdu', nativeLabel: 'Urdu' },
+  { code: 'vi', label: 'Vietnamese', nativeLabel: 'Vietnamese' },
+  { code: 'yo', label: 'Yoruba', nativeLabel: 'Yoruba' },
+  { code: 'zu', label: 'Zulu', nativeLabel: 'Zulu' },
+  { code: 'fil', label: 'Filipino', nativeLabel: 'Filipino' },
+  { code: 'gn', label: 'Guarani', nativeLabel: 'Guarani' },
+  { code: 'ht', label: 'Haitian Creole', nativeLabel: 'Haitian Creole' },
+  { code: 'ps', label: 'Pashto', nativeLabel: 'Pashto' },
+  { code: 'qu', label: 'Quechua', nativeLabel: 'Quechua' },
+  { code: 'sk', label: 'Slovak', nativeLabel: 'Slovak' },
+  { code: 'te', label: 'Telugu', nativeLabel: 'Telugu' },
+];
+
+type Props = {
+  style?: StyleProp<ViewStyle>;
+};
+
+export default function LanguageSelector({ style }: Props) {
+  const { colors: C } = useTheme();
+  const { lang, setLang, wt } = useLanguage();
+  const [open, setOpen] = useState(false);
+
+  const currentLanguage = useMemo(
+    () => LANGUAGE_OPTIONS.find(option => option.code === lang) ?? LANGUAGE_OPTIONS[0],
+    [lang],
+  );
+
+  const chooseLanguage = async (code: LangCode) => {
+    await setLang(code);
+    setOpen(false);
+  };
+
+  const panelBackground = C.card || '#101827';
+  const borderColor = C.border || '#26324A';
+  const activeColor = C.cyan || '#00E5FF';
+  const title = wt('website-language');
+  const titleText = title && title !== 'website-language' ? title : 'Language';
+
+  return (
+    <>
+      <TouchableOpacity
+        style={[styles.trigger, { borderColor: activeColor + '55', backgroundColor: panelBackground + 'E6' }, style]}
+        activeOpacity={0.78}
+        accessibilityRole="button"
+        accessibilityLabel={`${titleText}: ${currentLanguage.label}`}
+        onPress={() => setOpen(true)}
+      >
+        <Globe2 size={14} color={activeColor} />
+        <Text style={[styles.triggerText, { color: C.text || '#F8FAFC' }]} numberOfLines={1}>
+          {currentLanguage.code.toUpperCase()}
+        </Text>
+        <ChevronDown size={12} color={C.textMuted || '#9CA3AF'} />
+      </TouchableOpacity>
+
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setOpen(false)}>
+          <Pressable
+            style={[styles.panel, { backgroundColor: panelBackground, borderColor }]}
+            onPress={() => {}}
+          >
+            <View style={styles.panelHeader}>
+              <View>
+                <Text style={[styles.panelTitle, { color: C.text || '#F8FAFC' }]}>{titleText}</Text>
+                <Text style={[styles.panelSubtitle, { color: C.textMuted || '#9CA3AF' }]}>
+                  {currentLanguage.label}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.closeButton, { borderColor }]}
+                activeOpacity={0.74}
+                accessibilityRole="button"
+                accessibilityLabel={wt('close') === 'close' ? 'Close' : wt('close')}
+                onPress={() => setOpen(false)}
+              >
+                <X size={18} color={C.text || '#F8FAFC'} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+              {LANGUAGE_OPTIONS.map(option => {
+                const selected = option.code === lang;
+
+                return (
+                  <TouchableOpacity
+                    key={option.code}
+                    style={[
+                      styles.option,
+                      {
+                        borderColor: selected ? activeColor + '88' : borderColor + '88',
+                        backgroundColor: selected ? activeColor + '18' : 'transparent',
+                      },
+                    ]}
+                    activeOpacity={0.72}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={option.label}
+                    onPress={() => chooseLanguage(option.code)}
+                  >
+                    <View style={styles.optionTextWrap}>
+                      <Text style={[styles.optionLabel, { color: C.text || '#F8FAFC' }]} numberOfLines={1}>
+                        {option.label}
+                      </Text>
+                      <Text style={[styles.optionCode, { color: C.textMuted || '#9CA3AF' }]}>
+                        {option.code.toUpperCase()}
+                      </Text>
+                    </View>
+                    {selected && <Check size={18} color={activeColor} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  trigger: {
+    minWidth: 64,
+    height: 34,
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  triggerText: {
+    fontSize: scaledFont(12),
+    fontWeight: '900',
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.62)',
+  },
+  panel: {
+    width: '100%',
+    maxHeight: '78%',
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  panelHeader: {
+    minHeight: 68,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  panelTitle: {
+    fontSize: scaledFont(18),
+    fontWeight: '900',
+  },
+  panelSubtitle: {
+    marginTop: 2,
+    fontSize: scaledFont(12),
+    fontWeight: '700',
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  list: {
+    width: '100%',
+  },
+  listContent: {
+    paddingHorizontal: 12,
+    paddingBottom: 14,
+    gap: 6,
+  },
+  option: {
+    minHeight: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  optionTextWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
+  optionLabel: {
+    fontSize: scaledFont(14),
+    fontWeight: '800',
+  },
+  optionCode: {
+    marginTop: 1,
+    fontSize: scaledFont(10),
+    fontWeight: '900',
+  },
+});

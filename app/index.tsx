@@ -9,7 +9,7 @@ import {
   View, Text, Image, TouchableOpacity, ScrollView, StyleSheet,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import {
   ClipboardCheck, BookOpen, Headphones, PenTool,
   Brain, Layers, Puzzle, ChevronRight, Pencil,
@@ -21,10 +21,24 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import StreakBanner from '../components/StreakBanner';
+import LanguageSelector from '../components/LanguageSelector';
 import { scaledFont } from '../utils/accessibility';
 import { recordPracticeToday } from '../services/notifications';
 
-const MAIN_EXERCISE = {
+type MenuColor = 'cyan' | 'purple' | 'emerald' | 'amber' | 'pink';
+
+type MenuIcon = React.ComponentType<{ size?: number; color?: string }>;
+
+type MenuItem = {
+  id: string;
+  label: string;
+  labelKey: string;
+  route: Href;
+  icon: MenuIcon;
+  color: MenuColor;
+};
+
+const MAIN_EXERCISE: MenuItem = {
   id: 'translation',
   label: 'Translation Trainer',
   labelKey: 'translation-trainer',
@@ -33,7 +47,7 @@ const MAIN_EXERCISE = {
   color: 'cyan',
 };
 
-const ADDITIONAL_EXERCISES = [
+const ADDITIONAL_EXERCISES: MenuItem[] = [
   { id: 'wordchunks', label: 'Word Chunks', labelKey: 'word-chunks', route: '/wordchunks', icon: Puzzle, color: 'emerald' },
   { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/word-chunks-vault', icon: Archive, color: 'amber' },
   { id: 'grammar', label: 'Grammar Practice', labelKey: 'grammar-practice', route: '/grammar', icon: Pencil, color: 'pink' },
@@ -46,7 +60,7 @@ const ADDITIONAL_EXERCISES = [
   { id: 'classroom', label: 'Share with Teacher', labelKey: 'classroom', route: '/classroom', icon: School, color: 'pink' },
 ];
 
-const GOAL_EXERCISES = [
+const GOAL_EXERCISES: MenuItem[] = [
   { id: 'challenges', label: 'Daily Challenge', labelKey: 'daily-challenge', route: '/challenges', icon: Star, color: 'amber' },
   { id: 'placement', label: 'Placement Test', labelKey: 'placement-test', route: '/placement', icon: ClipboardCheck, color: 'cyan' },
   { id: 'business', label: 'Business English', labelKey: 'business-english', route: '/business', icon: Briefcase, color: 'amber' },
@@ -61,7 +75,7 @@ export default function PracticeHub() {
   const router = useRouter();
 
   const [placementDone,   setPlacementDone]   = useState(false);
-  const [skillLevels,     setSkillLevels]     = useState(null);
+  const [skillLevels,     setSkillLevels]     = useState<Record<string, string | number> | null>(null);
   const [userName,        setUserName]        = useState('');
   const [additionalOpen,  setAdditionalOpen]  = useState(true);
   const [goalsOpen,       setGoalsOpen]       = useState(true);
@@ -75,7 +89,7 @@ export default function PracticeHub() {
     recordPracticeToday().catch(() => {});
   }, []));
 
-  const getColor = (colorName) => {
+  const getColor = (colorName: MenuColor) => {
     const map = {
       cyan:    C.cyan    || '#00E5FF',
       purple:  C.purple  || '#B06CFF',
@@ -86,12 +100,12 @@ export default function PracticeHub() {
     return map[colorName] || C.cyan || '#00E5FF';
   };
 
-  const webText = (key, fallback) => {
+  const webText = (key: string, fallback: string) => {
     const value = wt(key);
     return value && value !== key ? value : fallback;
   };
 
-  const renderMenuItem = (item, variant = 'standard') => {
+  const renderMenuItem = (item: MenuItem, variant: 'standard' | 'primary' = 'standard') => {
     const Icon = item.icon;
     const color = getColor(item.color);
     const isPrimary = variant === 'primary';
@@ -135,7 +149,14 @@ export default function PracticeHub() {
     );
   };
 
-  const renderSectionHeader = (labelKey, fallback, Icon, color, open, onPress) => {
+  const renderSectionHeader = (
+    labelKey: string,
+    fallback: string,
+    Icon: MenuIcon,
+    color: string,
+    open: boolean,
+    onPress: () => void,
+  ) => {
     const label = webText(labelKey, fallback);
     const Chevron = open ? ChevronUp : ChevronDown;
 
@@ -168,7 +189,7 @@ export default function PracticeHub() {
   };
 
   return (
-    <ScreenBackground>
+    <ScreenBackground style={s.screen}>
 
       {/* ── HEADER ── */}
       <View style={s.headerStrip}>
@@ -181,6 +202,7 @@ export default function PracticeHub() {
         />
         <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('practice').toUpperCase()}</Text>
         <View style={{ width: 52 }} />
+        <LanguageSelector style={s.languageSelector} />
       </View>
 
       <ScrollView contentContainerStyle={s.scroll}>
@@ -273,6 +295,7 @@ export default function PracticeHub() {
 }
 
 const s = StyleSheet.create({
+  screen: {},
   headerStrip: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -283,6 +306,11 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.04)',
     zIndex: 50,
+  },
+  languageSelector: {
+    position: 'absolute',
+    top: 36,
+    right: 14,
   },
   headerTitle:   { fontSize: scaledFont(20), fontWeight: '800', textAlign: 'center', flex: 1 },
   scroll:        { padding: 16, paddingTop: 10, paddingBottom: 100 },
