@@ -24,6 +24,7 @@ import Onboarding from '../components/Onboarding';
 import LegalGateController from '../components/LegalGateController';
 import { scaledFont } from '../utils/accessibility';
 import { initNotifications } from '../services/notifications';
+import { isRtlLanguage } from '../utils/languages';
 // ✅ NEW v3.1: Weekly digest scheduler
 import { checkAndSendWeeklyDigest } from '../services/digestService';
 
@@ -35,9 +36,10 @@ export const MascotContext = createContext({ mascotEnabled: true, setMascotEnabl
 export const useMascot = () => useContext(MascotContext);
 
 // ═══ PROFILE MENU BUTTON ═══
-function ProfileMenuButton({ onPress, colors: C }) {
-  const [photoUri, setPhotoUri] = useState(null);
+function ProfileMenuButton({ onPress, colors: C, isRTL }: { onPress: () => void; colors: any; isRTL: boolean }) {
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
+  const { wt } = useLanguage();
 
   useFocusEffect(useCallback(() => { loadPhoto(); }, []));
 
@@ -58,7 +60,7 @@ function ProfileMenuButton({ onPress, colors: C }) {
   return (
     <TouchableOpacity
       style={{
-        position: 'absolute', top: insets.top + 10, left: 16, zIndex: 100,
+        position: 'absolute', top: insets.top + 10, left: isRTL ? undefined : 16, right: isRTL ? 16 : undefined, zIndex: 100,
         width: 44, height: 44, borderRadius: 22, overflow: 'hidden',
         backgroundColor: (C.card || '#121829') + 'CC',
         alignItems: 'center', justifyContent: 'center',
@@ -67,8 +69,8 @@ function ProfileMenuButton({ onPress, colors: C }) {
       onPress={onPress}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       accessibilityRole="button"
-      accessibilityLabel="Open navigation menu"
-      accessibilityHint="Double tap to open the drawer with profile, settings, and help"
+      accessibilityLabel={wt('open-sidebar') === 'open-sidebar' ? 'Open navigation menu' : wt('open-sidebar')}
+      accessibilityHint={wt('profile') === 'profile' ? 'Double tap to open the drawer with profile, settings, and help' : wt('profile')}
     >
       {photoUri ? (
         <Image source={{ uri: photoUri }} style={{ width: 44, height: 44, borderRadius: 22 }} resizeMode="cover" />
@@ -165,9 +167,10 @@ function FirstTimeCheck() {
 function TabsLayout() {
   const { colors: C } = useTheme();
   const { inExercise } = useExercise();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const insets = useSafeAreaInsets();
+  const isRTL = isRtlLanguage(lang);
 
   // ✅ NEW v3.1: Fire weekly digest check on every app focus.
   // Silent no-op if: digest disabled, no email, or < 7 days since last send.
@@ -178,10 +181,11 @@ function TabsLayout() {
   return (
     <>
       <DrawerMenu visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
-      <ProfileMenuButton onPress={() => setDrawerOpen(true)} colors={C} />
+      <ProfileMenuButton onPress={() => setDrawerOpen(true)} colors={C} isRTL={isRTL} />
       <FirstTimeCheck />
 
       <Tabs
+        initialRouteName="index"
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
@@ -206,8 +210,17 @@ function TabsLayout() {
         }}
       >
         {/* 2 VISIBLE TABS */}
-        <Tabs.Screen name="index"    options={{ title: t.practice, tabBarIcon: ({ color, size }) => <BookOpen size={size - 4} color={color} /> }} />
-        <Tabs.Screen name="progress" options={{ title: t.progress, tabBarIcon: ({ color, size }) => <BarChart3 size={size - 4} color={color} /> }} />
+        {isRTL ? (
+          <>
+            <Tabs.Screen name="progress" options={{ title: t.progress, tabBarIcon: ({ color, size }) => <BarChart3 size={size - 4} color={color} /> }} />
+            <Tabs.Screen name="index"    options={{ title: t.practice, tabBarIcon: ({ color, size }) => <BookOpen size={size - 4} color={color} /> }} />
+          </>
+        ) : (
+          <>
+            <Tabs.Screen name="index"    options={{ title: t.practice, tabBarIcon: ({ color, size }) => <BookOpen size={size - 4} color={color} /> }} />
+            <Tabs.Screen name="progress" options={{ title: t.progress, tabBarIcon: ({ color, size }) => <BarChart3 size={size - 4} color={color} /> }} />
+          </>
+        )}
 
         {/* HIDDEN — accessible via navigation */}
         <Tabs.Screen name="profile"          options={{ href: null }} />

@@ -20,14 +20,18 @@ import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { X, Flame, Trophy, AlertTriangle } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { getInAppBanner, recordPracticeToday } from '../services/notifications';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getInAppBanner } from '../services/notifications';
 import { scaledFont } from '../utils/accessibility';
+import { isRtlLanguage } from '../utils/languages';
 
 export default function StreakBanner() {
   const { colors: C } = useTheme();
+  const { t, wt, lang } = useLanguage();
   const [banner, setBanner] = useState(null);
   const [dismissed, setDismissed] = useState(false);
   const slideAnim = useState(() => new Animated.Value(-100))[0];
+  const isRTL = isRtlLanguage(lang);
 
   useFocusEffect(useCallback(() => {
     setDismissed(false);
@@ -55,6 +59,27 @@ export default function StreakBanner() {
 
   const isAtRisk = !banner.practicedToday && banner.streak > 0;
   const isDone = banner.practicedToday;
+  const rowDirection = isRTL ? 'row-reverse' : 'row';
+  const textAlign = isRTL ? 'right' : 'left';
+  const displayName =
+    banner.title?.match(/Great job,\s*(.*?)!/)?.[1] ||
+    banner.title?.match(/Welcome back,\s*(.*?)!/)?.[1] ||
+    banner.title?.match(/(?:⚠️|âš ï¸)\s*(.*?),/)?.[1] ||
+    '';
+  const streakWord = t.streak || 'Streak';
+  const streakUpdated = wt('streak-updated') === 'streak-updated' ? streakWord : wt('streak-updated');
+  const bannerTitle = isDone
+    ? `${t.wellDone || 'Well done!'}${displayName ? `, ${displayName}` : ''}!`
+    : isAtRisk
+    ? `${displayName ? `${displayName}, ` : ''}${streakWord}: ${banner.streak}`
+    : `${t.welcome || 'Welcome!'}${displayName ? ` ${displayName}` : ''}`;
+  const bannerSubtitle = isDone
+    ? banner.streak > 1
+      ? `${banner.streak} ${streakWord}. ${streakUpdated}`
+      : (t.chooseModule || banner.subtitle)
+    : isAtRisk
+    ? `${t.tryAgain || 'Try again'}. ${banner.streak} ${streakWord}.`
+    : (t.chooseModule || banner.subtitle);
 
   const bgColor = isAtRisk
     ? (C.amber || '#FFBE0B') + '18'
@@ -80,11 +105,11 @@ export default function StreakBanner() {
         marginHorizontal: 16, marginBottom: 12,
         backgroundColor: bgColor,
         borderRadius: 14, borderWidth: 1, borderColor,
-        padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12,
+        padding: 14, flexDirection: rowDirection, alignItems: 'center', gap: 12,
         transform: [{ translateY: slideAnim }],
       }}
       accessibilityRole="alert"
-      accessibilityLabel={`${banner.title} ${banner.subtitle}`}
+      accessibilityLabel={`${bannerTitle} ${bannerSubtitle}`}
     >
       {/* Icon */}
       <View style={{
@@ -99,15 +124,15 @@ export default function StreakBanner() {
 
       {/* Text */}
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>
-          {banner.title}
+        <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, textAlign }}>
+          {bannerTitle}
         </Text>
-        <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2, lineHeight: 17 }}>
-          {banner.subtitle}
+        <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2, lineHeight: 17, textAlign }}>
+          {bannerSubtitle}
         </Text>
         {banner.xpToMilestone <= 30 && banner.xpToMilestone > 0 && (
-          <Text style={{ fontSize: scaledFont(11), color: C.purple || '#B06CFF', fontWeight: '600', marginTop: 3 }}>
-            🎯 {banner.xpToMilestone} XP to next milestone!
+          <Text style={{ fontSize: scaledFont(11), color: C.purple || '#B06CFF', fontWeight: '600', marginTop: 3, textAlign }}>
+            {banner.xpToMilestone} XP
           </Text>
         )}
       </View>
@@ -122,7 +147,7 @@ export default function StreakBanner() {
             {banner.streak}
           </Text>
           <Text style={{ fontSize: 8, fontWeight: '700', color: iconColor, letterSpacing: 0.5 }}>
-            🔥 DAYS
+            {streakWord.toUpperCase()}
           </Text>
         </View>
       )}
@@ -132,7 +157,7 @@ export default function StreakBanner() {
         onPress={dismiss}
         style={{ minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
         accessibilityRole="button"
-        accessibilityLabel="Dismiss streak banner"
+        accessibilityLabel={t.cancel || wt('close-sidebar') || 'Dismiss'}
       >
         <X size={16} color={C.textMuted} />
       </TouchableOpacity>

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import type { Translations, LangCode } from '../contexts/translations';
 import { ScreenBackground } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import StreakBanner from '../components/StreakBanner';
@@ -34,37 +35,47 @@ type MenuItem = {
   id: string;
   label: string;
   labelKey: string;
+  mobileKey?: keyof Translations;
   route: Href;
   icon: MenuIcon;
   color: MenuColor;
+};
+
+const SECTION_LABELS: Partial<Record<LangCode, Record<'main' | 'additional' | 'goals', string>>> = {
+  ar: { main: 'التمرين الرئيسي', additional: 'تمارين إضافية', goals: 'الأهداف' },
+  fa: { main: 'تمرین اصلی', additional: 'تمرین‌های بیشتر', goals: 'اهداف' },
+  he: { main: 'תרגול ראשי', additional: 'תרגולים נוספים', goals: 'מטרות' },
+  ps: { main: 'اصلي تمرین', additional: 'نور تمرینونه', goals: 'موخې' },
+  ur: { main: 'مرکزی مشق', additional: 'اضافی مشقیں', goals: 'اہداف' },
 };
 
 const MAIN_EXERCISE: MenuItem = {
   id: 'translation',
   label: 'Translation Trainer',
   labelKey: 'translation-trainer',
+  mobileKey: 'translationTrainer',
   route: '/translation',
   icon: BookOpen,
   color: 'cyan',
 };
 
 const ADDITIONAL_EXERCISES: MenuItem[] = [
-  { id: 'wordchunks', label: 'Word Chunks', labelKey: 'word-chunks', route: '/wordchunks', icon: Puzzle, color: 'emerald' },
+  { id: 'wordchunks', label: 'Word Chunks', labelKey: 'word-chunks', mobileKey: 'wordChunks', route: '/wordchunks', icon: Puzzle, color: 'emerald' },
   { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/word-chunks-vault', icon: Archive, color: 'amber' },
-  { id: 'grammar', label: 'Grammar Practice', labelKey: 'grammar-practice', route: '/grammar', icon: Pencil, color: 'pink' },
+  { id: 'grammar', label: 'Grammar Practice', labelKey: 'grammar-practice', mobileKey: 'grammarPractice', route: '/grammar', icon: Pencil, color: 'pink' },
   { id: 'grammar-vault', label: 'Grammar Vault', labelKey: 'grammar-vault', route: '/grammar-vault', icon: Archive, color: 'purple' },
-  { id: 'quiz', label: 'Grammar Quiz', labelKey: 'grammar-quiz', route: '/quiz', icon: Brain, color: 'amber' },
+  { id: 'quiz', label: 'Grammar Quiz', labelKey: 'grammar-quiz', mobileKey: 'grammarQuiz', route: '/quiz', icon: Brain, color: 'amber' },
   { id: 'vocab', label: 'Vocabulary', labelKey: 'vocabulary', route: '/vocab', icon: Layers, color: 'emerald' },
-  { id: 'vault', label: 'Vocabulary Vault', labelKey: 'vocabulary-vault', route: '/vault', icon: Archive, color: 'cyan' },
-  { id: 'listening', label: 'Listening', labelKey: 'listening', route: '/listening', icon: Headphones, color: 'amber' },
-  { id: 'writing', label: 'Writing', labelKey: 'writing', route: '/writing', icon: PenTool, color: 'pink' },
+  { id: 'vault', label: 'Vocabulary Vault', labelKey: 'vocabulary-vault', mobileKey: 'vocabularyVault', route: '/vault', icon: Archive, color: 'cyan' },
+  { id: 'listening', label: 'Listening', labelKey: 'listening', mobileKey: 'listening', route: '/listening', icon: Headphones, color: 'amber' },
+  { id: 'writing', label: 'Writing', labelKey: 'writing', mobileKey: 'writing', route: '/writing', icon: PenTool, color: 'pink' },
   { id: 'classroom', label: 'Share with Teacher', labelKey: 'classroom', route: '/classroom', icon: School, color: 'pink' },
 ];
 
 const GOAL_EXERCISES: MenuItem[] = [
-  { id: 'challenges', label: 'Daily Challenge', labelKey: 'daily-challenge', route: '/challenges', icon: Star, color: 'amber' },
-  { id: 'placement', label: 'Placement Test', labelKey: 'placement-test', route: '/placement', icon: ClipboardCheck, color: 'cyan' },
-  { id: 'business', label: 'Business English', labelKey: 'business-english', route: '/business', icon: Briefcase, color: 'amber' },
+  { id: 'challenges', label: 'Daily Challenge', labelKey: 'daily-challenge', mobileKey: 'dailyChallenges', route: '/challenges', icon: Star, color: 'amber' },
+  { id: 'placement', label: 'Placement Test', labelKey: 'placement-test', mobileKey: 'placementTest', route: '/placement', icon: ClipboardCheck, color: 'cyan' },
+  { id: 'business', label: 'Business English', labelKey: 'business-english', mobileKey: 'businessEnglish', route: '/business', icon: Briefcase, color: 'amber' },
   { id: 'ielts', label: 'IELTS', labelKey: 'ielts', route: '/ielts', icon: GraduationCap, color: 'cyan' },
   { id: 'toefl', label: 'TOEFL', labelKey: 'toefl', route: '/toefl', icon: GraduationCap, color: 'purple' },
   { id: 'cae', label: 'CAE', labelKey: 'cae', route: '/cae', icon: BookOpen, color: 'emerald' },
@@ -110,11 +121,15 @@ export default function PracticeHub() {
     return value && value !== key ? value : fallback;
   };
 
+  const sectionText = (section: 'main' | 'additional' | 'goals', key: string, fallback: string) =>
+    SECTION_LABELS[lang]?.[section] || webText(key, fallback);
+
   const renderMenuItem = (item: MenuItem, variant: 'standard' | 'primary' = 'standard') => {
     const Icon = item.icon;
     const color = getColor(item.color);
     const isPrimary = variant === 'primary';
-    const label = webText(item.labelKey, item.label);
+    const translatedMobileLabel = item.mobileKey ? t[item.mobileKey] : undefined;
+    const label = translatedMobileLabel || webText(item.labelKey, item.label);
 
     return (
       <TouchableOpacity
@@ -162,7 +177,7 @@ export default function PracticeHub() {
     open: boolean,
     onPress: () => void,
   ) => {
-    const label = webText(labelKey, fallback);
+    const label = fallback || webText(labelKey, fallback);
     const Chevron = open ? ChevronUp : ChevronDown;
 
     return (
@@ -246,13 +261,13 @@ export default function PracticeHub() {
         {/* ── WEBSITE-SYNCED EXERCISE MENU ── */}
         <View style={{ gap: 10, marginBottom: 10 }}>
           <Text style={{ fontSize: scaledFont(11), fontWeight: '900', color: C.textMuted, letterSpacing: 1, textAlign, marginLeft: isRTL ? 0 : 6, marginRight: isRTL ? 6 : 0 }}>
-            {webText('main-exercise', 'Main Exercise').toUpperCase()}
+            {sectionText('main', 'main-exercise', 'Main Exercise').toUpperCase()}
           </Text>
           {renderMenuItem(MAIN_EXERCISE, 'primary')}
 
           {renderSectionHeader(
             'additional-exercises',
-            'Additional Exercises',
+            sectionText('additional', 'additional-exercises', 'Additional Exercises'),
             Wrench,
             getColor('amber'),
             additionalOpen,
@@ -266,7 +281,7 @@ export default function PracticeHub() {
 
           {renderSectionHeader(
             'goals',
-            'Goals',
+            sectionText('goals', 'goals', 'Goals'),
             Target,
             getColor('pink'),
             goalsOpen,
