@@ -1,7 +1,7 @@
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system/legacy';
 
-const PDF_BADGE_ASSET = require('../assets/images/pdf-certified-badge.jpg');
+const PDF_BADGE_ASSET = require('../assets/images/pdf-certified-badge.png');
 const PDF_LOGO_ASSET = require('../assets/images/logo-header.png');
 
 type PdfBrandingImages = {
@@ -23,7 +23,7 @@ const assetToDataUri = async (assetModule: number, mimeType: string) => {
 
 export const getPdfBrandingImages = () => {
   cachedBrandingImages ||= Promise.all([
-    assetToDataUri(PDF_BADGE_ASSET, 'image/jpeg'),
+    assetToDataUri(PDF_BADGE_ASSET, 'image/png'),
     assetToDataUri(PDF_LOGO_ASSET, 'image/png'),
   ]).then(([badgeDataUri, logoDataUri]) => ({ badgeDataUri, logoDataUri }));
 
