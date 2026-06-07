@@ -1,5 +1,5 @@
 import { Asset } from 'expo-asset';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const PDF_BADGE_ASSET = require('../assets/images/pdf-certified-badge.jpg');
 const PDF_LOGO_ASSET = require('../assets/images/logo-header.png');

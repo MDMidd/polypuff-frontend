@@ -32,7 +32,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
 import {
@@ -970,22 +970,24 @@ export default function VaultScreen() {
         {vaultWords.length > 0 && (
           <TouchableOpacity
             style={{
-              flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-              gap: 8, backgroundColor: C.amber + '18', borderRadius: 14,
-              paddingVertical: 14, marginBottom: 16,
-              borderWidth: 1.5, borderColor: C.amber + '50', minHeight: 44,
+              flexDirection: 'row', alignItems: 'center',
+              gap: 10, backgroundColor: C.amber + '18', borderRadius: 14,
+              paddingVertical: 12, paddingHorizontal: 14, marginBottom: 16,
+              borderWidth: 1.5, borderColor: C.amber + '50', minHeight: 58,
             }}
             onPress={() => { setStudyIndex(0); setShowStudyModal(true); }}
             accessibilityRole="button"
             accessibilityLabel={wt('vault-study-words')}
           >
-            <Lightbulb size={20} color={C.amber || '#FFBE0B'} />
-            <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.amber || '#FFBE0B' }}>
-              {wt('vault-study-words')}
-            </Text>
-            <Text style={{ fontSize: scaledFont(12), color: (C.amber || '#FFBE0B') + 'AA' }}>
-              {wt('vault-word-count', { n: vaultWords.length })}
-            </Text>
+            <Lightbulb size={20} color={C.amber || '#FFBE0B'} style={{ flexShrink: 0 }} />
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.amber || '#FFBE0B' }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
+                {wt('vault-study-words')}
+              </Text>
+              <Text style={{ fontSize: scaledFont(12), color: (C.amber || '#FFBE0B') + 'AA', marginTop: 2 }} numberOfLines={2}>
+                {wt('vault-word-count', { n: vaultWords.length })}
+              </Text>
+            </View>
           </TouchableOpacity>
         )}
 
