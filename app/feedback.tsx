@@ -26,12 +26,13 @@
  * LOCATION: D:\Project\MyProject\translation-trainer-frontend\app\feedback.tsx
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import Constants from 'expo-constants';
+import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   MessageSquare, Bug, Lightbulb, Send, CheckCircle,
@@ -62,7 +63,7 @@ export default function FeedbackScreen() {
   const [sending,  setSending]  = useState(false);
   const [sent,     setSent]     = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     Promise.all([
       AsyncStorage.getItem('userProfile'),
       AsyncStorage.getItem('authIdentifier'),
@@ -78,7 +79,7 @@ export default function FeedbackScreen() {
       const fallbackEmail = [authIdentifier, digestEmail].find(v => v && v.includes('@'));
       if (fallbackEmail) setEmail(current => current || fallbackEmail);
     }).catch(() => {});
-  }, []);
+  }, []));
 
   const handleSend = async () => {
     const trimmedMessage = message.trim();

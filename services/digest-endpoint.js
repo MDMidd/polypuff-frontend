@@ -273,7 +273,7 @@ app.post('/api/digest', digestLimiter, async (req, res) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td>
-                  <p style="margin:0;font-size:12px;color:#4B5563;">Poly-Puff ESL Trainer &nbsp;·&nbsp; polypuff.app</p>
+                  <p style="margin:0;font-size:12px;color:#4B5563;">Poly-Puff ESL Trainer &nbsp;·&nbsp; poly-puff.com</p>
                   <p style="margin:4px 0 0;font-size:11px;color:#374151;">
                     You're receiving this because you enabled weekly digests in the app.<br>
                     To unsubscribe, open Poly-Puff → Settings → Weekly Digest → Off.

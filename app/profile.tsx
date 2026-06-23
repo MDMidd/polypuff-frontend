@@ -12,7 +12,8 @@
  * FILE: app/profile.tsx
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   SafeAreaView, TextInput, Image, Alert,
@@ -31,6 +32,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, GlassCard, NeonButton, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
+import { pushProfile } from '../services/profileService';
 
 const LANGUAGES = [
   { name: 'Afrikaans',    flag: '🇿🇦' },
@@ -246,7 +248,7 @@ export default function ProfileScreen() {
     }
   };
 
-  useEffect(() => { loadProfile(); }, []);
+  useFocusEffect(useCallback(() => { loadProfile(); }, []));
 
   // ── Maps a phone locale code to one of the 20 auto-detect-supported languages ──────────
   const detectLanguageFromLocale = () => {
@@ -349,11 +351,13 @@ export default function ProfileScreen() {
   const saveProfile = async () => {
     if (!name.trim()) { Alert.alert('Name Required', 'Please enter your name.'); return; }
     try {
-      await AsyncStorage.setItem('userProfile', JSON.stringify({
+      const profileData = {
         name, profession, qualifications, age, hobbies, bio,
         nativeLanguage, appLanguage, level,
         photo: profilePic || null,  // include photo so ProfileMenuButton finds it
-      }));
+      };
+      await AsyncStorage.setItem('userProfile', JSON.stringify(profileData));
+      pushProfile(profileData).catch(() => {});
       setSaved(true); setHasProfile(true); setMode('view');
       setTimeout(() => setSaved(false), 2000);
     } catch (e) {}

@@ -36,6 +36,7 @@
         "android.permission.VIBRATE",
         "android.permission.POST_NOTIFICATIONS"
       ],
+      "allowBackup": false,
       "versionCode": 1
     },
     "androidStatusBar": {
@@ -64,7 +65,16 @@
           "color": "#ADD8E6",
           "sounds": []
         }
-      ]
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "poly-puff-mobile",
+          "organization": "mark-david-middleton"
+        }
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "scheme": "poly-puff",
     "web": {

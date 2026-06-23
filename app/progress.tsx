@@ -23,14 +23,16 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import {
   BookOpen, PenTool, Headphones, Mic, Award, Flame,
-  TrendingUp, Download, ChevronRight, Star, Zap,
-  Target, Clock, ArrowLeft,
+  TrendingUp, Download, ChevronRight, ChevronLeft, Star, Zap,
+  Target, Clock, ArrowLeft, ArrowRight,
 } from 'lucide-react-native';
 import {
   getAllTimeRecords, getTotalTimeSeconds, formatDuration,
 } from '../services/timerService';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getProgressT, pInterp, type ProgressStrings } from '../contexts/progressTranslations';
+import { isRtlLanguage } from '../utils/languages';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { getPdfBrandingImages } from '../utils/pdfBranding';
@@ -38,20 +40,20 @@ import { getPdfBrandingImages } from '../utils/pdfBranding';
 // ── Master exercise registry (all 13 modules) ─────────────────────────────────
 // IDs must match the ids used in customise.tsx / practiceModuleConfig
 const ALL_EXERCISES = [
-  { id: 'placement_test',   label: 'Placement Test',       icon: '📋', color: '#C084FC', route: 'placement' },
-  { id: 'translation_trainer', label: 'Translation Trainer',  icon: '🎯', color: '#00D9FF', route: 'translation' },
-  { id: 'word_chunks',  label: 'Word Chunks',          icon: '🧩', color: '#60A5FA', route: 'wordchunks' },
-  { id: 'listening',   label: 'Listening',            icon: '🎧', color: '#A78BFA', route: 'listening' },
-  { id: 'writing',     label: 'Writing',              icon: '✏️',  color: '#F472B6', route: 'writing' },
-  { id: 'grammar_quiz',        label: 'Grammar Quiz',         icon: '🧠', color: '#34D399', route: 'quiz' },
-  { id: 'grammar',     label: 'Grammar Practice',     icon: '📚', color: '#34D399', route: 'grammar' },
-  { id: 'vocabulary',       label: 'Vocabulary',           icon: '📖', color: '#FBBF24', route: 'vocab' },
-  { id: 'vocab_vault',       label: 'Vocabulary Vault',     icon: '📦', color: '#FB923C', route: 'vault' },
-  { id: 'ielts',       label: 'IELTS Preparation',    icon: '🎓', color: '#00E5FF', route: 'ielts' },
-  { id: 'toefl',       label: 'TOEFL iBT Prep',       icon: '🏫', color: '#B06CFF', route: 'toefl' },
-  { id: 'cae',         label: 'CAE — C1 Advanced',    icon: '🎓', color: '#00E5A0', route: 'cae' },
-  { id: 'business_english',    label: 'Business English',      icon: '💼', color: '#FFBE0B', route: 'business' },
-  { id: 'daily_challenge',     label: 'Daily Challenges',      icon: '\u26a1', color: '#F59E0B', route: 'challenges' },
+  { id: 'placement_test',      label: 'Placement Test',      labelKey: 'exPlacement' as const,   icon: '📋', color: '#C084FC', route: 'placement' },
+  { id: 'translation_trainer', label: 'Translation Trainer', labelKey: 'exTranslation' as const, icon: '🎯', color: '#00D9FF', route: 'translation' },
+  { id: 'word_chunks',         label: 'Word Chunks',         labelKey: 'exWordChunks' as const,  icon: '🧩', color: '#60A5FA', route: 'wordchunks' },
+  { id: 'listening',           label: 'Listening',           labelKey: 'exListening' as const,   icon: '🎧', color: '#A78BFA', route: 'listening' },
+  { id: 'writing',             label: 'Writing',             labelKey: 'exWriting' as const,     icon: '✏️',  color: '#F472B6', route: 'writing' },
+  { id: 'grammar_quiz',        label: 'Grammar Quiz',        labelKey: 'exGrammarQuiz' as const, icon: '🧠', color: '#34D399', route: 'quiz' },
+  { id: 'grammar',             label: 'Grammar Practice',    labelKey: 'exGrammar' as const,     icon: '📚', color: '#34D399', route: 'grammar' },
+  { id: 'vocabulary',          label: 'Vocabulary',          labelKey: 'exVocabulary' as const,  icon: '📖', color: '#FBBF24', route: 'vocab' },
+  { id: 'vocab_vault',         label: 'Vocabulary Vault',    labelKey: 'exVocabVault' as const,  icon: '📦', color: '#FB923C', route: 'vault' },
+  { id: 'ielts',               label: 'IELTS Preparation',   labelKey: 'exIelts' as const,       icon: '🎓', color: '#00E5FF', route: 'ielts' },
+  { id: 'toefl',               label: 'TOEFL iBT Prep',      labelKey: 'exToefl' as const,       icon: '🏫', color: '#B06CFF', route: 'toefl' },
+  { id: 'cae',                 label: 'CAE — C1 Advanced',   labelKey: 'exCae' as const,         icon: '🎓', color: '#00E5A0', route: 'cae' },
+  { id: 'business_english',    label: 'Business English',    labelKey: 'exBusiness' as const,    icon: '💼', color: '#FFBE0B', route: 'business' },
+  { id: 'daily_challenge',     label: 'Daily Challenge',     labelKey: 'exDaily' as const,       icon: '\u26a1', color: '#F59E0B', route: 'daily' },
 ];
 
 const PRACTICE_CONFIG_KEY = 'practiceModuleConfig';
@@ -59,14 +61,14 @@ const DEFAULT_ORDER = ALL_EXERCISES.map(e => e.id);
 
 // XP thresholds per level
 const XP_LEVELS = [
-  { level: 1, label: 'Beginner',     xpNeeded: 0    },
-  { level: 2, label: 'Elementary',   xpNeeded: 100  },
-  { level: 3, label: 'Pre-Intermediate', xpNeeded: 300 },
-  { level: 4, label: 'Intermediate', xpNeeded: 600  },
-  { level: 5, label: 'Upper-Intermediate', xpNeeded: 1000 },
-  { level: 6, label: 'Advanced',     xpNeeded: 1500 },
-  { level: 7, label: 'Proficient',   xpNeeded: 2200 },
-  { level: 8, label: 'Master',       xpNeeded: 3000 },
+  { level: 1, label: 'Beginner',           labelKey: 'xpBeginner' as const,          xpNeeded: 0    },
+  { level: 2, label: 'Elementary',         labelKey: 'xpElementary' as const,        xpNeeded: 100  },
+  { level: 3, label: 'Pre-Intermediate',   labelKey: 'xpPreIntermediate' as const,   xpNeeded: 300  },
+  { level: 4, label: 'Intermediate',       labelKey: 'xpIntermediate' as const,      xpNeeded: 600  },
+  { level: 5, label: 'Upper-Intermediate', labelKey: 'xpUpperIntermediate' as const, xpNeeded: 1000 },
+  { level: 6, label: 'Advanced',           labelKey: 'xpAdvanced' as const,          xpNeeded: 1500 },
+  { level: 7, label: 'Proficient',         labelKey: 'xpProficient' as const,        xpNeeded: 2200 },
+  { level: 8, label: 'Master',             labelKey: 'xpMaster' as const,            xpNeeded: 3000 },
 ];
 
 function getXPLevel(xp) {
@@ -124,12 +126,12 @@ function ScoreRing({ score, size = 80, color, C }) {
 }
 
 // ── Streak heatmap dots ───────────────────────────────────────────────────────
-function WeekHeatmap({ streak, C }) {
-  const days = ['M','T','W','T','F','S','S'];
+function WeekHeatmap({ streak, C, p, isRTL }: { streak: number; C: any; p: ProgressStrings; isRTL: boolean }) {
+  const days = [p.dayMon, p.dayTue, p.dayWed, p.dayThu, p.dayFri, p.daySat, p.daySun];
   const today = new Date().getDay(); // 0=Sun
   const dayOfWeek = today === 0 ? 6 : today - 1; // Mon=0
   return (
-    <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center' }}>
+    <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 4, alignItems: 'center' }}>
       {days.map((d, i) => {
         const active = i <= dayOfWeek && streak > 0;
         return (
@@ -154,8 +156,14 @@ function WeekHeatmap({ streak, C }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ProgressScreen() {
   const { colors: C } = useTheme();
-  const { wt } = useLanguage();
+  const { wt, lang } = useLanguage();
+  const p = getProgressT(lang);
+  const isRTL = isRtlLanguage(lang);
   const router = useRouter();
+  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
+  const textAlign: 'left' | 'right' = isRTL ? 'right' : 'left';
+  const rowDir: 'row' | 'row-reverse' = isRTL ? 'row-reverse' : 'row';
 
   const [loading,         setLoading]         = useState(true);
   const [pdfLoading,      setPdfLoading]       = useState(false);
@@ -243,7 +251,7 @@ export default function ProgressScreen() {
           const cat = w.category || 'General';
           if (!mistakeMap[cat]) mistakeMap[cat] = { category: cat, frequency: 0, exercises: new Set() };
           mistakeMap[cat].frequency += (w.frequency || 1);
-          mistakeMap[cat].exercises.add(ex.label);
+          mistakeMap[cat].exercises.add(p[ex.labelKey]);
         }
       }
 
@@ -463,7 +471,7 @@ export default function ProgressScreen() {
           <ul>${recommendations}</ul>
 
           <div class="footer">
-            <p>Report generated by Poly-Puff ESL Trainer · polypuff.app</p>
+            <p>Report generated by Poly-Puff ESL Trainer · poly-puff.com</p>
             <p>Developed by Mark Middleton, Cape Town, South Africa</p>
           </div>
           <div class="cert-page"><div class="cert-badge">✓ POLY-PUFF CERTIFIED · ${cefrLevel}</div></div>
@@ -483,7 +491,7 @@ export default function ProgressScreen() {
 
     } catch (e) {
       console.error('PDF generation error:', e);
-      Alert.alert('PDF Error', 'Could not generate the progress report. Please try again.');
+      Alert.alert(p.pdfErrorTitle, p.pdfErrorMessage);
     }
     setPdfLoading(false);
   };
@@ -493,15 +501,15 @@ export default function ProgressScreen() {
   if (loading) {
     return (
       <ScreenBackground>
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 52, paddingBottom: 12,
+        <View style={{ flexDirection: rowDir, alignItems: 'center', paddingTop: 52, paddingBottom: 12,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' }}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{ position: 'absolute', left: 16, top: 52, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            style={{ position: 'absolute', left: isRTL ? undefined : 16, right: isRTL ? 16 : undefined, top: 52, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={p.goBack}
           >
-            <ArrowLeft size={24} color={C.textMuted || '#6B7280'} />
+            <BackIcon size={24} color={C.textMuted || '#6B7280'} />
           </TouchableOpacity>
           <View style={{ flex: 1, alignItems: 'center' }}>
           <Image
@@ -521,15 +529,15 @@ export default function ProgressScreen() {
 
   return (
     <ScreenBackground>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 52, paddingBottom: 12,
+      <View style={{ flexDirection: rowDir, alignItems: 'center', paddingTop: 52, paddingBottom: 12,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' }}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{ position: 'absolute', left: 16, top: 52, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            style={{ position: 'absolute', left: isRTL ? undefined : 16, right: isRTL ? 16 : undefined, top: 52, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={p.goBack}
           >
-            <ArrowLeft size={24} color={C.textMuted || '#6B7280'} />
+            <BackIcon size={24} color={C.textMuted || '#6B7280'} />
           </TouchableOpacity>
           <View style={{ flex: 1, alignItems: 'center' }}>
           <Image
@@ -545,7 +553,7 @@ export default function ProgressScreen() {
         {/* ── PDF Download button ─────────────────────────────────────── */}
         <TouchableOpacity
           style={{
-            flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+            flexDirection: rowDir, alignItems: 'center', justifyContent: 'center',
             gap: 8, backgroundColor: (C.emerald || '#34D399') + '15',
             borderRadius: 14, paddingVertical: 12, marginBottom: 16,
             borderWidth: 1, borderColor: (C.emerald || '#34D399') + '40',
@@ -554,14 +562,14 @@ export default function ProgressScreen() {
           onPress={generatePDF}
           disabled={pdfLoading}
           accessibilityRole="button"
-          accessibilityLabel="Download progress report as PDF"
+          accessibilityLabel={p.downloadPdfA11y}
         >
           {pdfLoading
             ? <ActivityIndicator size="small" color={C.emerald || '#34D399'} />
             : <Download size={16} color={C.emerald || '#34D399'} />
           }
           <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.emerald || '#34D399' }}>
-            {pdfLoading ? 'Generating PDF…' : 'Download Progress Report (PDF)'}
+            {pdfLoading ? p.generatingPdf : p.downloadPdf}
           </Text>
         </TouchableOpacity>
 
@@ -570,16 +578,16 @@ export default function ProgressScreen() {
           backgroundColor: C.card || '#111827', borderRadius: 16, padding: 16,
           marginBottom: 12, borderWidth: 1, borderColor: (C.cyan || '#00D9FF') + '30',
         }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: (C.cyan || '#00D9FF') + '20', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={24} color={C.cyan || '#00D9FF'} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: scaledFont(11), color: C.textMuted, letterSpacing: 0.8 }}>
-                LEVEL {xpData.current.level} · {xpData.current.label.toUpperCase()}
+              <Text style={{ fontSize: scaledFont(11), color: C.textMuted, letterSpacing: 0.8, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
+                {p.levelLabel} {xpData.current.level} · {p[xpData.current.labelKey].toUpperCase()}
               </Text>
-              <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text }}>
-                {xp.toLocaleString()} XP
+              <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
+                {xp.toLocaleString(lang)} {p.xpUnit}
               </Text>
             </View>
             <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '20', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: (C.cyan || '#00D9FF') + '40' }}>
@@ -589,23 +597,28 @@ export default function ProgressScreen() {
           {/* XP progress bar */}
           {xpData.next && (
             <>
-              <View style={{ height: 6, backgroundColor: (C.border || '#374151') + '40', borderRadius: 3, marginBottom: 6 }}>
+              <View style={{ height: 6, backgroundColor: (C.border || '#374151') + '40', borderRadius: 3, marginBottom: 6, flexDirection: rowDir }}>
                 <View style={{ height: 6, backgroundColor: C.cyan || '#00D9FF', borderRadius: 3, width: `${xpData.progress}%` }} />
               </View>
-              <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>
-                {xpData.progress}% to Level {xpData.current.level + 1} · {xpData.next.label} ({(xpData.next.xpNeeded - xp).toLocaleString()} XP to go)
+              <Text style={{ fontSize: scaledFont(11), color: C.textMuted, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
+                {pInterp(p.xpToNext, {
+                  progress: xpData.progress,
+                  nextLevel: xpData.current.level + 1,
+                  nextLabel: p[xpData.next.labelKey],
+                  remaining: (xpData.next.xpNeeded - xp).toLocaleString(lang),
+                })}
               </Text>
             </>
           )}
         </View>
 
         {/* ── Stats row ───────────────────────────────────────────────── */}
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+        <View style={{ flexDirection: rowDir, gap: 8, marginBottom: 12 }}>
           {[
-            { label: 'Accuracy', value: overallAvg > 0 ? `${overallAvg}%` : '—', icon: Target, color: overallAvg > 0 ? scoreColor(overallAvg, C) : C.textMuted },
-            { label: 'Streak',   value: `${streak}d`,              icon: Flame,  color: streak > 0 ? '#FB923C' : C.textMuted },
-            { label: 'Best',     value: `${bestStreak}d`,          icon: Award,  color: '#FBBF24' },
-            { label: 'Time',     value: formatDuration(totalSeconds), icon: Clock, color: C.purple || '#A78BFA' },
+            { label: p.statAccuracy, value: overallAvg > 0 ? `${overallAvg}%` : '—', icon: Target, color: overallAvg > 0 ? scoreColor(overallAvg, C) : C.textMuted },
+            { label: p.statStreak,   value: `${streak}${p.daySuffix}`,             icon: Flame,  color: streak > 0 ? '#FB923C' : C.textMuted },
+            { label: p.statBest,     value: `${bestStreak}${p.daySuffix}`,         icon: Award,  color: '#FBBF24' },
+            { label: p.statTime,     value: formatDuration(totalSeconds), icon: Clock, color: C.purple || '#A78BFA' },
           ].map((stat, i) => (
             <View key={i} style={{ flex: 1, backgroundColor: C.card || '#111827', borderRadius: 12, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}>
               <stat.icon size={16} color={stat.color} style={{ marginBottom: 4 }} />
@@ -620,11 +633,11 @@ export default function ProgressScreen() {
           backgroundColor: C.card || '#111827', borderRadius: 14, padding: 14,
           marginBottom: 12, borderWidth: 1, borderColor: '#FB923C30',
         }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 6, marginBottom: 10 }}>
             <Flame size={14} color="#FB923C" />
-            <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>This week</Text>
+            <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{p.thisWeek}</Text>
           </View>
-          <WeekHeatmap streak={streak} C={C} />
+          <WeekHeatmap streak={streak} C={C} p={p} isRTL={isRTL} />
         </View>
 
         {/* ── Mistake leaderboard ──────────────────────────────────────── */}
@@ -633,9 +646,9 @@ export default function ProgressScreen() {
             backgroundColor: C.card || '#111827', borderRadius: 14, padding: 14,
             marginBottom: 12, borderWidth: 1, borderColor: '#FBBF2430',
           }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 6, marginBottom: 12 }}>
               <TrendingUp size={14} color="#FBBF24" />
-              <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>Top areas to improve</Text>
+              <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{p.topAreas}</Text>
             </View>
             {mistakeRanking.map((m, i) => {
               const rankColors = ['#EF4444','#FB923C','#FBBF24','#34D399','#60A5FA','#A78BFA'];
@@ -643,18 +656,18 @@ export default function ProgressScreen() {
               const barPct = Math.min(100, (m.frequency / (mistakeRanking[0]?.frequency || 1)) * 100);
               return (
                 <View key={i} style={{ marginBottom: i < mistakeRanking.length - 1 ? 10 : 0 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: col + '20', alignItems: 'center', justifyContent: 'center' }}>
                       <Text style={{ fontSize: scaledFont(11), fontWeight: '800', color: col }}>#{i+1}</Text>
                     </View>
-                    <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '600', color: C.text }}>{m.category}</Text>
+                    <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '600', color: C.text, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{m.category}</Text>
                     <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{m.frequency}×</Text>
                   </View>
-                  <View style={{ height: 4, backgroundColor: (C.border || '#374151') + '30', borderRadius: 2, marginLeft: 30 }}>
+                  <View style={{ height: 4, backgroundColor: (C.border || '#374151') + '30', borderRadius: 2, marginLeft: isRTL ? 0 : 30, marginRight: isRTL ? 30 : 0, flexDirection: rowDir }}>
                     <View style={{ height: 4, backgroundColor: col, borderRadius: 2, width: `${barPct}%` }} />
                   </View>
                   {m.exercises.length > 0 && (
-                    <Text style={{ fontSize: scaledFont(10), color: C.textMuted, marginLeft: 30, marginTop: 2 }}>
+                    <Text style={{ fontSize: scaledFont(10), color: C.textMuted, marginLeft: isRTL ? 0 : 30, marginRight: isRTL ? 30 : 0, marginTop: 2, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
                       {m.exercises.join(' · ')}
                     </Text>
                   )}
@@ -665,9 +678,9 @@ export default function ProgressScreen() {
         )}
 
         {/* ── Exercise nav cards ───────────────────────────────────────── */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 1 }}>
-            TAP AN EXERCISE FOR DETAILED ANALYTICS
+        <View style={{ flexDirection: rowDir, alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 1, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
+            {p.tapHint}
           </Text>
         </View>
 
@@ -675,41 +688,45 @@ export default function ProgressScreen() {
           const d = exerciseData[ex.id] || { avg: null, sessions: 0, lastDate: null, best: null };
           const hasData = d.sessions > 0;
           const isInactive = !activeIds.includes(ex.id);
+          const localLabel = p[ex.labelKey];
           return (
             <TouchableOpacity
               key={ex.id}
               style={{
-                flexDirection: 'row', alignItems: 'center', gap: 12,
+                flexDirection: rowDir, alignItems: 'center', gap: 12,
                 backgroundColor: C.card || '#111827', borderRadius: 14,
                 padding: 14, marginBottom: 8,
                 borderWidth: 1, borderColor: isInactive ? (C.border + '30') : (ex.color + '30'),
                 minHeight: 64,
                 opacity: isInactive ? 0.45 : 1,
               }}
-              onPress={() => router.push({ pathname: '/progress-detail', params: { exerciseId: ex.id, exerciseLabel: ex.label, exerciseColor: ex.color } })}
+              onPress={() => router.push({ pathname: '/progress-detail', params: { exerciseId: ex.id, exerciseLabel: localLabel, exerciseColor: ex.color } })}
               accessibilityRole="button"
-              accessibilityLabel={`View ${ex.label} progress details`}
+              accessibilityLabel={pInterp(p.viewDetailsA11y, { label: localLabel })}
             >
               <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: ex.color + '18', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 20 }}>{ex.icon}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: ex.color }}>{ex.label}</Text>
-                <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: ex.color, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{localLabel}</Text>
+                <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
                   {hasData
-                    ? `${d.sessions} session${d.sessions !== 1 ? 's' : ''} · Last: ${new Date(d.lastDate).toLocaleDateString()}`
-                    : 'No sessions yet'}
+                    ? pInterp(d.sessions === 1 ? p.sessionsOne : p.sessionsMany, {
+                        count: d.sessions,
+                        date: new Date(d.lastDate).toLocaleDateString(lang),
+                      })
+                    : p.noSessions}
                 </Text>
               </View>
               {hasData && d.avg !== null && (
-                <View style={{ alignItems: 'flex-end', marginRight: 4 }}>
+                <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end', marginLeft: isRTL ? 4 : 0, marginRight: isRTL ? 0 : 4 }}>
                   <Text style={{ fontSize: scaledFont(20), fontWeight: '800', color: scoreColor(d.avg, C) }}>
                     {d.avg}%
                   </Text>
-                  <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>avg</Text>
+                  <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>{p.avg}</Text>
                 </View>
               )}
-              <ChevronRight size={16} color={C.textMuted} />
+              <ChevronIcon size={16} color={C.textMuted} />
             </TouchableOpacity>
           );
         })}

@@ -1,15 +1,9 @@
-// metro.config.js
-// Place this in your PROJECT ROOT (same folder as package.json)
-//
-// FIXES:
-// 1. "ReactCurrentOwner of undefined" — forces a single copy of React
-// 2. Three.js .cjs module resolution
-// 3. Three.js "exports" field confusion
-
-const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
+const {
+  getSentryExpoConfig
+} = require("@sentry/react-native/metro");
 
-const config = getDefaultConfig(__dirname);
+const config = getSentryExpoConfig(__dirname);
 
 // ── Fix 1: Three.js .cjs files ──────────────────────────────
 config.resolver.sourceExts.push('cjs');

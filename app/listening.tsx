@@ -35,8 +35,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 import {
   Headphones, Play, Volume2, Send, RotateCcw, Star, Award,
-  ChevronRight, ArrowRight, ArrowLeft, Settings2, Eye,
+  ChevronRight, ChevronDown, ArrowRight, ArrowLeft, Settings2, Eye, BookOpen,
 } from 'lucide-react-native';
+import { pushVaults } from '../services/syncService';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
@@ -50,6 +51,8 @@ import DiscussWithPuff from '../components/DiscussWithPuff';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, useScreenReader, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 
 const DIFFICULTIES = [
   { key: 'easy', label: '🟢 Easy', desc: 'Slow audio + see text', speed: 0.7, showText: true, showTime: 5000, level: 'A1-A2' },
@@ -109,6 +112,7 @@ export default function ListeningScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('listening');
 
   // ✅ NEW: Screen reader detection — auto-shows transcript
   const isScreenReaderOn = useScreenReader();
@@ -145,11 +149,44 @@ export default function ListeningScreen() {
   const [sessionScore, setSessionScore] = useState(0);
   const [playCount, setPlayCount] = useState(0);
 
+  const [showSave, setShowSave] = useState(false);
+  const [saveWord, setSaveWord] = useState('');
+
   const diff = DIFFICULTIES.find(d => d.key === difficulty);
 
   const getScoreColor = (s) => s >= 90 ? C.emerald : s >= 70 ? '#F59E0B' : s >= 50 ? '#F97316' : C.red;
   // ✅ NEW: Text label for score (not just color)
   const getScoreLabel = (s) => s >= 90 ? 'Excellent' : s >= 70 ? 'Good' : s >= 50 ? 'OK' : 'Practice';
+
+  const saveWordToVault = async (word: string) => {
+    const w = word.trim();
+    if (!w) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const vault = raw ? JSON.parse(raw) : [];
+      if (vault.some(e => String(e.word || '').toLowerCase() === w.toLowerCase())) {
+        Alert.alert('Already Saved', `"${w}" is already in your Vocabulary Vault.`);
+        return;
+      }
+      const entry = {
+        word: w, definition: '', example: currentSentence ? `(from Listening: ${currentSentence})` : '',
+        meanings: [], category: 'Listening', source: 'listening',
+        addedAt: new Date().toISOString(), practiceCount: 0,
+      };
+      const updated = [...vault, entry].sort((a, b) =>
+        String(a.word || '').toLowerCase().localeCompare(String(b.word || '').toLowerCase())
+      );
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault', JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert('Saved!', `"${w}" added to Vocabulary Vault.`);
+    } catch {
+      Alert.alert('Error', 'Could not save to vault.');
+    }
+  };
 
   const generateSentence = useCallback(() => {
     const pool = SENTENCES[level] || SENTENCES['A2'];
@@ -158,6 +195,8 @@ export default function ListeningScreen() {
     setUserInput('');
     setResult(null);
     setPlayCount(0);
+    setShowSave(false);
+    setSaveWord('');
 
     if (diff.showText && diff.showTime > 0) {
       setShowSentence(true);
@@ -203,6 +242,7 @@ export default function ListeningScreen() {
     const finalScore = Math.max(0, Math.min(100, accuracy - playPenalty));
 
     setScore(finalScore);
+    nudge.recordInteraction();
     setResult({ accuracy: finalScore, correctWords, userWords });
     setSessionCount(prev => prev + 1);
     setSessionScore(prev => prev + finalScore);
@@ -295,7 +335,7 @@ export default function ListeningScreen() {
     <ScreenBackground>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       {/* ── HEADER ── */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 32, paddingBottom: 10,
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -542,6 +582,47 @@ export default function ListeningScreen() {
               })}
             </Text>
 
+            {/* ── SAVE VOCAB ── */}
+            <View style={{ width: '100%', marginBottom: 12 }}>
+              <TouchableOpacity
+                onPress={() => setShowSave(v => !v)}
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, backgroundColor: (C.cyan || '#00E5FF') + '10', borderRadius: 12, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '30', minHeight: 44 }}
+                accessibilityRole="button"
+                accessibilityLabel={showSave ? 'Close save word panel' : 'Save a word from this sentence to your Vocabulary Vault'}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <BookOpen size={14} color={C.cyan || '#00E5FF'} />
+                  <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.cyan || '#00E5FF' }}>Save a word to Vocabulary Vault</Text>
+                </View>
+                {showSave
+                  ? <ChevronDown size={14} color={C.cyan || '#00E5FF'} />
+                  : <ChevronRight size={14} color={C.cyan || '#00E5FF'} />}
+              </TouchableOpacity>
+
+              {showSave && (
+                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                  <TextInput
+                    style={{ flex: 1, backgroundColor: C.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: C.text, fontSize: scaledFont(13), borderWidth: 1, borderColor: (C.border || '#475569') + '40', minHeight: 44 }}
+                    placeholder="Word or expression"
+                    placeholderTextColor={C.textMuted}
+                    value={saveWord}
+                    onChangeText={setSaveWord}
+                    returnKeyType="done"
+                    onSubmitEditing={() => saveWordToVault(saveWord)}
+                    accessibilityLabel="Word to save to Vocabulary Vault"
+                  />
+                  <TouchableOpacity
+                    onPress={() => saveWordToVault(saveWord)}
+                    style={{ backgroundColor: (C.emerald || '#00E5A0') + '20', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '50', minHeight: 44, justifyContent: 'center' }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Save word to Vocabulary Vault"
+                  >
+                    <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.emerald || '#00E5A0' }}>→ Vocab</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
             <DiscussWithPuff
               exerciseType="listening"
               exerciseData={{ correctText: currentSentence, studentAnswer: userInput }}
@@ -576,6 +657,12 @@ export default function ListeningScreen() {
 
       </ScrollView>
     </KeyboardAvoidingView>
+    <FeedbackNudgeModal
+      visible={nudge.showModal}
+      exerciseName="listening"
+      onDismiss={nudge.onDismiss}
+      onSent={nudge.onSent}
+    />
     </ScreenBackground>
   );
 }

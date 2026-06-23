@@ -31,6 +31,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SW, height: SH } = Dimensions.get('window');
@@ -84,6 +85,7 @@ function generateMathProblem() {
 }
 
 export default function ParentalConsentScreen({ ageGroup, onComplete }) {
+  const insets = useSafeAreaInsets();
   const [problem, setProblem] = useState(generateMathProblem());
   const [userAnswer, setUserAnswer] = useState('');
   const [error, setError] = useState('');
@@ -199,7 +201,7 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
       <View style={s.bgGlow} />
 
       <ScrollView
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[s.scrollContent, { paddingTop: insets.top + 20 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -325,7 +327,7 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
 
           {/* ── Legal footer ── */}
           <Text style={s.footerText}>
-            Poly-Puff complies with COPPA, GDPR, and Google Play's 2026 Families Policy. Parental consent may be revoked at any time by contacting support@polypuff.app
+            Poly-Puff complies with COPPA, GDPR, and Google Play's 2026 Families Policy. Parental consent may be revoked at any time by contacting support@poly-puff.com
           </Text>
         </Animated.View>
       </ScrollView>

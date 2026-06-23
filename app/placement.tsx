@@ -54,6 +54,8 @@ import { ScreenBackground, GlassCard, NeonButton, BackHeader } from '../componen
 import PolyPuffScene from '../components/PolyPuffScene';
 import { hapticSuccess, hapticError, feedbackForScore } from '../services/sounds';
 import { scaledFont, announce } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 // ── Safe import of expo-speech-recognition (not available in Expo Go) ─────────
 let ExpoSpeechRecognitionModule: any = null;
 let useSpeechRecognitionEvent: any = (_event: string, cb: any) => {
@@ -472,6 +474,7 @@ export default function PlacementScreen() {
   }, []));
 
   const router = useRouter();
+  const nudge = useFeedbackNudge('placement');
 
   // ── Mode ──────────────────────────────────────────────────────────────────
   // 'short'     = 2 questions per skill = 8 total
@@ -504,6 +507,7 @@ export default function PlacementScreen() {
   }, [skill, currentQ, testMode]);
 
   const handleMCAnswer = (idx) => {
+    nudge.recordInteraction();
     setSelectedAnswer(idx);
     const correct = idx === question.answer;
     if (correct) { hapticSuccess(); announce('Correct!'); }
@@ -585,7 +589,7 @@ export default function PlacementScreen() {
       <ScreenBackground>
         {/* ── HEADER ── */}
         <View style={{ flexDirection: 'row', alignItems: 'center',
-          paddingTop: 32, paddingBottom: 10,
+          paddingTop: 62, paddingBottom: 10,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
           borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
           <TouchableOpacity
@@ -734,7 +738,7 @@ export default function PlacementScreen() {
       <ScreenBackground>
         {/* ── HEADER ── */}
         <View style={{ flexDirection: 'row', alignItems: 'center',
-          paddingTop: 32, paddingBottom: 10,
+          paddingTop: 62, paddingBottom: 10,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
           borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
           <TouchableOpacity
@@ -833,7 +837,7 @@ export default function PlacementScreen() {
     <ScreenBackground>
       {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -961,6 +965,12 @@ export default function PlacementScreen() {
         )}
 
       </ScrollView>
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="placement"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }

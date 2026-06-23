@@ -36,9 +36,11 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
+import { pushVaults } from '../services/syncService';
 import {
   ArrowLeft, RefreshCw, Send, CheckCircle,
   Volume2, ChevronRight, Star, BookOpen, Zap,
+  Settings2,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -51,6 +53,23 @@ import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import { getAuthHeaders } from '../utils/auth';
+import NativeLanguagePicker from '../components/NativeLanguagePicker';
+import { normalizeNativeLanguage, speechCodeForNativeLanguage } from '../utils/nativeLanguages';
+import {
+  masteredTexts,
+  masteryScopeKey,
+  progressionScopeKey,
+  levelPromptScopeKey,
+  isDuplicatePracticeItem,
+  nextCefrLevel,
+  normalizePracticeText,
+  shouldSuggestNextLevel,
+  uniqueRecentTexts,
+  type MasteredPracticeItem,
+} from '../utils/progressivePractice';
 
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
@@ -73,6 +92,7 @@ export default function WordChunksScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('wordchunks');
   const ds = dynamicStyles(C);
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
   const brandName = 'Poly-Puff';
@@ -90,6 +110,9 @@ export default function WordChunksScreen() {
 
   const [chunk, setChunk]               = useState(null);
   const [previousChunks, setPrev]       = useState([]);
+  const [masteredChunks, setMasteredChunks] = useState<MasteredPracticeItem[]>([]);
+  const [retryQueue, setRetryQueue]     = useState<any[]>([]);
+  const [newChunkCount, setNewChunkCount] = useState(0);
   const [input, setInput]               = useState('');
   const [result, setResult]             = useState(null);
   const [loading, setLoading]           = useState(false);
@@ -105,11 +128,13 @@ export default function WordChunksScreen() {
   const [sessionStarted, setSessionStarted]     = useState(false);
   const [vaultModal, setVaultModal]             = useState(false);
   const [vaultPhrase, setVaultPhrase]           = useState('');
+  const [showSettings, setShowSettings]         = useState(false);
 
   const cardAnim   = useRef(new Animated.Value(0)).current;
   const resultAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(useCallback(() => { loadProfile(); }, []));
+  useEffect(() => { loadMasteredChunks(); }, [nativeLanguage, level]);
 
   const bgTimerStartRef = useRef(null);
   useFocusEffect(useCallback(() => {
@@ -129,7 +154,7 @@ export default function WordChunksScreen() {
       if (data) {
         const p = JSON.parse(data);
         if (p.level)          setLevel(p.level);
-        if (p.nativeLanguage) setNativeLang(p.nativeLanguage);
+        if (p.nativeLanguage) setNativeLang(normalizeNativeLanguage(p.nativeLanguage));
       } else {
         setNativeLang('Spanish');
       }
@@ -137,6 +162,105 @@ export default function WordChunksScreen() {
       setNativeLang('Spanish');
     }
     setProfileLoaded(true);
+  };
+
+  const handleNativeLanguageSelect = async (language: string) => {
+    const normalized = normalizeNativeLanguage(language);
+    setNativeLang(normalized);
+    setChunk(null);
+    setResult(null);
+    setInput('');
+    setHintUsed(false);
+    setHintText('');
+    setRevealed(false);
+    setPrev([]);
+    setRetryQueue([]);
+    setNewChunkCount(0);
+    try {
+      const raw = await AsyncStorage.getItem('userProfile');
+      const profile = raw ? JSON.parse(raw) : {};
+      await AsyncStorage.setItem('userProfile', JSON.stringify({ ...profile, nativeLanguage: normalized }));
+    } catch (e) {}
+  };
+
+  const loadMasteredChunks = async () => {
+    if (!nativeLanguage) return;
+    try {
+      const key = masteryScopeKey('wordchunks', nativeLanguage, level);
+      const raw = await AsyncStorage.getItem(key);
+      const saved = raw ? JSON.parse(raw) : [];
+      setMasteredChunks(Array.isArray(saved) ? saved : []);
+    } catch (e) {
+      setMasteredChunks([]);
+    }
+  };
+
+  const handleLevelSelect = (selectedLevel: string) => {
+    if (selectedLevel === level) return;
+    setLevel(selectedLevel);
+    setChunk(null);
+    setResult(null);
+    setInput('');
+    setHintUsed(false);
+    setHintText('');
+    setRevealed(false);
+    setPrev([]);
+    setRetryQueue([]);
+    setNewChunkCount(0);
+  };
+
+  const rememberMasteredChunk = async (score: number, chunkData: any) => {
+    if (!chunkData?.native || !chunkData?.english) return;
+    const key = masteryScopeKey('wordchunks', nativeLanguage, level);
+    const item: MasteredPracticeItem = {
+      native: chunkData.native,
+      english: chunkData.english,
+      level,
+      category: chunkData.category || selectedCategory || 'Expression',
+      date: new Date().toISOString(),
+      score,
+    };
+    try {
+      const raw = await AsyncStorage.getItem(key);
+      const saved = raw ? JSON.parse(raw) : [];
+      const list = Array.isArray(saved) ? saved : [];
+      const itemKey = normalizePracticeText(item.native);
+      const updated = [item, ...list.filter(existing => normalizePracticeText(existing?.native || '') !== itemKey)].slice(0, 300);
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      setMasteredChunks(updated);
+    } catch (e) {}
+  };
+
+  const queueRetryChunk = (chunkData: any) => {
+    if (!chunkData?.native || !chunkData?.english) return;
+    setRetryQueue(prev => {
+      const key = normalizePracticeText(chunkData.native);
+      if (prev.some(item => normalizePracticeText(item?.native || '') === key)) return prev;
+      return [...prev, chunkData].slice(-30);
+    });
+  };
+
+  const recordProgressionScore = async (score: number) => {
+    try {
+      const key = progressionScopeKey('wordchunks', nativeLanguage, level);
+      const raw = await AsyncStorage.getItem(key);
+      const saved = raw ? JSON.parse(raw) : [];
+      const scores = [score, ...(Array.isArray(saved) ? saved : [])].slice(0, 20);
+      await AsyncStorage.setItem(key, JSON.stringify(scores));
+      const nextLevel = nextCefrLevel(level);
+      if (!nextLevel || !shouldSuggestNextLevel(scores, level)) return;
+      const promptKey = levelPromptScopeKey('wordchunks', nativeLanguage, level);
+      if (await AsyncStorage.getItem(promptKey)) return;
+      await AsyncStorage.setItem(promptKey, new Date().toISOString());
+      Alert.alert(
+        'Ready for the next level?',
+        `Your recent Word Chunks scores are strong at ${level}. Try ${nextLevel} to keep progressing?`,
+        [
+          { text: 'Stay here', style: 'cancel' },
+          { text: `Try ${nextLevel}`, onPress: () => handleLevelSelect(nextLevel) },
+        ]
+      );
+    } catch (e) {}
   };
 
   // Session starts only when user presses 'Start Session'
@@ -153,23 +277,47 @@ export default function WordChunksScreen() {
     resultAnim.setValue(0);
 
     try {
+      if (retryQueue.length > 0 && newChunkCount > 0 && newChunkCount % 8 === 0) {
+        const retry = retryQueue[0];
+        setRetryQueue(prev => prev.slice(1));
+        setChunk(retry);
+        setLoading(false);
+        cardAnim.setValue(0);
+        Animated.spring(cardAnim, { toValue: 1, useNativeDriver: true, friction: 7 }).start();
+        announce(`Review chunk ready. Translate: ${retry.native}`);
+        return;
+      }
+
       const BASE = await getServerUrl();
-      const res = await fetch(`${BASE}/api/wordchunk/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nativeLanguage, level, previousChunks, category: selectedCategory }),
-      });
-      if (!res.ok) throw new Error('Server error');
-      const data = await res.json();
+      const masteredChunkTexts = masteredTexts(masteredChunks);
+      const avoidedChunks = uniqueRecentTexts([...previousChunks, ...masteredChunkTexts], 100);
+      let data: any = null;
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const res = await fetch(`${BASE}/api/wordchunk/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
+          body: JSON.stringify({
+            nativeLanguage,
+            level,
+            previousChunks: avoidedChunks,
+            masteredChunks: masteredChunkTexts,
+            category: selectedCategory,
+          }),
+        });
+        if (!res.ok) throw new Error('Server error');
+        data = await res.json();
+        if (!isDuplicatePracticeItem(data?.native || '', previousChunks, masteredChunks)) break;
+      }
       setChunk(data);
       setPrev(prev => [...prev.slice(-20), data.native]);
+      setNewChunkCount(prev => prev + 1);
 
       cardAnim.setValue(0);
       Animated.spring(cardAnim, { toValue: 1, useNativeDriver: true, friction: 7 }).start();
       // ✅ NEW: Announce new chunk
       announce(`New chunk ready. Translate: ${data.native}`);
     } catch (e) {
-      Alert.alert('Connection Error', 'Could not reach the server. Make sure your backend is running.');
+      Alert.alert(t.alertConnectionError, t.alertCouldNotReachServerShort);
     }
     setLoading(false);
   };
@@ -181,7 +329,7 @@ export default function WordChunksScreen() {
       const raw = await AsyncStorage.getItem(keys[0]);
       const vault = raw ? JSON.parse(raw) : [];
       const exists = Array.isArray(vault) && vault.some(w => String(w.text || w.phrase || w.english || '').toLowerCase() === phrase.trim().toLowerCase());
-      if (exists) { Alert.alert('Already in Vault', `"${phrase.trim()}" is already in your Word Chunks Vault.`); return; }
+      if (exists) { Alert.alert(t.alertAlreadySaved, t.alertAlreadyInWordChunksVault.replace('{word}', phrase.trim())); return; }
       const entry = {
         text: phrase.trim(),
         phrase: phrase.trim(),
@@ -196,8 +344,9 @@ export default function WordChunksScreen() {
       const updated = [...(Array.isArray(vault) ? vault : []), entry].sort((a, b) =>
         String(a.text || a.phrase || '').toLowerCase().localeCompare(String(b.text || b.phrase || '').toLowerCase()));
       await Promise.all(keys.map(key => AsyncStorage.setItem(key, JSON.stringify(updated))));
-      Alert.alert('Added!', `"${phrase.trim()}" saved to your Word Chunks Vault.`);
-    } catch (e) { Alert.alert('Error', 'Could not save to vault.'); }
+      pushVaults(); // fire-and-forget
+      Alert.alert(t.alertAddedExclaim, t.alertSavedToWordChunksVault.replace('{word}', phrase.trim()));
+    } catch (e) { Alert.alert(t.alertError, t.alertCouldNotSaveVault); }
   };
 
   const checkAnswer = async () => {
@@ -207,7 +356,7 @@ export default function WordChunksScreen() {
       const BASE = await getServerUrl();
       const res = await fetch(`${BASE}/api/wordchunk/check`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({
           native: chunk.native,
           correct: chunk.english,
@@ -224,11 +373,20 @@ export default function WordChunksScreen() {
         ? { ...data, score: finalScore, feedback: (data.feedback || '') + ' (-20 hint penalty applied)' }
         : { ...data, score: finalScore };
       setResult(finalData);
+      nudge.recordInteraction();
       setSessionScore(prev => prev + finalScore);
       setSessionCount(prev => prev + 1);
       resultAnim.setValue(0);
       Animated.spring(resultAnim, { toValue: 1, useNativeDriver: true, friction: 6 }).start();
       await saveWordChunkProgress(finalScore, finalData.feedback || '', chunk);
+      if (finalScore < 70 && !revealed) {
+        queueRetryChunk(chunk);
+      }
+      if (finalScore >= 85 && !hintUsed && !revealed) {
+        await rememberMasteredChunk(finalScore, chunk);
+        setRetryQueue(prev => prev.filter(item => normalizePracticeText(item?.native || '') !== normalizePracticeText(chunk.native)));
+      }
+      await recordProgressionScore(finalScore);
       // ✅ NEW: Announce score
       announce(scoreAnnouncement(finalScore));
     } catch (e) {
@@ -239,6 +397,15 @@ export default function WordChunksScreen() {
       const fallbackFeedback = (ok ? 'Correct!' : `The answer is: "${chunk.english}"`) + (hintUsed && fallbackScore < fallbackRaw ? ' (-20 hint penalty applied)' : '');
       setResult({ score: fallbackScore, feedback: fallbackFeedback, correct: chunk.english });
       setSessionCount(prev => prev + 1);
+      if (fallbackScore < 70 && !revealed) {
+        queueRetryChunk(chunk);
+      }
+      if (fallbackScore >= 85 && !hintUsed && !revealed) {
+        await rememberMasteredChunk(fallbackScore, chunk);
+        setRetryQueue(prev => prev.filter(item => normalizePracticeText(item?.native || '') !== normalizePracticeText(chunk.native)));
+      }
+      await saveWordChunkProgress(fallbackScore, fallbackFeedback, chunk);
+      await recordProgressionScore(fallbackScore);
       // ✅ NEW: Announce fallback score
       announce(scoreAnnouncement(fallbackScore));
     }
@@ -260,6 +427,7 @@ export default function WordChunksScreen() {
 
   const revealAnswer = () => {
     if (!chunk) return;
+    queueRetryChunk(chunk);
     setRevealed(true);
     setResult({ score: 0, feedback: 'Answer revealed — try to remember it next time!', correct: chunk.english });
     resultAnim.setValue(0);
@@ -293,7 +461,15 @@ export default function WordChunksScreen() {
               <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('word-chunks').toUpperCase()}</Text>
               <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>{nativeLanguage} → English</Text>
             </View>
-            <View style={{ width: 44 }} />
+            <TouchableOpacity
+              onPress={() => setShowSettings(true)}
+              style={[ds.settingsBtn, { zIndex: 120 }]}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel={t.settings}
+            >
+              <Settings2 size={20} color={C.textSec || '#A8B3CF'} />
+            </TouchableOpacity>
           </View>
 
         <ScrollView contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">
@@ -307,7 +483,7 @@ export default function WordChunksScreen() {
               <TouchableOpacity
                 key={l}
                 style={[ds.levelPill, level === l && ds.levelPillActive]}
-                onPress={() => setLevel(l)}
+                onPress={() => handleLevelSelect(l)}
                 {...a11yTab(`Level ${l}`, level === l)}
               >
                 <Text style={[ds.levelPillText, level === l && ds.levelPillTextActive]}>{l}</Text>
@@ -432,19 +608,12 @@ export default function WordChunksScreen() {
               {/* ✅ A11Y: Listen button */}
               <TouchableOpacity
                 onPress={() => {
-                  const langCodes = {
-                    Spanish: 'es', Mandarin: 'zh-CN', French: 'fr', German: 'de',
-                    Portuguese: 'pt', Russian: 'ru', Japanese: 'ja', Arabic: 'ar',
-                    Hindi: 'hi', Polish: 'pl', Italian: 'it', Czech: 'cs', Afrikaans: 'af',
-                    // Stage-3 additions with Google TTS support
-                    Filipino: 'fil-PH', Slovak: 'sk-SK', Telugu: 'te-IN',
-                  };
-                  Speech.speak(chunk.native, { language: langCodes[nativeLanguage] || 'en', rate: 0.85 });
+                  Speech.speak(chunk.native, { language: speechCodeForNativeLanguage(nativeLanguage), rate: 0.85 });
                 }}
                 style={ds.listenBtn}
                 accessibilityRole="button"
                 accessibilityLabel={`Hear chunk in ${nativeLanguage}`}
-                accessibilityHint="Double tap to hear the pronunciation in your native language"
+                accessibilityHint={t.accHintHearPronunciation}
               >
                 <Volume2 size={16} color={C.cyan || '#00E5FF'} />
                 <Text style={ds.listenText}>{ui('hearInLanguage', 'Hear in')} {nativeLanguage}</Text>
@@ -466,7 +635,7 @@ export default function WordChunksScreen() {
                 returnKeyType="done"
                 onSubmitEditing={checkAnswer}
                 accessibilityLabel={ui('englishChunkTranslation', 'Your English translation of the chunk')}
-                accessibilityHint="Type the English equivalent and press check"
+                accessibilityHint={t.accHintTypeEnglishCheck}
               />
               <View style={ds.inputActions}>
                 {/* Hint button */}
@@ -487,7 +656,7 @@ export default function WordChunksScreen() {
                     }]}
                     accessibilityRole="button"
                     accessibilityLabel={ui('getHint', 'Get a hint')}
-                    accessibilityHint="Reveals the first part of the answer. Caps your score at 80."
+                    accessibilityHint={t.accHintRevealFirstPart}
                   >
                     <Text style={{ fontSize: 13 }}>💡</Text>
                     <Text style={[ds.revealText, { color: '#FFBE0B' }]}>{wt('hint')} (-20)</Text>
@@ -508,7 +677,7 @@ export default function WordChunksScreen() {
                   style={ds.revealBtn}
                   accessibilityRole="button"
                   accessibilityLabel={ui('showCorrectAnswer', 'Show the correct answer')}
-                  accessibilityHint="Reveals the answer without scoring"
+                  accessibilityHint={t.accHintRevealAnswerNoScore}
                 >
                   <Text style={ds.revealText}>{wt('show-answer')}</Text>
                 </TouchableOpacity>
@@ -611,7 +780,7 @@ export default function WordChunksScreen() {
                 onPress={generateChunk}
                 accessibilityRole="button"
                 accessibilityLabel={ui('nextChunk', 'Next chunk')}
-                accessibilityHint="Generates a new word chunk to translate"
+                accessibilityHint={t.accHintGenerateNewChunk}
               >
                 <Text style={ds.nextText}>{wt('next')}</Text>
                 <ChevronRight size={18} color="#000" />
@@ -652,7 +821,19 @@ export default function WordChunksScreen() {
           </View>
         </View>
       </Modal>
-
+      <NativeLanguagePicker
+        visible={showSettings}
+        selectedLanguage={nativeLanguage}
+        onSelect={handleNativeLanguageSelect}
+        onClose={() => setShowSettings(false)}
+        title={t.settings}
+      />
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="wordchunks"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }
@@ -660,8 +841,9 @@ export default function WordChunksScreen() {
 function dynamicStyles(C) {
   return StyleSheet.create({
     scroll:        { padding: 20, paddingTop: 10, paddingBottom: 40 },
-    header:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 32, paddingBottom: 10, backgroundColor: 'rgba(2, 6, 18, 0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 },
+    header:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 62, paddingBottom: 10, backgroundColor: 'rgba(2, 6, 18, 0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 },
     backBtn:       { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+    settingsBtn:   { width: 44, height: 44, borderRadius: 14, backgroundColor: C.card || '#111827', alignItems: 'center', justifyContent: 'center' },
     headerTitle:   { fontSize: scaledFont(20), fontWeight: '800', color: C.text },
     headerSub:     { fontSize: scaledFont(12), color: C.textMuted, marginTop: 1 },
     levelPill:     { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: C.card, marginRight: 8, borderWidth: 1, borderColor: C.border + '40', minHeight: 44, justifyContent: 'center' },

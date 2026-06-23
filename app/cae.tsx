@@ -33,7 +33,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getServerUrl } from '../services/api';
+import { recordModuleProgress } from '../services/progressService';
+import { pushVaults } from '../services/syncService';
+import { getAuthHeaders } from '../utils/auth';
 
 // ── Colour helpers ────────────────────────────────────────────────────────────
 const CAMBRIDGE_BLUE = '#003865';
@@ -292,6 +297,7 @@ export default function CAEScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('cae');
 
   const [activeTab,        setActiveTab]        = useState('overview');
   const [expandedPart,     setExpandedPart]     = useState(null);
@@ -304,6 +310,27 @@ export default function CAEScreen() {
   const [practiceLoading,  setPracticeLoading]  = useState(false);
   const [practiceResult,   setPracticeResult]   = useState(null);
   const [userBand,         setUserBand]         = useState(null);
+  const [showVocabSave,    setShowVocabSave]    = useState(false);
+  const [saveWord,         setSaveWord]         = useState('');
+
+  const saveWordToVault = async (word: string) => {
+    const clean = word.trim();
+    if (!clean) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const items = raw ? JSON.parse(raw) : [];
+      const exists = items.some((i: { word?: string }) => String(i.word || '').trim().toLowerCase() === clean.toLowerCase());
+      if (exists) { Alert.alert(t.alertAlreadySaved, t.alertAlreadyInVault.replace('{word}', clean)); return; }
+      const updated = [{ word: clean, date: new Date().toISOString(), source: 'cae' }, ...items].slice(0, 500);
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault',    JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert(t.alertSavedExclaim, t.alertAddedToVault.replace('{word}', clean));
+    } catch { Alert.alert(t.alertError, t.alertCouldNotSaveWord); }
+  };
 
   useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('userProfile').then(d => {
@@ -339,7 +366,7 @@ export default function CAEScreen() {
 
   const submitPractice = async () => {
     if (!practiceInput.trim() || practiceInput.trim().length < 50) {
-      Alert.alert('Too Short', 'Please write more before submitting.');
+      Alert.alert(t.alertTooShort, t.alertWriteMoreBeforeSubmit);
       return;
     }
     setPracticeLoading(true);
@@ -347,13 +374,18 @@ export default function CAEScreen() {
       const serverUrl = await getServerUrl();
       const resp = await fetch(serverUrl + '/api/cae/check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ type: practiceType, prompt: practicePrompt, response: practiceInput.trim() }),
       });
       const data = await resp.json();
       setPracticeResult(data);
+      nudge.recordInteraction();
+      if (data?.cambridgeScore) {
+        const pct = Math.round(Math.max(0, Math.min(100, ((data.cambridgeScore - 160) / 50) * 100)));
+        recordModuleProgress({ exerciseId: 'cae', score: pct, detail: `Grade ${data.grade || '?'} — ${data.cambridgeScore} Cambridge Scale` }).catch(() => {});
+      }
     } catch (e) {
-      Alert.alert('Error', 'Could not submit. Check your connection.');
+      Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
     }
     setPracticeLoading(false);
   };
@@ -372,12 +404,12 @@ export default function CAEScreen() {
       <View style={{ backgroundColor: '#001a33', borderRadius: 20, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#003865' + '80' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <View style={{ backgroundColor: '#003865', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4 }}>
-            <Text style={{ fontSize: scaledFont(11), fontWeight: '900', color: '#fff', letterSpacing: 1 }}>CAMBRIDGE</Text>
+            <Text style={{ fontSize: scaledFont(11), fontWeight: '900', color: '#fff', letterSpacing: 1 }}>{t.cambridgeLabel}</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: '#7BB7E0', fontWeight: '600' }}>C1 ADVANCED</Text>
         </View>
         <Text style={{ fontSize: scaledFont(22), fontWeight: '900', color: '#fff', marginBottom: 4 }}>{wt('cae-prep')}</Text>
-        <Text style={{ fontSize: scaledFont(13), color: '#7BB7E0', fontWeight: '600', marginBottom: 12 }}>Certificate in Advanced English — C1 Level</Text>
+        <Text style={{ fontSize: scaledFont(13), color: '#7BB7E0', fontWeight: '600', marginBottom: 12 }}>{t.certificateAdvEnglishC1}</Text>
         <Text style={[S.bodyText, { color: '#ccc' }]}>
           {wt('module-desc-cae-prep')}
         </Text>
@@ -408,7 +440,7 @@ export default function CAEScreen() {
       </View>
 
       {/* Cambridge suite */}
-      <Text style={[S.label, { marginBottom: 8 }]}>The Cambridge English Qualification Suite</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.cambridgeEnglishSuite}</Text>
       <View style={[S.card, { marginBottom: 16 }]}>
         {CAMBRIDGE_SUITE.map((exam, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderTopWidth: i > 0 ? 1 : 0, borderTopColor: C.border + '15' }}>
@@ -417,11 +449,11 @@ export default function CAEScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: scaledFont(13), fontWeight: exam.highlight ? '800' : '600', color: exam.highlight ? C.text : C.textSec }}>{exam.exam}</Text>
-              <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>Scale: {exam.scale}</Text>
+              <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>{t.scaleLabel}: {exam.scale}</Text>
             </View>
             {exam.highlight && (
               <View style={{ backgroundColor: '#003865', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <Text style={{ fontSize: scaledFont(9), fontWeight: '800', color: '#7BB7E0' }}>YOU ARE HERE</Text>
+                <Text style={{ fontSize: scaledFont(9), fontWeight: '800', color: '#7BB7E0' }}>{t.youAreHere}</Text>
               </View>
             )}
           </View>
@@ -429,7 +461,7 @@ export default function CAEScreen() {
       </View>
 
       {/* Test structure */}
-      <Text style={[S.label, { marginBottom: 8 }]}>Test Structure</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.testStructure}</Text>
       {[
         { paper: 'Reading & Use of English', time: '90 min', parts: '8 parts, 56 questions', weight: '40%', colour: '#00E5A0', icon: '📖' },
         { paper: 'Writing',                  time: '90 min', parts: '2 tasks',               weight: '20%', colour: '#FFBE0B', icon: '✍️' },
@@ -489,7 +521,7 @@ export default function CAEScreen() {
           ))}
           <View style={{ height: 1, backgroundColor: C.border + '40', marginVertical: 8 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>Overall Score</Text>
+            <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{t.overallScore}</Text>
             <Text style={{ fontSize: scaledFont(15), fontWeight: '900', color: '#FFBE0B' }}>180 — Grade C (Pass)</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 4 }}>(180 + 185 + 176 + 182 + 179) ÷ 5 = 180.4 → 180</Text>
@@ -513,7 +545,7 @@ export default function CAEScreen() {
             <Text style={{ fontSize: scaledFont(18), fontWeight: '900', color: paper.colour, flex: 1 }}>{paper.label}</Text>
             {paper.isUnique && (
               <View style={{ backgroundColor: paper.colour + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <Text style={{ fontSize: scaledFont(9), fontWeight: '800', color: paper.colour }}>PAIRED</Text>
+                <Text style={{ fontSize: scaledFont(9), fontWeight: '800', color: paper.colour }}>{t.pairedLabel}</Text>
               </View>
             )}
           </View>
@@ -565,7 +597,7 @@ export default function CAEScreen() {
         {/* Task types for writing */}
         {paper.taskTypes && (
           <>
-            <Text style={[S.label, { marginBottom: 8 }]}>Part 2 Task Types</Text>
+            <Text style={[S.label, { marginBottom: 8 }]}>{t.part2TaskTypes}</Text>
             {paper.taskTypes.map((t, i) => (
               <TouchableOpacity key={i} style={S.card} onPress={() => toggle(i, expandedTask, setExpandedTask)}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -586,7 +618,7 @@ export default function CAEScreen() {
         {/* Criteria */}
         {paper.criteria && (
           <>
-            <Text style={[S.label, { marginBottom: 8 }]}>Marking Criteria</Text>
+            <Text style={[S.label, { marginBottom: 8 }]}>{t.markingCriteria}</Text>
             <View style={S.card}>
               {paper.criteria.map((c, i) => (
                 <View key={i} style={{ marginBottom: i < paper.criteria.length - 1 ? 12 : 0 }}>
@@ -606,7 +638,7 @@ export default function CAEScreen() {
         {/* Question types for R&UoE / Listening */}
         {paper.questionTypes && (
           <>
-            <Text style={[S.label, { marginBottom: 8 }]}>Question Types</Text>
+            <Text style={[S.label, { marginBottom: 8 }]}>{t.questionTypes}</Text>
             <View style={S.card}>
               {paper.questionTypes.map((qt, i) => (
                 <View key={i} style={S.tipBullet}>
@@ -619,7 +651,7 @@ export default function CAEScreen() {
         )}
 
         {/* Tips */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Top Tips</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.topTips}</Text>
         <View style={S.card}>
           {paper.tips.map((tip, i) => (
             <View key={i} style={S.tipBullet}>
@@ -630,7 +662,7 @@ export default function CAEScreen() {
         </View>
 
         {/* Band tips */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Tips by Target Level</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.tipsByTargetLevel}</Text>
         {Object.entries(paper.bandTips).map(([range, tip]) => (
           <View key={range} style={{ flexDirection: 'row', gap: 10, backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: C.border + '20' }}>
             <View style={{ backgroundColor: paper.colour + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' }}>
@@ -647,8 +679,8 @@ export default function CAEScreen() {
             onPress={() => startPractice(paperId === 'writing' ? 'essay' : 'speaking_longturn')}
           >
             <Icon size={20} color={paper.colour} />
-            <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: paper.colour, marginTop: 6 }}>Practice {paper.shortLabel} with AI</Text>
-            <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>Get examiner-style band feedback</Text>
+            <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: paper.colour, marginTop: 6 }}>{t.practiceWithAITemplate.replace('{paper}', paper.shortLabel)}</Text>
+            <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>{t.examinerStyleFeedback}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -765,7 +797,7 @@ export default function CAEScreen() {
   const renderScores = () => (
     <View>
       {/* Grade table */}
-      <Text style={[S.label, { marginBottom: 8 }]}>Cambridge English Scale — Grade Boundaries</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.cambridgeScaleBoundaries}</Text>
       {GRADES.map((g, i) => (
         <TouchableOpacity key={i} style={[S.card, { borderColor: g.colour + '30' }]} onPress={() => toggle(i, expandedGrade, setExpandedGrade)}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -786,8 +818,8 @@ export default function CAEScreen() {
           {expandedGrade === i && (
             <View style={{ marginTop: 10, backgroundColor: g.colour + '08', borderRadius: 10, padding: 10 }}>
               <Text style={S.bodyText}>{g.label}</Text>
-              {g.grade === 'A' && <Text style={[S.bodyText, { marginTop: 6, color: '#00E5A0', fontWeight: '600' }]}>Your certificate states C2 level — but this is NOT the same as a C2 Proficiency (CPE) certificate. Check with your institution whether they require CPE specifically.</Text>}
-              {g.grade === 'D/E' && <Text style={[S.bodyText, { marginTop: 6, color: '#FF8A65', fontWeight: '600' }]}>You receive a B2 level certificate — which may still be acceptable for some purposes. Check requirements with your institution.</Text>}
+              {g.grade === 'A' && <Text style={[S.bodyText, { marginTop: 6, color: '#00E5A0', fontWeight: '600' }]}>{t.gradeAWarning}</Text>}
+              {g.grade === 'D/E' && <Text style={[S.bodyText, { marginTop: 6, color: '#FF8A65', fontWeight: '600' }]}>{t.gradeDEWarning}</Text>}
             </View>
           )}
         </TouchableOpacity>
@@ -813,19 +845,19 @@ export default function CAEScreen() {
         ))}
         <View style={{ marginTop: 10, flexDirection: 'row', gap: 8 }}>
           <AlertCircle size={14} color={C.amber} style={{ marginTop: 1 }} />
-          <Text style={{ flex: 1, fontSize: scaledFont(11), color: C.textMuted, lineHeight: 17 }}>Equivalences are approximate. Always verify with your target institution — they may specify a particular test.</Text>
+          <Text style={{ flex: 1, fontSize: scaledFont(11), color: C.textMuted, lineHeight: 17 }}>{t.equivalencesNote}</Text>
         </View>
       </View>
 
       {/* Score requirements */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8 }]}>Typical Requirements by Country</Text>
+      <Text style={[S.label, { marginBottom: 8, marginTop: 8 }]}>{t.typicalReqsByCountry}</Text>
       <View style={S.card}>
         {SCORE_REQUIREMENTS.map((r, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: i < SCORE_REQUIREMENTS.length - 1 ? 10 : 0 }}>
             <Text style={{ fontSize: 18 }}>{r.country.split(' ')[0]}</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} — {r.purpose}</Text>
-              <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>Typically Grade {r.grade} ({r.score})</Text>
+              <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{t.typicallyGradeScoreTpl.replace('{grade}', r.grade).replace('{score}', r.score)}</Text>
             </View>
             <View style={{ backgroundColor: '#003865', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
               <Text style={{ fontSize: scaledFont(12), fontWeight: '800', color: '#7BB7E0' }}>{r.score}</Text>
@@ -859,7 +891,7 @@ export default function CAEScreen() {
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
           {/* Prompt */}
           <View style={{ backgroundColor: C.card, borderRadius: 14, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: C.border + '30' }}>
-            <Text style={[S.label, { marginBottom: 6, color: '#7BB7E0' }]}>Your Task</Text>
+            <Text style={[S.label, { marginBottom: 6, color: '#7BB7E0' }]}>{t.yourTask}</Text>
             <Text style={[S.bodyText, { lineHeight: 21 }]}>{practicePrompt}</Text>
             <TouchableOpacity style={{ marginTop: 10, alignSelf: 'flex-end' }} onPress={() => {
               const prompts = PRACTICE_PROMPTS[practiceType] || [];
@@ -944,14 +976,14 @@ export default function CAEScreen() {
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{t.score}</Text>
                 {practiceResult.grade && (
                   <View style={{ marginTop: 6, backgroundColor: gradeColour(practiceResult.cambridgeScore || 180) + '20', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10 }}>
-                    <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: gradeColour(practiceResult.cambridgeScore || 180) }}>Grade {practiceResult.grade}</Text>
+                    <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: gradeColour(practiceResult.cambridgeScore || 180) }}>{t.gradeLabel} {practiceResult.grade}</Text>
                   </View>
                 )}
               </View>
 
               {practiceResult.criteria && (
                 <View style={S.card}>
-                  <Text style={[S.label, { marginBottom: 10 }]}>Breakdown by Criterion</Text>
+                  <Text style={[S.label, { marginBottom: 10 }]}>{t.breakdownByCriterion}</Text>
                   {practiceResult.criteria.map((c, i) => (
                     <View key={i} style={{ marginBottom: i < practiceResult.criteria.length - 1 ? 12 : 0 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -998,9 +1030,45 @@ export default function CAEScreen() {
                 </View>
               )}
 
+              {/* Vocab save panel */}
+              <TouchableOpacity
+                style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4, borderColor: (C.blue || '#60A5FA') + '44', backgroundColor: (C.blue || '#60A5FA') + '10' }}
+                onPress={() => setShowVocabSave(v => !v)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={t.saveAWordToVault}
+              >
+                <BookOpen size={15} color={C.blue || '#60A5FA'} />
+                <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '600', color: C.blue || '#60A5FA' }}>{t.saveAWord}</Text>
+                <ChevronDown size={14} color={C.blue || '#60A5FA'} style={showVocabSave ? undefined : { transform: [{ rotate: '-90deg' }] }} />
+              </TouchableOpacity>
+              {showVocabSave && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, borderWidth: 1, padding: 8, marginBottom: 8, borderColor: (C.blue || '#60A5FA') + '25', backgroundColor: (C.blue || '#60A5FA') + '08' }}>
+                  <TextInput
+                    style={{ flex: 1, backgroundColor: C.bg, borderRadius: 8, padding: 10, fontSize: scaledFont(13), color: C.text, borderWidth: 1, borderColor: C.border + '30', minHeight: 40 }}
+                    placeholder={t.wordOrPhrase}
+                    placeholderTextColor={C.textMuted}
+                    value={saveWord}
+                    onChangeText={setSaveWord}
+                    returnKeyType="done"
+                    onSubmitEditing={() => saveWordToVault(saveWord)}
+                    accessibilityLabel={t.wordToSaveVocabAria}
+                  />
+                  <TouchableOpacity
+                    style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, minHeight: 40, justifyContent: 'center', backgroundColor: C.blue || '#60A5FA' }}
+                    onPress={() => saveWordToVault(saveWord)}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t.saveWordToVaultAria}
+                  >
+                    <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#fff' }}>→ Vocab</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               <TouchableOpacity
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
-                onPress={() => { setPracticeInput(''); setPracticeResult(null); }}
+                onPress={() => { setPracticeInput(''); setPracticeResult(null); setShowVocabSave(false); setSaveWord(''); }}
               >
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
@@ -1016,7 +1084,7 @@ export default function CAEScreen() {
     <ScreenBackground style={null}>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -1039,7 +1107,7 @@ export default function CAEScreen() {
       </View>
 
       {/* Tab bar */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 6 }} style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 6 }} style={{ flexGrow: 0, minHeight: 74, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
         {TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -1056,7 +1124,7 @@ export default function CAEScreen() {
       {/* Cambridge brand strip */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 6, backgroundColor: '#001a33', borderBottomWidth: 1, borderBottomColor: '#003865', gap: 8 }}>
         <View style={{ backgroundColor: '#003865', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
-          <Text style={{ fontSize: scaledFont(9), fontWeight: '900', color: '#fff', letterSpacing: 1 }}>CAMBRIDGE</Text>
+          <Text style={{ fontSize: scaledFont(9), fontWeight: '900', color: '#fff', letterSpacing: 1 }}>{t.cambridgeLabel}</Text>
         </View>
         <Text style={{ fontSize: scaledFont(11), color: '#7BB7E0', fontWeight: '700' }}>C1 Advanced · Certificate Never Expires · Accepted Worldwide</Text>
       </View>
@@ -1072,6 +1140,12 @@ export default function CAEScreen() {
       </ScrollView>
 
       {renderPracticeModal()}
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="cae"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }

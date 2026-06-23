@@ -12,7 +12,7 @@
  *   Add "expo-notifications" to plugins in app.json
  *
  * Usage:
- *   import { initNotifications, scheduleStreakReminder, getStreakMessage } from '../services/notifications';
+ *   import { setReminderSettings, scheduleStreakReminder, getStreakMessage } from '../services/notifications';
  *
  * FILE: services/notifications.ts
  * LOCATION: D:\Project\MyProject\translation-trainer-frontend\services\notifications.ts
@@ -35,6 +35,7 @@ const REMINDER_HOUR_KEY = 'streakReminderHour';
 const REMINDER_MINUTE_KEY = 'streakReminderMinute';
 const LAST_PRACTICE_KEY = 'lastPracticeDate';
 const STREAK_COUNT_KEY = 'streakDays';
+const REMINDER_CHANNEL_ID = 'streak-reminder';
 
 // ── Motivational messages (rotated daily) ──
 const MOTIVATIONAL_MESSAGES = [
@@ -57,14 +58,36 @@ const MOTIVATIONAL_MESSAGES = [
 // ═══════════════════════════════════════════════════════════════════════
 
 /**
- * Initialize notifications — request permissions and set up channel.
- * Call once at app startup (in _layout.tsx).
+ * Initialize notification infrastructure without prompting the user.
+ * Permission is requested only when the user enables reminders.
  */
 export async function initNotifications(): Promise<boolean> {
+  return configureNotificationChannel();
+}
+
+async function configureNotificationChannel(): Promise<boolean> {
   if (!Notifications) return false;
 
   try {
-    // Request permissions
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
+        name: 'Streak Reminders',
+        importance: Notifications.AndroidImportance?.HIGH || 4,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#ADD8E6',
+      });
+    }
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function ensureNotificationPermission(): Promise<boolean> {
+  if (!Notifications) return false;
+
+  try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
 
@@ -74,17 +97,7 @@ export async function initNotifications(): Promise<boolean> {
     }
 
     if (finalStatus !== 'granted') return false;
-
-    // Android notification channel
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('streak-reminder', {
-        name: 'Streak Reminders',
-        importance: Notifications.AndroidImportance?.HIGH || 4,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#ADD8E6',
-      });
-    }
-
+    await configureNotificationChannel();
     return true;
   } catch (e) {
     return false;
@@ -234,17 +247,27 @@ export async function getReminderSettings(): Promise<{ enabled: boolean; hour: n
   return { enabled, hour, minute };
 }
 
-/** Save reminder settings and reschedule */
-export async function setReminderSettings(enabled: boolean, hour: number, minute: number): Promise<void> {
-  await AsyncStorage.setItem(REMINDER_ENABLED_KEY, String(enabled));
+/** Save reminder settings and reschedule. Returns false if notification permission is denied/unavailable. */
+export async function setReminderSettings(enabled: boolean, hour: number, minute: number): Promise<boolean> {
   await AsyncStorage.setItem(REMINDER_HOUR_KEY, String(hour));
   await AsyncStorage.setItem(REMINDER_MINUTE_KEY, String(minute));
 
   if (enabled) {
+    const canNotify = await ensureNotificationPermission();
+    if (!canNotify) {
+      await AsyncStorage.setItem(REMINDER_ENABLED_KEY, 'false');
+      await cancelAllReminders();
+      return false;
+    }
+
+    await AsyncStorage.setItem(REMINDER_ENABLED_KEY, 'true');
     await scheduleStreakReminder(hour, minute);
   } else {
+    await AsyncStorage.setItem(REMINDER_ENABLED_KEY, 'false');
     await cancelAllReminders();
   }
+
+  return true;
 }
 
 /** Schedule the daily streak reminder notification */
@@ -254,6 +277,7 @@ export async function scheduleStreakReminder(hour: number = 18, minute: number =
   try {
     // Cancel existing reminders first
     await cancelAllReminders();
+    await configureNotificationChannel();
 
     const { title, body } = await getStreakMessage();
 
@@ -263,7 +287,7 @@ export async function scheduleStreakReminder(hour: number = 18, minute: number =
         body,
         sound: true,
         priority: Notifications.AndroidNotificationPriority?.HIGH || 'high',
-        ...(Platform.OS === 'android' ? { channelId: 'streak-reminder' } : {}),
+        ...(Platform.OS === 'android' ? { channelId: REMINDER_CHANNEL_ID } : {}),
       },
       trigger: {
         type: 'daily',

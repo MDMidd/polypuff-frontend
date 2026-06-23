@@ -30,7 +30,14 @@ All API calls go through services/api.js
 ## Deployment
 EAS Build for Android APK. Never run eas build without asking me first.
 
+## Auth
+- utils/auth.ts returns `Authorization: Bearer <pp_token>` — the JWT
+  issued by `/api/auth/login` and stored in AsyncStorage by
+  authSession.storeAuthSession.
+- The legacy HMAC scheme (APP_SECRET in the APK) was removed before
+  the Play Store launch. Do NOT re-introduce a client-side shared
+  secret — any new auth lives server-side.
+
 ## Do Not Touch
 - app.json android.package value
-- utils/auth.ts HMAC token logic
 - LegalGateController.tsx age gate thresholds

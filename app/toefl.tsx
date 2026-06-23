@@ -30,7 +30,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getServerUrl } from '../services/api';
+import { recordModuleProgress } from '../services/progressService';
+import { pushVaults } from '../services/syncService';
+import { getAuthHeaders } from '../utils/auth';
 
 // ── Band colours (1–6 scale) ─────────────────────────────────────────────────
 const BAND_COLOUR = (band) => {
@@ -341,8 +346,9 @@ const SCORE_REQUIREMENTS = [
 // ────────────────────────────────────────────────────────────────────────────
 export default function TOEFLScreen() {
   const { colors: C } = useTheme();
-  const { wt } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('toefl');
 
   const [activeTab,        setActiveTab]        = useState('overview');
   const [expandedPart,     setExpandedPart]     = useState(null);
@@ -354,6 +360,27 @@ export default function TOEFLScreen() {
   const [practiceLoading,  setPracticeLoading]  = useState(false);
   const [practiceResult,   setPracticeResult]   = useState(null);
   const [userBand,         setUserBand]         = useState(null);
+  const [showVocabSave,    setShowVocabSave]    = useState(false);
+  const [saveWord,         setSaveWord]         = useState('');
+
+  const saveWordToVault = async (word: string) => {
+    const clean = word.trim();
+    if (!clean) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const items = raw ? JSON.parse(raw) : [];
+      const exists = items.some((i: { word?: string }) => String(i.word || '').trim().toLowerCase() === clean.toLowerCase());
+      if (exists) { Alert.alert(t.alertAlreadySaved, t.alertAlreadyInVault.replace('{word}', clean)); return; }
+      const updated = [{ word: clean, date: new Date().toISOString(), source: 'toefl' }, ...items].slice(0, 500);
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault',    JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert(t.alertSavedExclaim, t.alertAddedToVault.replace('{word}', clean));
+    } catch { Alert.alert(t.alertError, t.alertCouldNotSaveWord); }
+  };
 
   useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('userProfile').then(d => {
@@ -389,7 +416,7 @@ export default function TOEFLScreen() {
 
   const submitPractice = async () => {
     if (!practiceInput.trim() || practiceInput.trim().length < 30) {
-      Alert.alert('Too Short', 'Please write at least 30 characters before submitting.');
+      Alert.alert(t.alertTooShort, t.alertWriteAtLeast30Chars);
       return;
     }
     setPracticeLoading(true);
@@ -397,13 +424,18 @@ export default function TOEFLScreen() {
       const serverUrl = await getServerUrl();
       const resp = await fetch(serverUrl + '/api/toefl/check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ type: practiceType, prompt: practicePrompt, response: practiceInput.trim() }),
       });
       const data = await resp.json();
       setPracticeResult(data);
+      nudge.recordInteraction();
+      if (data?.overallBand != null) {
+        const pct = Math.round(Math.max(0, Math.min(100, (data.overallBand / 120) * 100)));
+        recordModuleProgress({ exerciseId: 'toefl', score: pct, detail: `Score ${data.overallBand}/120${data.grade ? ` — ${data.grade}` : ''}` }).catch(() => {});
+      }
     } catch (e) {
-      Alert.alert('Error', 'Could not submit. Check your connection.');
+      Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
     }
     setPracticeLoading(false);
   };
@@ -420,8 +452,8 @@ export default function TOEFLScreen() {
     <View>
       {/* Hero */}
       <View style={{ backgroundColor: '#0d0d2e', borderRadius: 20, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#343579' + '60' }}>
-        <Text style={{ fontSize: scaledFont(22), fontWeight: '900', color: '#fff', marginBottom: 4 }}>TOEFL iBT Prep</Text>
-        <Text style={{ fontSize: scaledFont(13), color: '#7B7FD4', fontWeight: '600', marginBottom: 12 }}>Test of English as a Foreign Language — Internet-Based Test</Text>
+        <Text style={{ fontSize: scaledFont(22), fontWeight: '900', color: '#fff', marginBottom: 4 }}>{t.toeflIbtPrep}</Text>
+        <Text style={{ fontSize: scaledFont(13), color: '#7B7FD4', fontWeight: '600', marginBottom: 12 }}>{t.testOfEnglishInternetBased}</Text>
         <Text style={[S.bodyText, { color: '#ccc' }]}>
           TOEFL iBT is the world's most widely accepted English proficiency test for university admission, accepted by over 13,000 institutions in 160+ countries. Developed and administered by ETS (Educational Testing Service).
         </Text>
@@ -503,9 +535,9 @@ export default function TOEFLScreen() {
       {/* How scores work - 2026 */}
       <View style={[S.card, { marginTop: 4, borderColor: '#FFBE0B30' }]}>
         <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 4 }}>📊 New Scoring (January 2026)</Text>
-        <Text style={[S.bodyText, { marginBottom: 12 }]}>Each section is scored 1–6 in 0.5 increments. Your overall score is the average of all four sections, rounded to the nearest 0.5. During 2026–2028, reports also show the old 0–120 score.</Text>
+        <Text style={[S.bodyText, { marginBottom: 12 }]}>{t.eachSectionScoredTOEFL}</Text>
         <View style={{ backgroundColor: C.bg, borderRadius: 10, padding: 12 }}>
-          <Text style={[S.label, { marginBottom: 8 }]}>Example Calculation</Text>
+          <Text style={[S.label, { marginBottom: 8 }]}>{t.exampleCalculation}</Text>
           {[['Reading', '5.0'], ['Listening', '4.5'], ['Writing', '4.0'], ['Speaking', '4.5']].map(([s, b]) => (
             <View key={s} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <Text style={S.bodyText}>{s}</Text>
@@ -514,7 +546,7 @@ export default function TOEFLScreen() {
           ))}
           <View style={{ height: 1, backgroundColor: C.border + '40', marginVertical: 8 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={[S.bodyText, { fontWeight: '700', color: C.text }]}>Overall Score</Text>
+            <Text style={[S.bodyText, { fontWeight: '700', color: C.text }]}>{t.overallScoreSimple}</Text>
             <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: '#00E5A0' }}>4.5</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 4 }}>(5.0 + 4.5 + 4.0 + 4.5) ÷ 4 = 4.5</Text>
@@ -559,7 +591,7 @@ export default function TOEFLScreen() {
         </View>
 
         {/* Task types */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Task Types</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.taskTypes}</Text>
         {(sec.parts || []).map((part, i) => (
           <TouchableOpacity
             key={i}
@@ -575,7 +607,7 @@ export default function TOEFLScreen() {
                   <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{part.title}</Text>
                   {part.isNew && (
                     <View style={{ backgroundColor: '#FFBE0B20', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                      <Text style={{ fontSize: scaledFont(9), fontWeight: '800', color: '#FFBE0B' }}>NEW 2026</Text>
+                      <Text style={{ fontSize: scaledFont(9), fontWeight: '800', color: '#FFBE0B' }}>{t.new2026Label}</Text>
                     </View>
                   )}
                 </View>
@@ -597,7 +629,7 @@ export default function TOEFLScreen() {
         {/* Question types */}
         {sec.questionTypes && (
           <>
-            <Text style={[S.label, { marginBottom: 8 }]}>Question / Task Types</Text>
+            <Text style={[S.label, { marginBottom: 8 }]}>{t.questionTaskTypes}</Text>
             <View style={[S.card]}>
               {sec.questionTypes.map((qt, i) => (
                 <View key={i} style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
@@ -612,7 +644,7 @@ export default function TOEFLScreen() {
         {/* Criteria for writing/speaking */}
         {sec.criteria && (
           <>
-            <Text style={[S.label, { marginBottom: 8 }]}>Scoring Criteria</Text>
+            <Text style={[S.label, { marginBottom: 8 }]}>{t.scoringCriteria}</Text>
             <View style={[S.card]}>
               {sec.criteria.map((c, i) => (
                 <View key={i} style={{ marginBottom: i < sec.criteria.length - 1 ? 12 : 0 }}>
@@ -630,7 +662,7 @@ export default function TOEFLScreen() {
         )}
 
         {/* Tips */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Top Tips</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.topTips}</Text>
         <View style={[S.card]}>
           {(sec.tips || []).map((tip, i) => (
             <View key={i} style={[S.tipBullet]}>
@@ -641,7 +673,7 @@ export default function TOEFLScreen() {
         </View>
 
         {/* Band tips */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Tips by Target Band</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.tipsByTargetBand}</Text>
         {Object.entries(sec.bandTips || {}).map(([range, tip]) => (
           <View key={range} style={{ flexDirection: 'row', gap: 10, backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: C.border + '20' }}>
             <View style={{ backgroundColor: sec.colour + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' }}>
@@ -658,8 +690,8 @@ export default function TOEFLScreen() {
             onPress={() => startPractice(sectionId === 'writing' ? 'writing_email' : 'speaking_interview')}
           >
             <Icon size={20} color={sec.colour} />
-            <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: sec.colour, marginTop: 6 }}>Practice {sec.label} with AI</Text>
-            <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>Get instant band-score feedback</Text>
+            <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: sec.colour, marginTop: 6 }}>{t.practiceWithAITemplate.replace('{paper}', sec.label)}</Text>
+            <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>{t.getInstantBandFeedback}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -671,7 +703,7 @@ export default function TOEFLScreen() {
     <View>
       <View style={{ backgroundColor: '#0d1f0d', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#00E5A040' }}>
         <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#00E5A0', marginBottom: 6 }}>⚡ AI-Powered TOEFL Practice</Text>
-        <Text style={[S.bodyText, { color: '#aaa' }]}>Practice all four TOEFL skills. Each exercise generates a real TOEFL-style prompt and gives instant AI feedback with estimated band scores.</Text>
+        <Text style={[S.bodyText, { color: '#aaa' }]}>{t.practiceAllFourSkillsTOEFL}</Text>
       </View>
 
       {/* READING */}
@@ -688,7 +720,7 @@ export default function TOEFLScreen() {
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
           <View style={{ backgroundColor: p.colour + '15', borderRadius: 8, paddingVertical: 7, alignItems: 'center' }}>
-            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>Start Practice →</Text>
+            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>{t.startPracticeArrow}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -707,7 +739,7 @@ export default function TOEFLScreen() {
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
           <View style={{ backgroundColor: p.colour + '15', borderRadius: 8, paddingVertical: 7, alignItems: 'center' }}>
-            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>Start Practice →</Text>
+            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>{t.startPracticeArrow}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -726,7 +758,7 @@ export default function TOEFLScreen() {
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
           <View style={{ backgroundColor: p.colour + '15', borderRadius: 8, paddingVertical: 7, alignItems: 'center' }}>
-            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>Start Practice →</Text>
+            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>{t.startPracticeArrow}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -745,7 +777,7 @@ export default function TOEFLScreen() {
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
           <View style={{ backgroundColor: p.colour + '15', borderRadius: 8, paddingVertical: 7, alignItems: 'center' }}>
-            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>Start Practice →</Text>
+            <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: p.colour }}>{t.startPracticeArrow}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -773,7 +805,7 @@ export default function TOEFLScreen() {
   // ── SCORES TAB ─────────────────────────────────────────────────────────────
   const renderScores = () => (
     <View>
-      <Text style={[S.label, { marginBottom: 8 }]}>New 1–6 Band Scale (January 2026)</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.new1to6BandScale2026}</Text>
       {SCORE_CONCORDANCE.map((row, i) => {
         const colour = BAND_COLOUR(parseFloat(row.band));
         return (
@@ -812,14 +844,14 @@ export default function TOEFLScreen() {
         );
       })}
 
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8 }]}>Typical Requirements by Country</Text>
+      <Text style={[S.label, { marginBottom: 8, marginTop: 8 }]}>{t.typicalReqsByCountry}</Text>
       <View style={[S.card]}>
         {SCORE_REQUIREMENTS.map((r, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: i < SCORE_REQUIREMENTS.length - 1 ? 10 : 0 }}>
             <Text style={{ fontSize: 18 }}>{r.country.split(' ')[0]}</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} — {r.category}</Text>
-              <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>Old scale: {r.oldScore}</Text>
+              <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{t.oldScaleLabel}: {r.oldScore}</Text>
             </View>
             <View style={{ backgroundColor: BAND_COLOUR(parseFloat(r.band)) + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
               <Text style={{ fontSize: scaledFont(12), fontWeight: '800', color: BAND_COLOUR(parseFloat(r.band)) }}>{r.band}</Text>
@@ -844,7 +876,7 @@ export default function TOEFLScreen() {
     <Modal visible={showPracticeModal} animationType="slide" onRequestClose={() => setPracticeModal(false)}>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
-          <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>TOEFL Practice</Text>
+          <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>{t.toeflPractice}</Text>
           <TouchableOpacity onPress={() => setPracticeModal(false)}>
             <X size={24} color={C.text} />
           </TouchableOpacity>
@@ -853,7 +885,7 @@ export default function TOEFLScreen() {
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
           {/* Prompt */}
           <View style={{ backgroundColor: C.card, borderRadius: 14, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: C.border + '30' }}>
-            <Text style={[S.label, { marginBottom: 6, color: C.amber }]}>Your Task Prompt</Text>
+            <Text style={[S.label, { marginBottom: 6, color: C.amber }]}>{t.yourTaskPrompt}</Text>
             <Text style={[S.bodyText, { lineHeight: 21 }]}>{practicePrompt}</Text>
             <TouchableOpacity
               style={{ marginTop: 10, alignSelf: 'flex-end' }}
@@ -927,13 +959,13 @@ export default function TOEFLScreen() {
             <View>
               <View style={{ backgroundColor: BAND_COLOUR(practiceResult.overallBand) + '15', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16, borderWidth: 1.5, borderColor: BAND_COLOUR(practiceResult.overallBand) + '40' }}>
                 <Text style={{ fontSize: scaledFont(56), fontWeight: '900', color: BAND_COLOUR(practiceResult.overallBand) }}>{practiceResult.overallBand}</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>Estimated TOEFL Band</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{t.estimatedTOEFLBand}</Text>
                 {practiceResult.grade && <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 4 }}>{practiceResult.grade}</Text>}
               </View>
 
               {practiceResult.criteria && (
                 <View style={[S.card]}>
-                  <Text style={[S.label, { marginBottom: 10 }]}>Breakdown</Text>
+                  <Text style={[S.label, { marginBottom: 10 }]}>{t.breakdownLabel}</Text>
                   {practiceResult.criteria.map((c, i) => (
                     <View key={i} style={{ marginBottom: i < practiceResult.criteria.length - 1 ? 12 : 0 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -980,9 +1012,45 @@ export default function TOEFLScreen() {
                 </View>
               )}
 
+              {/* Vocab save panel */}
+              <TouchableOpacity
+                style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4, borderColor: (C.blue || '#60A5FA') + '44', backgroundColor: (C.blue || '#60A5FA') + '10' }}
+                onPress={() => setShowVocabSave(v => !v)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={t.saveAWordToVault}
+              >
+                <BookOpen size={15} color={C.blue || '#60A5FA'} />
+                <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '600', color: C.blue || '#60A5FA' }}>{t.saveAWord}</Text>
+                <ChevronDown size={14} color={C.blue || '#60A5FA'} style={showVocabSave ? undefined : { transform: [{ rotate: '-90deg' }] }} />
+              </TouchableOpacity>
+              {showVocabSave && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, borderWidth: 1, padding: 8, marginBottom: 8, borderColor: (C.blue || '#60A5FA') + '25', backgroundColor: (C.blue || '#60A5FA') + '08' }}>
+                  <TextInput
+                    style={{ flex: 1, backgroundColor: C.bg, borderRadius: 8, padding: 10, fontSize: scaledFont(13), color: C.text, borderWidth: 1, borderColor: C.border + '30', minHeight: 40 }}
+                    placeholder={t.wordOrPhrase}
+                    placeholderTextColor={C.textMuted}
+                    value={saveWord}
+                    onChangeText={setSaveWord}
+                    returnKeyType="done"
+                    onSubmitEditing={() => saveWordToVault(saveWord)}
+                    accessibilityLabel={t.wordToSaveVocabAria}
+                  />
+                  <TouchableOpacity
+                    style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, minHeight: 40, justifyContent: 'center', backgroundColor: C.blue || '#60A5FA' }}
+                    onPress={() => saveWordToVault(saveWord)}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t.saveWordToVaultAria}
+                  >
+                    <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#fff' }}>→ Vocab</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               <TouchableOpacity
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
-                onPress={() => { setPracticeInput(''); setPracticeResult(null); }}
+                onPress={() => { setPracticeInput(''); setPracticeResult(null); setShowVocabSave(false); setSaveWord(''); }}
               >
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
@@ -998,14 +1066,14 @@ export default function TOEFLScreen() {
     <ScreenBackground>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
           onPress={() => { router.push('/') }}
           style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: 8, zIndex: 120 }}
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t.goBack}
         >
           <ArrowLeft size={22} color={C.textMuted || '#6B7280'} />
         </TouchableOpacity>
@@ -1015,7 +1083,7 @@ export default function TOEFLScreen() {
             style={{ height: 36, width: 180, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Poly-Puff"
           />
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>TOEFL iBT PREPARATION</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{t.toeflIbtPreparation}</Text>
         </View>
         <View style={{ width: 52 }} />
       </View>
@@ -1024,7 +1092,7 @@ export default function TOEFLScreen() {
       <ScrollView
         horizontal showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 6 }}
-        style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}
+        style={{ flexGrow: 0, minHeight: 74, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}
       >
         {TABS.map(tab => {
           const Icon = tab.icon;
@@ -1059,6 +1127,12 @@ export default function TOEFLScreen() {
       </ScrollView>
 
       {renderPracticeModal()}
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="toefl"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }

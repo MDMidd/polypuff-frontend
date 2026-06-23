@@ -25,7 +25,7 @@
  * REPLACES: D:\Project\MyProject\translation-trainer-frontend\app\translation.tsx
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, ActivityIndicator, Modal, KeyboardAvoidingView,
@@ -47,6 +47,8 @@ import DiscussWithPuff from '../components/DiscussWithPuff';
 import VoiceInput from '../components/VoiceInput';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTrainerT, tInterp, type TrainerStrings } from '../contexts/translationTrainerTranslations';
+import { isRtlLanguage } from '../utils/languages';
 import SettingsButton from '../components/SettingsButton';
 import {
   ScreenBackground, GlassCard, NeonButton, NeonInput,
@@ -54,22 +56,39 @@ import {
 } from '../components/PolyPuffUI';
 import { feedbackForScore, feedbackTap, hapticSelection } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
+import { pushVaults } from '../services/syncService';
 import { recordModuleProgress } from '../services/progressService';
 import PolyPuffScene from '../components/PolyPuffScene';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import NativeLanguagePicker from '../components/NativeLanguagePicker';
+import { normalizeNativeLanguage } from '../utils/nativeLanguages';
+import {
+  masteredTexts,
+  masteryScopeKey,
+  progressionScopeKey,
+  levelPromptScopeKey,
+  isDuplicatePracticeItem,
+  nextCefrLevel,
+  normalizePracticeText,
+  shouldSuggestNextLevel,
+  uniqueRecentTexts,
+  type MasteredPracticeItem,
+} from '../utils/progressivePractice';
 
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const LENGTHS = [
-  { key: 'short', label: 'Short', desc: '3-6 words', icon: '📝' },
-  { key: 'medium', label: 'Medium', desc: '7-12 words', icon: '📄' },
-  { key: 'long', label: 'Long', desc: '13-20 words', icon: '📜' },
+  { key: 'short',  labelKey: 'lengthShort'  as const, descKey: 'lengthShortDesc'  as const, icon: '📝' },
+  { key: 'medium', labelKey: 'lengthMedium' as const, descKey: 'lengthMediumDesc' as const, icon: '📄' },
+  { key: 'long',   labelKey: 'lengthLong'   as const, descKey: 'lengthLongDesc'   as const, icon: '📜' },
 ] as const;
 
 const LENGTH_RULES = {
-  short: { min: 3, max: 6, label: 'Short' },
-  medium: { min: 7, max: 12, label: 'Medium' },
-  long: { min: 13, max: 20, label: 'Long' },
+  short:  { min: 3,  max: 6,  labelKey: 'lengthShort'  as const },
+  medium: { min: 7,  max: 12, labelKey: 'lengthMedium' as const },
+  long:   { min: 13, max: 20, labelKey: 'lengthLong'   as const },
 } as const;
 
 const CEFR_PROFILES = {
@@ -177,11 +196,16 @@ function formatTime(s) {
 
 export default function PracticeScreen() {
   const { colors: C } = useTheme();
-  const { t, wt } = useLanguage();
-  const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
+  const { t, wt, lang } = useLanguage();
+  const tt = getTrainerT(lang);
+  const isRTL = isRtlLanguage(lang);
+  const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const textAlign: 'left' | 'right' = isRTL ? 'right' : 'left';
+  const rowDir: 'row' | 'row-reverse' = isRTL ? 'row-reverse' : 'row';
   const brandName = 'Poly-Puff';
-  const aiIntroMessage = ui('aiIntroMessage', 'Hi! I can help explain grammar rules. What would you like to know?');
+  const aiIntroMessage = tt.aiIntroMessage;
   const router = useRouter();
+  const nudge = useFeedbackNudge('translation');
   const [nativeLanguage, setNativeLanguage] = useState('Spanish');
 
   // Derive whether speech recognition is supported for this user's language
@@ -228,15 +252,17 @@ export default function PracticeScreen() {
   const [chatLoading, setChatLoading] = useState(false);
   const [profile, setProfile] = useState(null);
   const [weakAreas, setWeakAreas] = useState([]);
+  const [masteredSentences, setMasteredSentences] = useState<MasteredPracticeItem[]>([]);
 
   const inputRef = useRef(null);
   const scrollRef = useRef(null);
   const revealInFlightRef = useRef(false);
 
-  useEffect(() => { loadProfile(); loadWeakAreas(); return () => clearInterval(timerRef.current); }, []);
+  useFocusEffect(useCallback(() => { loadProfile(); loadWeakAreas(); }, []));
 
   useEffect(() => { levelRef.current = level; }, [level]);
   useEffect(() => { sentenceLengthRef.current = sentenceLength; }, [sentenceLength]);
+  useEffect(() => { loadMasteredSentences(); }, [nativeLanguage, level]);
 
   const leftMidExercise = useRef(false);
   const sessionRef = useRef({ active: false, sentence: '', hasResult: false });
@@ -250,9 +276,9 @@ export default function PracticeScreen() {
       if (leftMidExercise.current) {
         leftMidExercise.current = false;
         setSessionPaused(true);
-        Alert.alert('⏸️ Welcome Back', 'You have an exercise in progress. Would you like to continue?', [
+        Alert.alert(tt.welcomeBackTitle, tt.welcomeBackMessage, [
           { text: t.next, onPress: () => setSessionPaused(false) },
-          { text: wt('start-new'), style: 'destructive', onPress: () => { setSessionPaused(false); setSessionActive(false); setOriginalSentence(''); setStudentInput(''); setResult(null); } },
+          { text: tt.startNew, style: 'destructive', onPress: () => { setSessionPaused(false); setSessionActive(false); setOriginalSentence(''); setStudentInput(''); setResult(null); } },
         ]);
       }
       return () => {
@@ -292,7 +318,7 @@ export default function PracticeScreen() {
       const saved = await AsyncStorage.getItem('userProfile');
       if (saved) {
         const p = JSON.parse(saved);
-        if (p.nativeLanguage) setNativeLanguage(p.nativeLanguage);
+        if (p.nativeLanguage) setNativeLanguage(normalizeNativeLanguage(p.nativeLanguage));
         if (p.level) setLevel(normalizeCefrLevel(p.level));
         setProfile(p);
       }
@@ -315,6 +341,78 @@ export default function PracticeScreen() {
         const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([category, count]) => ({ category, count }));
         setWeakAreas(sorted);
       }
+    } catch (e) {}
+  };
+
+  const handleNativeLanguageSelect = async (language: string) => {
+    const normalized = normalizeNativeLanguage(language);
+    setNativeLanguage(normalized);
+    setPreviousSentences([]);
+    setRetryQueue([]);
+    setNewSentenceCount(0);
+    setIsRetryMode(false);
+    try {
+      const raw = await AsyncStorage.getItem('userProfile');
+      const savedProfile = raw ? JSON.parse(raw) : {};
+      const updatedProfile = { ...savedProfile, nativeLanguage: normalized };
+      await AsyncStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+      setProfile(updatedProfile);
+    } catch (e) {}
+  };
+
+  const loadMasteredSentences = async () => {
+    try {
+      const key = masteryScopeKey('translation', nativeLanguage, level);
+      const raw = await AsyncStorage.getItem(key);
+      const saved = raw ? JSON.parse(raw) : [];
+      setMasteredSentences(Array.isArray(saved) ? saved : []);
+    } catch (e) {
+      setMasteredSentences([]);
+    }
+  };
+
+  const rememberMasteredSentence = async (score: number, correctAnswer: string) => {
+    if (!originalSentence || !correctAnswer) return;
+    const key = masteryScopeKey('translation', nativeLanguage, level);
+    const item: MasteredPracticeItem = {
+      native: originalSentence,
+      english: correctAnswer,
+      level,
+      topic: exerciseTopic,
+      date: new Date().toISOString(),
+      score,
+    } as MasteredPracticeItem;
+    try {
+      const raw = await AsyncStorage.getItem(key);
+      const saved = raw ? JSON.parse(raw) : [];
+      const list = Array.isArray(saved) ? saved : [];
+      const itemKey = normalizePracticeText(item.native);
+      const updated = [item, ...list.filter(existing => normalizePracticeText(existing?.native || '') !== itemKey)].slice(0, 250);
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      setMasteredSentences(updated);
+    } catch (e) {}
+  };
+
+  const recordProgressionScore = async (score: number) => {
+    try {
+      const key = progressionScopeKey('translation', nativeLanguage, level);
+      const raw = await AsyncStorage.getItem(key);
+      const saved = raw ? JSON.parse(raw) : [];
+      const scores = [score, ...(Array.isArray(saved) ? saved : [])].slice(0, 20);
+      await AsyncStorage.setItem(key, JSON.stringify(scores));
+      const nextLevel = nextCefrLevel(level);
+      if (!nextLevel || !shouldSuggestNextLevel(scores, level)) return;
+      const promptKey = levelPromptScopeKey('translation', nativeLanguage, level);
+      if (await AsyncStorage.getItem(promptKey)) return;
+      await AsyncStorage.setItem(promptKey, new Date().toISOString());
+      Alert.alert(
+        'Ready for the next level?',
+        `Your recent Translation Trainer scores are strong at ${level}. Try ${nextLevel} to keep progressing?`,
+        [
+          { text: 'Stay here', style: 'cancel' },
+          { text: `Try ${nextLevel}`, onPress: () => handleLevelSelect(nextLevel) },
+        ]
+      );
     } catch (e) {}
   };
 
@@ -348,10 +446,11 @@ export default function PracticeScreen() {
     levelRef.current = normalizedLevel;
     setLevel(normalizedLevel);
     await resetCurrentExercise();
+    setPreviousSentences([]);
     setRetryQueue([]);
     setNewSentenceCount(0);
     setIsRetryMode(false);
-    announce(`CEFR level ${normalizedLevel} selected.`);
+    announce(tInterp(tt.announceLevelSelected, { level: normalizedLevel }));
   };
 
   const handleSentenceLengthSelect = async (selectedLength: SentenceLengthKey) => {
@@ -364,7 +463,7 @@ export default function PracticeScreen() {
     setNewSentenceCount(0);
     setIsRetryMode(false);
     const lengthRule = getLengthRule(selectedLength);
-    announce(`${lengthRule.label} sentence length selected.`);
+    announce(tInterp(tt.announceLengthSelected, { length: tt[lengthRule.labelKey] }));
   };
 
   const buildGenerationRequest = (selectedLevel = level, selectedLength = sentenceLength, retryWordCount: number | null = null) => {
@@ -407,11 +506,11 @@ export default function PracticeScreen() {
   };
 
   const exitSession = () => {
-    Alert.alert('End Session',
-      `You completed ${sessionExercises} exercises and earned ${sessionXP} XP in ${formatTime(sessionTime)}. End session?`,
+    Alert.alert(tt.endSessionTitle,
+      tInterp(tt.endSessionMessage, { exercises: sessionExercises, xp: sessionXP, time: formatTime(sessionTime) }),
       [
           { text: t.cancel, style: 'cancel' },
-        { text: 'End Session', onPress: async () => {
+        { text: tt.endSessionConfirm, onPress: async () => {
           try {
             const saved = await AsyncStorage.getItem('sessionHistory');
             const sessions = saved ? JSON.parse(saved) : [];
@@ -445,7 +544,7 @@ export default function PracticeScreen() {
         setIsRetryMode(true);
         setLoading(false);
         setTimeout(() => inputRef.current?.focus(), 300);
-        announce('Retry sentence. You struggled with this one before. Try again!');
+        announce(tt.announceRetryReady);
         return;
       }
       setIsRetryMode(false);
@@ -456,32 +555,36 @@ export default function PracticeScreen() {
       const selectedLength = sentenceLengthRef.current;
       const lengthRule = getLengthRule(selectedLength);
       const generationProfile = practiceProfileForGeneration(selectedLevel);
-      let data = await generateExercise({
-        nativeLanguage,
-        level: selectedLevel,
-        sentenceLength: selectedLength,
-        customRequest: buildGenerationRequest(selectedLevel, selectedLength),
-        previousSentences,
-        profile: generationProfile,
-        weakAreas,
-      });
-      let answer = answerFromExerciseData(data);
-      let wordCount = countEnglishWords(answer);
-      if (wordCount < lengthRule.min || wordCount > lengthRule.max) {
-        data = await generateExercise({
+      const masteredSentenceTexts = masteredTexts(masteredSentences);
+      const avoidedSentences = uniqueRecentTexts([...previousSentences, ...masteredSentenceTexts], 100);
+      const requestExercise = (wordCountOverride?: number) => generateExercise({
           nativeLanguage,
           level: selectedLevel,
           sentenceLength: selectedLength,
-          customRequest: buildGenerationRequest(selectedLevel, selectedLength, wordCount),
-          previousSentences,
+          customRequest: buildGenerationRequest(selectedLevel, selectedLength, wordCountOverride),
+          previousSentences: avoidedSentences,
+          masteredSentences: masteredSentenceTexts,
           profile: generationProfile,
           weakAreas,
         });
+
+      let data: any = {};
+      let answer = '';
+      let wordCount = 0;
+      let generatedOriginal = '';
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        data = await requestExercise();
         answer = answerFromExerciseData(data);
         wordCount = countEnglishWords(answer);
+        if (wordCount < lengthRule.min || wordCount > lengthRule.max) {
+          data = await requestExercise(wordCount);
+          answer = answerFromExerciseData(data);
+          wordCount = countEnglishWords(answer);
+        }
+        generatedOriginal = originalFromExerciseData(data);
+        if (!isDuplicatePracticeItem(generatedOriginal, previousSentences, masteredSentences)) break;
       }
 
-      const generatedOriginal = originalFromExerciseData(data);
       setOriginalSentence(generatedOriginal);
       setCorrectTranslation(answer);
       setExerciseTopic(data.topic || '');
@@ -491,8 +594,8 @@ export default function PracticeScreen() {
       }
       setNewSentenceCount(prev => prev + 1);
       setTimeout(() => inputRef.current?.focus(), 300);
-      announce('New sentence ready. Type your English translation.');
-    } catch (error) { Alert.alert('Error', 'Failed to generate sentence. Is your server running?'); }
+      announce(tt.announceNewSentence);
+    } catch (error) { Alert.alert(tt.errorTitle, tt.errorGenerate); }
     setLoading(false);
   };
 
@@ -519,11 +622,12 @@ export default function PracticeScreen() {
       const finalScore = revealed ? 0 : (hintUsed ? Math.max(0, Math.min(rawScore, 80)) : rawScore);
       data = { ...data, score: finalScore };
       if (revealed) {
-        data.feedback = 'Answer was revealed — no score awarded.';
+        data.feedback = tt.revealNoScore;
       } else if (hintUsed && finalScore < rawScore) {
-        data.feedback = (data.feedback || '') + ' (-20 hint penalty)';
+        data.feedback = (data.feedback || '') + tt.hintPenaltySuffix;
       }
       setResult(data);
+      nudge.recordInteraction();
       feedbackForScore(finalScore);
       announce(scoreAnnouncement(finalScore));
       const xp = calculateXP(finalScore, level);
@@ -532,8 +636,8 @@ export default function PracticeScreen() {
       // ── Spaced Repetition: queue sentences scored below 70 for retry ──
       // Don't re-queue sentences that are already a retry attempt.
       const score = data.score || 0;
+      const correctAns = correctTranslation || data.correctAnswer || '';
       if (score < 70 && !isRetryMode && originalSentence) {
-        const correctAns = correctTranslation || data.correctAnswer || '';
         setRetryQueue(prev => {
           // Avoid duplicates in the queue
           const alreadyQueued = prev.some(r => r.original === originalSentence);
@@ -541,11 +645,16 @@ export default function PracticeScreen() {
           return [...prev, { original: originalSentence, translation: correctAns, topic: exerciseTopic }];
         });
       }
+      if (score >= 85 && !hintUsed && !revealed && originalSentence) {
+        await rememberMasteredSentence(score, correctAns);
+        setRetryQueue(prev => prev.filter(r => r.original !== originalSentence));
+      }
+      await recordProgressionScore(score);
 
       await saveRichMistakeData(data, xp);
       await saveProgressData('translation_trainer', finalScore, data.feedback || data.explanation || '', data.mistakes || []);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300);
-    } catch (error) { Alert.alert('Error', 'Failed to check translation.'); }
+    } catch (error) { Alert.alert(tt.errorTitle, tt.errorCheck); }
     setChecking(false);
   };
 
@@ -556,7 +665,7 @@ export default function PracticeScreen() {
       const vault = raw ? JSON.parse(raw) : [];
       const exists = vault.some(w => w.word.toLowerCase() === phrase.trim().toLowerCase());
       if (exists) {
-        Alert.alert('Already in Vault', wt('vault-already-saved', { word: phrase.trim() }));
+        Alert.alert(tt.alreadyInVault, wt('vault-already-saved', { word: phrase.trim() }));
         return;
       }
       const entry = {
@@ -568,8 +677,9 @@ export default function PracticeScreen() {
       };
       const updated = [...vault, entry].sort((a, b) => a.word.toLowerCase().localeCompare(b.word.toLowerCase()));
       await AsyncStorage.setItem('vocabVault', JSON.stringify(updated));
-      Alert.alert('Added! 🎉', `"${phrase.trim()}" saved to your Vocabulary Vault.`);
-    } catch (e) { Alert.alert('Error', 'Could not save to vault.'); }
+      pushVaults(); // fire-and-forget
+      Alert.alert(tt.addedTitle, tInterp(tt.addedMessage, { phrase: phrase.trim() }));
+    } catch (e) { Alert.alert(tt.errorTitle, tt.errorSaveVault); }
   };
 
   const handleReveal = async () => {
@@ -590,18 +700,18 @@ export default function PracticeScreen() {
       if (!answer) {
         setRevealed(false);
         setRevealedAnswer('');
-        Alert.alert('Answer unavailable', 'This sentence is missing its answer key. Please tap Next Sentence to get a fresh one.');
+        Alert.alert(tt.answerUnavailableTitle, tt.answerUnavailableMissing);
         return;
       }
       setCorrectTranslation(answer);
       setRevealedAnswer(answer);
       setRevealed(true);
-      announce(`Answer revealed: ${answer}`);
+      announce(tInterp(tt.announceAnswerRevealed, { answer }));
       Alert.alert(wt('correct-text'), answer);
       setTimeout(() => scrollRef.current?.scrollToEnd?.({ animated: true }), 80);
     } catch (e) {
       setRevealed(false);
-      Alert.alert('Answer unavailable', 'I could not reveal this answer. Please try again or tap Next Sentence.');
+      Alert.alert(tt.answerUnavailableTitle, tt.answerUnavailableTryAgain);
     } finally {
       revealInFlightRef.current = false;
       setRevealing(false);
@@ -653,16 +763,16 @@ export default function PracticeScreen() {
       const data = await chatWithTutor({ message: msg, nativeLanguage, context: { originalSentence, correctTranslation, studentTranslation: studentInput, score: result?.score } });
       setChatMessages(prev => [...prev, { role: 'assistant', text: data.response }]);
     } catch (error) {
-      setChatMessages(prev => [...prev, { role: 'assistant', text: 'Sorry, I had trouble responding. Try again!' }]);
+      setChatMessages(prev => [...prev, { role: 'assistant', text: tt.chatError }]);
     }
     setChatLoading(false);
   };
 
   // ✅ Report AI content (MENA/Google requirement)
   const handleReportChat = (msgText) => {
-    Alert.alert('Report AI Response', 'What issue did you find?', [
-      { text: 'Inaccurate', onPress: () => Alert.alert('Reported', 'Thank you. We\'ll review this.') },
-      { text: 'Culturally Insensitive', onPress: () => Alert.alert('Reported', 'Thank you. We take this seriously.') },
+    Alert.alert(tt.reportAiTitle, tt.reportAiPrompt, [
+      { text: tt.reportAiInaccurate, onPress: () => Alert.alert(tt.reportedTitle, tt.reportedThanksReview) },
+      { text: tt.reportAiOffensive, onPress: () => Alert.alert(tt.reportedTitle, tt.reportedThanksSerious) },
       { text: t.cancel, style: 'cancel' },
     ]);
   };
@@ -736,7 +846,7 @@ export default function PracticeScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
       {/* ── HEADER ── */}
       <View style={{
-        flexDirection: 'row', alignItems: 'center',
+        flexDirection: rowDir, alignItems: 'center',
         paddingTop: 48, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)',
         borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)',
@@ -744,11 +854,11 @@ export default function PracticeScreen() {
       }}>
         <TouchableOpacity
           onPress={() => router.back()}
-          style={{ position: 'absolute', left: 16, bottom: 8, width: 44, height: 44, alignItems: 'center', justifyContent: 'center', zIndex: 120 }}
+          style={{ position: 'absolute', left: isRTL ? undefined : 16, right: isRTL ? 16 : undefined, bottom: 8, width: 44, height: 44, alignItems: 'center', justifyContent: 'center', zIndex: 120 }}
           accessibilityRole="button"
           accessibilityLabel={t.back}
         >
-          <ArrowLeft size={24} color={C.textMuted || '#6B7280'} />
+          <BackIcon size={24} color={C.textMuted || '#6B7280'} />
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Image
@@ -760,14 +870,14 @@ export default function PracticeScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1, marginTop: 2 }}>
             {wt('translation-trainer').toUpperCase()}
           </Text>
-          <Text style={[s.headerSub, { marginTop: 2 }]}>{nativeLanguage} → English • {level}</Text>
+          <Text style={[s.headerSub, { marginTop: 2 }]}>{nativeLanguage} {tt.toEnglish} • {level}</Text>
         </View>
         <TouchableOpacity
-          style={[s.settingsBtn, { position: 'absolute', right: 16, bottom: 8 }]}
+          style={[s.settingsBtn, { position: 'absolute', left: isRTL ? 16 : undefined, right: isRTL ? undefined : 16, bottom: 8 }]}
           onPress={() => setShowSettings(true)}
           accessibilityRole="button"
           accessibilityLabel={t.settings}
-          accessibilityHint={ui('opensSettingsHint', 'Opens language and level settings')}
+          accessibilityHint={tt.opensSettingsHint}
         >
           <Settings2 size={20} color={C.textSec} />
         </TouchableOpacity>
@@ -779,14 +889,14 @@ export default function PracticeScreen() {
 
         {!sessionPaused && (<>
           {/* ✅ A11Y: Level pills with tablist */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.levelRow}
-            accessibilityRole="tablist" accessibilityLabel={`Select CEFR ${t.level}`}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={[s.levelRow, { flexDirection: rowDir }]}
+            accessibilityRole="tablist" accessibilityLabel={tt.selectCefrLevelA11y}>
             {LEVELS.map(l => (
               <TouchableOpacity
                 key={l}
                 style={[s.levelPill, level === l && s.levelPillActive]}
                 onPress={() => handleLevelSelect(l)}
-                {...a11yTab(`${t.level} ${l}`, level === l)}
+                {...a11yTab(tInterp(tt.cefrLevelOptionA11y, { l }), level === l)}
               >
                 <Text style={[s.levelPillText, level === l && s.levelPillTextActive]}>{l}</Text>
               </TouchableOpacity>
@@ -795,32 +905,36 @@ export default function PracticeScreen() {
 
           {/* ✅ A11Y: Sentence length selector */}
           <View style={s.lengthRow}>
-            <Text style={s.lengthLabel} accessibilityRole="header">{ui('sentenceLength', 'Sentence Length')}</Text>
-            <View style={s.lengthOptions}>
-              {LENGTHS.map(len => (
-                <TouchableOpacity
-                  key={len.key}
-                  style={[s.lengthCard, sentenceLength === len.key && s.lengthCardActive]}
-                  onPress={() => handleSentenceLengthSelect(len.key)}
-                  {...a11yTab(`${len.label} sentences, ${len.desc}`, sentenceLength === len.key)}
-                >
-                  <Text style={s.lengthIcon}>{len.icon}</Text>
-                  <Text style={[s.lengthName, sentenceLength === len.key && s.lengthNameActive]}>{len.label}</Text>
-                  <Text style={s.lengthDesc}>{len.desc}</Text>
-                </TouchableOpacity>
-              ))}
+            <Text style={[s.lengthLabel, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]} accessibilityRole="header">{tt.sentenceLengthHeader}</Text>
+            <View style={[s.lengthOptions, { flexDirection: rowDir }]}>
+              {LENGTHS.map(len => {
+                const lenLabel = tt[len.labelKey];
+                const lenDesc  = tt[len.descKey];
+                return (
+                  <TouchableOpacity
+                    key={len.key}
+                    style={[s.lengthCard, sentenceLength === len.key && s.lengthCardActive]}
+                    onPress={() => handleSentenceLengthSelect(len.key)}
+                    {...a11yTab(tInterp(tt.lengthOptionA11y, { label: lenLabel, desc: lenDesc }), sentenceLength === len.key)}
+                  >
+                    <Text style={s.lengthIcon}>{len.icon}</Text>
+                    <Text style={[s.lengthName, sentenceLength === len.key && s.lengthNameActive]}>{lenLabel}</Text>
+                    <Text style={s.lengthDesc}>{lenDesc}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
 
           {/* ✅ A11Y: Custom request input */}
           <TextInput
-            style={s.customInput}
-            placeholder={ui('customRequestPlaceholder', "Custom request... (e.g., 'Past tense about food')")}
+            style={[s.customInput, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]}
+            placeholder={tt.customRequestPlaceholder}
             placeholderTextColor={C.textMuted}
             value={customRequest}
             onChangeText={setCustomRequest}
-            accessibilityLabel={ui('customTopicRequest', 'Custom topic request')}
-            accessibilityHint="Type a specific topic or grammar focus for the next sentence"
+            accessibilityLabel={tt.customTopicRequest}
+            accessibilityHint={tt.customRequestHint}
           />
 
           {/* GENERATE — NeonButton inherits a11y from updated PolyPuffUI */}
@@ -834,7 +948,7 @@ export default function PracticeScreen() {
             textColor="#000"
             style={{ marginBottom: 16 }}
             accessibilityLabel={sessionActive ? wt('next-sentence') : wt('start-session')}
-            accessibilityHint={sessionActive ? ui('newSentenceHint', 'Generates a new sentence to translate') : ui('startSessionHint', 'Starts a new translation practice session')}
+            accessibilityHint={sessionActive ? tt.newSentenceHint : tt.startSessionHint}
           >
             {null}
           </NeonButton>
@@ -843,37 +957,37 @@ export default function PracticeScreen() {
           {originalSentence ? (
             <GlassCard intensity="medium" style={{ marginBottom: 16 }} borderColor={C.border + '20'} glowColor={C.purple + '10'}>
               {/* Topic badge + retry indicator */}
-              <View style={s.topicBadge}>
+              <View style={[s.topicBadge, { flexDirection: rowDir }]}>
                 {isRetryMode && (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4,
+                  <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 4,
                     backgroundColor: (C.amber || '#FFBE0B') + '20',
                     paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8,
                     borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '60' }}
-                    accessibilityLabel={ui('retrySentence', 'Retry sentence. You struggled with this one before.')}
+                    accessibilityLabel={tt.retrySentenceA11y}
                   >
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: C.amber || '#FFBE0B', letterSpacing: 0.5 }}>🔁 RETRY</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: C.amber || '#FFBE0B', letterSpacing: 0.5 }}>{tt.retryBadge}</Text>
                   </View>
                 )}
                 {exerciseTopic ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-                    accessibilityLabel={`Topic: ${exerciseTopic}${exerciseId ? ', from exercise bank' : ''}`}>
+                  <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 4 }}
+                    accessibilityLabel={tInterp(exerciseId ? tt.topicLabelBank : tt.topicLabel, { topic: exerciseTopic })}>
                     <BookOpen size={12} color={C.amber} />
-                    <Text style={s.topicText}>{exerciseTopic}</Text>
-                    {exerciseId && <Text style={s.bankBadge}>📚 Bank</Text>}
+                    <Text style={[s.topicText, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]}>{exerciseTopic}</Text>
+                    {exerciseId && <Text style={s.bankBadge}>{tt.bankBadge}</Text>}
                   </View>
                 ) : null}
               </View>
-              <Text style={s.sentenceLabel} accessibilityRole="header">{wt('translate-natural-english')}</Text>
+              <Text style={[s.sentenceLabel, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]} accessibilityRole="header">{wt('translate-natural-english')}</Text>
               {/* ✅ A11Y: Sentence with descriptive label */}
               <Text
-                style={s.sentenceText}
+                style={[s.sentenceText, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]}
                 accessibilityRole="text"
-                accessibilityLabel={`Translate this sentence to English: ${originalSentence}`}
+                accessibilityLabel={tInterp(tt.translateThis, { sentence: originalSentence })}
               >
                 {originalSentence}
               </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-                {/* ✅ A11Y: Translation input */}
+              <View style={{ flexDirection: rowDir, alignItems: 'flex-start', gap: 8 }}>
+                {/* ✅ A11Y: Translation input — note: typed text is English, no RTL flip */}
                 <TextInput
                   ref={inputRef}
                   style={[s.translationInput, { flex: 1, marginBottom: 0 }]}
@@ -887,7 +1001,7 @@ export default function PracticeScreen() {
                   editable={!result}
                   onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                   accessibilityLabel={wt('your-answer')}
-                  accessibilityHint={ui('typeTranslationHint', 'Type your translation of the sentence above')}
+                  accessibilityHint={tt.typeTranslationHint}
                 />
                 {/* Voice input — hidden for languages without Google speech recognition support */}
                 {!result && speechSupported && (
@@ -905,7 +1019,7 @@ export default function PracticeScreen() {
                       paddingTop: 10, paddingRight: 4,
                       alignItems: 'center', justifyContent: 'center',
                     }}
-                    accessibilityLabel={ui('voiceInputUnavailable', 'Voice input not available for your language')}
+                    accessibilityLabel={tt.voiceInputUnavailable}
                   >
                     <Text style={{ fontSize: 18 }}>🎤</Text>
                     <View style={{
@@ -920,7 +1034,7 @@ export default function PracticeScreen() {
               {/* Speech recognition notice for unsupported languages */}
               {!speechSupported && (
                 <View style={{
-                  flexDirection: 'row', alignItems: 'center', gap: 8,
+                  flexDirection: rowDir, alignItems: 'center', gap: 8,
                   backgroundColor: (C.amber || '#FFBE0B') + '15',
                   borderRadius: 10, padding: 10, marginBottom: 10,
                   borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '30',
@@ -929,8 +1043,9 @@ export default function PracticeScreen() {
                   <Text style={{
                     flex: 1, fontSize: scaledFont(11),
                     color: C.amber || '#FFBE0B', lineHeight: 16,
+                    textAlign, writingDirection: isRTL ? 'rtl' : 'ltr',
                   }}>
-                    Voice input is not available for {nativeLanguage} speakers in the Translation Trainer. You can still use it in the Placement Test.
+                    {tInterp(tt.voiceNotice, { language: nativeLanguage })}
                   </Text>
                 </View>
               )}
@@ -947,7 +1062,7 @@ export default function PracticeScreen() {
               ) : null}
               {/* ── Hint & Show Answer row ── */}
               {!result && (
-                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+                <View style={{ flexDirection: rowDir, gap: 8, marginBottom: 10 }}>
                   {/* Hint button */}
                   {!hintUsed ? (
                     <TouchableOpacity
@@ -956,7 +1071,7 @@ export default function PracticeScreen() {
                         // If we already have the correct translation, use its first word
                         if (correctTranslation) {
                           const firstWord = correctTranslation.trim().split(/\s+/)[0];
-                          setHintText(`Starts with: "${firstWord}..."`);
+                          setHintText(tInterp(tt.hintStartsWith, { word: firstWord }));
                           return;
                         }
                         // Otherwise fetch it from the backend, then reveal first word only
@@ -972,16 +1087,16 @@ export default function PracticeScreen() {
                           if (ct) {
                             setCorrectTranslation(ct);
                             const firstWord = ct.trim().split(/\s+/)[0];
-                            setHintText(`Starts with: "${firstWord}..."`);
+                            setHintText(tInterp(tt.hintStartsWith, { word: firstWord }));
                           } else {
-                            setHintText('Hint unavailable — try your best!');
+                            setHintText(tt.hintUnavailable);
                           }
                         } catch (e) {
-                          setHintText('Hint unavailable — try your best!');
+                          setHintText(tt.hintUnavailable);
                         }
                       }}
                       style={{
-                        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                        flex: 1, flexDirection: rowDir, alignItems: 'center', justifyContent: 'center',
                         gap: 5, paddingVertical: 9,
                         borderRadius: 10,
                         backgroundColor: 'rgba(255,190,11,0.12)',
@@ -989,14 +1104,14 @@ export default function PracticeScreen() {
                       }}
                       accessibilityRole="button"
                       accessibilityLabel={wt('hint')}
-                      accessibilityHint={ui('revealClueHint', 'Reveals a clue. Caps your score at 80.')}
+                      accessibilityHint={tt.revealClueHint}
                     >
                       <Text style={{ fontSize: 14 }}>💡</Text>
-                      <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: '#FFBE0B' }}>{wt('hint')} (-20)</Text>
+                      <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: '#FFBE0B' }}>{wt('hint')} {tt.hintScorePenalty}</Text>
                     </TouchableOpacity>
                   ) : (
                     <View style={{
-                      flex: 1, flexDirection: 'row', alignItems: 'center', gap: 5,
+                      flex: 1, flexDirection: rowDir, alignItems: 'center', gap: 5,
                       paddingVertical: 9, paddingHorizontal: 10, borderRadius: 10,
                       backgroundColor: 'rgba(255,190,11,0.10)',
                       borderWidth: 1, borderColor: 'rgba(255,190,11,0.28)',
@@ -1013,7 +1128,7 @@ export default function PracticeScreen() {
                     onPressIn={handleReveal}
                     disabled={revealing}
                     style={{
-                      flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                      flex: 1, flexDirection: rowDir, alignItems: 'center', justifyContent: 'center',
                       gap: 5, paddingVertical: 9,
                       borderRadius: 10,
                       backgroundColor: 'rgba(255,255,255,0.05)',
@@ -1022,7 +1137,7 @@ export default function PracticeScreen() {
                     }}
                     accessibilityRole="button"
                     accessibilityLabel={wt('show-answer')}
-                    accessibilityHint={ui('revealAnswerHint', 'Reveals the answer without scoring')}
+                    accessibilityHint={tt.revealAnswerHint}
                   >
                     {revealing
                       ? <ActivityIndicator size="small" color={C.textMuted || '#9CA3AF'} />
@@ -1046,7 +1161,7 @@ export default function PracticeScreen() {
                   textColor="#fff"
                   style={null}
                   accessibilityLabel={wt('check-translation')}
-                  accessibilityHint={ui('submitTranslationHint', 'Submits your translation for scoring')}
+                  accessibilityHint={tt.submitTranslationHint}
                 >
                   {null}
                 </NeonButton>
@@ -1059,9 +1174,9 @@ export default function PracticeScreen() {
             <View accessibilityLiveRegion="polite">
               {/* ✅ A11Y: XP badge */}
               <View
-                style={s.xpBadge}
+                style={[s.xpBadge, { flexDirection: rowDir }]}
                 accessibilityRole="text"
-                accessibilityLabel={`Earned ${calculateXP(result.score || 0, level)} experience points`}
+                accessibilityLabel={tInterp(tt.earnedXp, { xp: calculateXP(result.score || 0, level) })}
               >
                 <Star size={16} color={C.amberLight} />
                 <Text style={s.xpBadgeText}>+{calculateXP(result.score || 0, level)} XP</Text>
@@ -1070,7 +1185,7 @@ export default function PracticeScreen() {
                 <TouchableOpacity
                   onPress={() => { setVaultPhrase(correctTranslation || result.correctAnswer || ''); setVaultModal(true); }}
                   style={{
-                    flexDirection: 'row', alignItems: 'center', gap: 8,
+                    flexDirection: rowDir, alignItems: 'center', gap: 8,
                     backgroundColor: 'rgba(0,229,160,0.08)', borderRadius: 10,
                     padding: 12, marginBottom: 10,
                     borderWidth: 1, borderColor: 'rgba(0,229,160,0.25)',
@@ -1080,10 +1195,10 @@ export default function PracticeScreen() {
                 >
                   <Text style={{ fontSize: 16 }}>💾</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: C.emerald || '#00E5A0', letterSpacing: 0.8 }}>{t.saveToVault.toUpperCase()}</Text>
-                    <Text style={{ fontSize: scaledFont(12), color: C.text, marginTop: 2 }} numberOfLines={1}>{correctTranslation || result.correctAnswer}</Text>
+                    <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: C.emerald || '#00E5A0', letterSpacing: 0.8, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{t.saveToVault.toUpperCase()}</Text>
+                    <Text style={{ fontSize: scaledFont(12), color: C.text, marginTop: 2, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }} numberOfLines={1}>{correctTranslation || result.correctAnswer}</Text>
                   </View>
-                  <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{ui('tap', 'Tap')} ›</Text>
+                  <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{tt.tapHint} {isRTL ? '‹' : '›'}</Text>
                 </TouchableOpacity>
               )}
               <FeedbackDashboard result={result} studentTranslation={studentInput} correctTranslation={correctTranslation || result.correctAnswer || ''} originalSentence={originalSentence} nativeLanguage={nativeLanguage} onNextPress={handleGenerate} onChatPress={() => { setChatMessages([]); setShowChat(true); }} />
@@ -1105,12 +1220,12 @@ export default function PracticeScreen() {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.65)', padding: 24 }}>
           <View style={{ backgroundColor: C.card || '#1F2937', borderRadius: 16, padding: 20, width: '100%', maxWidth: 380, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '40' }}>
             <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text, marginBottom: 4 }}>💾 {wt('vault-save-to-vault')}</Text>
-            <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 14 }}>{ui('saveToVaultPrompt', 'Tap to save to your Vocabulary Vault:')}</Text>
+            <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 14, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{tt.saveToVaultPrompt}</Text>
             <TouchableOpacity
               onPress={() => { addToVault(vaultPhrase); setVaultModal(false); }}
               style={{ backgroundColor: (C.emerald || '#00E5A0') + '18', borderRadius: 10, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '40' }}
             >
-              <Text style={{ fontSize: scaledFont(10), color: C.textMuted, marginBottom: 2, letterSpacing: 0.8 }}>{ui('fullPhrase', 'FULL PHRASE')}</Text>
+              <Text style={{ fontSize: scaledFont(10), color: C.textMuted, marginBottom: 2, letterSpacing: 0.8, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{tt.fullPhrase}</Text>
               <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.emerald || '#00E5A0' }}>{vaultPhrase}</Text>
             </TouchableOpacity>
             {vaultPhrase.trim().split(/\s+/).filter(w => w.replace(/[.,!?;:"'()]/g, '').length > 2).map((word, i) => (
@@ -1133,7 +1248,7 @@ export default function PracticeScreen() {
       <Modal visible={showChat} animationType="slide" onRequestClose={() => setShowChat(false)}>
         {/* ✅ A11Y: accessibilityViewIsModal traps focus */}
         <View style={s.chatScreen} accessibilityViewIsModal={true}>
-          <View style={s.chatHeader}>
+          <View style={[s.chatHeader, { flexDirection: rowDir }]}>
             <Text style={s.chatHeaderTitle} accessibilityRole="header">{brandName}</Text>
             {/* ✅ A11Y: Close button */}
             <TouchableOpacity
@@ -1147,115 +1262,109 @@ export default function PracticeScreen() {
           </View>
           <ScrollView style={s.chatMessages} contentContainerStyle={{ padding: 16, gap: 12 }}>
             {/* ✅ A11Y: AI intro message with badge */}
-            <View style={s.chatBubbleA} accessibilityRole="text" accessibilityLabel={`${brandName}, AI response: ${aiIntroMessage}`}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+            <View
+              style={[s.chatBubbleA, isRTL && { alignSelf: 'flex-end', borderBottomLeftRadius: 16, borderBottomRightRadius: 4 }]}
+              accessibilityRole="text"
+              accessibilityLabel={tInterp(tt.aiResponseA11y, { brand: brandName, text: aiIntroMessage })}
+            >
+              <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 4, marginBottom: 4 }}>
                 <View style={{ backgroundColor: (C.purple || '#8B5CF6') + '30', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
                   <Text style={{ fontSize: 9, fontWeight: '800', color: C.purple || '#8B5CF6', letterSpacing: 0.5 }}>AI</Text>
                 </View>
                 <Text style={{ fontSize: 10, fontWeight: '700', color: C.purple || '#8B5CF6' }}>{brandName}</Text>
               </View>
-              <Text style={s.chatBubbleText}>{aiIntroMessage}</Text>
+              <Text style={[s.chatBubbleText, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]}>{aiIntroMessage}</Text>
             </View>
-            {chatMessages.map((msg, i) => (
-              <View
-                key={i}
-                style={msg.role === 'user' ? s.chatBubbleU : s.chatBubbleA}
-                accessibilityRole="text"
-                accessibilityLabel={msg.role === 'user' ? `You said: ${msg.text}` : `${brandName}, AI response: ${msg.text}`}
-              >
-                {/* ✅ A11Y: AI badge + report button on assistant messages */}
-                {msg.role !== 'user' && (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <View style={{ backgroundColor: (C.purple || '#8B5CF6') + '30', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: C.purple || '#8B5CF6', letterSpacing: 0.5 }}>AI</Text>
+            {chatMessages.map((msg, i) => {
+              const isUser = msg.role === 'user';
+              const baseStyle = isUser ? s.chatBubbleU : s.chatBubbleA;
+              const rtlBubbleOverride = isRTL
+                ? (isUser
+                    ? { alignSelf: 'flex-start' as const, borderBottomRightRadius: 16, borderBottomLeftRadius: 4 }
+                    : { alignSelf: 'flex-end'   as const, borderBottomLeftRadius: 16, borderBottomRightRadius: 4 })
+                : null;
+              return (
+                <View
+                  key={i}
+                  style={[baseStyle, rtlBubbleOverride]}
+                  accessibilityRole="text"
+                  accessibilityLabel={
+                    isUser
+                      ? tInterp(tt.youSaidA11y, { text: msg.text })
+                      : tInterp(tt.aiResponseA11y, { brand: brandName, text: msg.text })
+                  }
+                >
+                  {/* ✅ A11Y: AI badge + report button on assistant messages */}
+                  {!isUser && (
+                    <View style={{ flexDirection: rowDir, alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <View style={{ flexDirection: rowDir, alignItems: 'center', gap: 4 }}>
+                        <View style={{ backgroundColor: (C.purple || '#8B5CF6') + '30', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
+                          <Text style={{ fontSize: 9, fontWeight: '800', color: C.purple || '#8B5CF6', letterSpacing: 0.5 }}>AI</Text>
+                        </View>
+                        <Text style={{ fontSize: 10, fontWeight: '700', color: C.purple || '#8B5CF6' }}>{brandName}</Text>
                       </View>
-                      <Text style={{ fontSize: 10, fontWeight: '700', color: C.purple || '#8B5CF6' }}>{brandName}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleReportChat(msg.text)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={tt.reportAiResponseA11y}
+                      >
+                        <Flag size={12} color={C.textMuted} />
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      onPress={() => handleReportChat(msg.text)}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      accessibilityRole="button"
-                      accessibilityLabel={ui('reportAiResponse', 'Report this AI response')}
-                    >
-                      <Flag size={12} color={C.textMuted} />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                <Text style={[s.chatBubbleText, msg.role === 'user' && { color: '#fff' }]}>{msg.text}</Text>
-              </View>
-            ))}
+                  )}
+                  <Text style={[s.chatBubbleText, isUser && { color: '#fff' }, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]}>{msg.text}</Text>
+                </View>
+              );
+            })}
             {chatLoading && (
-              <View style={s.chatBubbleA} accessibilityLabel={ui('polyPuffTyping', 'Poly-Puff is typing')}>
+              <View
+                style={[s.chatBubbleA, isRTL && { alignSelf: 'flex-end', borderBottomLeftRadius: 16, borderBottomRightRadius: 4 }]}
+                accessibilityLabel={tt.polyPuffTyping}
+              >
                 <ActivityIndicator size="small" color={C.blue} />
               </View>
             )}
           </ScrollView>
-          <View style={s.chatInputRow}>
+          <View style={[s.chatInputRow, { flexDirection: rowDir }]}>
             {/* ✅ A11Y: Chat input */}
             <TextInput
-              style={s.chatInputField}
-              placeholder={ui('askAboutGrammarPlaceholder', 'Ask about grammar...')}
+              style={[s.chatInputField, { textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }]}
+              placeholder={tt.askAboutGrammarPlaceholder}
               placeholderTextColor={C.textMuted}
               value={chatInput}
               onChangeText={setChatInput}
               onSubmitEditing={handleSendChat}
-              accessibilityLabel={ui('askGrammarQuestion', 'Ask Poly-Puff a grammar question')}
+              accessibilityLabel={tt.askGrammarQuestion}
             />
-            {/* ✅ A11Y: Send button */}
+            {/* ✅ A11Y: Send button — arrow mirrors under RTL */}
             <TouchableOpacity
               style={s.chatSendBtn}
               onPress={handleSendChat}
               accessibilityRole="button"
-              accessibilityLabel={ui('sendMessage', 'Send message')}
+              accessibilityLabel={tt.sendMessage}
               accessibilityState={{ disabled: !chatInput.trim() }}
             >
-              <ArrowRight size={20} color="#fff" />
+              {isRTL ? <ArrowLeft size={20} color="#fff" /> : <ArrowRight size={20} color="#fff" />}
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* ═══ SETTINGS MODAL ═══ */}
-      <Modal visible={showSettings} transparent animationType="fade" onRequestClose={() => setShowSettings(false)}>
-        <TouchableOpacity
-          style={s.settingsOverlay}
-          activeOpacity={1}
-          onPress={() => setShowSettings(false)}
-          accessibilityLabel={ui('closeSettings', 'Close settings')}
-          accessibilityRole="button"
-        >
-          {/* ✅ A11Y: accessibilityViewIsModal */}
-          <View style={s.settingsCard} accessibilityViewIsModal={true}>
-            <Text style={s.settingsTitle} accessibilityRole="header">{t.settings}</Text>
-            <Text style={s.settingsLabel} accessibilityRole="header">{t.nativeLanguage}</Text>
-            {/* ✅ A11Y: Language pills as tabs */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}
-              accessibilityRole="tablist" accessibilityLabel={t.nativeLanguage}>
-              {['Spanish','Mandarin','French','German','Portuguese','Russian','Japanese','Arabic','Hindi','Polish','Italian','Czech','Afrikaans'].map(lang => (
-                <TouchableOpacity
-                  key={lang}
-                  style={[s.langPill, nativeLanguage === lang && s.langPillActive]}
-                  onPress={() => setNativeLanguage(lang)}
-                  {...a11yTab(lang, nativeLanguage === lang)}
-                >
-                  <Text style={[s.langPillText, nativeLanguage === lang && { color: C.text }]}>{lang}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            {/* ✅ A11Y: Done button */}
-            <TouchableOpacity
-              style={s.settingsDoneBtn}
-              onPress={() => setShowSettings(false)}
-              accessibilityRole="button"
-              accessibilityLabel={t.save}
-            >
-              <Text style={s.settingsDoneText}>{t.save}</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <NativeLanguagePicker
+        visible={showSettings}
+        selectedLanguage={nativeLanguage}
+        onSelect={handleNativeLanguageSelect}
+        onClose={() => setShowSettings(false)}
+        title={t.settings}
+      />
     </KeyboardAvoidingView>
+    <FeedbackNudgeModal
+      visible={nudge.showModal}
+      exerciseName="translation"
+      onDismiss={nudge.onDismiss}
+      onSent={nudge.onSent}
+    />
     </ScreenBackground>
   );
 }

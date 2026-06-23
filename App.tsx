@@ -1,20 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// This file is not used at runtime. The app's entry point is
+// "expo-router/entry" (declared in package.json), which mounts
+// app/_layout.tsx as the root. Kept only because index.ts still
+// references it for legacy compatibility.
+//
+// Sentry init lives in app/_layout.tsx — not here.
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  return null;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

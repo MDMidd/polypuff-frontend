@@ -40,10 +40,11 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { pushVaults } from '../services/syncService';
 import {
-  Pencil, Shuffle, AlignLeft, ChevronRight,
+  Pencil, Shuffle, AlignLeft, ChevronRight, ChevronDown,
   CheckCircle, XCircle, Lightbulb, RotateCcw, RefreshCw,
-  ArrowLeft,
+  ArrowLeft, BookOpen,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -54,8 +55,11 @@ import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { recordExerciseTime } from '../services/timerService';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
+import { getAuthHeaders } from '../utils/auth';
 // ✅ NEW
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 
 // ─── Mode definitions ─────────────────────────────────────────────────────────
 const MODE_DEFS = [
@@ -105,8 +109,8 @@ function WordTile({ word, onPress, active, color, position, total, inSentence })
         ]}
         // ✅ A11Y
         accessibilityRole="button"
-        accessibilityLabel={`Word: ${word}. ${active ? 'In sentence.' : 'In word bank.'}`}
-        accessibilityHint={active ? 'Double tap to remove from sentence' : 'Double tap to add to sentence'}
+        accessibilityLabel={`Word: ${word}. ${active ? t.accLabelInSentence : t.accLabelInWordBank}`}
+        accessibilityHint={active ? t.accHintDoubleTapRemove : t.accHintDoubleTapAdd}
         accessibilityState={{ selected: active }}
       >
         <Text style={[styles.wordTileText, { color: active ? color : '#CBD5E1' }]}>
@@ -123,6 +127,28 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
   const { t, wt } = useLanguage();
   const router = useRouter();
   const color = scoreColor(result.score);
+  const [showVocabSave, setShowVocabSave] = useState(false);
+  const [saveWord, setSaveWord] = useState('');
+
+  const saveWordToVault = async (word: string) => {
+    const clean = word.trim();
+    if (!clean) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const items = raw ? JSON.parse(raw) : [];
+      const exists = items.some((i: { word?: string }) => String(i.word || '').trim().toLowerCase() === clean.toLowerCase());
+      if (exists) { Alert.alert(t.alertAlreadySaved, t.alertAlreadyInVault.replace('{word}', clean)); return; }
+      const item = { word: clean, date: new Date().toISOString(), source: 'grammar' };
+      const updated = [item, ...items].slice(0, 500);
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault',    JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert(t.alertSavedExclaim, t.alertAddedToVault.replace('{word}', clean));
+    } catch { Alert.alert(t.alertError, t.alertCouldNotSaveWord); }
+  };
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
   const scoreLabels = {
     excellent: ui('scoreExcellent', 'Excellent'),
@@ -162,6 +188,7 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
       };
       const updated = [item, ...vault].slice(0, 500);
       await Promise.all(keys.map(key => AsyncStorage.setItem(key, JSON.stringify(updated))));
+      pushVaults(); // fire-and-forget
       Alert.alert(wt('grammar-vault'), wt('vault-save-to-vault'));
     } catch {
       Alert.alert(wt('grammar-vault'), wt('vault-search-error'));
@@ -192,13 +219,13 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
       <View
         style={[styles.correctBadge, { backgroundColor: result.correct ? '#34D39918' : '#F8717118' }]}
         accessibilityRole="text"
-        accessibilityLabel={result.correct ? 'Your answer was correct' : 'Your answer was not correct'}
+        accessibilityLabel={result.correct ? t.accLabelAnswerCorrect : t.accLabelAnswerIncorrect}
       >
         {result.correct
           ? <CheckCircle size={15} color="#34D399" />
           : <XCircle    size={15} color="#F87171" />}
         <Text style={[styles.correctBadgeText, { color: result.correct ? '#34D399' : '#F87171' }]}>
-          {result.correct ? 'Correct!' : 'Not quite'}
+          {result.correct ? t.correctExclaim : t.notQuite}
         </Text>
       </View>
 
@@ -256,6 +283,44 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
         <Text style={[styles.vaultSaveText, { color: C.emerald || '#00E5A0' }]}>{wt('grammar-vault')}</Text>
       </TouchableOpacity>
 
+      {/* Vocab save panel */}
+      <TouchableOpacity
+        style={[styles.vocabToggle, { borderColor: (C.blue || '#60A5FA') + '44', backgroundColor: (C.blue || '#60A5FA') + '10' }]}
+        onPress={() => setShowVocabSave(v => !v)}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={t.saveAWordToVault}
+      >
+        <BookOpen size={15} color={C.blue || '#60A5FA'} />
+        <Text style={[styles.vocabToggleText, { color: C.blue || '#60A5FA' }]}>{t.saveAWord}</Text>
+        {showVocabSave
+          ? <ChevronDown size={14} color={C.blue || '#60A5FA'} />
+          : <ChevronDown size={14} color={C.blue || '#60A5FA'} style={{ transform: [{ rotate: '-90deg' }] }} />}
+      </TouchableOpacity>
+      {showVocabSave && (
+        <View style={[styles.vocabRow, { borderColor: (C.blue || '#60A5FA') + '25', backgroundColor: (C.blue || '#60A5FA') + '08' }]}>
+          <TextInput
+            style={[styles.vocabInput, { backgroundColor: C.bg || '#0A0E1A', borderColor: C.border || '#2A3352', color: C.text }]}
+            placeholder={t.wordOrPhrase}
+            placeholderTextColor={C.textMuted || '#5A6380'}
+            value={saveWord}
+            onChangeText={setSaveWord}
+            returnKeyType="done"
+            onSubmitEditing={() => saveWordToVault(saveWord)}
+            accessibilityLabel={t.wordToSaveVocabAria}
+          />
+          <TouchableOpacity
+            style={[styles.vocabBtn, { backgroundColor: C.blue || '#60A5FA' }]}
+            onPress={() => saveWordToVault(saveWord)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={t.saveWordToVaultAria}
+          >
+            <Text style={styles.vocabBtnText}>→ Vocab</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <DiscussWithPuff
         exerciseType="grammar"
         exerciseData={exerciseData || {}}
@@ -271,7 +336,7 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
         activeOpacity={0.8}
         accessibilityRole="button"
         accessibilityLabel={ui('nextExercise', 'Next Exercise')}
-        accessibilityHint="Generates a new grammar exercise"
+        accessibilityHint={t.accHintGenerateGrammar}
       >
         <Text style={styles.nextBtnText}>{ui('nextExercise', 'Next Exercise')}</Text>
         <ChevronRight size={18} color="#fff" />
@@ -287,6 +352,7 @@ export default function GrammarScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('grammar');
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
   const brandName = 'Poly-Puff';
   const modes = MODE_DEFS.map(mode => ({
@@ -298,20 +364,20 @@ export default function GrammarScreen() {
   const [level,          setLevel]          = useState('B1');
   const [nativeLang,     setNativeLang]     = useState('English');
   const [screen,         setScreen]         = useState('menu');
-  const [activeMode,     setActiveMode]     = useState(null);
-  const [exercise,       setExercise]       = useState(null);
-  const [result,         setResult]         = useState(null);
+  const [activeMode,     setActiveMode]     = useState<any>(null);
+  const [exercise,       setExercise]       = useState<any>(null);
+  const [result,         setResult]         = useState<any>(null);
   const [loading,        setLoading]        = useState(false);
-  const [loadingMode,    setLoadingMode]    = useState(null);
+  const [loadingMode,    setLoadingMode]    = useState<any>(null);
   const [checking,       setChecking]       = useState(false);
   const [showHint,       setShowHint]       = useState(false);
   const [sessCount,      setSessCount]      = useState(0);
   const [sessScore,      setSessScore]      = useState(0);
   const [textInput,      setTextInput]      = useState('');
-  const [builtWords,     setBuiltWords]     = useState([]);
-  const [wordBank,       setWordBank]       = useState([]);
+  const [builtWords,     setBuiltWords]     = useState<string[]>([]);
+  const [wordBank,       setWordBank]       = useState<string[]>([]);
 
-  const timerRef = useRef(null);
+  const timerRef = useRef<number | null>(null);
 
   useFocusEffect(useCallback(() => {
     timerRef.current = Date.now();
@@ -336,7 +402,21 @@ export default function GrammarScreen() {
     } catch (e) {}
   }
 
-  async function generateExerciseAction(mode) {
+  async function getJsonHeaders() {
+    const authHeaders = await getAuthHeaders();
+    return { 'Content-Type': 'application/json', ...(authHeaders || {}) };
+  }
+
+  async function readApiError(res: Response) {
+    try {
+      const data = await res.json();
+      return data?.error || data?.message || `HTTP ${res.status}`;
+    } catch {
+      return `HTTP ${res.status}`;
+    }
+  }
+
+  async function generateExerciseAction(mode: any) {
     setLoading(true);
     setLoadingMode(mode.id);
     setShowHint(false);
@@ -348,12 +428,13 @@ export default function GrammarScreen() {
 
     try {
       const BASE = await getServerUrl();
+      const headers = await getJsonHeaders();
       const res = await fetch(`${BASE}/api/grammar/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ mode: mode.id, level, nativeLanguage: nativeLang }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(await readApiError(res));
       const data = await res.json();
 
       setExercise(data);
@@ -366,41 +447,46 @@ export default function GrammarScreen() {
       // ✅ NEW: Announce exercise type
       announce(`${mode.label} exercise. ${mode.desc}. Topic: ${data.topic || 'Grammar'}.`);
     } catch (e) {
-      Alert.alert('Connection Error', 'Could not reach the server.\nMake sure your backend is running.');
+      Alert.alert(t.alertConnectionError, e instanceof Error ? e.message : t.alertCouldNotReachServer);
     }
     setLoading(false);
     setLoadingMode(null);
   }
 
   async function checkAnswer() {
-    const answer = activeMode?.id === 'sentence_builder'
+    const modeId = activeMode?.id;
+    if (!modeId) return;
+
+    const answer = modeId === 'sentence_builder'
       ? builtWords.join(' ').trim()
       : textInput.trim();
 
     if (!answer) {
-      Alert.alert('No answer', 'Please enter or build your answer first.');
+      Alert.alert(t.alertNoAnswer, t.alertEnterOrBuildAnswer);
       return;
     }
     setChecking(true);
 
     try {
       const BASE = await getServerUrl();
+      const headers = await getJsonHeaders();
       const res = await fetch(`${BASE}/api/grammar/check`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: activeMode.id, exercise, studentAnswer: answer, nativeLanguage: nativeLang, level }),
+        headers,
+        body: JSON.stringify({ mode: modeId, exercise, studentAnswer: answer, nativeLanguage: nativeLang, level }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(await readApiError(res));
       const data = await res.json();
 
       setResult(data);
+      nudge.recordInteraction();
       setScreen('result');
       setSessCount(n => n + 1);
       setSessScore(n => n + (data.score || 0));
       await saveProgress(data);
       // announce happens in ResultCard useEffect
     } catch (e) {
-      Alert.alert('Error', 'Could not check your answer. Please try again.');
+      Alert.alert(t.alertError, e instanceof Error ? e.message : t.alertCouldNotCheckAnswer);
     }
     setChecking(false);
   }
@@ -440,7 +526,7 @@ export default function GrammarScreen() {
       <ScreenBackground style={null}>
               {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -527,7 +613,7 @@ export default function GrammarScreen() {
                 // ✅ A11Y
                 accessibilityRole="button"
                 accessibilityLabel={`${mode.label}: ${mode.desc}`}
-                accessibilityHint="Double tap to start this exercise type"
+                accessibilityHint={t.accHintStartExerciseType}
                 accessibilityState={{ disabled: loading, busy: loadingMode === mode.id }}
               >
                 <View style={[styles.modeIconBg, { backgroundColor: mode.color + '18' }]}>
@@ -558,7 +644,7 @@ export default function GrammarScreen() {
       <ScreenBackground style={null}>
         {/* ── HEADER ── */}
         <View style={{ flexDirection: 'row', alignItems: 'center',
-          paddingTop: 32, paddingBottom: 10,
+          paddingTop: 62, paddingBottom: 10,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
           borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
           <TouchableOpacity
@@ -614,7 +700,7 @@ export default function GrammarScreen() {
                   autoCapitalize="sentences"
                   autoCorrect={false}
                   accessibilityLabel={ui('correctedSentencePlaceholder', 'Type the corrected sentence...')}
-                  accessibilityHint="Fix the grammar mistakes in the sentence above"
+                  accessibilityHint={t.accHintFixGrammarAbove}
                 />
               </GlassCard>
             )}
@@ -628,7 +714,7 @@ export default function GrammarScreen() {
                 <View
                   style={[styles.dropZone, { borderColor: modeColor + '45' }]}
                   accessibilityLabel={builtWords.length === 0
-                    ? 'Sentence area is empty. Tap words below to build.'
+                    ? t.accHintBuildSentenceEmpty
                     : `Your sentence so far: ${builtWords.join(' ')}`}
                   accessibilityLiveRegion="polite"
                 >
@@ -701,11 +787,11 @@ export default function GrammarScreen() {
               style={[styles.hintBtn, { minHeight: 44 }]}
               onPress={() => setShowHint(p => !p)}
               accessibilityRole="button"
-              accessibilityLabel={showHint ? 'Hide hint' : 'Show hint'}
+              accessibilityLabel={showHint ? t.hideHint : t.showHint}
               accessibilityState={{ expanded: showHint }}
             >
               <Lightbulb size={14} color="#FBBF24" />
-              <Text style={styles.hintBtnText}>{showHint ? 'Hide hint' : 'Show hint'}</Text>
+              <Text style={styles.hintBtnText}>{showHint ? t.hideHint : t.showHint}</Text>
             </TouchableOpacity>
             {showHint && !!exercise.hint && (
               <View style={styles.hintBox} accessibilityLabel={`Hint: ${exercise.hint}`}>
@@ -720,7 +806,7 @@ export default function GrammarScreen() {
               disabled={checking}
               activeOpacity={0.8}
               accessibilityRole="button"
-              accessibilityLabel={checking ? 'Checking answer' : 'Check answer'}
+              accessibilityLabel={checking ? t.checkingAnswer : t.checkAnswer}
               accessibilityState={{ disabled: checking, busy: checking }}
             >
               {checking
@@ -742,6 +828,12 @@ export default function GrammarScreen() {
 
           </ScrollView>
         </KeyboardAvoidingView>
+        <FeedbackNudgeModal
+          visible={nudge.showModal}
+          exerciseName="grammar"
+          onDismiss={nudge.onDismiss}
+          onSent={nudge.onSent}
+        />
       </ScreenBackground>
     );
   }
@@ -754,7 +846,7 @@ export default function GrammarScreen() {
       <ScreenBackground style={null}>
               {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -788,6 +880,12 @@ export default function GrammarScreen() {
             onNext={() => { setScreen('menu'); setResult(null); setExercise(null); setActiveMode(null); }}
           />
         </ScrollView>
+        <FeedbackNudgeModal
+          visible={nudge.showModal}
+          exerciseName="grammar"
+          onDismiss={nudge.onDismiss}
+          onSent={nudge.onSent}
+        />
       </ScreenBackground>
     );
   }
@@ -797,7 +895,7 @@ export default function GrammarScreen() {
     <ScreenBackground style={null}>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -902,6 +1000,12 @@ const styles = StyleSheet.create({
   encouragement: { fontSize: scaledFont(13), color: '#A78BFA', fontStyle: 'italic', textAlign: 'center', marginBottom: 16, lineHeight: 19 },
   nextBtn: { borderRadius: 14, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   nextBtnText: { fontSize: scaledFont(16), fontWeight: '800', color: '#fff' },
-  vaultSaveBtn: { minHeight: 44, borderRadius: 14, borderWidth: 1, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12, marginBottom: 12 },
+  vaultSaveBtn: { minHeight: 44, borderRadius: 14, borderWidth: 1, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12, marginBottom: 4 },
   vaultSaveText: { fontSize: scaledFont(14), fontWeight: '800' },
+  vocabToggle: { minHeight: 44, borderRadius: 12, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  vocabToggleText: { flex: 1, fontSize: scaledFont(13), fontWeight: '600' },
+  vocabRow: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, borderWidth: 1, padding: 8, marginBottom: 8 },
+  vocabInput: { flex: 1, fontSize: scaledFont(13), borderRadius: 8, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 8, minHeight: 40 },
+  vocabBtn: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, minHeight: 40, justifyContent: 'center' },
+  vocabBtnText: { fontSize: scaledFont(13), fontWeight: '700', color: '#fff' },
 });

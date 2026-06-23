@@ -24,6 +24,7 @@ import { MessageCircle, Send, X, Sparkles, ChevronUp, Flag } from 'lucide-react-
 import { useTheme } from '../contexts/ThemeContext';
 import { getServerUrl } from '../services/api';
 import { scaledFont, announce } from '../utils/accessibility';
+import { getAuthHeaders } from '../utils/auth';
 
 export default function DiscussWithPuff({
   exerciseType = 'translation',
@@ -85,7 +86,7 @@ export default function DiscussWithPuff({
       const BASE = await getServerUrl();
       const res = await fetch(`${BASE}/api/discuss`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({
           exerciseType, exerciseData,
           currentScore: adjustedScore ?? currentScore,

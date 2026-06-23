@@ -61,3 +61,5 @@ audit-*.json
 # build outputs
 *.apk
 *.aab
+
+.env.local

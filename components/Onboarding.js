@@ -24,6 +24,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { scaledFont } from '../utils/accessibility';
 import { getRuleStats } from '../services/ruleStats';
+import { LANGUAGE_OPTIONS } from '../utils/languages';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -75,7 +76,9 @@ export default function Onboarding({ onComplete }) {
     if (i === 1) {
       return {
         ...slide,
-        subtitle: `${ruleStats.totalRules} rules • ${ruleStats.languageCount} languages • CEFR A1-C2`,
+        // languageCount from /api/stats is the grammar-rule translation count (14)
+        // but the UI itself supports many more — use the UI count for the public-facing claim.
+        subtitle: `${ruleStats.totalRules} rules • ${LANGUAGE_OPTIONS.length} languages • CEFR A0-C2`,
         body: `Our database of ${ruleStats.totalRules} grammar rules across ${ruleStats.categoryCount} categories catches errors before AI does. Tap any highlighted word to see the exact rule and examples in your language.`,
       };
     }

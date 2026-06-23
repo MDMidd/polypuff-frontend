@@ -34,7 +34,9 @@ import {
   ScrollView,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -103,6 +105,7 @@ const STORAGE_KEY_PARENTAL_CONSENT = 'parentalConsentGiven';
 // ─── Component ─────────────────────────────────────────────────
 export default function SmartAgeGateScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // Step tracking
   const [step, setStep] = useState<'region' | 'birth_year' | 'parental_gate' | 'blocked'>('region');
@@ -216,12 +219,19 @@ export default function SmartAgeGateScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}
       accessibilityRole="main"
       accessibilityLabel="Age verification screen"
     >
       {/* App branding */}
-      <Text style={styles.logo} accessibilityRole="header">🐡 Poly-Puff</Text>
+      <View style={styles.brandRow} accessibilityRole="header">
+        <Image
+          source={require('../assets/polypuff-transparent.png')}
+          style={styles.brandMascot}
+          accessibilityIgnoresInvertColors
+        />
+        <Text style={styles.logo}>Poly-Puff</Text>
+      </View>
 
       {/* ── STEP 1: Region Selection ──────────────── */}
       {step === 'region' && (
@@ -398,11 +408,18 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     alignItems: 'center',
   },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 32,
+  },
+  brandMascot: { width: 56, height: 56, resizeMode: 'contain' },
   logo: {
     fontSize: 32,
     fontWeight: '700',
     color: '#7DD3FC',
-    marginBottom: 32,
   },
   title: {
     fontSize: 22,

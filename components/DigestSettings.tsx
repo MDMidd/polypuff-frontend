@@ -27,11 +27,19 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Mail, Send, CheckCircle } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { sendDigestNow } from '../services/digestService';
 import { scaledFont } from '../utils/accessibility';
+import { getSettingsTranslations } from '../utils/settingsTranslations';
+import { isRtlLanguage } from '../utils/languages';
 
 export default function DigestSettings() {
   const { colors: C } = useTheme();
+  const { t: tRaw, lang } = useLanguage();
+  const t = { ...(tRaw as unknown as Record<string, string>), ...getSettingsTranslations(lang) };
+  const isRtl = isRtlLanguage(lang);
+  const rowDirection = isRtl ? 'row-reverse' : 'row';
+  const textAlign = isRtl ? 'right' : 'left';
 
   const [enabled,     setEnabled]     = useState(false);
   const [email,       setEmail]       = useState('');
@@ -64,7 +72,7 @@ export default function DigestSettings() {
   const handleSendNow = async () => {
     const trimmed = email.trim();
     if (!trimmed || !trimmed.includes('@')) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address before sending.');
+      Alert.alert(t.digestInvalidEmailTitle, t.digestInvalidEmailMsg);
       return;
     }
     setSending(true);
@@ -75,13 +83,13 @@ export default function DigestSettings() {
       setLastSent(new Date().toISOString());
       setTimeout(() => setJustSent(false), 4000);
     } else {
-      Alert.alert('Send Failed', result.error || 'Could not send the digest. Please try again.');
+      Alert.alert(t.digestSendFailedTitle, result.error || t.digestSendFailedMsg);
     }
   };
 
   const lastSentLabel = lastSent
     ? new Date(lastSent).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
-    : 'Never sent';
+    : t.neverSent;
 
   return (
     <View style={{
@@ -91,14 +99,14 @@ export default function DigestSettings() {
       borderColor: enabled ? (C.cyan || '#00D9FF') + '30' : (C.border || '#374151') + '20',
     }}>
       {/* Header row with toggle */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-        <Mail size={18} color={C.cyan || '#00D9FF'} style={{ marginRight: 8 }} />
+      <View style={{ flexDirection: rowDirection, alignItems: 'center', marginBottom: 12 }}>
+        <Mail size={18} color={C.cyan || '#00D9FF'} style={{ marginRight: isRtl ? 0 : 8, marginLeft: isRtl ? 8 : 0 }} />
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text }}>
-            Weekly Email Digest
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, textAlign }}>
+            {t.weeklyEmailDigest}
           </Text>
-          <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 1 }}>
-            Your progress summary, every Monday
+          <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 1, textAlign }}>
+            {t.progressSummaryEveryMonday}
           </Text>
         </View>
 
@@ -112,7 +120,7 @@ export default function DigestSettings() {
           }}
           onPress={() => toggleEnabled(!enabled)}
           accessibilityRole="switch"
-          accessibilityLabel={`Weekly digest ${enabled ? 'enabled' : 'disabled'}`}
+          accessibilityLabel={enabled ? t.weeklyDigestEnabledA11y : t.weeklyDigestDisabledA11y}
           accessibilityState={{ checked: enabled }}
         >
           <View style={{
@@ -124,8 +132,8 @@ export default function DigestSettings() {
       </View>
 
       {/* Email input — always shown, not just when enabled */}
-      <Text style={{ fontSize: scaledFont(11), fontWeight: '600', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>
-        EMAIL ADDRESS
+      <Text style={{ fontSize: scaledFont(11), fontWeight: '600', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6, textAlign }}>
+        {t.emailAddressLabel}
       </Text>
       <TextInput
         style={{
@@ -141,19 +149,20 @@ export default function DigestSettings() {
         onChangeText={setEmail}
         onBlur={saveEmail}
         keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        accessibilityLabel="Email address for weekly digest"
-      />
+          autoCapitalize="none"
+          autoCorrect={false}
+          accessibilityLabel={t.digestEmailA11y}
+          textAlign={isRtl ? 'right' : 'left'}
+        />
 
       {/* Last sent + send now row */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <Text style={{ flex: 1, fontSize: scaledFont(11), color: C.textMuted }}>
-          Last sent: {lastSentLabel}
+      <View style={{ flexDirection: rowDirection, alignItems: 'center', gap: 10 }}>
+        <Text style={{ flex: 1, fontSize: scaledFont(11), color: C.textMuted, textAlign }}>
+          {t.lastSent}: {lastSentLabel}
         </Text>
         <TouchableOpacity
           style={{
-            flexDirection: 'row', alignItems: 'center', gap: 6,
+            flexDirection: rowDirection, alignItems: 'center', gap: 6,
             backgroundColor: justSent
               ? (C.emerald || '#10B981') + '15'
               : (C.cyan || '#00D9FF') + '15',
@@ -168,7 +177,7 @@ export default function DigestSettings() {
           onPress={handleSendNow}
           disabled={sending}
           accessibilityRole="button"
-          accessibilityLabel={sending ? 'Sending digest' : 'Send weekly digest now'}
+          accessibilityLabel={sending ? t.digestSendingA11y : t.digestSendNowA11y}
           accessibilityState={{ busy: sending }}
         >
           {sending ? (
@@ -182,16 +191,15 @@ export default function DigestSettings() {
             fontSize: scaledFont(13), fontWeight: '700',
             color: justSent ? (C.emerald || '#10B981') : (C.cyan || '#00D9FF'),
           }}>
-            {sending ? 'Sending…' : justSent ? 'Sent!' : 'Send Now'}
+            {sending ? t.digestSending : justSent ? t.digestSent : t.sendNow}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Info blurb when enabled */}
       {enabled && (
-        <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 10, lineHeight: 16 }}>
-          You'll receive a summary every Monday with your scores, streak, XP, and top areas to improve.
-          To unsubscribe, toggle this off.
+        <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 10, lineHeight: 16, textAlign }}>
+          {t.digestEnabledBlurb}
         </Text>
       )}
     </View>

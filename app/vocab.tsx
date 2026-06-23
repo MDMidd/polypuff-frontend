@@ -50,6 +50,9 @@ import { recordModuleProgress } from '../services/progressService';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab, a11yButton } from '../utils/accessibility';
 import { getServerUrl } from '../services/api';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import { getAuthHeaders } from '../utils/auth';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -121,6 +124,7 @@ export default function VocabScreen() {
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
   const brandName = 'Poly-Puff';
   const router = useRouter();
+  const nudge = useFeedbackNudge('vocab');
 
   const [cards,          setCards]          = useState([]);
   const [currentIndex,   setCurrentIndex]   = useState(0);
@@ -194,7 +198,7 @@ export default function VocabScreen() {
 
     const shuffled = due.sort(() => Math.random() - 0.5).slice(0, 10);
     if (shuffled.length === 0) {
-      Alert.alert('All Caught Up!', 'No cards due for review. Try a new level or come back later.');
+      Alert.alert(t.alertAllCaughtUp, t.alertNoCardsDue);
       return;
     }
 
@@ -236,7 +240,7 @@ export default function VocabScreen() {
       const BASE = await getServerUrl();
       const res = await fetch(`${BASE}/api/vocab/word-data`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ word }),
       });
       if (res.ok) {
@@ -252,6 +256,7 @@ export default function VocabScreen() {
     const card = sessionCards[currentIndex];
     if (!card) return;
 
+    nudge.recordInteraction();
     if (correct) {
       hapticSuccess();
       card.box = Math.min(5, card.box + 1);
@@ -365,7 +370,7 @@ export default function VocabScreen() {
     <ScreenBackground style={null}>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -432,7 +437,7 @@ export default function VocabScreen() {
             onPress={startSession}
             accessibilityRole="button"
             accessibilityLabel={wt('vocab-start-review')}
-            accessibilityHint="Reviews flashcards due for study using spaced repetition"
+            accessibilityHint={t.accHintReviewFlashcardsSRS}
           >
             <Brain size={20} color="#fff" />
             <Text style={s.startText}>{wt('vocab-start-review')}</Text>
@@ -485,7 +490,7 @@ export default function VocabScreen() {
     <ScreenBackground style={null}>
               {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -550,7 +555,7 @@ export default function VocabScreen() {
                   activeOpacity={0.75}
                   accessibilityRole="button"
                   accessibilityLabel={`Reveal definition of ${currentCard.en}`}
-                  accessibilityHint="Double tap to flip the flashcard and see the definition"
+                  accessibilityHint={t.accHintFlipFlashcard}
                 >
                   <Text style={{ fontSize: scaledFont(14), fontWeight: '600', color: C.blueLight || '#60A5FA' }}>👆 {wt('vocab-tap-hint')}</Text>
                 </TouchableOpacity>
@@ -580,7 +585,7 @@ export default function VocabScreen() {
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     accessibilityRole="button"
                     accessibilityLabel={`Pronounce ${currentCard.en}`}
-                    accessibilityHint="Double tap to hear the pronunciation"
+                    accessibilityHint={t.accHintHearPronunciationSimple}
                   >
                     <Volume2 size={18} color={C.blueLight || '#60A5FA'} />
                   </TouchableOpacity>
@@ -692,6 +697,12 @@ export default function VocabScreen() {
             </>
           )}
         </ScrollView>
+        <FeedbackNudgeModal
+          visible={nudge.showModal}
+          exerciseName="vocab"
+          onDismiss={nudge.onDismiss}
+          onSent={nudge.onSent}
+        />
       </ScreenBackground>
     );
   }
@@ -747,6 +758,12 @@ export default function VocabScreen() {
             </TouchableOpacity>
           </View>
         </View>
+        <FeedbackNudgeModal
+          visible={nudge.showModal}
+          exerciseName="vocab"
+          onDismiss={nudge.onDismiss}
+          onSent={nudge.onSent}
+        />
       </ScreenBackground>
     );
   }

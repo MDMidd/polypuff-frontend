@@ -23,12 +23,12 @@
  *   POST /api/classroom/assign             — create assignment
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   ActivityIndicator, Alert, Modal, RefreshControl,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useFocusEffect } from 'expo-router';
 import {
   Users, TrendingUp, Award, Zap, Plus, X,
   BookOpen, Target, MessageSquare, ClipboardList,
@@ -69,7 +69,6 @@ const ASSIGNMENT_TYPES = [
 
 // ── Leaderboard row ───────────────────────────────────────────────────────────
 function LeaderRow({ student, rank, C, isCurrentUser }) {
-  const { t } = useLanguage();
   const medal = rank <= 3 ? MEDALS[rank - 1] : null;
   const rankColor = rank <= 3 ? RANK_COLORS[rank - 1] : C.textMuted;
 
@@ -95,7 +94,7 @@ function LeaderRow({ student, rank, C, isCurrentUser }) {
           </Text>
           {isCurrentUser && (
             <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '20', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
-              <Text style={{ fontSize: 9, fontWeight: '700', color: C.cyan || '#00D9FF' }}>{t.teacherGroupYouBadge ?? 'YOU'}</Text>
+              <Text style={{ fontSize: 9, fontWeight: '700', color: C.cyan || '#00D9FF' }}>YOU</Text>{/* mobile-only badge — no website key */}
             </View>
           )}
         </View>
@@ -189,7 +188,7 @@ function AssignmentCard({ assignment, C }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ClassroomDetailScreen() {
   const { colors: C } = useTheme();
-  const { t } = useLanguage();
+  const { wt } = useLanguage();
   const params = useLocalSearchParams();
 
   const code         = params.code as string || '';
@@ -209,7 +208,7 @@ export default function ClassroomDetailScreen() {
   const [assignType,   setAssignType]   = useState('translation');
   const [assignLoading,setAssignLoading]= useState(false);
 
-  useEffect(() => { fetchData(); }, [code]);
+  useFocusEffect(useCallback(() => { fetchData(); }, [code]));
 
   const fetchData = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
@@ -312,7 +311,7 @@ export default function ClassroomDetailScreen() {
             </Text>
           </View>
           <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '18', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: (C.cyan || '#00D9FF') + '30' }}>
-            <Text style={{ fontSize: 10, fontWeight: '700', color: C.textMuted, letterSpacing: 1 }}>{(t.teacherGroupCode ?? 'Code').toUpperCase()}</Text>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: C.textMuted, letterSpacing: 1 }}>{wt('code').toUpperCase()}</Text>
             <Text style={{ fontSize: scaledFont(18), fontWeight: '900', color: C.cyan || '#00D9FF', letterSpacing: 2 }}>{code}</Text>
           </View>
         </View>
@@ -372,9 +371,9 @@ export default function ClassroomDetailScreen() {
             {leaderboard.length === 0 ? (
               <View style={{ padding: 32, alignItems: 'center' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>🏆</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoStudents ?? 'No students yet'}</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-students')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  {t.teacherGroupShareCodeDesc ?? 'Share the group code with your students to get started.'} <Text style={{ fontWeight: '800', color: C.cyan || '#00D9FF' }}>{code}</Text>
+                  {wt('share-code-desc', { code })}
                 </Text>
               </View>
             ) : (
@@ -397,16 +396,16 @@ export default function ClassroomDetailScreen() {
             {weakAreas.length === 0 ? (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, padding: 32, alignItems: 'center', borderWidth: 1, borderColor: (C.border || '#374151') + '20' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>📊</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoData ?? 'No data yet'}</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-data')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  {t.teacherGroupWeakDesc ?? 'Weak areas will appear once students start submitting exercises.'}
+                  {wt('weak-desc')}
                 </Text>
               </View>
             ) : (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#EF444430' }}>
                 <View style={{ padding: 14, borderBottomWidth: 1, borderBottomColor: (C.border || '#374151') + '20' }}>
                   <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 17 }}>
-                    {t.teacherGroupWeakHelp ?? 'These are the most common error categories across the whole group — ranked by frequency. Use this to focus your teaching.'}
+                    {wt('weak-help')}
                   </Text>
                 </View>
                 {weakAreas.map((area, i) => (
@@ -439,18 +438,16 @@ export default function ClassroomDetailScreen() {
                 accessibilityRole="button" accessibilityLabel="Create new assignment"
               >
                 <Plus size={16} color="#FBBF24" />
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: '#FBBF24' }}>{t.teacherGroupCreateAssignment ?? 'Create Assignment'}</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: '#FBBF24' }}>{wt('create-assignment')}</Text>
               </TouchableOpacity>
             )}
 
             {assignments.length === 0 ? (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: (C.border || '#374151') + '20' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>📋</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoAssignments ?? 'No assignments yet'}</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-assignments')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  {isStudent
-                    ? (t.teacherGroupNoAssignmentsStudent ?? "Your teacher hasn't created any assignments yet.")
-                    : (t.teacherGroupNoAssignmentsTeacher ?? 'Create an assignment to set structured exercises for your teacher group.')}
+                  {isStudent ? wt('no-assignments-student') : wt('no-assignments-teacher')}
                 </Text>
               </View>
             ) : (
@@ -469,9 +466,9 @@ export default function ClassroomDetailScreen() {
             {recentSubs.length === 0 ? (
               <View style={{ padding: 28, alignItems: 'center' }}>
                 <Text style={{ fontSize: 32, marginBottom: 8 }}>⚡</Text>
-                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{t.teacherGroupNoActivity ?? 'No activity yet'}</Text>
+                <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-activity')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
-                  {t.teacherGroupNoActivityDesc ?? 'Student submissions will appear here in real time.'}
+                  {wt('no-activity-desc')}
                 </Text>
               </View>
             ) : (
@@ -516,7 +513,7 @@ export default function ClassroomDetailScreen() {
           padding: 24, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#FBBF2430',
         }} accessibilityViewIsModal={true}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{t.teacherGroupNewAssignment ?? 'New Assignment'}</Text>
+            <Text style={{ flex: 1, fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">{wt('new-assignment')}</Text>
             <TouchableOpacity onPress={() => setShowAssign(false)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
               accessibilityRole="button" accessibilityLabel="Close">
               <X size={22} color={C.textMuted} />
@@ -524,7 +521,7 @@ export default function ClassroomDetailScreen() {
           </View>
 
           {/* Type picker */}
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>{(t.teacherGroupExerciseType ?? 'Exercise type').toUpperCase()}</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>{wt('exercise-type').toUpperCase()}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {ASSIGNMENT_TYPES.map(type => (
@@ -549,14 +546,14 @@ export default function ClassroomDetailScreen() {
           </ScrollView>
 
           {/* Title input */}
-          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{(t.teacherGroupAssignmentTitle ?? 'Assignment title').toUpperCase()}</Text>
+          <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>{wt('assignment-title').toUpperCase()}</Text>
           <TextInput
             style={{
               backgroundColor: C.bg || '#0A0E1A', borderRadius: 10, padding: 14,
               fontSize: scaledFont(15), color: C.text, borderWidth: 1,
               borderColor: (C.border || '#374151') + '30', marginBottom: 20,
             }}
-            placeholder={t.teacherGroupAssignmentPlaceholder ?? 'e.g. Past tense practice - Business English'}
+            placeholder={wt('assignment-placeholder')}
             placeholderTextColor={C.textMuted}
             value={assignTitle}
             onChangeText={setAssignTitle}

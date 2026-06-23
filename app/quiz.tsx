@@ -27,13 +27,14 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert,
+  View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert, TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Brain, CheckCircle2, XCircle, ArrowRight, ArrowLeft, RotateCcw,
-  Award, Star, Zap, Target,
+  Award, Star, Zap, Target, BookOpen, ChevronRight, ChevronDown,
 } from 'lucide-react-native';
+import { pushVaults } from '../services/syncService';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -47,6 +48,8 @@ import DiscussWithPuff from '../components/DiscussWithPuff';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab, a11yButton } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 
 const QUIZ_LENGTH = 10;
 
@@ -156,6 +159,7 @@ export default function QuizScreen() {
     };
   }, []));
 
+  const nudge = useFeedbackNudge('quiz');
   const [mode, setMode] = useState('menu');
   const [questions, setQuestions] = useState([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -164,6 +168,39 @@ export default function QuizScreen() {
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [level, setLevel] = useState('B1');
+
+  const [showSave, setShowSave] = useState(false);
+  const [saveWord, setSaveWord] = useState('');
+
+  const saveWordToVault = async (word: string) => {
+    const w = word.trim();
+    if (!w) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const vault = raw ? JSON.parse(raw) : [];
+      if (vault.some(e => String(e.word || '').toLowerCase() === w.toLowerCase())) {
+        Alert.alert('Already Saved', `"${w}" is already in your Vocabulary Vault.`);
+        return;
+      }
+      const entry = {
+        word: w, definition: '', example: '',
+        meanings: [], category: 'Grammar Quiz', source: 'quiz',
+        addedAt: new Date().toISOString(), practiceCount: 0,
+      };
+      const updated = [...vault, entry].sort((a, b) =>
+        String(a.word || '').toLowerCase().localeCompare(String(b.word || '').toLowerCase())
+      );
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault', JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert('Saved!', `"${w}" added to Vocabulary Vault.`);
+    } catch {
+      Alert.alert('Error', 'Could not save to vault.');
+    }
+  };
 
   const startQuiz = () => {
     let pool = [...QUESTION_BANK];
@@ -184,6 +221,8 @@ export default function QuizScreen() {
     setShowAnswer(false);
     setScore(0);
     setAnswers([]);
+    setShowSave(false);
+    setSaveWord('');
     setMode('quiz');
     // ✅ NEW: Announce quiz start
     announce(`Quiz started. ${QUIZ_LENGTH} questions. Topic: ${prepared[0]?.topic || 'Grammar'}.`);
@@ -203,6 +242,7 @@ export default function QuizScreen() {
       hapticError();
     }
     setAnswers(prev => [...prev, { question: q, selected: idx, correct: isCorrect }]);
+    nudge.recordInteraction();
 
     // ✅ NEW: Announce result to screen reader
     announce(
@@ -307,7 +347,7 @@ export default function QuizScreen() {
       <ScreenBackground>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -383,6 +423,12 @@ export default function QuizScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="quiz"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
       </ScreenBackground>
     );
   }
@@ -396,7 +442,7 @@ export default function QuizScreen() {
       <ScreenBackground>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -531,6 +577,12 @@ export default function QuizScreen() {
           </>
         )}
       </ScrollView>
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="quiz"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
       </ScreenBackground>
     );
   }
@@ -546,7 +598,7 @@ export default function QuizScreen() {
       <ScreenBackground>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -584,6 +636,47 @@ export default function QuizScreen() {
           </View>
           <Text style={s.resultTitle}>{pct >= 90 ? '🏆 Excellent!' : pct >= 70 ? '⭐ Great Job!' : pct >= 50 ? '👍 Good Effort!' : '📚 Keep Learning!'}</Text>
           <Text style={s.resultSub}>{pct}% correct</Text>
+
+          {/* ── SAVE VOCAB ── */}
+          <View style={{ width: '100%', marginBottom: 12 }}>
+            <TouchableOpacity
+              onPress={() => setShowSave(v => !v)}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, backgroundColor: (C.cyan || '#00E5FF') + '10', borderRadius: 12, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '30', minHeight: 44 }}
+              accessibilityRole="button"
+              accessibilityLabel={showSave ? 'Close save word panel' : 'Save a word or phrase to your Vocabulary Vault'}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <BookOpen size={14} color={C.cyan || '#00E5FF'} />
+                <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.cyan || '#00E5FF' }}>Save a word to Vocabulary Vault</Text>
+              </View>
+              {showSave
+                ? <ChevronDown size={14} color={C.cyan || '#00E5FF'} />
+                : <ChevronRight size={14} color={C.cyan || '#00E5FF'} />}
+            </TouchableOpacity>
+
+            {showSave && (
+              <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                <TextInput
+                  style={{ flex: 1, backgroundColor: C.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: C.text, fontSize: scaledFont(13), borderWidth: 1, borderColor: (C.border || '#475569') + '40', minHeight: 44 }}
+                  placeholder="Word or expression"
+                  placeholderTextColor={C.textMuted}
+                  value={saveWord}
+                  onChangeText={setSaveWord}
+                  returnKeyType="done"
+                  onSubmitEditing={() => saveWordToVault(saveWord)}
+                  accessibilityLabel="Word to save to Vocabulary Vault"
+                />
+                <TouchableOpacity
+                  onPress={() => saveWordToVault(saveWord)}
+                  style={{ backgroundColor: (C.emerald || '#00E5A0') + '20', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '50', minHeight: 44, justifyContent: 'center' }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Save word to Vocabulary Vault"
+                >
+                  <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.emerald || '#00E5A0' }}>→ Vocab</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
 
           <DiscussWithPuff
             exerciseType="quiz"
@@ -650,6 +743,12 @@ export default function QuizScreen() {
           </View>
         )}
       </ScrollView>
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="quiz"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
       </ScreenBackground>
     );
   }

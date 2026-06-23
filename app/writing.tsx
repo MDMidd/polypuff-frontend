@@ -37,8 +37,9 @@ import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import {
   ArrowLeft, Send, CheckCircle, RotateCcw,
-  PenTool, ChevronRight, Star, BookOpen, AlertTriangle,
+  PenTool, ChevronRight, ChevronDown, Star, BookOpen, AlertTriangle,
 } from 'lucide-react-native';
+import { pushVaults } from '../services/syncService';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground } from '../components/PolyPuffUI';
@@ -50,6 +51,9 @@ import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import { getAuthHeaders } from '../utils/auth';
 
 // ── Prompt options ──────────────────────────────────────────────────────────
 const PROMPTS = [
@@ -87,8 +91,9 @@ function scoreLabel(score) {
 
 export default function WritingScreen() {
   const { colors: C } = useTheme();
-  const { wt } = useLanguage();
+  const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('writing');
   const ds = dynamicStyles(C);
 
   const [level, setLevel]               = useState('B1');
@@ -103,6 +108,10 @@ export default function WritingScreen() {
 
   const [sessionCount, setSessionCount] = useState(0);
   const [sessionScore, setSessionScore] = useState(0);
+
+  const [showSave, setShowSave]     = useState(false);
+  const [saveWord, setSaveWord]     = useState('');
+  const [savePhrase, setSavePhrase] = useState('');
 
   const resultAnim = useRef(new Animated.Value(0)).current;
 
@@ -137,7 +146,7 @@ export default function WritingScreen() {
 
   const handleSubmit = async () => {
     if (wordCount < 5) {
-      Alert.alert('Too Short', 'Please write at least 5 words before submitting.');
+      Alert.alert(t.alertTooShort, t.alertWriteAtLeast5Words);
       return;
     }
     setLoading(true);
@@ -148,7 +157,7 @@ export default function WritingScreen() {
       const BASE = await getServerUrl();
       const res = await fetch(`${BASE}/api/writing/check`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({
           text: text.trim(),
           prompt: prompt.id,
@@ -162,6 +171,7 @@ export default function WritingScreen() {
       if (!res.ok) throw new Error('Server error');
       const data = await res.json();
       setResult(data);
+      nudge.recordInteraction();
       setSessionCount(prev => prev + 1);
       setSessionScore(prev => prev + (data.score ?? 0));
 
@@ -210,10 +220,68 @@ export default function WritingScreen() {
     });
   };
 
+  const saveWordToVault = async (word: string) => {
+    const w = word.trim();
+    if (!w) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const vault = raw ? JSON.parse(raw) : [];
+      if (vault.some(e => String(e.word || '').toLowerCase() === w.toLowerCase())) {
+        Alert.alert(t.alertAlreadySaved, t.alertAlreadyInVocabVault.replace('{word}', w));
+        return;
+      }
+      const entry = {
+        word: w, definition: '', example: `(from Writing: ${prompt.desc})`,
+        meanings: [], category: 'Writing', source: 'writing',
+        addedAt: new Date().toISOString(), practiceCount: 0,
+      };
+      const updated = [...vault, entry].sort((a, b) =>
+        String(a.word || '').toLowerCase().localeCompare(String(b.word || '').toLowerCase())
+      );
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault', JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert(t.alertSavedExclaim, t.alertAddedToVocabVault.replace('{word}', w));
+    } catch (e) {
+      Alert.alert(t.alertError, t.alertCouldNotSaveVault);
+    }
+  };
+
+  const savePhraseToVault = async (phrase: string) => {
+    const p = phrase.trim();
+    if (!p) return;
+    try {
+      const raw = await AsyncStorage.getItem('pp_word_chunks_vault');
+      const vault = raw ? JSON.parse(raw) : [];
+      if (vault.some(e => String(e.text || '').toLowerCase() === p.toLowerCase())) {
+        Alert.alert(t.alertAlreadySaved, t.alertAlreadyInWordChunksVault.replace('{word}', p));
+        return;
+      }
+      const now = new Date().toISOString();
+      const entry = { id: `${p.toLowerCase()}|${now}`, text: p, date: now, category: 'Word Chunk', source: 'writing' };
+      const updated = [entry, ...vault].slice(0, 500);
+      await Promise.all([
+        AsyncStorage.setItem('pp_word_chunks_vault', JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_wordchunks_vault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSavePhrase('');
+      Alert.alert(t.alertSavedExclaim, t.alertSavedToWordChunksVault.replace('{word}', p));
+    } catch (e) {
+      Alert.alert(t.alertError, t.alertCouldNotSaveVault);
+    }
+  };
+
   const handleReset = () => {
     setText('');
     setResult(null);
     resultAnim.setValue(0);
+    setShowSave(false);
+    setSaveWord('');
+    setSavePhrase('');
   };
 
   const avgScore = sessionCount > 0 ? Math.round(sessionScore / sessionCount) : 0;
@@ -229,7 +297,7 @@ export default function WritingScreen() {
             style={[ds.backBtn, { zIndex: 120 }]}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t.goBack}
           >
             <ArrowLeft size={22} color={C.textMuted || '#6B7280'} />
           </TouchableOpacity>
@@ -240,7 +308,7 @@ export default function WritingScreen() {
               accessibilityLabel="Poly-Puff"
             />
             <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('writing').toUpperCase()}</Text>
-            <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>Write in English and get AI feedback on grammar, structure, and style.</Text>
+            <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>{t.writeInEnglishGetAIFeedback}</Text>
           </View>
           <View style={{ width: 44 }} />
         </View>
@@ -253,7 +321,7 @@ export default function WritingScreen() {
 
           {/* ✅ A11Y: Level pills with tablist */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', marginBottom: 12 }}
-            accessibilityRole="tablist" accessibilityLabel="Select CEFR level">
+            accessibilityRole="tablist" accessibilityLabel={t.accLabelSelectCefrLevel}>
             {LEVELS.map(l => (
               <TouchableOpacity
                 key={l}
@@ -285,9 +353,9 @@ export default function WritingScreen() {
           )}
 
           {/* ✅ A11Y: Prompt selector with tablist */}
-          <Text style={ds.sectionLabel} accessibilityRole="header">Choose a topic</Text>
+          <Text style={ds.sectionLabel} accessibilityRole="header">{t.chooseTopic}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}
-            accessibilityRole="tablist" accessibilityLabel="Select writing topic">
+            accessibilityRole="tablist" accessibilityLabel={t.accLabelSelectWritingTopic}>
             {PROMPTS.map(p => (
               <TouchableOpacity
                 key={p.id}
@@ -302,7 +370,7 @@ export default function WritingScreen() {
           </ScrollView>
 
           {/* ✅ A11Y: Length selector */}
-          <Text style={ds.sectionLabel} accessibilityRole="header">Target length</Text>
+          <Text style={ds.sectionLabel} accessibilityRole="header">{t.targetLength}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
             {WORD_TARGETS.map((t, i) => (
               <TouchableOpacity
@@ -343,7 +411,7 @@ export default function WritingScreen() {
                 autoCapitalize="sentences"
                 autoCorrect={false}
                 accessibilityLabel={`Writing area. Topic: ${prompt.desc}. Target: ${target.min} to ${target.max} words.`}
-                accessibilityHint="Write your English text here"
+                accessibilityHint={t.accHintWriteEnglishHere}
               />
 
               <View style={ds.writingActions}>
@@ -352,8 +420,8 @@ export default function WritingScreen() {
                   onPress={handleReset}
                   style={ds.clearBtn}
                   accessibilityRole="button"
-                  accessibilityLabel="Clear writing"
-                  accessibilityHint="Removes all text from the writing area"
+                  accessibilityLabel={t.accLabelClearWriting}
+                  accessibilityHint={t.accHintClearWritingArea}
                 >
                   <RotateCcw size={14} color={C.textMuted} />
                   <Text style={ds.clearText}>Clear</Text>
@@ -411,7 +479,7 @@ export default function WritingScreen() {
                 <View style={ds.correctionsBox}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     <AlertTriangle size={14} color={C.amber || '#FFBE0B'} />
-                    <Text style={ds.correctionsTitle} accessibilityRole="header">Grammar Notes</Text>
+                    <Text style={ds.correctionsTitle} accessibilityRole="header">{t.grammarNotes}</Text>
                   </View>
                   {result.corrections.map((c, i) => (
                     <View key={i} style={ds.correctionRow}>
@@ -431,11 +499,75 @@ export default function WritingScreen() {
                 <View style={ds.improvedBox} accessibilityLabel={`Improved version: ${result.improved}`}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     <CheckCircle size={14} color={C.emerald || '#00E5A0'} />
-                    <Text style={ds.improvedTitle} accessibilityRole="header">Improved Version</Text>
+                    <Text style={ds.improvedTitle} accessibilityRole="header">{t.improvedVersion}</Text>
                   </View>
                   <Text style={ds.improvedText}>{result.improved}</Text>
                 </View>
               )}
+
+              {/* ── SAVE LANGUAGE ── */}
+              <View style={{ width: '100%', marginBottom: 12 }}>
+                <TouchableOpacity
+                  onPress={() => setShowSave(v => !v)}
+                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, backgroundColor: (C.cyan || '#00E5FF') + '10', borderRadius: 12, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '30', minHeight: 44 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={showSave ? 'Close save language panel' : 'Save a word or phrase from this exercise to your vaults'}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <BookOpen size={14} color={C.cyan || '#00E5FF'} />
+                    <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.cyan || '#00E5FF' }}>{t.saveUsefulLanguage}</Text>
+                  </View>
+                  {showSave
+                    ? <ChevronDown size={14} color={C.cyan || '#00E5FF'} />
+                    : <ChevronRight size={14} color={C.cyan || '#00E5FF'} />}
+                </TouchableOpacity>
+
+                {showSave && (
+                  <View style={{ marginTop: 8, gap: 8 }}>
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                      <TextInput
+                        style={{ flex: 1, backgroundColor: C.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: C.text, fontSize: scaledFont(13), borderWidth: 1, borderColor: (C.border || '#475569') + '40', minHeight: 44 }}
+                        placeholder={t.wordOrExpression}
+                        placeholderTextColor={C.textMuted}
+                        value={saveWord}
+                        onChangeText={setSaveWord}
+                        returnKeyType="done"
+                        onSubmitEditing={() => saveWordToVault(saveWord)}
+                        accessibilityLabel={t.accLabelWordOrExpressionToSave}
+                      />
+                      <TouchableOpacity
+                        onPress={() => saveWordToVault(saveWord)}
+                        style={{ backgroundColor: (C.emerald || '#00E5A0') + '20', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '50', minHeight: 44, justifyContent: 'center' }}
+                        accessibilityRole="button"
+                        accessibilityLabel={t.accLabelSaveWordVocabVault}
+                      >
+                        <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.emerald || '#00E5A0' }}>→ Vocab</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                      <TextInput
+                        style={{ flex: 1, backgroundColor: C.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: C.text, fontSize: scaledFont(13), borderWidth: 1, borderColor: (C.border || '#475569') + '40', minHeight: 44 }}
+                        placeholder={t.usefulPhraseOrChunk}
+                        placeholderTextColor={C.textMuted}
+                        value={savePhrase}
+                        onChangeText={setSavePhrase}
+                        returnKeyType="done"
+                        onSubmitEditing={() => savePhraseToVault(savePhrase)}
+                        accessibilityLabel="Phrase to save to Word Chunks Vault"
+                      />
+                      <TouchableOpacity
+                        onPress={() => savePhraseToVault(savePhrase)}
+                        style={{ backgroundColor: (C.cyan || '#00E5FF') + '20', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '50', minHeight: 44, justifyContent: 'center' }}
+                        accessibilityRole="button"
+                        accessibilityLabel="Save phrase to Word Chunks Vault"
+                      >
+                        <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.cyan || '#00E5FF' }}>→ Chunks</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
 
               {/* DiscussWithPuff — already accessible */}
               <DiscussWithPuff
@@ -463,7 +595,12 @@ export default function WritingScreen() {
           <View style={{ height: 60 }} />
         </ScrollView>
       </KeyboardAvoidingView>
-
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="writing"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }
@@ -472,7 +609,7 @@ export default function WritingScreen() {
 function dynamicStyles(C) {
   return StyleSheet.create({
     scroll:        { padding: 20, paddingTop: 10, paddingBottom: 40 },
-    header:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 32, paddingBottom: 10, backgroundColor: 'rgba(2, 6, 18, 0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 },
+    header:        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 62, paddingBottom: 10, backgroundColor: 'rgba(2, 6, 18, 0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 },
     backBtn:       { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
     headerTitle:   { fontSize: scaledFont(20), fontWeight: '800', color: C.text },
     headerSub:     { fontSize: scaledFont(12), color: C.textMuted, marginTop: 1 },

@@ -30,7 +30,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getServerUrl } from '../services/api';
+import { recordModuleProgress } from '../services/progressService';
+import { pushVaults } from '../services/syncService';
+import { getAuthHeaders } from '../utils/auth';
 
 // ── Colour palette ────────────────────────────────────────────────────────────
 const BAND_COLOURS = {
@@ -325,6 +330,7 @@ export default function IELTSScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('ielts');
 
   const [testType, setTestType]           = useState('academic'); // 'academic' | 'general'
   const [activeTab, setActiveTab]         = useState('overview'); // overview | listening | reading | writing | speaking | practice | scores
@@ -337,6 +343,27 @@ export default function IELTSScreen() {
   const [practiceLoading, setPracticeLoading] = useState(false);
   const [practiceResult, setPracticeResult]   = useState(null);
   const [userBand, setUserBand]           = useState(null);
+  const [showVocabSave, setShowVocabSave] = useState(false);
+  const [saveWord,      setSaveWord]      = useState('');
+
+  const saveWordToVault = async (word: string) => {
+    const clean = word.trim();
+    if (!clean) return;
+    try {
+      const raw = await AsyncStorage.getItem('vocabVault');
+      const items = raw ? JSON.parse(raw) : [];
+      const exists = items.some((i: { word?: string }) => String(i.word || '').trim().toLowerCase() === clean.toLowerCase());
+      if (exists) { Alert.alert(t.alertAlreadySaved, t.alertAlreadyInVault.replace('{word}', clean)); return; }
+      const updated = [{ word: clean, date: new Date().toISOString(), source: 'ielts' }, ...items].slice(0, 500);
+      await Promise.all([
+        AsyncStorage.setItem('vocabVault',    JSON.stringify(updated)),
+        AsyncStorage.setItem('pp_vocabVault', JSON.stringify(updated)),
+      ]);
+      pushVaults();
+      setSaveWord('');
+      Alert.alert(t.alertSavedExclaim, t.alertAddedToVault.replace('{word}', clean));
+    } catch { Alert.alert(t.alertError, t.alertCouldNotSaveWord); }
+  };
 
   useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('userProfile').then(d => {
@@ -373,7 +400,7 @@ export default function IELTSScreen() {
 
   const submitPractice = async () => {
     if (!practiceInput.trim() || practiceInput.trim().length < 50) {
-      Alert.alert('Too Short', 'Please write at least 50 characters before submitting.');
+      Alert.alert(t.alertTooShort, t.alertWriteAtLeast50Chars);
       return;
     }
     setPracticeLoading(true);
@@ -381,7 +408,7 @@ export default function IELTSScreen() {
       const serverUrl = await getServerUrl();
       const resp = await fetch(serverUrl + '/api/ielts/check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({
           type: practiceType,
           prompt: practicePrompt,
@@ -391,8 +418,13 @@ export default function IELTSScreen() {
       });
       const data = await resp.json();
       setPracticeResult(data);
+      nudge.recordInteraction();
+      if (data?.overallBand != null) {
+        const pct = Math.round(Math.max(0, Math.min(100, (data.overallBand / 9) * 100)));
+        recordModuleProgress({ exerciseId: 'ielts', score: pct, detail: `Band ${data.overallBand}${data.grade ? ` — ${data.grade}` : ''}` }).catch(() => {});
+      }
     } catch (e) {
-      Alert.alert('Error', 'Could not submit. Check your connection.');
+      Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
     }
     setPracticeLoading(false);
   };
@@ -412,7 +444,7 @@ export default function IELTSScreen() {
       {/* Hero card */}
       <View style={{ backgroundColor: '#1a0d2e', borderRadius: 20, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: '#B06CFF40' }}>
         <Text style={{ fontSize: scaledFont(22), fontWeight: '900', color: '#fff', marginBottom: 4 }}>{wt('ielts-prep')}</Text>
-        <Text style={{ fontSize: scaledFont(13), color: '#B06CFF', fontWeight: '600', marginBottom: 12 }}>International English Language Testing System</Text>
+        <Text style={{ fontSize: scaledFont(13), color: '#B06CFF', fontWeight: '600', marginBottom: 12 }}>{t.intlEnglishLangTestSystem}</Text>
         <Text style={[S.bodyText, { color: '#ccc' }]}>
           {wt('module-desc-ielts-prep')}
         </Text>
@@ -443,7 +475,7 @@ export default function IELTSScreen() {
       </View>
 
       {/* Test type selector */}
-      <Text style={[S.label, { marginBottom: 8 }]}>Choose Your Test Type</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.chooseYourTestType}</Text>
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
         {Object.entries(TEST_TYPES).map(([key, t]) => (
           <TouchableOpacity
@@ -487,7 +519,7 @@ export default function IELTSScreen() {
       })()}
 
       {/* Test structure */}
-      <Text style={[S.label, { marginBottom: 8 }]}>Test Structure</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.testStructure}</Text>
       {[
         { section: 'Listening', time: '30 min + 10 min transfer', q: '40 questions', icon: '🎧', colour: '#00E5FF' },
         { section: 'Reading', time: '60 minutes', q: '40 questions', icon: '📖', colour: '#00E5A0' },
@@ -509,9 +541,9 @@ export default function IELTSScreen() {
       {/* How scores work */}
       <View style={[S.card, { marginTop: 4 }]}>
         <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>📊 How Scores Work</Text>
-        <Text style={S.bodyText}>Each section is scored 1–9. Your overall band score is the average of all four sections, rounded to the nearest 0.5.</Text>
+        <Text style={S.bodyText}>{t.eachSectionScored}</Text>
         <View style={{ backgroundColor: C.bg, borderRadius: 10, padding: 12, marginTop: 10 }}>
-          <Text style={[S.label, { marginBottom: 4 }]}>Example Calculation</Text>
+          <Text style={[S.label, { marginBottom: 4 }]}>{t.exampleCalculation}</Text>
           {[
             ['Listening', '7.5'], ['Reading', '6.5'], ['Writing', '6.0'], ['Speaking', '7.0'],
           ].map(([s, b]) => (
@@ -522,7 +554,7 @@ export default function IELTSScreen() {
           ))}
           <View style={{ height: 1, backgroundColor: C.border + '40', marginVertical: 8 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={[S.bodyText, { fontWeight: '700', color: C.text }]}>Overall Band Score</Text>
+            <Text style={[S.bodyText, { fontWeight: '700', color: C.text }]}>{t.overallBandScore}</Text>
             <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.emerald }}>6.5</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 4 }}>(7.5 + 6.5 + 6.0 + 7.0) ÷ 4 = 6.75 → rounded to 7.0</Text>
@@ -558,7 +590,7 @@ export default function IELTSScreen() {
         </View>
 
         {/* Parts */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Parts / Tasks</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.partsTasks}</Text>
         {(sec.parts || []).map((part, i) => (
           <TouchableOpacity
             key={i}
@@ -589,7 +621,7 @@ export default function IELTSScreen() {
         ))}
 
         {/* Question types */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Question Types</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.questionTypes}</Text>
         <View style={[S.card]}>
           {(sec.questionTypes || []).map((qt, i) => (
             <View key={i} style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
@@ -602,7 +634,7 @@ export default function IELTSScreen() {
         {/* Marking criteria for writing/speaking */}
         {sec.criteria && (
           <>
-            <Text style={[S.label, { marginBottom: 8 }]}>Marking Criteria</Text>
+            <Text style={[S.label, { marginBottom: 8 }]}>{t.markingCriteria}</Text>
             <View style={[S.card]}>
               {sec.criteria.map((c, i) => (
                 <View key={i} style={{ marginBottom: i < sec.criteria.length - 1 ? 12 : 0 }}>
@@ -620,7 +652,7 @@ export default function IELTSScreen() {
         )}
 
         {/* Top tips */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Top Tips</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.topTips}</Text>
         <View style={[S.card]}>
           {(sec.tips || []).map((tip, i) => (
             <View key={i} style={[S.tipBullet]}>
@@ -631,7 +663,7 @@ export default function IELTSScreen() {
         </View>
 
         {/* Band-specific tips */}
-        <Text style={[S.label, { marginBottom: 8 }]}>Tips by Target Band</Text>
+        <Text style={[S.label, { marginBottom: 8 }]}>{t.tipsByTargetBand}</Text>
         {Object.entries(sec.bandTips || {}).map(([range, tip]) => (
           <View key={range} style={{ flexDirection: 'row', gap: 10, backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: C.border + '20' }}>
             <View style={{ backgroundColor: sec.colour + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' }}>
@@ -767,7 +799,7 @@ export default function IELTSScreen() {
   const renderScores = () => (
     <View>
       {/* Band descriptors */}
-      <Text style={[S.label, { marginBottom: 8 }]}>Band Score Descriptors</Text>
+      <Text style={[S.label, { marginBottom: 8 }]}>{t.bandScoreDescriptors}</Text>
       {BANDS.map((b, i) => {
         const colour = BAND_COLOURS[b.band] || '#6b7280';
         return (
@@ -796,7 +828,7 @@ export default function IELTSScreen() {
       })}
 
       {/* Country requirements */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8 }]}>Score Requirements by Country / Purpose</Text>
+      <Text style={[S.label, { marginBottom: 8, marginTop: 8 }]}>{t.scoreReqsByCountry}</Text>
       <View style={[S.card]}>
         {SCORE_REQUIREMENTS.map((r, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: i < SCORE_REQUIREMENTS.length - 1 ? 10 : 0 }}>
@@ -934,7 +966,7 @@ export default function IELTSScreen() {
               {/* Criterion scores */}
               {practiceResult.criteria && (
                 <View style={[S.card]}>
-                  <Text style={[S.label, { marginBottom: 10 }]}>Breakdown by Criterion</Text>
+                  <Text style={[S.label, { marginBottom: 10 }]}>{t.breakdownByCriterion}</Text>
                   {practiceResult.criteria.map((c, i) => (
                     <View key={i} style={{ marginBottom: i < practiceResult.criteria.length - 1 ? 12 : 0 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -984,9 +1016,45 @@ export default function IELTSScreen() {
                 </View>
               )}
 
+              {/* Vocab save panel */}
+              <TouchableOpacity
+                style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4, borderColor: (C.blue || '#60A5FA') + '44', backgroundColor: (C.blue || '#60A5FA') + '10' }}
+                onPress={() => setShowVocabSave(v => !v)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={t.saveAWordToVault}
+              >
+                <BookOpen size={15} color={C.blue || '#60A5FA'} />
+                <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '600', color: C.blue || '#60A5FA' }}>{t.saveAWord}</Text>
+                <ChevronDown size={14} color={C.blue || '#60A5FA'} style={showVocabSave ? undefined : { transform: [{ rotate: '-90deg' }] }} />
+              </TouchableOpacity>
+              {showVocabSave && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, borderWidth: 1, padding: 8, marginBottom: 8, borderColor: (C.blue || '#60A5FA') + '25', backgroundColor: (C.blue || '#60A5FA') + '08' }}>
+                  <TextInput
+                    style={{ flex: 1, backgroundColor: C.bg, borderRadius: 8, padding: 10, fontSize: scaledFont(13), color: C.text, borderWidth: 1, borderColor: C.border + '30', minHeight: 40 }}
+                    placeholder={t.wordOrPhrase}
+                    placeholderTextColor={C.textMuted}
+                    value={saveWord}
+                    onChangeText={setSaveWord}
+                    returnKeyType="done"
+                    onSubmitEditing={() => saveWordToVault(saveWord)}
+                    accessibilityLabel={t.wordToSaveVocabAria}
+                  />
+                  <TouchableOpacity
+                    style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, minHeight: 40, justifyContent: 'center', backgroundColor: C.blue || '#60A5FA' }}
+                    onPress={() => saveWordToVault(saveWord)}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t.saveWordToVaultAria}
+                  >
+                    <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#fff' }}>→ Vocab</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               <TouchableOpacity
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
-                onPress={() => { setPracticeInput(''); setPracticeResult(null); }}
+                onPress={() => { setPracticeInput(''); setPracticeResult(null); setShowVocabSave(false); setSaveWord(''); }}
               >
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
@@ -1002,7 +1070,7 @@ export default function IELTSScreen() {
     <ScreenBackground style={null}>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -1029,7 +1097,7 @@ export default function IELTSScreen() {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 6 }}
-        style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}
+        style={{ flexGrow: 0, minHeight: 74, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}
       >
         {TABS.map(tab => {
           const Icon = tab.icon;
@@ -1054,7 +1122,7 @@ export default function IELTSScreen() {
           {TEST_TYPES[testType].icon} {TEST_TYPES[testType].label} Test
         </Text>
         <TouchableOpacity onPress={() => setTestType(testType === 'academic' ? 'general' : 'academic')}>
-          <Text style={{ fontSize: scaledFont(11), color: TEST_TYPES[testType].colour, fontWeight: '600' }}>Switch →</Text>
+          <Text style={{ fontSize: scaledFont(11), color: TEST_TYPES[testType].colour, fontWeight: '600' }}>{t.switchArrow}</Text>
         </TouchableOpacity>
       </View>
 
@@ -1069,6 +1137,12 @@ export default function IELTSScreen() {
       </ScrollView>
 
       {renderPracticeModal()}
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="ielts"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }

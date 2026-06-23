@@ -23,7 +23,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
-import { ArrowLeft } from 'lucide-react-native';
+import { useLanguage } from '../contexts/LanguageContext';
+import { isRtlLanguage } from '../utils/languages';
+import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { scaledFont } from '../utils/accessibility';
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -378,6 +380,9 @@ export function MascotHeader({ message, size = 150, style, onMessagePress }) {
 // ═══════════════════════════════════════════════════════════════════════
 export function BackHeader({ title, subtitle, onPress, rightElement, style }) {
   const { colors: C } = useTheme();
+  const { lang, t } = useLanguage();
+  const isRtl = isRtlLanguage(lang);
+  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   let router;
   try { router = require('expo-router').useRouter(); } catch (e) {}
 
@@ -387,8 +392,8 @@ export function BackHeader({ title, subtitle, onPress, rightElement, style }) {
 
   return (
     <View style={[{
-      flexDirection: 'row', alignItems: 'center',
-      paddingHorizontal: 20, paddingTop: 32, paddingBottom: 10, gap: 12,
+      flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center',
+      paddingHorizontal: 20, paddingTop: 62, paddingBottom: 10, gap: 12,
       backgroundColor: 'rgba(2, 6, 18, 0.85)',
       borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 50,
     }, style]}>
@@ -403,24 +408,24 @@ export function BackHeader({ title, subtitle, onPress, rightElement, style }) {
           alignItems: 'center', justifyContent: 'center',
         }}
         accessibilityRole="button"
-        accessibilityLabel="Go back"
-        accessibilityHint="Returns to the practice screen"
+        accessibilityLabel={t.goBack || 'Go back'}
+        accessibilityHint={t.back || 'Back'}
       >
-        <ArrowLeft size={22} color={C.text || '#FFFFFF'} />
+        <BackIcon size={22} color={C.text || '#FFFFFF'} />
       </TouchableOpacity>
 
       {(title || subtitle) ? (
         <View style={{ flex: 1 }}>
           {title ? (
             <Text
-              style={{ fontSize: scaledFont(20), fontWeight: '800', color: C.text || '#FFFFFF' }}
+              style={{ fontSize: scaledFont(20), fontWeight: '800', color: C.text || '#FFFFFF', textAlign: isRtl ? 'right' : 'left' }}
               accessibilityRole="header" // ✅ A11Y: marks as heading
             >
               {title}
             </Text>
           ) : null}
           {subtitle ? (
-            <Text style={{ fontSize: scaledFont(12), color: C.textMuted || '#9CA3AF', marginTop: 1 }}>
+            <Text style={{ fontSize: scaledFont(12), color: C.textMuted || '#9CA3AF', marginTop: 1, textAlign: isRtl ? 'right' : 'left' }}>
               {subtitle}
             </Text>
           ) : null}

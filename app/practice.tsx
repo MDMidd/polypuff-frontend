@@ -9,12 +9,12 @@
  * FILE: app/practice.tsx
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, Image, TouchableOpacity, ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   ClipboardCheck, BookOpen, Headphones, PenTool,
   Brain, Layers, Award, Puzzle, Pencil,
@@ -89,10 +89,10 @@ export default function PracticeHub() {
   const [additionalOpen, setAdditionalOpen] = useState(true);
   const [goalsOpen, setGoalsOpen] = useState(true);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('placementComplete').then(v => setPlacementDone(v === 'true')).catch(() => {});
     AsyncStorage.getItem('skillLevels').then(v => { if (v) setSkillLevels(JSON.parse(v)); }).catch(() => {});
-  }, []);
+  }, []));
 
   const getColor = (colorName: ModuleColor) => {
     const map = { cyan: C.cyan || '#00E5FF', purple: C.purple || '#B06CFF', pink: C.pink || '#FF6EB4',

@@ -280,7 +280,7 @@ export default function ChallengesScreen() {
       <ScreenBackground>
         {/* ── HEADER ── */}
         <View style={{ flexDirection: 'row', alignItems: 'center',
-          paddingTop: 32, paddingBottom: 10,
+          paddingTop: 62, paddingBottom: 10,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
           borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
           <TouchableOpacity
@@ -400,7 +400,7 @@ export default function ChallengesScreen() {
     <ScreenBackground>
       {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity

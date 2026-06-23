@@ -37,7 +37,9 @@ import {
   Animated,
   Dimensions,
   ScrollView,
+  Image,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SW, height: SH } = Dimensions.get('window');
@@ -91,6 +93,7 @@ const REGIONS = [
 ];
 
 export default function AgeGateScreen({ onComplete }) {
+  const insets = useSafeAreaInsets();
   const [step, setStep] = useState(1); // 1 = region, 2 = year
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
@@ -170,7 +173,7 @@ export default function AgeGateScreen({ onComplete }) {
       <View style={s.bgGlow} />
 
       <ScrollView
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={[s.scrollContent, { paddingTop: 20 + insets.top }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -179,9 +182,11 @@ export default function AgeGateScreen({ onComplete }) {
         >
           {/* ── Mascot ── */}
           <View style={s.mascotWrap}>
-            <View style={s.mascotPlaceholder}>
-              <Text style={s.mascotEmoji}>🐡</Text>
-            </View>
+            <Image
+              source={require('../assets/polypuff-transparent.png')}
+              style={s.mascotImage}
+              accessibilityIgnoresInvertColors
+            />
           </View>
 
           <Text style={s.title}>Welcome to Poly-Puff!</Text>
@@ -348,9 +353,8 @@ const s = StyleSheet.create({
   bgGlow: { position: 'absolute', top: -SH * 0.2, left: -SW * 0.3, width: SW * 1.6, height: SH * 0.6, borderRadius: SW, backgroundColor: C.cyanDark, opacity: 0.15 },
   scrollContent: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20, paddingBottom: 40 },
   content: { width: '100%', maxWidth: 440, backgroundColor: C.card + 'DD', borderRadius: 24, borderWidth: 1, borderColor: C.border, padding: 24, alignItems: 'center', shadowColor: C.cyan, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 8 },
-  mascotWrap: { marginBottom: 12 },
-  mascotPlaceholder: { width: 72, height: 72, borderRadius: 36, backgroundColor: C.purpleDark + '80', borderWidth: 2, borderColor: C.purple + '50', alignItems: 'center', justifyContent: 'center' },
-  mascotEmoji: { fontSize: 36 },
+  mascotWrap: { marginBottom: 12, alignItems: 'center' },
+  mascotImage: { width: 96, height: 96, resizeMode: 'contain' },
   title: { fontSize: 24, fontWeight: '700', color: C.text, marginBottom: 6, textAlign: 'center' },
   subtitle: { fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 21, marginBottom: 16, paddingHorizontal: 4 },
   infoBadge: { flexDirection: 'row', backgroundColor: C.cyanDark + '30', borderRadius: 12, borderWidth: 1, borderColor: C.cyan + '20', padding: 12, marginBottom: 20, alignItems: 'flex-start' },

@@ -370,7 +370,7 @@ export default function HelpScreen() {
           <FeatureCard C={C} icon={Settings} color="#FBBF24" title="Settings"
             text="Manage your practice list, backend URL, mascot, sound, haptics, streak reminders, weekly digest, offline cache, account data, and app info." />
           <FeatureCard C={C} icon={MessageCircle} color="#B06CFF" title="Feedback"
-            text="Use Feedback from the drawer to report bugs, request features, or send learning ideas directly to the developer." />
+            text={wt('help-feedback-feature-text')} />
           <FeatureCard C={C} icon={Award} color="#F472B6" title="Vouchers and access"
             text="If you receive a voucher code, redeem it on the Voucher Code screen to unlock the access tied to that code." />
         </Section>
@@ -387,6 +387,7 @@ export default function HelpScreen() {
             { emoji: '🧭', title: 'Make the hub yours', text: 'Hide modules you do not need and apply a bundle that matches your goal, such as exams, business, or vocabulary.' },
             { emoji: '✍️', title: 'Write more than minimum', text: 'In Writing exercises, longer answers with varied vocabulary score higher than short ones.' },
             { emoji: '🧩', title: 'Try every exercise type', text: 'Translation trains accuracy. Listening trains comprehension. Grammar trains rules. Use them all!' },
+            { emoji: '💡', title: wt('help-tip-nudge-title'), text: wt('help-tip-nudge-body') },
           ].map((t, i) => (
             <View key={i} style={st.tipCard}>
               <Text style={st.tipEmoji}>{t.emoji}</Text>
@@ -438,7 +439,10 @@ export default function HelpScreen() {
             a="Open Vocabulary Vault, tap export, and choose Word, CSV, or PDF. The export uses your saved words, definitions, examples, and practice data." />
           <FAQ C={C}
             q="How do I report a problem or suggest a feature?"
-            a="Tap your profile photo in the top-left, choose Feedback, then select bug report, feature request, or general feedback and send the details." />
+            a={wt('help-faq-report-a')} />
+          <FAQ C={C}
+            q={wt('help-faq-nudge-q')}
+            a={wt('help-faq-nudge-a')} />
         </Section>
 
         <View

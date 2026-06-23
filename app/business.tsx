@@ -39,10 +39,14 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
+import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
+import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getServerUrl } from '../services/api';
 import { hapticSuccess, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
+import { pushVaults } from '../services/syncService';
+import { getAuthHeaders } from '../utils/auth';
 
 // ── Domain definitions ────────────────────────────────────────────────────────
 const DOMAINS = [
@@ -319,6 +323,7 @@ export default function BusinessScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const nudge = useFeedbackNudge('business');
 
   const [activeTab,       setActiveTab]       = useState('home');
   const [activeDomain,    setActiveDomain]    = useState(null);
@@ -412,7 +417,7 @@ export default function BusinessScreen() {
       const serverUrl = await getServerUrl();
       const resp = await fetch(serverUrl + '/api/business/daily-phrase', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ date: new Date().toDateString() }),
       });
       const data = await resp.json();
@@ -438,7 +443,7 @@ export default function BusinessScreen() {
       const serverUrl = await getServerUrl();
       const resp = await fetch(serverUrl + '/api/business/exercise', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ domain: domain.id, exerciseType: exType }),
       });
       const data = await resp.json();
@@ -459,7 +464,7 @@ export default function BusinessScreen() {
       const serverUrl = await getServerUrl();
       const resp = await fetch(serverUrl + '/api/business/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({
           domain: activeDomain?.id,
           exerciseType: selectedExType,
@@ -470,6 +475,7 @@ export default function BusinessScreen() {
       });
       const data = await resp.json();
       setFeedback(data);
+      nudge.recordInteraction();
       hapticSuccess();
       // ── Record to My Progress ──────────────────────────────────────────
       if (data.score !== undefined && activeDomain) {
@@ -958,11 +964,19 @@ export default function BusinessScreen() {
                 try {
                   const raw = await AsyncStorage.getItem('vocabVault');
                   const vault = raw ? JSON.parse(raw) : [];
-                  if (vault.some(e => e.word === v.word)) return;
+                  if (vault.some(e => e.word === v.word)) {
+                    Alert.alert('Already Saved', `"${v.word}" is already in your Vocabulary Vault.`);
+                    return;
+                  }
                   vault.push({ word: v.word, definition: v.def, example: v.example,
                     meanings: [{ definition: v.def, example: v.example }],
                     category: 'Business', source: 'business', addedAt: new Date().toISOString(), practiceCount: 0 });
-                  await AsyncStorage.setItem('vocabVault', JSON.stringify(vault));
+                  await Promise.all([
+                    AsyncStorage.setItem('vocabVault', JSON.stringify(vault)),
+                    AsyncStorage.setItem('pp_vocabVault', JSON.stringify(vault)),
+                  ]);
+                  pushVaults();
+                  Alert.alert('Saved!', `"${v.word}" added to Vocabulary Vault.`);
                 } catch (_) {}
               }}
               style={{ padding: 6 }}
@@ -988,7 +1002,7 @@ export default function BusinessScreen() {
     <ScreenBackground style={null}>
             {/* ── HEADER ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center',
-        paddingTop: 32, paddingBottom: 10,
+        paddingTop: 62, paddingBottom: 10,
         backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.04)', zIndex: 110 }}>
         <TouchableOpacity
@@ -1036,6 +1050,12 @@ export default function BusinessScreen() {
         {activeTab === 'domain' && (domain ? renderDomain() : renderHome())}
         {activeTab === 'vocab'  && renderVocab()}
       </ScrollView>
+      <FeedbackNudgeModal
+        visible={nudge.showModal}
+        exerciseName="business"
+        onDismiss={nudge.onDismiss}
+        onSent={nudge.onSent}
+      />
     </ScreenBackground>
   );
 }

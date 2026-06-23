@@ -1,8 +1,54 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getServerUrl } from './api';
 
 const RECENT_LIMIT = 30;
 const FEEDBACK_LIMIT = 50;
 const WEAK_LIMIT = 20;
+
+// Maps mobile exerciseId values to the topic labels the backend/classroom UI expects.
+// Mirrors the PROGRESS_SOURCES topic list in classroom-progress-bridge.js (web).
+const TOPIC_LABELS = {
+  daily_challenge:  'Daily Challenge',
+  grammar:          'Grammar Practice',
+  listening:        'Listening',
+  writing:          'Writing',
+  grammar_quiz:     'Grammar Quiz',
+  word_chunks:      'Word Chunks',
+  vocabulary:       'Vocabulary',
+  placement_test:   'Placement Test',
+  business_english: 'Business English',
+  cae:              'CAE Exam Prep',
+  ielts:            'IELTS Exam Prep',
+  toefl:            'TOEFL Exam Prep',
+};
+
+async function submitToClassroom(exerciseId, score, weakAreas) {
+  try {
+    const raw = await AsyncStorage.getItem('classroomJoined');
+    if (!raw) return;
+    const joined = JSON.parse(raw);
+    if (!joined?.code || !joined?.studentName) return;
+
+    const BASE = await getServerUrl();
+    const topic = TOPIC_LABELS[exerciseId] || exerciseId;
+    const mistakes = Array.isArray(weakAreas)
+      ? weakAreas.map(a => String(a?.category || a || '')).filter(Boolean)
+      : [];
+
+    await fetch(`${BASE}/api/classroom/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code:        joined.code,
+        studentName: joined.studentName,
+        score:       Number(score || 0),
+        xp:          0,
+        topic,
+        mistakes,
+      }),
+    });
+  } catch {}
+}
 
 export const recordModuleProgress = async ({
   exerciseId,
@@ -56,5 +102,8 @@ export const recordModuleProgress = async ({
       weak.sort((a, b) => (b.frequency || 0) - (a.frequency || 0));
       await AsyncStorage.setItem(weakKey, JSON.stringify(weak.slice(0, weakLimit)));
     }
+
+    // Push to classroom if this student has joined a teacher group.
+    submitToClassroom(exerciseId, score, weakAreas);
   } catch (e) {}
 };

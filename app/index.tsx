@@ -18,7 +18,7 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import type { Translations, LangCode } from '../contexts/translations';
+import type { Translations } from '../contexts/translations';
 import { ScreenBackground } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import StreakBanner from '../components/StreakBanner';
@@ -26,6 +26,7 @@ import LanguageSelector from '../components/LanguageSelector';
 import { scaledFont } from '../utils/accessibility';
 import { recordPracticeToday } from '../services/notifications';
 import { isRtlLanguage } from '../utils/languages';
+import { getPracticeTranslations } from '../utils/practiceTranslations';
 
 type MenuColor = 'cyan' | 'purple' | 'emerald' | 'amber' | 'pink';
 
@@ -39,14 +40,6 @@ type MenuItem = {
   route: Href;
   icon: MenuIcon;
   color: MenuColor;
-};
-
-const SECTION_LABELS: Partial<Record<LangCode, Record<'main' | 'additional' | 'goals', string>>> = {
-  ar: { main: 'التمرين الرئيسي', additional: 'تمارين إضافية', goals: 'الأهداف' },
-  fa: { main: 'تمرین اصلی', additional: 'تمرین‌های بیشتر', goals: 'اهداف' },
-  he: { main: 'תרגול ראשי', additional: 'תרגולים נוספים', goals: 'מטרות' },
-  ps: { main: 'اصلي تمرین', additional: 'نور تمرینونه', goals: 'موخې' },
-  ur: { main: 'مرکزی مشق', additional: 'اضافی مشقیں', goals: 'اہداف' },
 };
 
 const MAIN_EXERCISE: MenuItem = {
@@ -73,7 +66,8 @@ const ADDITIONAL_EXERCISES: MenuItem[] = [
 ];
 
 const GOAL_EXERCISES: MenuItem[] = [
-  { id: 'challenges', label: 'Daily Challenge', labelKey: 'daily-challenge', mobileKey: 'dailyChallenges', route: '/challenges', icon: Star, color: 'amber' },
+  { id: 'daily', label: 'Daily Challenge', labelKey: 'daily-challenge', mobileKey: 'dailyChallenges', route: '/daily', icon: Star, color: 'amber' },
+  { id: 'challenges', label: 'Challenge Mode', labelKey: 'challenge-mode', route: '/challenges', icon: Target, color: 'purple' },
   { id: 'placement', label: 'Placement Test', labelKey: 'placement-test', mobileKey: 'placementTest', route: '/placement', icon: ClipboardCheck, color: 'cyan' },
   { id: 'business', label: 'Business English', labelKey: 'business-english', mobileKey: 'businessEnglish', route: '/business', icon: Briefcase, color: 'amber' },
   { id: 'ielts', label: 'IELTS', labelKey: 'ielts', route: '/ielts', icon: GraduationCap, color: 'cyan' },
@@ -83,8 +77,9 @@ const GOAL_EXERCISES: MenuItem[] = [
 
 export default function PracticeHub() {
   const { colors: C } = useTheme();
-  const { t, wt, lang } = useLanguage();
+  const { wt, lang } = useLanguage();
   const router = useRouter();
+  const practiceT = getPracticeTranslations(lang);
   const isRTL = isRtlLanguage(lang);
   const rowDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
@@ -121,15 +116,13 @@ export default function PracticeHub() {
     return value && value !== key ? value : fallback;
   };
 
-  const sectionText = (section: 'main' | 'additional' | 'goals', key: string, fallback: string) =>
-    SECTION_LABELS[lang]?.[section] || webText(key, fallback);
+  const sectionText = (section: 'main' | 'additional' | 'goals') => practiceT.sections[section];
 
   const renderMenuItem = (item: MenuItem, variant: 'standard' | 'primary' = 'standard') => {
     const Icon = item.icon;
     const color = getColor(item.color);
     const isPrimary = variant === 'primary';
-    const translatedMobileLabel = item.mobileKey ? t[item.mobileKey] : undefined;
-    const label = translatedMobileLabel || webText(item.labelKey, item.label);
+    const label = practiceT.modules[item.id] || webText(item.labelKey, item.label);
 
     return (
       <TouchableOpacity
@@ -220,7 +213,7 @@ export default function PracticeHub() {
           accessibilityRole="header"
           accessibilityLabel="Poly-Puff"
         />
-        <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('practice').toUpperCase()}</Text>
+        <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{practiceT.practice.toUpperCase()}</Text>
         <View style={{ width: 52 }} />
         <LanguageSelector style={[s.languageSelector, isRTL && s.languageSelectorRtl]} />
       </View>
@@ -233,12 +226,12 @@ export default function PracticeHub() {
         {/* ── GREETING ── */}
         <View style={s.greetingRow}>
           <Text style={[s.greeting, { color: C.text, textAlign }]}>
-            {userName ? `${t.hi ?? 'Hi'}, ${userName}!` : (t.welcome ?? 'Welcome!')}
+            {userName ? `${practiceT.hi}, ${userName}!` : practiceT.welcome}
           </Text>
           <Text style={[s.greetingSub, { color: C.textMuted, textAlign }]}>
             {!placementDone
-              ? (t.takePlacementTest ?? '⭐ Take the Placement Test to find your level!')
-              : (t.chooseModule ?? '📚 Choose a module to practise!')}
+              ? `⭐ ${practiceT.takePlacementTest}`
+              : `📚 ${practiceT.chooseModule}`}
           </Text>
         </View>
 
@@ -249,9 +242,9 @@ export default function PracticeHub() {
               <View
                 key={skill}
                 style={[s.badge, { backgroundColor: (C.cyan || '#00E5FF') + '15', borderColor: (C.cyan || '#00E5FF') + '30' }]}
-                accessibilityLabel={`${skill}: level ${lvl}`}
+                accessibilityLabel={`${practiceT.skills[skill] ?? skill}: ${practiceT.levelLabel} ${lvl}`}
               >
-                <Text style={[s.badgeLabel, { color: C.textMuted }]}>{skill}</Text>
+                <Text style={[s.badgeLabel, { color: C.textMuted }]}>{practiceT.skills[skill] ?? skill}</Text>
                 <Text style={[s.badgeLevel, { color: C.cyan || '#00E5FF' }]}>{lvl}</Text>
               </View>
             ))}
@@ -261,13 +254,13 @@ export default function PracticeHub() {
         {/* ── WEBSITE-SYNCED EXERCISE MENU ── */}
         <View style={{ gap: 10, marginBottom: 10 }}>
           <Text style={{ fontSize: scaledFont(11), fontWeight: '900', color: C.textMuted, letterSpacing: 1, textAlign, marginLeft: isRTL ? 0 : 6, marginRight: isRTL ? 6 : 0 }}>
-            {sectionText('main', 'main-exercise', 'Main Exercise').toUpperCase()}
+            {sectionText('main').toUpperCase()}
           </Text>
           {renderMenuItem(MAIN_EXERCISE, 'primary')}
 
           {renderSectionHeader(
             'additional-exercises',
-            sectionText('additional', 'additional-exercises', 'Additional Exercises'),
+            sectionText('additional'),
             Wrench,
             getColor('amber'),
             additionalOpen,
@@ -281,7 +274,7 @@ export default function PracticeHub() {
 
           {renderSectionHeader(
             'goals',
-            sectionText('goals', 'goals', 'Goals'),
+            sectionText('goals'),
             Target,
             getColor('pink'),
             goalsOpen,
@@ -299,11 +292,11 @@ export default function PracticeHub() {
           style={{ flexDirection: rowDirection, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4, borderRadius: 14, backgroundColor: (C.emerald || '#00E5A0') + '10', borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '25' }}
           onPress={() => router.push('/customise')}
           accessibilityRole="button"
-          accessibilityLabel={t.customisePracticeList ?? 'Customise Practice List'}
+          accessibilityLabel={practiceT.customisePracticeList}
         >
           <Settings size={16} color={C.emerald || '#00E5A0'} />
           <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.emerald || '#00E5A0', textAlign }}>
-            {t.customisePracticeList ?? 'Customise Practice List'}
+            {practiceT.customisePracticeList}
           </Text>
           <DirectionChevron size={14} color={C.emerald || '#00E5A0'} />
         </TouchableOpacity>

@@ -79,12 +79,12 @@ export const checkHealth = async () => {
 /**
  * Generate a translation exercise.
  */
-export const generateExercise = async ({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, profile, weakAreas }) => {
+export const generateExercise = async ({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, masteredSentences, profile, weakAreas }) => {
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, profile, weakAreas }),
+    body: JSON.stringify({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, masteredSentences, profile, weakAreas }),
   });
   if (!res.ok) throw new Error('Server error');
   return res.json();
