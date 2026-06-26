@@ -1,9 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getServerUrl } from './api';
+import { pushVaults } from './syncService';
 
 const RECENT_LIMIT = 30;
 const FEEDBACK_LIMIT = 50;
 const WEAK_LIMIT = 20;
+
+function mintProgressId() {
+  return 'pg-m-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
 
 // Maps mobile exerciseId values to the topic labels the backend/classroom UI expects.
 // Mirrors the PROGRESS_SOURCES topic list in classroom-progress-bridge.js (web).
@@ -64,18 +69,19 @@ export const recordModuleProgress = async ({
 
   try {
     const now = new Date().toISOString();
+    const id = mintProgressId();
 
     const recentKey = `progress_recent_${exerciseId}`;
     const recentRaw = await AsyncStorage.getItem(recentKey);
     const recent = recentRaw ? JSON.parse(recentRaw) : [];
-    recent.unshift({ date: now, score, detail });
+    recent.unshift({ id, date: now, score, detail });
     await AsyncStorage.setItem(recentKey, JSON.stringify(recent.slice(0, recentLimit)));
 
     if (feedback) {
       const feedbackKey = `progress_feedback_${exerciseId}`;
       const feedbackRaw = await AsyncStorage.getItem(feedbackKey);
       const feedbackList = feedbackRaw ? JSON.parse(feedbackRaw) : [];
-      feedbackList.unshift({ date: now, feedback: String(feedback).substring(0, 200) });
+      feedbackList.unshift({ id, date: now, feedback: String(feedback).substring(0, 200) });
       await AsyncStorage.setItem(feedbackKey, JSON.stringify(feedbackList.slice(0, feedbackLimit)));
     }
 
@@ -90,11 +96,17 @@ export const recordModuleProgress = async ({
         if (existing) {
           existing.frequency = (existing.frequency || 1) + (area?.frequency || 1);
           if (area?.description) existing.description = area.description;
+          if (area?.ruleId || area?.rule_id) existing.ruleId = area.ruleId || area.rule_id;
+          if (area?.found) existing.found = area.found;
+          if (area?.expected) existing.expected = area.expected;
         } else {
           weak.push({
             category,
             description: area?.description || '',
             frequency: area?.frequency || 1,
+            ruleId: area?.ruleId || area?.rule_id || null,
+            found: area?.found || '',
+            expected: area?.expected || '',
           });
         }
       }
@@ -105,5 +117,7 @@ export const recordModuleProgress = async ({
 
     // Push to classroom if this student has joined a teacher group.
     submitToClassroom(exerciseId, score, weakAreas);
+    // Push to cross-device sync (debounced inside syncService).
+    pushVaults();
   } catch (e) {}
 };

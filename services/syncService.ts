@@ -1,17 +1,23 @@
 /**
- * syncService.ts — Poly-Puff mobile vault sync
+ * syncService.ts — Poly-Puff mobile vault + progress sync
  *
  * Mobile counterpart to sync-client.js (website).
- * Pulls vault data from /api/sync, merges with AsyncStorage, writes back
- * locally, then pushes the merged result to the server.
+ * Pulls vault + progress data from /api/sync, merges with AsyncStorage,
+ * writes back locally, then pushes the merged result to the server.
  *
  * Vault key mapping (AsyncStorage → sync blob slot):
  *   vocabVault           → vocab
  *   pp_word_chunks_vault → wordchunks
  *   pp_grammar_vault     → grammar
  *
- * On pull, also writes the web canonical key (pp_vocabVault) so a user
- * who shares a device with the web app sees consistent data.
+ * Progress key mapping (one per canonical exercise id):
+ *   progress_recent_<id>   → progress[id].recent
+ *   progress_feedback_<id> → progress[id].feedback
+ *
+ * Canonical exercise IDs are defined here and must match
+ * sync-client.js (web) — the web side translates its short-form keys
+ * (daily, quiz, vocab) to canonical (daily_challenge, grammar_quiz,
+ * vocabulary). Mobile uses canonical natively.
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,7 +25,6 @@ import { getServerUrl } from './api';
 import { pullProfile } from './profileService';
 
 // ─── Vault key config ──────────────────────────────────────────────────────
-// keys[0] is the primary read/write key; rest are written-but-secondary aliases.
 const VAULT_KEYS: Record<string, string[]> = {
   vocab:      ['vocabVault', 'pp_vocabVault'],
   wordchunks: ['pp_word_chunks_vault', 'pp_wordchunks_vault'],
@@ -28,11 +33,34 @@ const VAULT_KEYS: Record<string, string[]> = {
 const VAULT_TYPES = ['vocab', 'wordchunks', 'grammar'] as const;
 type VaultType = typeof VAULT_TYPES[number];
 
+// ─── Progress key config ───────────────────────────────────────────────────
+// Canonical IDs match sync-client.js PROGRESS_EXERCISES on the web side.
+export const PROGRESS_EXERCISE_IDS = [
+  'translation_trainer',
+  'grammar',
+  'writing',
+  'listening',
+  'word_chunks',
+  'daily_challenge',
+  'grammar_quiz',
+  'vocabulary',
+  'business_english',
+  'cae',
+  'ielts',
+  'toefl',
+  'placement_test',
+] as const;
+type ExerciseId = typeof PROGRESS_EXERCISE_IDS[number];
+
+const PROGRESS_CAPS = { recent: 100, feedback: 100 };
+
 const VERSION_KEY = 'pp_sync_version';
 const CAP = 500;
+const PUSH_DEBOUNCE_MS = 3000;
 
-// ─── Shared in-flight guard ────────────────────────────────────────────────
+// ─── Shared in-flight guard + push debounce ────────────────────────────────
 let inFlight = false;
+let pushTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ─── Auth helpers ──────────────────────────────────────────────────────────
 async function getToken(): Promise<string> {
@@ -92,7 +120,14 @@ async function pushToServer(
 // ─── Types ─────────────────────────────────────────────────────────────────
 type VaultItem = Record<string, unknown>;
 type DailyStats = { streak?: number; bestStreak?: number; totalCompleted?: number; bestScore?: number; lastCompleted?: string; [key: string]: unknown };
-type SyncBlob = { vault: Record<string, VaultItem[]>; daily?: DailyStats | null };
+type ProgressRow = { id?: string; date?: string; score?: number; detail?: string; feedback?: string; [key: string]: unknown };
+type ProgressSection = { recent?: ProgressRow[]; feedback?: ProgressRow[] };
+type ProgressMap = Partial<Record<ExerciseId, ProgressSection>>;
+type SyncBlob = {
+  vault: Record<string, VaultItem[]>;
+  daily?: DailyStats | null;
+  progress?: ProgressMap;
+};
 type PushResponse = { version?: number; data?: SyncBlob; [key: string]: unknown };
 
 // ─── Merge logic (mirrors sync-client.js) ─────────────────────────────────
@@ -109,13 +144,12 @@ function dedupeKey(type: string, item: VaultItem): string | null {
   return text ? `tx:${text}` : null;
 }
 
-function itemDate(item: VaultItem): number {
+function itemDate(item: VaultItem | ProgressRow): number {
   return new Date(String(item.date || item.addedAt || 0)).getTime() || 0;
 }
 
 function mergeOne(type: string, localArr: VaultItem[], serverArr: VaultItem[]): VaultItem[] {
   const map = new Map<string, VaultItem>();
-  // Server first so local fields overlay server fields when keys collide.
   [serverArr, localArr].forEach((arr) => {
     (Array.isArray(arr) ? arr : []).forEach((item) => {
       const k = dedupeKey(type, item);
@@ -151,6 +185,69 @@ function mergeDaily(local: DailyStats | null, server: DailyStats | null): DailyS
   };
 }
 
+// Deterministic id for legacy progress rows missing an `id` field.
+// Mirrors the algorithm in sync-client.js (web).
+function progressIdFor(item: ProgressRow): string {
+  const basis =
+    (item.date || '') + '|' +
+    (item.score == null ? '' : item.score) + '|' +
+    String(item.detail || item.feedback || '').slice(0, 80);
+  let h = 0;
+  for (let i = 0; i < basis.length; i++) {
+    h = ((h << 5) - h + basis.charCodeAt(i)) | 0;
+  }
+  return 'pg-legacy-' + (h >>> 0).toString(36);
+}
+
+function mergeProgressList(
+  localArr: ProgressRow[],
+  serverArr: ProgressRow[],
+  cap: number,
+): ProgressRow[] {
+  const map = new Map<string, ProgressRow>();
+  [serverArr, localArr].forEach((arr) => {
+    (Array.isArray(arr) ? arr : []).forEach((item) => {
+      if (!item || typeof item !== 'object') return;
+      const id = String(item.id || progressIdFor(item));
+      const key = 'id:' + id;
+      const prev = map.get(key);
+      if (!prev) {
+        map.set(key, item.id ? item : { ...item, id });
+        return;
+      }
+      const winner = itemDate(item) >= itemDate(prev) ? item : prev;
+      const loser  = winner === item ? prev : item;
+      const merged: ProgressRow = { ...loser, ...winner };
+      Object.keys(loser).forEach((key2) => {
+        if (merged[key2] === undefined || merged[key2] === null || merged[key2] === '') {
+          merged[key2] = loser[key2];
+        }
+      });
+      if (!merged.id) merged.id = id;
+      map.set(key, merged);
+    });
+  });
+  return Array.from(map.values())
+    .sort((a, b) => itemDate(b) - itemDate(a))
+    .slice(0, cap);
+}
+
+function mergeProgress(local: ProgressMap | undefined, server: ProgressMap | undefined): ProgressMap {
+  const out: ProgressMap = {};
+  const l = local || {};
+  const s = server || {};
+  PROGRESS_EXERCISE_IDS.forEach((id) => {
+    const ls = l[id] || {};
+    const ss = s[id] || {};
+    const rec = mergeProgressList(ls.recent || [], ss.recent || [], PROGRESS_CAPS.recent);
+    const fb  = mergeProgressList(ls.feedback || [], ss.feedback || [], PROGRESS_CAPS.feedback);
+    if (rec.length || fb.length) {
+      out[id] = { recent: rec, feedback: fb };
+    }
+  });
+  return out;
+}
+
 function mergeAll(localData: SyncBlob, serverData: Partial<SyncBlob>): SyncBlob {
   const localVault = (localData && localData.vault) || {};
   const serverVault = (serverData && serverData.vault) || {};
@@ -163,10 +260,33 @@ function mergeAll(localData: SyncBlob, serverData: Partial<SyncBlob>): SyncBlob 
     );
   });
   out.daily = mergeDaily(localData?.daily || null, serverData?.daily || null);
+  out.progress = mergeProgress(localData?.progress, serverData?.progress);
   return out;
 }
 
 // ─── Local read/write ──────────────────────────────────────────────────────
+async function readLocalProgress(): Promise<ProgressMap> {
+  const out: ProgressMap = {};
+  await Promise.all(
+    PROGRESS_EXERCISE_IDS.map(async (id) => {
+      try {
+        const [rawRecent, rawFeedback] = await Promise.all([
+          AsyncStorage.getItem(`progress_recent_${id}`),
+          AsyncStorage.getItem(`progress_feedback_${id}`),
+        ]);
+        const recent = rawRecent ? JSON.parse(rawRecent) : [];
+        const feedback = rawFeedback ? JSON.parse(rawFeedback) : [];
+        const rec = Array.isArray(recent) ? recent : [];
+        const fb = Array.isArray(feedback) ? feedback : [];
+        if (rec.length || fb.length) {
+          out[id] = { recent: rec, feedback: fb };
+        }
+      } catch {}
+    }),
+  );
+  return out;
+}
+
 async function readLocal(): Promise<SyncBlob> {
   const vault: Record<string, VaultItem[]> = {};
   await Promise.all(
@@ -186,7 +306,24 @@ async function readLocal(): Promise<SyncBlob> {
     const rawDaily = await AsyncStorage.getItem('pp_daily_challenge');
     if (rawDaily) daily = JSON.parse(rawDaily);
   } catch {}
-  return { vault, daily };
+  const progress = await readLocalProgress();
+  return { vault, daily, progress };
+}
+
+async function writeLocalProgress(progress: ProgressMap | undefined): Promise<void> {
+  if (!progress) return;
+  const pairs: Array<[string, string]> = [];
+  PROGRESS_EXERCISE_IDS.forEach((id) => {
+    const section = progress[id];
+    if (!section) return;
+    if (Array.isArray(section.recent)) {
+      pairs.push([`progress_recent_${id}`, JSON.stringify(section.recent)]);
+    }
+    if (Array.isArray(section.feedback)) {
+      pairs.push([`progress_feedback_${id}`, JSON.stringify(section.feedback)]);
+    }
+  });
+  if (pairs.length) await AsyncStorage.multiSet(pairs);
 }
 
 async function writeLocal(data: SyncBlob): Promise<void> {
@@ -202,6 +339,7 @@ async function writeLocal(data: SyncBlob): Promise<void> {
   });
   if (data.daily) pairs.push(['pp_daily_challenge', JSON.stringify(data.daily)]);
   if (pairs.length) await AsyncStorage.multiSet(pairs);
+  await writeLocalProgress(data.progress);
 }
 
 // ─── Core: syncNow ────────────────────────────────────────────────────────
@@ -213,7 +351,6 @@ async function syncNow(): Promise<{ ok: boolean; version?: number; error?: strin
     const server = await pullFromServer();
     const merged = mergeAll(await readLocal(), server.data || {});
 
-    // Write merged data locally first so the UI is up-to-date immediately.
     await writeLocal(merged);
 
     const resp = await pushToServer(merged, server.version || 0);
@@ -222,7 +359,6 @@ async function syncNow(): Promise<{ ok: boolean; version?: number; error?: strin
       return { ok: true, version: resp.body.version };
     }
     if (resp.status === 409) {
-      // Race with another writer — merge with the server's latest, retry once.
       const serverCurrent = (resp.body as { data?: SyncBlob; version?: number });
       const remerged = mergeAll(merged, serverCurrent.data || {});
       await writeLocal(remerged);
@@ -245,22 +381,29 @@ async function syncNow(): Promise<{ ok: boolean; version?: number; error?: strin
 // ─── Public API ────────────────────────────────────────────────────────────
 
 /**
- * Pull from server, merge with local vault, write merged data back to
- * AsyncStorage, then push to server.
- * Call after login and on app focus (via useFocusEffect).
+ * Pull from server, merge with local vault + progress, write merged back to
+ * AsyncStorage, then push to server. Call after login and on app focus
+ * (via useFocusEffect).
  */
 export async function pullAndMerge(): Promise<void> {
   try { await syncNow(); } catch {}
-  // Sync profile data separately — fire-and-forget alongside vault sync.
   pullProfile().catch(() => {});
 }
 
 /**
- * Push the current local vault to the server.
- * Call after any vault write (save word, save phrase, save grammar rule,
- * delete item) so changes propagate to other devices promptly.
+ * Push the current local vault + progress to the server. Debounced ~3s so a
+ * long quiz session (one push per question) only fires one network request.
+ * Call after any vault or progress write.
  */
-export async function pushVaults(): Promise<void> {
+export function pushVaults(): void {
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    pushTimer = null;
+    void pushNow();
+  }, PUSH_DEBOUNCE_MS);
+}
+
+async function pushNow(): Promise<void> {
   try {
     if (inFlight) return;
     const token = await getToken();
@@ -271,7 +414,6 @@ export async function pushVaults(): Promise<void> {
     if (resp.status === 200) {
       await setKnownVersion(resp.body.version || 0);
     } else if (resp.status === 409) {
-      // Server has newer data — do a full sync to reconcile.
       await syncNow();
     }
   } catch {}
