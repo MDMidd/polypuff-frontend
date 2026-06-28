@@ -46,6 +46,14 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { useLanguage } from '../contexts/LanguageContext';
+
+// English fallbacks — used when the current language pack hasn't translated
+// the disclosure strings yet. Keep these in sync with translations.ts `en`.
+const FALLBACK_COMPACT  = 'Powered by AI — responses may contain errors';
+const FALLBACK_FULL     = 'This feature is powered by AI (OpenAI). Responses are generated automatically and may contain errors. Your grammar rules database is always the final authority.';
+const FALLBACK_EXPAND   = 'AI-powered feature. Tap to see details.';
+const FALLBACK_MINIMIZE = 'Minimize AI disclosure banner';
 
 // ─── Poly-Puff Dark Theme ───
 const C = {
@@ -79,9 +87,12 @@ export default function AIDisclosureBanner({
   backgroundColor,
 }: AIDisclosureBannerProps) {
   const [dismissed, setDismissed] = useState(false);
+  const { t } = useLanguage();
 
-  const defaultMessage = 'This feature is powered by AI (OpenAI). Responses are generated automatically and may contain errors. Your grammar rules database is always the final authority.';
-  const compactMessage = 'Powered by AI — responses may contain errors';
+  const defaultMessage = t.aiDisclosureFull    || FALLBACK_FULL;
+  const compactMessage = t.aiDisclosureCompact || FALLBACK_COMPACT;
+  const expandLabel    = t.aiDisclosureExpand   || FALLBACK_EXPAND;
+  const minimizeLabel  = t.aiDisclosureMinimize || FALLBACK_MINIMIZE;
   const displayMessage = message || (compact ? compactMessage : defaultMessage);
 
   // ─── Dismissed state: just show a small icon ───
@@ -91,7 +102,7 @@ export default function AIDisclosureBanner({
         style={s.dismissedPill}
         onPress={() => setDismissed(false)}
         activeOpacity={0.7}
-        accessibilityLabel="AI-powered feature. Tap to see details."
+        accessibilityLabel={expandLabel}
         accessibilityRole="button"
       >
         <Text style={s.dismissedIcon}>🤖</Text>
@@ -120,7 +131,7 @@ export default function AIDisclosureBanner({
             style={s.dismissBtn}
             onPress={() => setDismissed(true)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            accessibilityLabel="Minimize AI disclosure banner"
+            accessibilityLabel={minimizeLabel}
             accessibilityRole="button"
           >
             <Text style={s.dismissX}>✕</Text>

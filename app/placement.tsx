@@ -52,6 +52,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, GlassCard, NeonButton, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { hapticSuccess, hapticError, feedbackForScore } from '../services/sounds';
 import { scaledFont, announce } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
@@ -612,6 +613,8 @@ export default function PlacementScreen() {
         </View>
         <ScrollView contentContainerStyle={{ padding: 20, alignItems: 'center' }}>
           <PolyPuffScene size={600} />
+
+          <AIDisclosureBanner compact />
 
           <GlassCard style={{ marginTop: 24, width: '100%' }}>
             <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text, textAlign: 'center', marginBottom: 8 }} accessibilityRole="header">

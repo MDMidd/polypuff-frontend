@@ -6,8 +6,12 @@ node_modules/
 # Expo
 .expo/
 dist/
+dist-*/
 web-build/
 expo-env.d.ts
+
+# local tooling config
+.claude/
 
 # Native
 .kotlin/

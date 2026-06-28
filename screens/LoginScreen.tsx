@@ -458,6 +458,10 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 onPress={handleGoogleSignIn}
                 activeOpacity={0.8}
                 disabled={googleLoading}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={googleLoading ? 'Signing in with Google' : 'Continue with Google'}
+                accessibilityState={{ disabled: googleLoading, busy: googleLoading }}
               >
                 <Text style={s.socialIcon}>G</Text>
                 <Text style={s.socialText}>
@@ -476,6 +480,10 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                     style={[s.socialBtn, { borderColor: C.facebook + '40' }]}
                     onPress={() => socialNotYet('Facebook')}
                     activeOpacity={0.8}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel="Continue with Facebook"
+                    accessibilityHint="Facebook sign-in coming soon"
                   >
                     <Text style={[s.socialIcon, { color: C.facebook }]}>f</Text>
                     <Text style={s.socialText}>Continue with Facebook</Text>
@@ -486,6 +494,10 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                     style={[s.socialBtn, { borderColor: C.apple + '20' }]}
                     onPress={() => socialNotYet('Apple')}
                     activeOpacity={0.8}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel="Continue with Apple"
+                    accessibilityHint="Apple sign-in coming soon"
                   >
                     <Text style={[s.socialIcon, { color: C.apple, fontSize: 20 }]}></Text>
                     <Text style={s.socialText}>Continue with Apple</Text>
@@ -504,11 +516,22 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 style={s.emailBtn}
                 onPress={() => resetForm('signup')}
                 activeOpacity={0.8}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Sign up with email"
+                accessibilityHint="Opens the email sign-up form"
               >
                 <Text style={s.emailBtnText}>Sign Up with Email</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={s.loginLink} onPress={() => resetForm('login')}>
+              <TouchableOpacity
+                style={s.loginLink}
+                onPress={() => resetForm('login')}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Already have an account? Log in"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.loginLinkText}>
                   Already have an account? <Text style={{ color: C.cyan, fontWeight: '700' }}>Log In</Text>
                 </Text>
@@ -528,6 +551,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
+                accessibilityLabel="Email address"
               />
               <TextInput
                 style={s.input}
@@ -537,6 +561,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 onChangeText={(t) => { setPassword(t); setError(''); }}
                 secureTextEntry
                 autoComplete="new-password"
+                accessibilityLabel="Password, minimum 8 characters"
               />
               <TextInput
                 style={s.input}
@@ -546,6 +571,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 onChangeText={(t) => { setConfirmPassword(t); setError(''); }}
                 secureTextEntry
                 autoComplete="new-password"
+                accessibilityLabel="Confirm password"
               />
 
               {/* Optional voucher — same backend endpoint as the website, so a
@@ -560,25 +586,49 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 autoComplete="off"
                 autoCorrect={false}
                 maxLength={14}
+                accessibilityLabel="Voucher code, optional"
+                accessibilityHint="Format: POLY dash four characters dash four characters"
               />
 
-              {error ? <Text style={s.errorText}>{error}</Text> : null}
+              {error ? (
+                <Text style={s.errorText} accessibilityLiveRegion="polite" accessibilityRole="alert">
+                  {error}
+                </Text>
+              ) : null}
 
               <TouchableOpacity
                 style={[s.primaryBtn, loading && s.primaryBtnDisabled]}
                 onPress={handleSignup}
                 activeOpacity={0.8}
                 disabled={loading}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={loading ? 'Creating account' : 'Create account'}
+                accessibilityState={{ disabled: loading, busy: loading }}
               >
                 <Text style={s.primaryBtnText}>
                   {loading ? 'Creating Account…' : 'Create Account'}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => resetForm('login')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('login')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Already have an account? Log in"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>Already have an account? Log in</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => resetForm('options')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('options')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Back to sign-in options"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>← Back to sign-in options</Text>
               </TouchableOpacity>
             </>
@@ -595,6 +645,10 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 onPress={handleGoogleSignIn}
                 activeOpacity={0.8}
                 disabled={googleLoading}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={googleLoading ? 'Signing in with Google' : 'Continue with Google'}
+                accessibilityState={{ disabled: googleLoading, busy: googleLoading }}
               >
                 <Text style={s.socialIcon}>G</Text>
                 <Text style={s.socialText}>
@@ -617,6 +671,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
+                accessibilityLabel="Email address"
               />
               <TextInput
                 style={s.input}
@@ -626,28 +681,58 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 onChangeText={(t) => { setPassword(t); setError(''); }}
                 secureTextEntry
                 autoComplete="password"
+                accessibilityLabel="Password"
               />
 
-              {error ? <Text style={s.errorText}>{error}</Text> : null}
+              {error ? (
+                <Text style={s.errorText} accessibilityLiveRegion="polite" accessibilityRole="alert">
+                  {error}
+                </Text>
+              ) : null}
 
               <TouchableOpacity
                 style={[s.primaryBtn, loading && s.primaryBtnDisabled]}
                 onPress={handleLogin}
                 activeOpacity={0.8}
                 disabled={loading}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={loading ? 'Logging in' : 'Log in'}
+                accessibilityState={{ disabled: loading, busy: loading }}
               >
                 <Text style={s.primaryBtnText}>
                   {loading ? 'Logging In…' : 'Log In'}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => resetForm('forgot')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('forgot')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Forgot your password?"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>Forgot your password?</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => resetForm('signup')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('signup')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="New here? Create an account"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>New here? Create an account</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => resetForm('options')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('options')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Back to sign-in options"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>← Back to sign-in options</Text>
               </TouchableOpacity>
             </>
@@ -665,22 +750,38 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
+                accessibilityLabel="Email address for password reset"
               />
 
-              {error ? <Text style={s.errorText}>{error}</Text> : null}
+              {error ? (
+                <Text style={s.errorText} accessibilityLiveRegion="polite" accessibilityRole="alert">
+                  {error}
+                </Text>
+              ) : null}
 
               <TouchableOpacity
                 style={[s.primaryBtn, loading && s.primaryBtnDisabled]}
                 onPress={handleForgot}
                 activeOpacity={0.8}
                 disabled={loading}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={loading ? 'Sending reset link' : 'Send reset link'}
+                accessibilityState={{ disabled: loading, busy: loading }}
               >
                 <Text style={s.primaryBtnText}>
                   {loading ? 'Sending…' : 'Send Reset Link'}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => resetForm('login')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('login')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Back to log in"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>← Back to log in</Text>
               </TouchableOpacity>
             </>
@@ -700,16 +801,35 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 style={[s.primaryBtn, loading && s.primaryBtnDisabled]}
                 onPress={() => resetForm('login')}
                 activeOpacity={0.8}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="I have verified my email, log in"
               >
                 <Text style={s.primaryBtnText}>I've Verified — Log In</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={handleResendVerification} style={s.backLink} disabled={resending}>
+              <TouchableOpacity
+                onPress={handleResendVerification}
+                style={s.backLink}
+                disabled={resending}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={resending ? 'Sending verification email' : 'Resend verification email'}
+                accessibilityState={{ disabled: resending, busy: resending }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>
                   {resending ? 'Sending…' : 'Resend verification email'}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => resetForm('options')} style={s.backLink}>
+              <TouchableOpacity
+                onPress={() => resetForm('options')}
+                style={s.backLink}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Back to sign-in options"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Text style={s.backLinkText}>← Back to sign-in options</Text>
               </TouchableOpacity>
             </>
@@ -729,6 +849,9 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 style={s.primaryBtn}
                 onPress={() => resetForm('login')}
                 activeOpacity={0.8}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Back to log in"
               >
                 <Text style={s.primaryBtnText}>Back to Log In</Text>
               </TouchableOpacity>

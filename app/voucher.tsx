@@ -24,6 +24,7 @@ import { useRouter } from 'expo-router';
 import { CheckCircle, Tag, Lock, Unlock, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { redeemVoucher, isPremiumUnlocked, getRedeemedCode } from '../services/voucherService';
+import { scaledFont } from '../utils/accessibility';
 
 export default function VoucherScreen() {
   const { colors: C } = useTheme();
@@ -194,8 +195,8 @@ export default function VoucherScreen() {
                 returnKeyType="done"
                 onSubmitEditing={handleRedeem}
                 editable={!loading}
-                accessibilityLabel="Voucher code input"
-                accessibilityHint="Enter the voucher code you received from your teacher"
+                accessibilityLabel="Voucher code"
+                accessibilityHint="Enter the voucher code you received from your teacher, format POLY-XXXX-XXXX"
               />
             </Animated.View>
 
@@ -290,7 +291,7 @@ const s = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: scaledFont(18),
     fontWeight: '700',
     letterSpacing: 0.3,
   },
@@ -312,13 +313,13 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   heroTitle: {
-    fontSize: 22,
+    fontSize: scaledFont(22),
     fontWeight: '700',
     marginBottom: 8,
     textAlign: 'center',
   },
   heroSub: {
-    fontSize: 14,
+    fontSize: scaledFont(14),
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 280,
@@ -333,11 +334,11 @@ const s = StyleSheet.create({
     marginBottom: 24,
   },
   unlockedTitle: {
-    fontSize: 14,
+    fontSize: scaledFont(14),
     fontWeight: '700',
   },
   unlockedCode: {
-    fontSize: 12,
+    fontSize: scaledFont(12),
     marginTop: 2,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
@@ -346,7 +347,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   inputLabel: {
-    fontSize: 13,
+    fontSize: scaledFont(13),
     fontWeight: '600',
     marginBottom: 2,
   },
@@ -355,7 +356,7 @@ const s = StyleSheet.create({
     borderWidth: 2,
     paddingHorizontal: 18,
     paddingVertical: 16,
-    fontSize: 20,
+    fontSize: scaledFont(20),
     fontWeight: '700',
     letterSpacing: 2,
     textAlign: 'center',
@@ -371,7 +372,7 @@ const s = StyleSheet.create({
   },
   messageText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: scaledFont(13),
     lineHeight: 18,
   },
   redeemBtn: {
@@ -382,7 +383,7 @@ const s = StyleSheet.create({
     minHeight: 52,
   },
   redeemBtnText: {
-    fontSize: 16,
+    fontSize: scaledFont(16),
     fontWeight: '700',
     letterSpacing: 0.3,
   },
@@ -393,14 +394,14 @@ const s = StyleSheet.create({
     gap: 8,
   },
   infoTitle: {
-    fontSize: 12,
+    fontSize: scaledFont(12),
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 4,
   },
   infoLine: {
-    fontSize: 13,
+    fontSize: scaledFont(13),
     lineHeight: 19,
   },
 });

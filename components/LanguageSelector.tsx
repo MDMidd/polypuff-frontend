@@ -59,6 +59,7 @@ export default function LanguageSelector({ style }: Props) {
         onPress={() => setOpen(true)}
       >
         <Globe2 size={14} color={activeColor} />
+        <Text style={styles.triggerFlag}>{currentLanguage.flag}</Text>
         <Text style={[styles.triggerText, { color: C.text || '#F8FAFC' }]} numberOfLines={1}>
           {currentLanguage.code.toUpperCase()}
         </Text>
@@ -112,6 +113,7 @@ export default function LanguageSelector({ style }: Props) {
                     onPress={() => chooseLanguage(option.code)}
                   >
                     <View style={[styles.optionInner, isRTL && styles.rowReverse]}>
+                      <Text style={styles.optionFlag}>{option.flag}</Text>
                       <View style={styles.optionTextWrap}>
                         <Text style={[styles.optionLabel, isRTL && styles.textRight, { color: C.text || '#F8FAFC' }]} numberOfLines={1}>
                           {formatLanguageName(option)}
@@ -154,6 +156,10 @@ const styles = StyleSheet.create({
   triggerText: {
     fontSize: scaledFont(12),
     fontWeight: '900',
+  },
+  triggerFlag: {
+    fontSize: scaledFont(15),
+    lineHeight: scaledFont(18),
   },
   overlay: {
     flex: 1,
@@ -223,6 +229,11 @@ const styles = StyleSheet.create({
   optionTextWrap: {
     flex: 1,
     minWidth: 0,
+  },
+  optionFlag: {
+    width: 28,
+    fontSize: scaledFont(22),
+    textAlign: 'center',
   },
   optionLabel: {
     fontSize: scaledFont(14),

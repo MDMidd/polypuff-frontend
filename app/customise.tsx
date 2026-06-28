@@ -314,6 +314,9 @@ export default function CustomisePracticeScreen() {
         <TouchableOpacity
           style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 16, borderWidth: 1.5, borderColor: (C.amber || '#FFBE0B') + '50' }}
           onPress={() => setShowPresetModal(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Suggested bundles"
+          accessibilityHint="Opens a list of curated exercise bundles for different goals and levels"
         >
           <Star size={20} color={C.amber || '#FFBE0B'} />
           <View style={{ flex: 1 }}>
@@ -357,6 +360,8 @@ export default function CustomisePracticeScreen() {
                   trackColor={{ false: C.border + '60', true: colour + '60' }}
                   thumbColor={isActive ? colour : C.textMuted}
                   style={{ transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }] }}
+                  accessibilityLabel={`${mod.label} in practice list`}
+                  accessibilityHint={isActive ? 'Removes this exercise from your practice list' : 'Adds this exercise to your practice list'}
                 />
 
                 {/* Icon */}
@@ -384,7 +389,10 @@ export default function CustomisePracticeScreen() {
                       onPress={() => moveUp(mod.id)}
                       style={{ padding: 4, opacity: activeIdx === 0 ? 0.25 : 1 }}
                       disabled={activeIdx === 0}
-                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                      hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${mod.label} up`}
+                      accessibilityState={{ disabled: activeIdx === 0 }}
                     >
                       <ChevronUp size={16} color={colour} />
                     </TouchableOpacity>
@@ -392,7 +400,10 @@ export default function CustomisePracticeScreen() {
                       onPress={() => moveDown(mod.id)}
                       style={{ padding: 4, opacity: activeIdx === activeCount - 1 ? 0.25 : 1 }}
                       disabled={activeIdx === activeCount - 1}
-                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                      hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${mod.label} down`}
+                      accessibilityState={{ disabled: activeIdx === activeCount - 1 }}
                     >
                       <ChevronDown size={16} color={colour} />
                     </TouchableOpacity>
@@ -407,6 +418,8 @@ export default function CustomisePracticeScreen() {
         <TouchableOpacity
           style={{ backgroundColor: saved ? '#00E5A0' : (C.emerald || '#00E5A0'), borderRadius: 16, paddingVertical: 16, alignItems: 'center', marginTop: 8, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={handleSave}
+          accessibilityRole="button"
+          accessibilityLabel={saved ? 'Practice list saved' : `Save practice list with ${active.length} active exercise${active.length !== 1 ? 's' : ''}`}
         >
           {saved ? <CheckCircle size={18} color="#000" /> : <CheckCircle size={18} color="#000" />}
           <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: '#000' }}>
@@ -422,6 +435,9 @@ export default function CustomisePracticeScreen() {
             setOrder([...DEFAULT_ACTIVE, ...ALL_MODULES.map(m => m.id).filter(id => !DEFAULT_ACTIVE.includes(id))]);
             Alert.alert('Reset', 'Your practice list has been reset to the default.');
           }}
+          accessibilityRole="button"
+          accessibilityLabel="Reset to default"
+          accessibilityHint="Restores the original set of practice exercises and order"
         >
           <Text style={{ fontSize: scaledFont(13), color: C.textMuted }}>Reset to default</Text>
         </TouchableOpacity>
@@ -434,7 +450,12 @@ export default function CustomisePracticeScreen() {
           {/* Header */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
             <Text style={{ fontSize: scaledFont(18), fontWeight: '800', color: C.text }}>Suggested Bundles</Text>
-            <TouchableOpacity onPress={() => setShowPresetModal(false)}>
+            <TouchableOpacity
+              onPress={() => setShowPresetModal(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close suggested bundles"
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
               <X size={24} color={C.text} />
             </TouchableOpacity>
           </View>
@@ -451,6 +472,10 @@ export default function CustomisePracticeScreen() {
                   key={preset.id}
                   style={{ backgroundColor: C.card, borderRadius: 18, padding: 16, marginBottom: 10, borderWidth: 1.5, borderColor: isPreview ? preset.colour + '60' : C.border + '20' }}
                   onPress={() => setPreviewPreset(isPreview ? null : preset)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${preset.label} bundle, ${preset.modules.length} exercises`}
+                  accessibilityHint={isPreview ? 'Collapses bundle details' : 'Expands to show included exercises and apply option'}
+                  accessibilityState={{ expanded: isPreview }}
                 >
                   {/* Header */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -496,6 +521,9 @@ export default function CustomisePracticeScreen() {
                       <TouchableOpacity
                         style={{ backgroundColor: preset.colour, borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}
                         onPress={() => applyPreset(preset)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Apply ${preset.label} bundle`}
+                        accessibilityHint="Replaces your practice list with the exercises in this bundle"
                       >
                         <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: '#000' }}>
                           Apply "{preset.label}" Bundle →

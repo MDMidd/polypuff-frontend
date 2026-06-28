@@ -32,6 +32,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
@@ -487,6 +488,10 @@ export default function IELTSScreen() {
               borderColor: testType === key ? t.colour : C.border + '30',
             }}
             onPress={() => setTestType(key)}
+            accessibilityRole="tab"
+            accessibilityLabel={`${t.label} IELTS`}
+            accessibilityHint={key === 'academic' ? 'Select Academic IELTS for university or professional registration' : 'Select General Training IELTS for immigration or work'}
+            accessibilityState={{ selected: testType === key }}
           >
             <Text style={{ fontSize: 22, textAlign: 'center', marginBottom: 4 }}>{t.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: testType === key ? t.colour : C.text, textAlign: 'center' }}>{t.label}</Text>
@@ -596,6 +601,10 @@ export default function IELTSScreen() {
             key={i}
             style={[S.card]}
             onPress={() => toggle(i, expandedSection, setExpanded)}
+            accessibilityRole="button"
+            accessibilityLabel={`Part ${part.num}: ${part.title}`}
+            accessibilityHint={expandedSection === i ? 'Collapses part details' : 'Expands part details'}
+            accessibilityState={{ expanded: expandedSection === i }}
           >
             <View style={S.sectionHeader}>
               <View style={{ flex: 1 }}>
@@ -681,6 +690,9 @@ export default function IELTSScreen() {
               ? (testType === 'academic' ? 'writing_task2' : 'writing_task1_general')
               : 'speaking_part2'
             )}
+            accessibilityRole="button"
+            accessibilityLabel={`${t.practice} ${sec.label} with AI`}
+            accessibilityHint="Opens the AI practice modal for this section"
           >
             <Icon size={20} color={sec.colour} />
             <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: sec.colour, marginTop: 6 }}>
@@ -707,7 +719,14 @@ export default function IELTSScreen() {
         { id: 'listening_completion', label: 'Form / Note Completion', desc: 'Listen to a conversation or talk and complete the missing information. Tests accuracy and spelling.', colour: '#00E5FF', icon: '📝' },
         { id: 'listening_mcq',        label: 'Multiple Choice',         desc: 'Choose the correct answer (A, B or C) for short extracts or longer recordings.', colour: '#00E5FF', icon: '✅' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -725,7 +744,14 @@ export default function IELTSScreen() {
         { id: 'reading_tfng',     label: 'True / False / Not Given', desc: 'Read a passage and classify statements as True, False, or Not Given. Tests careful reading and inference.', colour: '#00E5A0', icon: '🔍' },
         { id: 'reading_matching', label: 'Matching Information',      desc: 'Match statements to the correct section of a text or the correct author. Tests reading for detail.', colour: '#00E5A0', icon: '🔗' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -744,7 +770,14 @@ export default function IELTSScreen() {
         { id: 'writing_task1_academic',   label: 'Task 1 — Academic (Graph/Chart)', desc: 'Describe and summarise visual data — bar chart, line graph, table, diagram or map. 150+ words.', colour: '#FFBE0B', icon: '📊', hidden: testType !== 'academic' },
         { id: 'writing_task1_general',    label: 'Task 1 — General (Letter)',   desc: 'Write a formal, semi-formal or informal letter covering all three bullet points. 150+ words.', colour: '#FFBE0B', icon: '✉️', hidden: testType !== 'general' },
       ].filter(p => !p.hidden).map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -763,7 +796,14 @@ export default function IELTSScreen() {
         { id: 'speaking_part2', label: 'Part 2 — Long Turn',    desc: 'Speak for 1–2 minutes on a topic card with bullet points. Write what you would say.', colour: '#B06CFF', icon: '🎙️' },
         { id: 'speaking_part3', label: 'Part 3 — Discussion',   desc: 'Answer abstract, opinion-based questions linked to Part 2. Use higher-level language and justify your views.', colour: '#B06CFF', icon: '💬' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -807,6 +847,10 @@ export default function IELTSScreen() {
             key={i}
             style={[S.card, { borderColor: colour + '30' }]}
             onPress={() => toggle(i, expandedTip, setExpandedTip)}
+            accessibilityRole="button"
+            accessibilityLabel={`Band ${b.band}, ${b.label}`}
+            accessibilityHint={expandedTip === i ? 'Collapses band tips' : 'Expands band tips'}
+            accessibilityState={{ expanded: expandedTip === i }}
           >
             <View style={S.sectionHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
@@ -863,7 +907,13 @@ export default function IELTSScreen() {
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
           <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>{wt('ielts-prep')}</Text>
-          <TouchableOpacity onPress={() => setPracticeModal(false)}>
+          <TouchableOpacity
+            onPress={() => setPracticeModal(false)}
+            accessibilityRole="button"
+            accessibilityLabel="Close practice"
+            accessibilityHint="Closes the practice modal"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
             <X size={24} color={C.text} />
           </TouchableOpacity>
         </View>
@@ -881,6 +931,10 @@ export default function IELTSScreen() {
                 setPracticeInput('');
                 setPracticeResult(null);
               }}
+              accessibilityRole="button"
+              accessibilityLabel="New prompt"
+              accessibilityHint="Loads a different practice prompt and clears your response"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>🔀 {wt('try-again')}</Text>
             </TouchableOpacity>
@@ -944,6 +998,10 @@ export default function IELTSScreen() {
                 style={{ backgroundColor: C.emerald, borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8, opacity: practiceLoading ? 0.7 : 1 }}
                 onPress={submitPractice}
                 disabled={practiceLoading}
+                accessibilityRole="button"
+                accessibilityLabel={practiceLoading ? 'Analysing your response' : 'Submit for AI feedback'}
+                accessibilityHint="Sends your response for AI-graded band feedback"
+                accessibilityState={{ disabled: practiceLoading, busy: practiceLoading }}
               >
                 {practiceLoading ? <ActivityIndicator color="#000" /> : <Send size={18} color="#000" />}
                 <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: '#000' }}>
@@ -1055,6 +1113,9 @@ export default function IELTSScreen() {
               <TouchableOpacity
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
                 onPress={() => { setPracticeInput(''); setPracticeResult(null); setShowVocabSave(false); setSaveWord(''); }}
+                accessibilityRole="button"
+                accessibilityLabel={wt('try-again')}
+                accessibilityHint="Clears your response and feedback so you can try the prompt again"
               >
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
@@ -1108,6 +1169,10 @@ export default function IELTSScreen() {
               key={tab.id}
               style={{ flexDirection: 'column', alignItems: 'center', gap: 0, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minWidth: 58, backgroundColor: isActive ? '#B06CFF22' : C.card + 'AA', borderWidth: 1, borderColor: isActive ? '#B06CFF60' : C.border + '40' }}
               onPress={() => { setActiveTab(tab.id); setExpanded(null); setExpandedTip(null); }}
+              accessibilityRole="tab"
+              accessibilityLabel={tab.label}
+              accessibilityState={{ selected: isActive }}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             >
               <Icon size={14} color={isActive ? activeColor : '#9CA3AF'} />
               <Text style={{ fontSize: scaledFont(10), fontWeight: isActive ? '800' : '500', color: isActive ? activeColor : '#9CA3AF', marginTop: 2 }}>{tab.label}</Text>
@@ -1121,12 +1186,19 @@ export default function IELTSScreen() {
         <Text style={{ fontSize: scaledFont(12), color: TEST_TYPES[testType].colour, fontWeight: '700' }}>
           {TEST_TYPES[testType].icon} {TEST_TYPES[testType].label} Test
         </Text>
-        <TouchableOpacity onPress={() => setTestType(testType === 'academic' ? 'general' : 'academic')}>
+        <TouchableOpacity
+          onPress={() => setTestType(testType === 'academic' ? 'general' : 'academic')}
+          accessibilityRole="button"
+          accessibilityLabel={testType === 'academic' ? 'Switch to General Training' : 'Switch to Academic'}
+          accessibilityHint="Toggles between Academic and General Training IELTS"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Text style={{ fontSize: scaledFont(11), color: TEST_TYPES[testType].colour, fontWeight: '600' }}>{t.switchArrow}</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
+        <AIDisclosureBanner compact />
         {activeTab === 'overview'  && renderOverview()}
         {activeTab === 'listening' && renderSection('listening')}
         {activeTab === 'reading'   && renderSection('reading')}

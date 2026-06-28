@@ -183,6 +183,9 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
         studentAnswer: exerciseData?.studentAnswer || '',
         score: result.score,
         category: 'Grammar Rule',
+        mistakes: Array.isArray(result.mistakes) ? result.mistakes : [],
+        ruleViolations: Array.isArray(result.ruleViolations) ? result.ruleViolations : [],
+        ruleDetails: result.ruleDetails || {},
         source: 'grammar',
         date: new Date().toISOString(),
       };
@@ -500,6 +503,9 @@ export default function GrammarScreen() {
       weakAreas: (data.mistakes || []).map(m => ({
         category: m.type || exercise?.topic || 'Grammar',
         description: m.explanation || '',
+        ruleId: m.rule_id || null,
+        found: m.found || '',
+        expected: m.expected || '',
       })),
     });
   }

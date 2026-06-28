@@ -564,6 +564,7 @@ export default function TermsScreen({ onAccept, onComplete, onDecline, ageGroup 
               style={styles.link}
               onPress={() => Linking.openURL('https://openai.com/en-GB/policies/terms-of-use/')}
               accessibilityRole="link"
+              accessibilityLabel="Open OpenAI Terms of Use in your browser"
             >
               openai.com/policies/terms-of-use
             </Text>

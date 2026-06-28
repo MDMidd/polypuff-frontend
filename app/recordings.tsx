@@ -105,6 +105,10 @@ function PlaybackBar({ rec, C }: { rec: VoiceRecording; C: any }) {
       <TouchableOpacity
         onPress={togglePlay}
         style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: info.colour + '20', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: info.colour + '50' }}
+        accessibilityRole="button"
+        accessibilityLabel={playing ? `Pause recording: ${rec.label}` : `Play recording: ${rec.label}`}
+        accessibilityState={{ busy: loading, selected: playing }}
+        hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
       >
         {loading
           ? <ActivityIndicator size="small" color={info.colour} />
@@ -251,6 +255,11 @@ export default function RecordingsScreen() {
             <TouchableOpacity
               onPress={toggleEnabled}
               style={{ width: 50, height: 28, borderRadius: 14, backgroundColor: enabled ? '#00E5A0' : C.border + '60', justifyContent: 'center', paddingHorizontal: 3 }}
+              accessibilityRole="switch"
+              accessibilityLabel="Voice recording"
+              accessibilityState={{ checked: enabled }}
+              accessibilityHint={enabled ? 'Disables saving voice recordings from exercises' : 'Enables saving voice recordings from exercises'}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
               <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff', alignSelf: enabled ? 'flex-end' : 'flex-start', shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 2, elevation: 2 }} />
             </TouchableOpacity>
@@ -305,6 +314,10 @@ export default function RecordingsScreen() {
               <TouchableOpacity
                 style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: filter === 'all' ? '#00E5A020' : C.card, borderWidth: 1, borderColor: filter === 'all' ? '#00E5A050' : C.border + '30' }}
                 onPress={() => setFilter('all')}
+                accessibilityRole="button"
+                accessibilityLabel={`Show all recordings, ${recordings.length} total`}
+                accessibilityState={{ selected: filter === 'all' }}
+                hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
               >
                 <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: filter === 'all' ? '#00E5A0' : C.textMuted }}>All ({recordings.length})</Text>
               </TouchableOpacity>
@@ -315,6 +328,10 @@ export default function RecordingsScreen() {
                     key={ex}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: filter === ex ? info.colour + '20' : C.card, borderWidth: 1, borderColor: filter === ex ? info.colour + '50' : C.border + '30' }}
                     onPress={() => setFilter(ex)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Filter by ${info.label}, ${grouped[ex]?.length || 0} recording${(grouped[ex]?.length || 0) !== 1 ? 's' : ''}`}
+                    accessibilityState={{ selected: filter === ex }}
+                    hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
                   >
                     <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: filter === ex ? info.colour : C.textMuted }}>
                       {info.icon} {info.label.split(' ')[0]} ({grouped[ex]?.length || 0})
@@ -334,6 +351,10 @@ export default function RecordingsScreen() {
                   style={[S.card, { borderColor: info.colour + '25' }]}
                   onPress={() => setExpanded(isOpen ? null : rec.id)}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${info.label} recording: ${rec.label}, ${formatDuration(rec.duration)}`}
+                  accessibilityHint={isOpen ? 'Collapses playback controls' : 'Expands to play, share, or delete this recording'}
+                  accessibilityState={{ expanded: isOpen }}
                 >
                   {/* Header row */}
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
@@ -380,6 +401,9 @@ export default function RecordingsScreen() {
                         <TouchableOpacity
                           style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#00E5FF15', borderRadius: 10, paddingVertical: 10, borderWidth: 1, borderColor: '#00E5FF30' }}
                           onPress={() => handleShare(rec)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Share recording: ${rec.label}`}
+                          accessibilityHint="Opens the system share sheet for this audio file"
                         >
                           <Share2 size={14} color="#00E5FF" />
                           <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: '#00E5FF' }}>Share</Text>
@@ -387,6 +411,9 @@ export default function RecordingsScreen() {
                         <TouchableOpacity
                           style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#FF4D6A15', borderRadius: 10, paddingVertical: 10, borderWidth: 1, borderColor: '#FF4D6A30' }}
                           onPress={() => handleDelete(rec)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Delete recording: ${rec.label}`}
+                          accessibilityHint="Prompts for confirmation, then permanently removes this recording"
                         >
                           <Trash2 size={14} color="#FF4D6A" />
                           <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: '#FF4D6A' }}>Delete</Text>
@@ -403,6 +430,9 @@ export default function RecordingsScreen() {
               <TouchableOpacity
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 8, borderRadius: 14, backgroundColor: '#FF4D6A15', borderWidth: 1, borderColor: '#FF4D6A30' }}
                 onPress={handleDeleteAll}
+                accessibilityRole="button"
+                accessibilityLabel={`Delete all ${recordings.length} recording${recordings.length !== 1 ? 's' : ''}`}
+                accessibilityHint="Prompts for confirmation, then permanently removes every recording on this device"
               >
                 <Trash2 size={16} color="#FF4D6A" />
                 <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: '#FF4D6A' }}>Delete All Recordings</Text>

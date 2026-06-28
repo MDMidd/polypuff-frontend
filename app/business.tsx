@@ -41,6 +41,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { getServerUrl } from '../services/api';
 import { hapticSuccess, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
@@ -538,7 +539,15 @@ export default function BusinessScreen() {
             <Star size={14} color="#FFBE0B" />
             <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: '#FFBE0B', letterSpacing: 1 }}>PHRASE OF THE DAY</Text>
           </View>
-          <TouchableOpacity onPress={generateDailyPhrase} disabled={phraseLoading}>
+          <TouchableOpacity
+            onPress={generateDailyPhrase}
+            disabled={phraseLoading}
+            accessibilityRole="button"
+            accessibilityLabel="Generate new daily phrase"
+            accessibilityHint="Loads a fresh AI-generated business phrase"
+            accessibilityState={{ disabled: phraseLoading, busy: phraseLoading }}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
             <RefreshCw size={16} color={phraseLoading ? C.textMuted : C.cyan} />
           </TouchableOpacity>
         </View>
@@ -574,6 +583,9 @@ export default function BusinessScreen() {
               key={d.id}
               style={{ width: '47%', backgroundColor: C.card, borderRadius: 16, padding: 14, borderWidth: 1, borderColor: d.colour + '30' }}
               onPress={() => { setActiveDomain(d.id); setDomainSubTab('learn'); setActiveTab('domain'); setExercise(null); setFeedback(null); }}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${d.label}`}
+              accessibilityHint={d.desc}
             >
               <Icon size={22} color={d.colour} style={{ marginBottom: 8 }} />
               <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: C.text, marginBottom: 2 }}>{d.label}</Text>
@@ -584,7 +596,13 @@ export default function BusinessScreen() {
       </View>
 
       {/* Vocab bank teaser */}
-      <TouchableOpacity style={[S.card, { borderColor: '#B06CFF30' }]} onPress={() => setActiveTab('vocab')}>
+      <TouchableOpacity
+        style={[S.card, { borderColor: '#B06CFF30' }]}
+        onPress={() => setActiveTab('vocab')}
+        accessibilityRole="button"
+        accessibilityLabel="Open business vocabulary"
+        accessibilityHint={`Browse ${VOCAB_BANK.length} essential business terms`}
+      >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <BookOpen size={22} color="#B06CFF" />
           <View style={{ flex: 1 }}>
@@ -621,7 +639,13 @@ export default function BusinessScreen() {
     return (
       <View>
         {/* Back + header */}
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 }} onPress={() => { setActiveTab('home'); setActiveDomain(null); }}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 }}
+          onPress={() => { setActiveTab('home'); setActiveDomain(null); }}
+          accessibilityRole="button"
+          accessibilityLabel="Back to all domains"
+          accessibilityHint="Returns to the home screen"
+        >
           <ChevronRight size={16} color={C.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
           <Text style={{ fontSize: scaledFont(13), color: C.textMuted }}>{wt('lt-all').replace(/\s*\(.*\)$/, '')}</Text>
         </TouchableOpacity>
@@ -651,6 +675,9 @@ export default function BusinessScreen() {
               key={tab.id}
               style={{ flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: domainSubTab === tab.id ? domain.colour + '20' : C.card, borderWidth: 1, borderColor: domainSubTab === tab.id ? domain.colour + '50' : C.border + '20' }}
               onPress={() => { setDomainSubTab(tab.id); if (tab.id === 'practice') loadSessionStats(); }}
+              accessibilityRole="tab"
+              accessibilityLabel={tab.label}
+              accessibilityState={{ selected: domainSubTab === tab.id }}
             >
               <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: domainSubTab === tab.id ? domain.colour : C.textMuted }}>{tab.label}</Text>
             </TouchableOpacity>
@@ -663,7 +690,15 @@ export default function BusinessScreen() {
             {/* Phrase banks */}
             <Text style={[S.label, { marginBottom: 8 }]}>Essential Phrases</Text>
             {domain.phrases.map((group, gi) => (
-              <TouchableOpacity key={gi} style={S.card} onPress={() => setExpandedPhrase(expandedPhrase === gi ? null : gi)}>
+              <TouchableOpacity
+                key={gi}
+                style={S.card}
+                onPress={() => setExpandedPhrase(expandedPhrase === gi ? null : gi)}
+                accessibilityRole="button"
+                accessibilityLabel={group.cat}
+                accessibilityHint={expandedPhrase === gi ? 'Collapses phrase list' : 'Expands phrase list'}
+                accessibilityState={{ expanded: expandedPhrase === gi }}
+              >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{group.cat}</Text>
                   {expandedPhrase === gi ? <ChevronUp size={16} color={C.textMuted} /> : <ChevronDown size={16} color={C.textMuted} />}
@@ -711,7 +746,14 @@ export default function BusinessScreen() {
                     <Text style={{ fontSize: scaledFont(9), color: C.textMuted, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Text>
                   </View>
                 ))}
-                <TouchableOpacity onPress={() => router.push('/progress')} style={{ paddingLeft: 8 }}>
+                <TouchableOpacity
+                  onPress={() => router.push('/progress')}
+                  style={{ paddingLeft: 8 }}
+                  accessibilityRole="link"
+                  accessibilityLabel="Open progress"
+                  accessibilityHint="Shows your full practice progress"
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
                   <ChevronRight size={16} color={C.textMuted} />
                 </TouchableOpacity>
               </View>
@@ -724,6 +766,9 @@ export default function BusinessScreen() {
                     key={i}
                     style={{ backgroundColor: C.card, borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: domain.colour + '25', flexDirection: 'row', alignItems: 'center', gap: 10 }}
                     onPress={() => generateExercise(domain, et)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Start ${EXERCISE_LABELS[et] || et} exercise`}
+                    accessibilityHint="Generates a unique AI scenario for this exercise type"
                   >
                     <View style={{ backgroundColor: domain.colour + '20', width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}>
                       <Text style={{ fontSize: 14 }}>✦</Text>
@@ -794,6 +839,10 @@ export default function BusinessScreen() {
                     <TouchableOpacity
                       style={{ backgroundColor: domain.colour, borderRadius: 14, paddingVertical: 15, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8, opacity: feedbackLoading ? 0.7 : 1 }}
                       onPress={submitResponse} disabled={feedbackLoading}
+                      accessibilityRole="button"
+                      accessibilityLabel={feedbackLoading ? 'Analysing your response' : 'Submit for AI feedback'}
+                      accessibilityHint="Sends your response for AI grading"
+                      accessibilityState={{ disabled: feedbackLoading, busy: feedbackLoading }}
                     >
                       {feedbackLoading ? <ActivityIndicator color="#000" /> : <Send size={18} color="#000" />}
                       <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: '#000' }}>
@@ -868,12 +917,18 @@ export default function BusinessScreen() {
                       <TouchableOpacity
                         style={{ flex: 1, backgroundColor: C.card, borderRadius: 14, paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: C.border + '30' }}
                         onPress={() => { setFeedback(null); setUserResponse(''); }}
+                        accessibilityRole="button"
+                        accessibilityLabel={wt('try-again')}
+                        accessibilityHint="Clears feedback and your response so you can redo the same scenario"
                       >
                         <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={{ flex: 1, backgroundColor: domain.colour + '20', borderRadius: 14, paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: domain.colour + '40' }}
                         onPress={() => generateExercise(domain, selectedExType)}
+                        accessibilityRole="button"
+                        accessibilityLabel="New scenario"
+                        accessibilityHint="Generates a new AI scenario for the same exercise type"
                       >
                         <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: domain.colour }}>New Scenario</Text>
                       </TouchableOpacity>
@@ -883,7 +938,13 @@ export default function BusinessScreen() {
 
                 {/* Back to exercise list */}
                 {!feedback && (
-                  <TouchableOpacity style={{ paddingVertical: 12, alignItems: 'center', marginTop: 4 }} onPress={() => { setExercise(null); setFeedback(null); setUserResponse(''); }}>
+                  <TouchableOpacity
+                    style={{ paddingVertical: 12, alignItems: 'center', marginTop: 4 }}
+                    onPress={() => { setExercise(null); setFeedback(null); setUserResponse(''); }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Back to exercise list"
+                    accessibilityHint="Discards this exercise and returns to the exercise type list"
+                  >
                     <Text style={{ fontSize: scaledFont(13), color: C.textMuted }}>← Back to exercise list</Text>
                   </TouchableOpacity>
                 )}
@@ -907,7 +968,13 @@ export default function BusinessScreen() {
       <View style={[S.card, { borderColor: '#FFBE0B30', marginBottom: 16 }]}>
         <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text, marginBottom: 8 }}>⚡ Quick Vocab Quiz</Text>
         {!vocabQuiz ? (
-          <TouchableOpacity style={{ backgroundColor: '#FFBE0B20', borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#FFBE0B40' }} onPress={startVocabQuiz}>
+          <TouchableOpacity
+            style={{ backgroundColor: '#FFBE0B20', borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#FFBE0B40' }}
+            onPress={startVocabQuiz}
+            accessibilityRole="button"
+            accessibilityLabel={wt('start-quiz')}
+            accessibilityHint="Begins a quick business vocabulary quiz"
+          >
             <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: '#FFBE0B' }}>{wt('start-quiz')}</Text>
           </TouchableOpacity>
         ) : (
@@ -925,7 +992,13 @@ export default function BusinessScreen() {
                   returnKeyType="done"
                   onSubmitEditing={checkVocabAnswer}
                 />
-                <TouchableOpacity style={{ backgroundColor: '#FFBE0B', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }} onPress={checkVocabAnswer}>
+                <TouchableOpacity
+                  style={{ backgroundColor: '#FFBE0B', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
+                  onPress={checkVocabAnswer}
+                  accessibilityRole="button"
+                  accessibilityLabel={wt('check-answer')}
+                  accessibilityHint="Submits your definition for checking"
+                >
                   <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: '#000' }}>{wt('check-answer')}</Text>
                 </TouchableOpacity>
               </>
@@ -938,7 +1011,13 @@ export default function BusinessScreen() {
                   <Text style={S.bodyText}><Text style={{ fontWeight: '700', color: C.text }}>{vocabQuiz.word}:</Text> {vocabQuiz.def}</Text>
                   <Text style={[S.bodyText, { fontStyle: 'italic', marginTop: 4, color: C.textMuted }]}>"{vocabQuiz.example}"</Text>
                 </View>
-                <TouchableOpacity style={{ backgroundColor: '#B06CFF20', borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#B06CFF40' }} onPress={startVocabQuiz}>
+                <TouchableOpacity
+                  style={{ backgroundColor: '#B06CFF20', borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#B06CFF40' }}
+                  onPress={startVocabQuiz}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t.next} word`}
+                  accessibilityHint="Loads the next quiz word"
+                >
                   <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: '#B06CFF' }}>{t.next}</Text>
                 </TouchableOpacity>
               </View>
@@ -1035,6 +1114,9 @@ export default function BusinessScreen() {
               key={tab.id}
               style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 12, borderBottomWidth: 2, borderBottomColor: isActive ? colour : 'transparent' }}
               onPress={() => setActiveTab(tab.id)}
+              accessibilityRole="tab"
+              accessibilityLabel={tab.id === 'domain' && domain ? domain.label : tab.label}
+              accessibilityState={{ selected: isActive }}
             >
               <Icon size={14} color={isActive ? colour : C.textMuted} />
               <Text style={{ fontSize: scaledFont(12), fontWeight: isActive ? '800' : '500', color: isActive ? colour : C.textMuted }}>
@@ -1046,6 +1128,7 @@ export default function BusinessScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <AIDisclosureBanner compact />
         {activeTab === 'home'   && renderHome()}
         {activeTab === 'domain' && (domain ? renderDomain() : renderHome())}
         {activeTab === 'vocab'  && renderVocab()}

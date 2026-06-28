@@ -29,6 +29,7 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { scaledFont } from '../utils/accessibility';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, GlassCard, NeonButton, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
@@ -385,26 +386,26 @@ export default function ProfileScreen() {
           <View style={[ds.sectionCard, { alignItems: 'center', paddingVertical: 28 }]}>
             <View style={[sty.avatarRing, { backgroundColor: profilePic ? 'transparent' : getAvatarColour(name), borderColor: C.emerald + '40' }]}>
               {profilePic
-                ? <Image source={{ uri: profilePic }} style={sty.avatarImage} />
-                : <Text style={{ fontSize: 32, fontWeight: '800', color: '#fff' }}>{getInitials(name)}</Text>
+                ? <Image source={{ uri: profilePic }} style={sty.avatarImage} accessibilityLabel="Profile picture" />
+                : <Text style={{ fontSize: scaledFont(32), fontWeight: '800', color: '#fff' }}>{getInitials(name)}</Text>
               }
             </View>
-            <Text style={{ fontSize: 24, fontWeight: '800', color: C.text, marginTop: 12 }}>{name}</Text>
-            {profession ? <Text style={{ fontSize: 15, color: C.textSec, marginTop: 2 }}>{profession}</Text> : null}
-            {qualifications ? <Text style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>{qualifications}</Text> : null}
-            {age ? <Text style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>Age: {age}</Text> : null}
+            <Text style={{ fontSize: scaledFont(24), fontWeight: '800', color: C.text, marginTop: 12 }}>{name}</Text>
+            {profession ? <Text style={{ fontSize: scaledFont(15), color: C.textSec, marginTop: 2 }}>{profession}</Text> : null}
+            {qualifications ? <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }}>{qualifications}</Text> : null}
+            {age ? <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }}>Age: {age}</Text> : null}
 
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
               <View style={{ backgroundColor: C.emerald + '20', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: C.emerald + '40' }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: C.emerald }}>{level} — {lv.label}</Text>
+                <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.emerald }}>{level} — {lv.label}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.blue + '15', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: C.blue + '30' }}>
-                <Text style={{ fontSize: 14 }}>{getFlag(nativeLanguage)}</Text>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: C.blueLight || C.blue }}>{nativeLanguage}</Text>
+                <Text style={{ fontSize: scaledFont(14) }}>{getFlag(nativeLanguage)}</Text>
+                <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: C.blueLight || C.blue }}>{nativeLanguage}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: (C.amberDark || '#92400E') + '30', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: C.amber + '30' }}>
-                <Text style={{ fontSize: 14 }}>{al.flag}</Text>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: C.amberLight || C.amber }}>{al.label}</Text>
+                <Text style={{ fontSize: scaledFont(14) }}>{al.flag}</Text>
+                <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: C.amberLight || C.amber }}>{al.label}</Text>
               </View>
             </View>
           </View>
@@ -416,7 +417,7 @@ export default function ProfileScreen() {
                 <FileText size={18} color={C.blue} />
                 <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('aboutMe', 'About Me')}</Text>
               </View>
-              <Text style={{ fontSize: 14, color: C.textSec, lineHeight: 22, marginTop: 8 }}>{bio}</Text>
+              <Text style={{ fontSize: scaledFont(14), color: C.textSec, lineHeight: 22, marginTop: 8 }}>{bio}</Text>
             </View>
           ) : null}
 
@@ -427,7 +428,7 @@ export default function ProfileScreen() {
                 <Heart size={18} color={C.red} />
                 <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('hobbiesInterests', 'Hobbies & Interests')}</Text>
               </View>
-              <Text style={{ fontSize: 14, color: C.textSec, lineHeight: 22, marginTop: 8 }}>{hobbies}</Text>
+              <Text style={{ fontSize: scaledFont(14), color: C.textSec, lineHeight: 22, marginTop: 8 }}>{hobbies}</Text>
             </View>
           ) : null}
 
@@ -454,20 +455,27 @@ export default function ProfileScreen() {
               onPress={handleBack}
               style={sty.backBtn}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
             >
               <ArrowLeft size={22} color={C.text} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={pickImage}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Change profile picture"
+          >
             <View style={[sty.avatarRing, { backgroundColor: profilePic ? 'transparent' : getAvatarColour(name), borderColor: C.emerald + '40' }]}>
               {profilePic
-                ? <Image source={{ uri: profilePic }} style={sty.avatarImage} />
-                : <Text style={{ fontSize: 32, fontWeight: '800', color: '#fff' }}>{getInitials(name)}</Text>
+                ? <Image source={{ uri: profilePic }} style={sty.avatarImage} accessibilityLabel="Profile picture" />
+                : <Text style={{ fontSize: scaledFont(32), fontWeight: '800', color: '#fff' }}>{getInitials(name)}</Text>
               }
               <View style={[sty.cameraIcon, { backgroundColor: C.blue }]}><Camera size={12} color="#fff" /></View>
             </View>
           </TouchableOpacity>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: C.text, marginTop: 8 }}>
+          <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text, marginTop: 8 }}>
             {hasProfile ? ui('editProfile', 'Edit Profile') : ui('setUpYourProfile', 'Set Up Your Profile')}
           </Text>
         </View>
@@ -478,27 +486,27 @@ export default function ProfileScreen() {
             <UserCircle size={18} color={C.blue} />
             <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('personalInfo', 'Personal Info')}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26, lineHeight: 18 }}>{ui('profileDetailsNote', "Your profile details are for your benefit. We don't use this information for anything else; it simply helps the AI create exercises that match your needs, goals, interests, and English level.")}</Text>
+          <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 14, marginLeft: 26, lineHeight: 18 }}>{ui('profileDetailsNote', "Your profile details are for your benefit. We don't use this information for anything else; it simply helps the AI create exercises that match your needs, goals, interests, and English level.")}</Text>
 
           <View style={sty.fieldRow}>
             <UserCircle size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('namePlaceholder', 'Your name *')} placeholderTextColor={C.textMuted} value={name} onChangeText={setName} autoCapitalize="words" />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('namePlaceholder', 'Your name *')} placeholderTextColor={C.textMuted} value={name} onChangeText={setName} autoCapitalize="words" accessibilityLabel="Name" />
           </View>
           <View style={sty.fieldRow}>
             <Briefcase size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('professionPlaceholder', 'Profession (e.g., Teacher, Engineer, Student)')} placeholderTextColor={C.textMuted} value={profession} onChangeText={setProfession} autoCapitalize="words" />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('professionPlaceholder', 'Profession (e.g., Teacher, Engineer, Student)')} placeholderTextColor={C.textMuted} value={profession} onChangeText={setProfession} autoCapitalize="words" accessibilityLabel="Profession" />
           </View>
           <View style={sty.fieldRow}>
             <GraduationCap size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('qualificationsPlaceholder', 'Qualifications (optional)')} placeholderTextColor={C.textMuted} value={qualifications} onChangeText={setQualifications} autoCapitalize="words" />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('qualificationsPlaceholder', 'Qualifications (optional)')} placeholderTextColor={C.textMuted} value={qualifications} onChangeText={setQualifications} autoCapitalize="words" accessibilityLabel="Qualifications" />
           </View>
           <View style={sty.fieldRow}>
             <Calendar size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('agePlaceholder', 'Age (optional)')} placeholderTextColor={C.textMuted} value={age} onChangeText={setAge} keyboardType="number-pad" maxLength={3} />
+            <TextInput style={[ds.input, sty.fieldInput]} placeholder={ui('agePlaceholder', 'Age (optional)')} placeholderTextColor={C.textMuted} value={age} onChangeText={setAge} keyboardType="number-pad" maxLength={3} accessibilityLabel="Age" />
           </View>
           <View style={sty.fieldRow}>
             <Heart size={16} color={C.textMuted} />
-            <TextInput style={[ds.input, sty.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} placeholder={ui('hobbiesPlaceholder', 'Hobbies & interests (e.g., cooking, football, travel)')} placeholderTextColor={C.textMuted} value={hobbies} onChangeText={setHobbies} multiline autoCapitalize="sentences" />
+            <TextInput style={[ds.input, sty.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} placeholder={ui('hobbiesPlaceholder', 'Hobbies & interests (e.g., cooking, football, travel)')} placeholderTextColor={C.textMuted} value={hobbies} onChangeText={setHobbies} multiline autoCapitalize="sentences" accessibilityLabel="Hobbies and interests" />
           </View>
         </View>
 
@@ -508,10 +516,10 @@ export default function ProfileScreen() {
             <FileText size={18} color={C.purple} />
             <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('aboutMe', 'About Me')}</Text>
             <View style={{ marginLeft: 'auto', backgroundColor: C.cardAlt, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-              <Text style={{ fontSize: 10, color: C.textMuted, fontWeight: '600' }}>{ui('optionalLabel', 'Optional').toUpperCase()}</Text>
+              <Text style={{ fontSize: scaledFont(10), color: C.textMuted, fontWeight: '600' }}>{ui('optionalLabel', 'Optional').toUpperCase()}</Text>
             </View>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 12, marginLeft: 26 }}>
+          <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 12, marginLeft: 26 }}>
             {ui('bioHelpText', 'Describe your work duties, daily tasks, or anything about yourself. This helps us create more relevant exercises.')}
           </Text>
           <TextInput
@@ -520,8 +528,9 @@ export default function ProfileScreen() {
             placeholderTextColor={C.textMuted}
             value={bio} onChangeText={setBio}
             multiline autoCapitalize="sentences" maxLength={500}
+            accessibilityLabel="About me bio"
           />
-          <Text style={{ fontSize: 11, color: C.textMuted, textAlign: 'right', marginTop: 4 }}>{bio.length}/500</Text>
+          <Text style={{ fontSize: scaledFont(11), color: C.textMuted, textAlign: 'right', marginTop: 4 }}>{bio.length}/500</Text>
         </View>
 
         {/* ── NATIVE LANGUAGE ── */}
@@ -530,7 +539,7 @@ export default function ProfileScreen() {
             <Globe size={18} color={C.blue} />
             <Text style={[sty.sectionTitle, { color: C.text }]}>{t.nativeLanguage}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('nativeLanguageHelp', 'Grammar tips and translations shown in this language')}</Text>
+          <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('nativeLanguageHelp', 'Grammar tips and translations shown in this language')}</Text>
           {/* Scrollable list — shows 5 rows at a time */}
           <View style={{ height: 260, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '30' }}>
             <ScrollView
@@ -549,15 +558,18 @@ export default function ProfileScreen() {
                     borderLeftColor: C.emerald,
                   }}
                   onPress={() => setNativeLanguage(lang.name)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select ${lang.name} as native language`}
+                  accessibilityState={{ selected: nativeLanguage === lang.name }}
                 >
-                  <Text style={{ fontSize: 22 }}>{lang.flag}</Text>
-                  <Text style={{ flex: 1, fontSize: 15, fontWeight: nativeLanguage === lang.name ? '700' : '400', color: nativeLanguage === lang.name ? C.emeraldLight : C.text }}>
+                  <Text style={{ fontSize: scaledFont(22) }}>{lang.flag}</Text>
+                  <Text style={{ flex: 1, fontSize: scaledFont(15), fontWeight: nativeLanguage === lang.name ? '700' : '400', color: nativeLanguage === lang.name ? C.emeraldLight : C.text }}>
                     {lang.name}
                   </Text>
                   {nativeLanguage === lang.name && <CheckCircle size={16} color={C.emerald} />}
                   {/* Mic-off badge for unsupported languages */}
                   {SPEECH_UNSUPPORTED_LANGUAGES.includes(lang.name) && (
-                    <Text style={{ fontSize: 13 }}>🎤🚫</Text>
+                    <Text style={{ fontSize: scaledFont(13) }}>🎤🚫</Text>
                   )}
                 </TouchableOpacity>
               ))}
@@ -572,12 +584,12 @@ export default function ProfileScreen() {
               borderRadius: 12, padding: 12, marginTop: 10,
               borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '30',
             }}>
-              <Text style={{ fontSize: 20, marginTop: 1 }}>🎤</Text>
+              <Text style={{ fontSize: scaledFont(20), marginTop: 1 }}>🎤</Text>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: C.amber || '#FFBE0B', marginBottom: 3 }}>
+                <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.amber || '#FFBE0B', marginBottom: 3 }}>
                   Voice input limited for {nativeLanguage} speakers
                 </Text>
-                <Text style={{ fontSize: 12, color: C.textSec, lineHeight: 17 }}>
+                <Text style={{ fontSize: scaledFont(12), color: C.textSec, lineHeight: 17 }}>
                   Google's speech recognition doesn't fully support {nativeLanguage}. Voice input will be hidden in the Translation Trainer, but you can still use it in the Placement Test. This doesn't affect any other features.
                 </Text>
               </View>
@@ -591,7 +603,7 @@ export default function ProfileScreen() {
             <Languages size={18} color={C.amber} />
             <Text style={[sty.sectionTitle, { color: C.text }]}>{t.appLanguage}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('appLanguageHelp', 'Change the interface language')}</Text>
+          <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('appLanguageHelp', 'Change the interface language')}</Text>
           {/* Scrollable list — matches Native Language style */}
           <View style={{ height: 260, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '30' }}>
             <ScrollView
@@ -610,9 +622,12 @@ export default function ProfileScreen() {
                     borderLeftColor: C.amber,
                   }}
                   onPress={() => { setAppLanguage(lang.code); setLang(lang.code as any); }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select ${lang.label} as app language`}
+                  accessibilityState={{ selected: appLanguage === lang.code }}
                 >
-                  <Text style={{ fontSize: 22 }}>{lang.flag}</Text>
-                  <Text style={{ flex: 1, fontSize: 15, fontWeight: appLanguage === lang.code ? '700' : '400', color: appLanguage === lang.code ? (C.amberLight || '#FCD34D') : C.text }}>
+                  <Text style={{ fontSize: scaledFont(22) }}>{lang.flag}</Text>
+                  <Text style={{ flex: 1, fontSize: scaledFont(15), fontWeight: appLanguage === lang.code ? '700' : '400', color: appLanguage === lang.code ? (C.amberLight || '#FCD34D') : C.text }}>
                     {lang.label}
                   </Text>
                   {appLanguage === lang.code && <CheckCircle size={16} color={C.amber} />}
@@ -620,7 +635,7 @@ export default function ProfileScreen() {
               ))}
             </ScrollView>
           </View>
-          <Text style={{ fontSize: 11, color: C.textMuted, marginTop: 8, fontStyle: 'italic' }}>
+          <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 8, fontStyle: 'italic' }}>
             {ui('appLanguageNote', 'Note: Full interface translations coming soon. Grammar tips already use your native language.')}
           </Text>
         </View>
@@ -631,15 +646,23 @@ export default function ProfileScreen() {
             <BookOpen size={18} color={C.purple} />
             <Text style={[sty.sectionTitle, { color: C.text }]}>{ui('englishLevelCefr', 'English Level (CEFR)')}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('levelDifficultyHelp', 'Exercises will match this difficulty')}</Text>
+          <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('levelDifficultyHelp', 'Exercises will match this difficulty')}</Text>
           {LEVELS.map(l => (
-            <TouchableOpacity key={l.code} style={[sty.levelRow, level === l.code && { backgroundColor: C.emeraldDark }]} onPress={() => setLevel(l.code)}>
+            <TouchableOpacity
+              key={l.code}
+              style={[sty.levelRow, level === l.code && { backgroundColor: C.emeraldDark }]}
+              onPress={() => setLevel(l.code)}
+              accessibilityRole="button"
+              accessibilityLabel={`Select level ${l.code}, ${l.label}`}
+              accessibilityHint={l.desc}
+              accessibilityState={{ selected: level === l.code }}
+            >
               <View style={[sty.levelBadge, { backgroundColor: level === l.code ? C.emerald + '30' : C.cardAlt }]}>
                 <Text style={[sty.levelCode, { color: level === l.code ? C.emeraldLight : C.textMuted }]}>{l.code}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: level === l.code ? C.text : C.textSec }}>{l.label}</Text>
-                <Text style={{ fontSize: 12, color: C.textMuted }}>{l.desc}</Text>
+                <Text style={{ fontSize: scaledFont(15), fontWeight: '600', color: level === l.code ? C.text : C.textSec }}>{l.label}</Text>
+                <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>{l.desc}</Text>
               </View>
               {level === l.code && <CheckCircle size={18} color={C.emerald} />}
             </TouchableOpacity>
@@ -647,7 +670,12 @@ export default function ProfileScreen() {
         </View>
 
         {/* ── SAVE ── */}
-        <TouchableOpacity style={[sty.saveBtn, { backgroundColor: C.emerald }]} onPress={saveProfile}>
+        <TouchableOpacity
+          style={[sty.saveBtn, { backgroundColor: C.emerald }]}
+          onPress={saveProfile}
+          accessibilityRole="button"
+          accessibilityLabel="Save profile"
+        >
           {saved ? (
             <><CheckCircle size={20} color="#fff" /><Text style={sty.saveBtnText}>{ui('savedBang', 'Saved!')}</Text></>
           ) : (
@@ -656,8 +684,14 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         {hasProfile && (
-          <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 12 }} onPress={() => setMode('view')}>
-            <Text style={{ fontSize: 14, color: C.textMuted }}>{t.cancel}</Text>
+          <TouchableOpacity
+            style={{ alignItems: 'center', paddingVertical: 12 }}
+            onPress={() => setMode('view')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel editing profile"
+          >
+            <Text style={{ fontSize: scaledFont(14), color: C.textMuted }}>{t.cancel}</Text>
           </TouchableOpacity>
         )}
 
@@ -671,7 +705,7 @@ export default function ProfileScreen() {
 function dynamicStyles(C) {
   return {
     sectionCard: { backgroundColor: C.card, borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: C.border + '20' },
-    input: { backgroundColor: C.inputBg, borderRadius: 10, padding: 12, fontSize: 15, color: C.text, borderWidth: 1, borderColor: C.border + '40' },
+    input: { backgroundColor: C.inputBg, borderRadius: 10, padding: 12, fontSize: scaledFont(15), color: C.text, borderWidth: 1, borderColor: C.border + '40' },
     langCard: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.inputBg, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: C.border + '30' },
     langCardActive: { borderColor: C.emerald, backgroundColor: C.emeraldDark },
   };
@@ -684,16 +718,16 @@ const sty = StyleSheet.create({
   avatarImage: { width: 76, height: 76, borderRadius: 38 },
   cameraIcon: { position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  sectionTitle: { fontSize: 17, fontWeight: '700' },
+  sectionTitle: { fontSize: scaledFont(17), fontWeight: '700' },
   fieldRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
   fieldInput: { flex: 1 },
   langGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  langFlag: { fontSize: 18 },
-  langName: { fontSize: 13, fontWeight: '500' },
+  langFlag: { fontSize: scaledFont(18) },
+  langName: { fontSize: scaledFont(13), fontWeight: '500' },
   levelRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 8, borderRadius: 10, marginBottom: 4 },
   levelBadge: { width: 40, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  levelCode: { fontSize: 14, fontWeight: '800' },
+  levelCode: { fontSize: scaledFont(14), fontWeight: '800' },
   saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 14, paddingVertical: 16, marginBottom: 8 },
-  saveBtnText: { fontSize: 17, fontWeight: '700', color: '#fff' },
+  saveBtnText: { fontSize: scaledFont(17), fontWeight: '700', color: '#fff' },
   backBtn: { position: 'absolute', top: 0, left: 0, width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.08)', zIndex: 10 },
 });

@@ -32,6 +32,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
@@ -597,6 +598,10 @@ export default function TOEFLScreen() {
             key={i}
             style={[S.card]}
             onPress={() => toggle(i, expandedPart, setExpandedPart)}
+            accessibilityRole="button"
+            accessibilityLabel={`${part.title}, part ${i + 1}`}
+            accessibilityHint={expandedPart === i ? 'Collapses task details' : 'Expands task details and tips'}
+            accessibilityState={{ expanded: expandedPart === i }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View style={{ backgroundColor: sec.colour + '20', width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' }}>
@@ -688,6 +693,9 @@ export default function TOEFLScreen() {
           <TouchableOpacity
             style={{ backgroundColor: sec.colour + '18', borderRadius: 14, padding: 16, alignItems: 'center', marginTop: 4, borderWidth: 1.5, borderColor: sec.colour + '50' }}
             onPress={() => startPractice(sectionId === 'writing' ? 'writing_email' : 'speaking_interview')}
+            accessibilityRole="button"
+            accessibilityLabel={`Practice ${sec.label} with AI`}
+            accessibilityHint="Opens the AI practice modal for this section"
           >
             <Icon size={20} color={sec.colour} />
             <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: sec.colour, marginTop: 6 }}>{t.practiceWithAITemplate.replace('{paper}', sec.label)}</Text>
@@ -712,7 +720,14 @@ export default function TOEFLScreen() {
         { id: 'reading_completion', label: 'Fill in the Blanks',       desc: 'Complete sentences using words from an academic passage. Tests vocabulary and reading comprehension.', colour: '#00E5A0', icon: '📝', badge: 'NEW 2026' },
         { id: 'reading_prose',     label: 'Academic Passage — MCQ',   desc: 'Read an academic text and answer multiple-choice questions on detail, inference, and purpose.', colour: '#00E5A0', icon: '🔍', badge: '' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -731,7 +746,14 @@ export default function TOEFLScreen() {
         { id: 'listening_campus',  label: 'Campus Conversation',      desc: 'Answer questions about a student-to-student or student-to-staff conversation.', colour: '#00E5FF', icon: '🗣️', badge: 'NEW 2026' },
         { id: 'listening_lecture', label: 'Academic Lecture',         desc: 'Take notes on a university lecture and answer comprehension questions.', colour: '#00E5FF', icon: '🎓', badge: '' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -750,7 +772,14 @@ export default function TOEFLScreen() {
         { id: 'writing_email',      label: 'Email Task',               desc: 'Write a short functional email in response to a campus situation. 7-minute task.', colour: '#FFBE0B', icon: '✉️', badge: 'NEW 2026' },
         { id: 'writing_discussion', label: 'Academic Discussion Post', desc: 'Contribute to a class discussion board with your opinion, reasons, and examples.', colour: '#FFBE0B', icon: '💬', badge: '' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -769,7 +798,14 @@ export default function TOEFLScreen() {
         { id: 'speaking_repeat',    label: 'Listen and Repeat',        desc: 'Practice pronunciation, stress, and intonation with academic phrases and sentences.', colour: '#B06CFF', icon: '🔊', badge: 'NEW 2026' },
         { id: 'speaking_interview', label: 'Interview Questions',      desc: 'Respond to personal and campus-topic questions. Write what you would say aloud.', colour: '#B06CFF', icon: '🎤', badge: 'NEW 2026' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -813,6 +849,10 @@ export default function TOEFLScreen() {
             key={i}
             style={[S.card, { borderColor: colour + '30' }]}
             onPress={() => toggle(i, expandedScore, setExpandedScore)}
+            accessibilityRole="button"
+            accessibilityLabel={`Band ${row.band}, ${row.label}, CEFR ${row.cefr}`}
+            accessibilityHint={expandedScore === i ? 'Collapses band description' : 'Expands band description'}
+            accessibilityState={{ expanded: expandedScore === i }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colour + '20', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: colour + '50' }}>
@@ -877,7 +917,13 @@ export default function TOEFLScreen() {
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
           <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>{t.toeflPractice}</Text>
-          <TouchableOpacity onPress={() => setPracticeModal(false)}>
+          <TouchableOpacity
+            onPress={() => setPracticeModal(false)}
+            accessibilityRole="button"
+            accessibilityLabel="Close practice"
+            accessibilityHint="Closes the practice modal"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
             <X size={24} color={C.text} />
           </TouchableOpacity>
         </View>
@@ -894,6 +940,10 @@ export default function TOEFLScreen() {
                 setPracticePrompt(prompts[Math.floor(Math.random() * prompts.length)]);
                 setPracticeInput(''); setPracticeResult(null);
               }}
+              accessibilityRole="button"
+              accessibilityLabel="New prompt"
+              accessibilityHint="Loads a different practice prompt and clears your response"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>🔀 New Prompt</Text>
             </TouchableOpacity>
@@ -946,6 +996,10 @@ export default function TOEFLScreen() {
                 style={{ backgroundColor: C.emerald, borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8, opacity: practiceLoading ? 0.7 : 1 }}
                 onPress={submitPractice}
                 disabled={practiceLoading}
+                accessibilityRole="button"
+                accessibilityLabel={practiceLoading ? 'Analysing your response' : 'Submit for AI feedback'}
+                accessibilityHint="Sends your response for AI-graded band feedback"
+                accessibilityState={{ disabled: practiceLoading, busy: practiceLoading }}
               >
                 {practiceLoading ? <ActivityIndicator color="#000" /> : <Send size={18} color="#000" />}
                 <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: '#000' }}>
@@ -1051,6 +1105,9 @@ export default function TOEFLScreen() {
               <TouchableOpacity
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
                 onPress={() => { setPracticeInput(''); setPracticeResult(null); setShowVocabSave(false); setSaveWord(''); }}
+                accessibilityRole="button"
+                accessibilityLabel={wt('try-again')}
+                accessibilityHint="Clears your response and feedback so you can try the prompt again"
               >
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
@@ -1103,6 +1160,10 @@ export default function TOEFLScreen() {
               key={tab.id}
               style={{ flexDirection: 'column', alignItems: 'center', gap: 0, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minWidth: 58, backgroundColor: isActive ? '#343579' + '30' : C.card + 'AA', borderWidth: 1, borderColor: isActive ? '#7B7FD4' + '60' : C.border + '40' }}
               onPress={() => { setActiveTab(tab.id); setExpandedPart(null); setExpandedScore(null); }}
+              accessibilityRole="tab"
+              accessibilityLabel={tab.label}
+              accessibilityState={{ selected: isActive }}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             >
               <Icon size={14} color={isActive ? activeColor : '#9CA3AF'} />
               <Text style={{ fontSize: scaledFont(10), fontWeight: isActive ? '800' : '500', color: isActive ? activeColor : '#9CA3AF', marginTop: 2 }}>{tab.label}</Text>
@@ -1117,6 +1178,7 @@ export default function TOEFLScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
+        <AIDisclosureBanner compact />
         {activeTab === 'overview'  && renderOverview()}
         {activeTab === 'reading'   && renderSection('reading')}
         {activeTab === 'listening' && renderSection('listening')}

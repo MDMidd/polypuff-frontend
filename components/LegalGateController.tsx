@@ -128,7 +128,13 @@ export default function LegalGateController({ onComplete }) {
 
   if (loading || currentScreen === 'loading') {
     return (
-      <View style={s.loadingContainer}>
+      <View
+        style={s.loadingContainer}
+        accessible
+        accessibilityRole="progressbar"
+        accessibilityLabel="Loading Poly-Puff"
+        accessibilityLiveRegion="polite"
+      >
         <ActivityIndicator size="large" color={C.cyan} />
         <Text style={s.loadingText}>Loading...</Text>
       </View>

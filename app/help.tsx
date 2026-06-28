@@ -32,6 +32,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
+import { scaledFont } from '../utils/accessibility';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -48,7 +49,15 @@ function Section({ title, icon: Icon, iconColor, children, C }) {
 
   return (
     <View style={[st.section, { borderColor: (iconColor || C.border) + '25' }]}>
-      <TouchableOpacity onPress={toggle} style={st.sectionHeader} activeOpacity={0.7}>
+      <TouchableOpacity
+        onPress={toggle}
+        style={st.sectionHeader}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`${title} section`}
+        accessibilityHint={open ? 'Double tap to collapse' : 'Double tap to expand'}
+        accessibilityState={{ expanded: open }}
+      >
         <View style={[st.sectionIconBg, { backgroundColor: (iconColor || C.cyan) + '15' }]}>
           {Icon && <Icon size={18} color={iconColor || C.cyan} />}
         </View>
@@ -127,7 +136,16 @@ function FeatureCard({ icon: Icon, title, text, color, C }) {
 function FAQ({ q, a, C }) {
   const [open, setOpen] = useState(false);
   return (
-    <TouchableOpacity onPress={() => { LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); setOpen(!open); }} style={st.faqItem} activeOpacity={0.7}>
+    <TouchableOpacity
+      onPress={() => { LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); setOpen(!open); }}
+      style={st.faqItem}
+      activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`FAQ: ${q}`}
+      accessibilityHint={open ? 'Double tap to hide answer' : 'Double tap to show answer'}
+      accessibilityState={{ expanded: open }}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <HelpCircle size={14} color={C.cyan || '#00E5FF'} />
         <Text style={[st.faqQ, { color: C.text }]}>{q}</Text>
@@ -456,10 +474,10 @@ export default function HelpScreen() {
             backgroundColor: C.card,
           }}
         >
-          <Text style={{ fontSize: 15, fontWeight: '800', color: C.text, marginBottom: 6 }}>
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 6 }}>
             Still need help?
           </Text>
-          <Text style={{ fontSize: 13, color: C.textSec, textAlign: 'center', lineHeight: 19, marginBottom: 14 }}>
+          <Text style={{ fontSize: scaledFont(13), color: C.textSec, textAlign: 'center', lineHeight: 19, marginBottom: 14 }}>
             Our support team is happy to help with any questions.
           </Text>
           <TouchableOpacity
@@ -475,7 +493,7 @@ export default function HelpScreen() {
             accessibilityRole="button"
             accessibilityLabel="Send a message"
           >
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#06111F' }}>Send a Message</Text>
+            <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: '#06111F' }}>Send a Message</Text>
           </TouchableOpacity>
         </View>
 
@@ -494,7 +512,7 @@ const st = StyleSheet.create({
     borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12,
     borderWidth: 1, maxWidth: '90%', marginTop: 8,
   },
-  welcomeText: { fontSize: 14, fontWeight: '500', textAlign: 'center', lineHeight: 21 },
+  welcomeText: { fontSize: scaledFont(14), fontWeight: '500', textAlign: 'center', lineHeight: 21 },
 
   section: {
     borderRadius: 16, borderWidth: 1, marginBottom: 12, overflow: 'hidden',
@@ -507,33 +525,33 @@ const st = StyleSheet.create({
   sectionIconBg: {
     width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
   },
-  sectionTitle: { flex: 1, fontSize: 16, fontWeight: '700' },
+  sectionTitle: { flex: 1, fontSize: scaledFont(16), fontWeight: '700' },
   sectionBody: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1 },
 
-  body: { fontSize: 13, lineHeight: 20, marginBottom: 12, marginTop: 8 },
+  body: { fontSize: scaledFont(13), lineHeight: 20, marginBottom: 12, marginTop: 8 },
 
   // Getting started
   startSteps: { gap: 10, marginTop: 4 },
   startStep: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  startEmoji: { fontSize: 18, marginTop: 1 },
-  startText: { flex: 1, fontSize: 13, lineHeight: 19 },
+  startEmoji: { fontSize: scaledFont(18), marginTop: 1 },
+  startText: { flex: 1, fontSize: scaledFont(13), lineHeight: 19 },
 
   // Exercise guides
   exGuide: {
     borderLeftWidth: 3, paddingLeft: 12, marginTop: 14, marginBottom: 6,
   },
-  exName: { fontSize: 14, fontWeight: '700' },
+  exName: { fontSize: scaledFont(14), fontWeight: '700' },
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 6 },
   stepNum: {
     width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginTop: 1,
   },
-  stepNumText: { fontSize: 11, fontWeight: '800' },
-  stepText: { flex: 1, fontSize: 12, lineHeight: 18 },
+  stepNumText: { fontSize: scaledFont(11), fontWeight: '800' },
+  stepText: { flex: 1, fontSize: scaledFont(12), lineHeight: 18 },
   tipRow: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8, borderWidth: 1, marginTop: 6,
   },
-  tipText: { fontSize: 11, color: '#FDE68A', lineHeight: 16, flex: 1 },
+  tipText: { fontSize: scaledFont(11), color: '#FDE68A', lineHeight: 16, flex: 1 },
 
   // CEFR levels
   levelCard: {
@@ -542,10 +560,10 @@ const st = StyleSheet.create({
   levelBadge: {
     paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8,
   },
-  levelCode: { fontSize: 13, fontWeight: '800' },
-  levelName: { fontSize: 14, fontWeight: '700' },
-  levelDesc: { fontSize: 12, lineHeight: 17, marginTop: 2 },
-  levelEx: { fontSize: 11, fontStyle: 'italic', marginTop: 3, lineHeight: 16 },
+  levelCode: { fontSize: scaledFont(13), fontWeight: '800' },
+  levelName: { fontSize: scaledFont(14), fontWeight: '700' },
+  levelDesc: { fontSize: scaledFont(12), lineHeight: 17, marginTop: 2 },
+  levelEx: { fontSize: scaledFont(11), fontStyle: 'italic', marginTop: 3, lineHeight: 16 },
 
   // Feature summaries
   featureCard: {
@@ -555,8 +573,8 @@ const st = StyleSheet.create({
   featureIcon: {
     width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center',
   },
-  featureTitle: { fontSize: 13, fontWeight: '700', marginBottom: 3 },
-  featureText: { fontSize: 12, lineHeight: 17 },
+  featureTitle: { fontSize: scaledFont(13), fontWeight: '700', marginBottom: 3 },
+  featureText: { fontSize: scaledFont(12), lineHeight: 17 },
 
   // Scoring
   scoreGrid: { gap: 8, marginTop: 8, marginBottom: 14 },
@@ -564,24 +582,24 @@ const st = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 12,
     borderLeftWidth: 3, paddingLeft: 10, paddingVertical: 4,
   },
-  scoreRange: { fontSize: 13, fontWeight: '800', width: 52 },
-  scoreLabel: { fontSize: 13, fontWeight: '700' },
-  scoreDesc: { fontSize: 11, lineHeight: 15 },
+  scoreRange: { fontSize: scaledFont(13), fontWeight: '800', width: 52 },
+  scoreLabel: { fontSize: scaledFont(13), fontWeight: '700' },
+  scoreDesc: { fontSize: scaledFont(11), lineHeight: 15 },
   discussBox: {
     borderRadius: 12, borderWidth: 1, padding: 14,
   },
-  discussTitle: { fontSize: 14, fontWeight: '700' },
+  discussTitle: { fontSize: scaledFont(14), fontWeight: '700' },
 
   // Tips
   tipCard: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 10,
   },
-  tipEmoji: { fontSize: 20, marginTop: 1 },
-  tipTitle: { fontSize: 13, fontWeight: '700', marginBottom: 2 },
-  tipBody: { fontSize: 12, lineHeight: 17 },
+  tipEmoji: { fontSize: scaledFont(20), marginTop: 1 },
+  tipTitle: { fontSize: scaledFont(13), fontWeight: '700', marginBottom: 2 },
+  tipBody: { fontSize: scaledFont(12), lineHeight: 17 },
 
   // FAQ
   faqItem: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
-  faqQ: { fontSize: 13, fontWeight: '700', flex: 1 },
-  faqA: { fontSize: 12, lineHeight: 18, marginTop: 6, paddingLeft: 22 },
+  faqQ: { fontSize: scaledFont(13), fontWeight: '700', flex: 1 },
+  faqA: { fontSize: scaledFont(12), lineHeight: 18, marginTop: 6, paddingLeft: 22 },
 });

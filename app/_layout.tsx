@@ -173,13 +173,26 @@ function DrawerMenu({ visible, onClose }: { visible: boolean; onClose: () => voi
 }
 
 // ═══ FIRST-TIME PROFILE CHECK ═══
+// Sends the user to the profile screen on first entry so they can fill it out
+// before hitting the practice hub. Two triggers:
+//   1. No 'userProfile' key at all (truly never set up).
+//   2. 'needsProfileSetup' flag — set by handleOnboardingComplete and cleared
+//      here, so the redirect fires exactly once after the onboarding slideshow.
 function FirstTimeCheck() {
   const router = useRouter();
   useEffect(() => {
     (async () => {
       try {
-        const data = await AsyncStorage.getItem('userProfile');
-        if (!data) router.replace('/profile');
+        const [data, needsProfileSetup] = await Promise.all([
+          AsyncStorage.getItem('userProfile'),
+          AsyncStorage.getItem('needsProfileSetup'),
+        ]);
+        if (!data || needsProfileSetup === 'true') {
+          if (needsProfileSetup === 'true') {
+            await AsyncStorage.removeItem('needsProfileSetup');
+          }
+          router.replace('/profile');
+        }
       } catch (e) {}
     })();
   }, []);
@@ -296,6 +309,7 @@ function AppWithOnboarding() {
 
   const handleOnboardingComplete = async () => {
     await AsyncStorage.setItem('onboardingComplete', 'true');
+    await AsyncStorage.setItem('needsProfileSetup', 'true');
     setShowOnboarding(false);
   };
 

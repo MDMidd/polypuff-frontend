@@ -59,6 +59,7 @@ import { recordExerciseTime } from '../services/timerService';
 import { pushVaults } from '../services/syncService';
 import { recordModuleProgress } from '../services/progressService';
 import PolyPuffScene from '../components/PolyPuffScene';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
@@ -750,6 +751,9 @@ export default function PracticeScreen() {
       weakAreas: (mistakes || []).map(m => ({
         category: m.type || 'Grammar',
         description: m.explanation || m.found || '',
+        ruleId: m.rule_id || null,
+        found: m.found || '',
+        expected: m.expected || '',
       })),
     });
   };
@@ -886,6 +890,8 @@ export default function PracticeScreen() {
       <ScrollView ref={scrollRef} style={s.scrollView} contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
 
         <PolyPuffScene size={600} />
+
+        <AIDisclosureBanner compact />
 
         {!sessionPaused && (<>
           {/* ✅ A11Y: Level pills with tablist */}

@@ -469,6 +469,12 @@ export interface Translations {
   yourTask?: string;
   yourTaskPrompt?: string;
   yourTranslation?: string;
+  // AI disclosure (EU AI Act Art. 50). Optional everywhere — banner falls back
+  // to the English string when a language pack omits these.
+  aiDisclosureCompact?: string;
+  aiDisclosureFull?: string;
+  aiDisclosureExpand?: string;
+  aiDisclosureMinimize?: string;
 }
 
 const t: Record<LangCode, Translations> = {
@@ -837,6 +843,10 @@ const t: Record<LangCode, Translations> = {
     digestSendFailedTitle: 'Send Failed',
     digestSendFailedMsg: 'Could not send the digest. Please try again.',
     digestEnabledBlurb: "You'll receive a summary every Monday with your scores, streak, XP, and top areas to improve. To unsubscribe, toggle this off.",
+    aiDisclosureCompact: 'Powered by AI — responses may contain errors',
+    aiDisclosureFull: 'This feature is powered by AI (OpenAI). Responses are generated automatically and may contain errors. Your grammar rules database is always the final authority.',
+    aiDisclosureExpand: 'AI-powered feature. Tap to see details.',
+    aiDisclosureMinimize: 'Minimize AI disclosure banner',
   },
   af: {
     home: 'Tuis', practice: 'Oefen', progress: 'Vordering',
@@ -1016,6 +1026,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Oefeningstipe',
     teacherGroupAssignmentTitle: 'Opdragnaam',
     teacherGroupAssignmentPlaceholder: 'bv. Verlede tyd oefening – Sake-Engels',
+    aiDisclosureCompact: 'Aangedryf deur KI — antwoorde kan foute bevat',
+    aiDisclosureFull: 'Hierdie kenmerk word aangedryf deur KI (OpenAI). Antwoorde word outomaties gegenereer en kan foute bevat. Jou grammatikareëls-databasis is altyd die finale gesag.',
+    aiDisclosureExpand: 'KI-kenmerk. Tik om besonderhede te sien.',
+    aiDisclosureMinimize: 'Minimeer KI-kennisgewingbalk',
   },
   am: {
     home: 'መነሻ', practice: 'ልምምድ', progress: 'እድገት',
@@ -1374,6 +1388,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'نوع التمرين',
     teacherGroupAssignmentTitle: 'عنوان الواجب',
     teacherGroupAssignmentPlaceholder: 'مثلاً: ممارسة زمن الماضي – إنجليزية الأعمال',
+    aiDisclosureCompact: 'مدعوم بالذكاء الاصطناعي — قد تحتوي الردود على أخطاء',
+    aiDisclosureFull: 'هذه الميزة مدعومة بالذكاء الاصطناعي (OpenAI). يتم إنشاء الردود تلقائيًا وقد تحتوي على أخطاء. قاعدة بيانات قواعد النحو الخاصة بك هي المرجع النهائي دائمًا.',
+    aiDisclosureExpand: 'ميزة مدعومة بالذكاء الاصطناعي. اضغط للاطلاع على التفاصيل.',
+    aiDisclosureMinimize: 'تصغير شريط الإفصاح عن الذكاء الاصطناعي',
   },
   bn: {
     home: 'হোম', practice: 'অনুশীলন', progress: 'অগ্রগতি',
@@ -1553,6 +1571,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'অনুশীলনের ধরন',
     teacherGroupAssignmentTitle: 'অ্যাসাইনমেন্টের শিরোনাম',
     teacherGroupAssignmentPlaceholder: 'যেমন বিগত কাল অনুশীলন – বিজনেস ইংলিশ',
+    aiDisclosureCompact: 'AI দ্বারা চালিত — উত্তরে ভুল থাকতে পারে',
+    aiDisclosureFull: 'এই বৈশিষ্ট্যটি AI (OpenAI) দ্বারা চালিত। উত্তরগুলি স্বয়ংক্রিয়ভাবে তৈরি হয় এবং এতে ভুল থাকতে পারে। আপনার ব্যাকরণ নিয়ম ডেটাবেস সর্বদা চূড়ান্ত কর্তৃপক্ষ।',
+    aiDisclosureExpand: 'AI বৈশিষ্ট্য। বিস্তারিত দেখতে ট্যাপ করুন।',
+    aiDisclosureMinimize: 'AI বিজ্ঞপ্তি ব্যানার ছোট করুন',
   },
   bg: {
     home: 'Начало', practice: 'Практика', progress: 'Напредък',
@@ -1732,6 +1754,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Вид упражнение',
     teacherGroupAssignmentTitle: 'Заглавие на заданието',
     teacherGroupAssignmentPlaceholder: 'напр. Практика на минало време – Бизнес английски',
+    aiDisclosureCompact: 'Задвижвано от ИИ — отговорите може да съдържат грешки',
+    aiDisclosureFull: 'Тази функция е задвижвана от ИИ (OpenAI). Отговорите се генерират автоматично и може да съдържат грешки. Вашата база данни с граматични правила винаги е окончателният авторитет.',
+    aiDisclosureExpand: 'Функция с ИИ. Докоснете за повече подробности.',
+    aiDisclosureMinimize: 'Минимизирай известието за ИИ',
   },
   cs: {
     home: 'Domů', practice: 'Cvičení', progress: 'Pokrok',
@@ -1911,6 +1937,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Typ cvičení',
     teacherGroupAssignmentTitle: 'Název úkolu',
     teacherGroupAssignmentPlaceholder: 'např. Procvičování minulého času – Obchodní angličtina',
+    aiDisclosureCompact: 'Poháněno umělou inteligencí — odpovědi mohou obsahovat chyby',
+    aiDisclosureFull: 'Tato funkce je poháněna umělou inteligencí (OpenAI). Odpovědi jsou generovány automaticky a mohou obsahovat chyby. Vaše databáze gramatických pravidel má vždy poslední slovo.',
+    aiDisclosureExpand: 'Funkce s umělou inteligencí. Klepněte pro podrobnosti.',
+    aiDisclosureMinimize: 'Minimalizovat oznámení o AI',
   },
   da: {
     home: 'Hjem', practice: 'Øvelse', progress: 'Fremgang',
@@ -2090,6 +2120,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Øvelsestype',
     teacherGroupAssignmentTitle: 'Opgavetitel',
     teacherGroupAssignmentPlaceholder: 'f.eks. Øvelse i datid – Erhvervsengelsk',
+    aiDisclosureCompact: 'Drevet af AI — svar kan indeholde fejl',
+    aiDisclosureFull: 'Denne funktion drives af AI (OpenAI). Svar genereres automatisk og kan indeholde fejl. Din database med grammatikregler har altid det sidste ord.',
+    aiDisclosureExpand: 'AI-funktion. Tryk for at se detaljer.',
+    aiDisclosureMinimize: 'Minimer AI-oplysningsbanner',
   },
   nl: {
     home: 'Thuis', practice: 'Oefenen', progress: 'Voortgang',
@@ -2269,6 +2303,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Oefentype',
     teacherGroupAssignmentTitle: 'Opdrachttitel',
     teacherGroupAssignmentPlaceholder: 'bijv. Verleden tijd oefening – Zakelijk Engels',
+    aiDisclosureCompact: 'Aangedreven door AI — antwoorden kunnen fouten bevatten',
+    aiDisclosureFull: 'Deze functie wordt aangedreven door AI (OpenAI). Antwoorden worden automatisch gegenereerd en kunnen fouten bevatten. Jouw database met grammaticaregels is altijd de uiteindelijke autoriteit.',
+    aiDisclosureExpand: 'AI-functie. Tik voor details.',
+    aiDisclosureMinimize: 'AI-meldingsbanner minimaliseren',
   },
   fi: {
     home: 'Koti', practice: 'Harjoittelu', progress: 'Edistyminen',
@@ -2448,6 +2486,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Harjoitustyyppi',
     teacherGroupAssignmentTitle: 'Tehtävän otsikko',
     teacherGroupAssignmentPlaceholder: 'esim. Menneen ajan harjoittelu – Business-englanti',
+    aiDisclosureCompact: 'Tekoälyn tukema — vastaukset voivat sisältää virheitä',
+    aiDisclosureFull: 'Tämä toiminto on tekoälyn (OpenAI) tukema. Vastaukset luodaan automaattisesti ja voivat sisältää virheitä. Kielioppisääntötietokantasi on aina lopullinen auktoriteetti.',
+    aiDisclosureExpand: 'Tekoälytoiminto. Napauta nähdäksesi tiedot.',
+    aiDisclosureMinimize: 'Pienennä tekoälyilmoitusbanneri',
   },
   fr: {
     home: 'Accueil', practice: 'Entraînement', progress: 'Progrès',
@@ -2627,6 +2669,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Type d\'exercice',
     teacherGroupAssignmentTitle: 'Titre du devoir',
     teacherGroupAssignmentPlaceholder: 'ex. Pratique du passé – Anglais des affaires',
+    aiDisclosureCompact: 'Propulsé par l\'IA — les réponses peuvent contenir des erreurs',
+    aiDisclosureFull: 'Cette fonctionnalité est propulsée par l\'IA (OpenAI). Les réponses sont générées automatiquement et peuvent contenir des erreurs. Votre base de règles grammaticales fait toujours autorité.',
+    aiDisclosureExpand: 'Fonctionnalité avec IA. Appuyez pour voir les détails.',
+    aiDisclosureMinimize: 'Réduire l\'avis IA',
   },
   de: {
     home: 'Startseite', practice: 'Übung', progress: 'Fortschritt',
@@ -2806,6 +2852,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Übungstyp',
     teacherGroupAssignmentTitle: 'Aufgabentitel',
     teacherGroupAssignmentPlaceholder: 'z. B. Übung Vergangenheit – Business-Englisch',
+    aiDisclosureCompact: 'Mit KI — Antworten können Fehler enthalten',
+    aiDisclosureFull: 'Diese Funktion wird von KI (OpenAI) unterstützt. Antworten werden automatisch generiert und können Fehler enthalten. Deine Grammatikregel-Datenbank ist immer die letzte Instanz.',
+    aiDisclosureExpand: 'KI-Funktion. Tippe für Details.',
+    aiDisclosureMinimize: 'KI-Hinweis minimieren',
   },
   el: {
     home: 'Αρχική', practice: 'Εξάσκηση', progress: 'Πρόοδος',
@@ -2985,6 +3035,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Τύπος άσκησης',
     teacherGroupAssignmentTitle: 'Τίτλος ανάθεσης',
     teacherGroupAssignmentPlaceholder: 'π.χ. Εξάσκηση παρελθοντικού χρόνου – Επαγγελματικά Αγγλικά',
+    aiDisclosureCompact: 'Με τεχνητή νοημοσύνη — οι απαντήσεις μπορεί να περιέχουν λάθη',
+    aiDisclosureFull: 'Αυτή η λειτουργία υποστηρίζεται από τεχνητή νοημοσύνη (OpenAI). Οι απαντήσεις παράγονται αυτόματα και μπορεί να περιέχουν λάθη. Η βάση δεδομένων κανόνων γραμματικής σας είναι πάντα η τελική αυθεντία.',
+    aiDisclosureExpand: 'Λειτουργία με τεχνητή νοημοσύνη. Πατήστε για λεπτομέρειες.',
+    aiDisclosureMinimize: 'Ελαχιστοποίηση ειδοποίησης τεχνητής νοημοσύνης',
   },
   gu: {
     home: 'હોમ', practice: 'અભ્યાસ', progress: 'પ્રગતિ',
@@ -3164,6 +3218,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'કસરત પ્રકાર',
     teacherGroupAssignmentTitle: 'સોંપણી શીર્ષક',
     teacherGroupAssignmentPlaceholder: 'દા.ત. ભૂતકાળ – બિઝનેસ અંગ્રેજી',
+    aiDisclosureCompact: 'AI દ્વારા સંચાલિત — જવાબોમાં ભૂલો હોઈ શકે છે',
+    aiDisclosureFull: 'આ સુવિધા AI (OpenAI) દ્વારા સંચાલિત છે. જવાબો સ્વચાલિતરૂપે જનરેટ થાય છે અને તેમાં ભૂલો હોઈ શકે છે. તમારો વ્યાકરણ નિયમ ડેટાબેઝ હંમેશા અંતિમ સત્તા છે.',
+    aiDisclosureExpand: 'AI સુવિધા. વિગતો માટે ટેપ કરો.',
+    aiDisclosureMinimize: 'AI સૂચના બેનરને નાનું કરો',
   },
   ha: {
     home: 'Gida', practice: 'Aiki', progress: 'Ci Gaba',
@@ -3522,6 +3580,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'סוג תרגיל',
     teacherGroupAssignmentTitle: 'כותרת משימה',
     teacherGroupAssignmentPlaceholder: 'לדוגמה תרגול עבר – אנגלית עסקית',
+    aiDisclosureCompact: 'מופעל באמצעות בינה מלאכותית — התשובות עשויות לכלול שגיאות',
+    aiDisclosureFull: 'תכונה זו מופעלת באמצעות בינה מלאכותית (OpenAI). התשובות נוצרות אוטומטית ועשויות לכלול שגיאות. בסיס הנתונים של כללי הדקדוק שלך הוא תמיד הסמכות הסופית.',
+    aiDisclosureExpand: 'תכונה מבוססת בינה מלאכותית. הקש לפרטים.',
+    aiDisclosureMinimize: 'מזער את שורת הודעת הבינה המלאכותית',
   },
   hi: {
     home: 'होम', practice: 'अभ्यास', progress: 'प्रगति',
@@ -3701,6 +3763,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'अभ्यास प्रकार',
     teacherGroupAssignmentTitle: 'असाइनमेंट शीर्षक',
     teacherGroupAssignmentPlaceholder: 'जैसे पास्ट टेंस अभ्यास – बिज़नेस इंग्लिश',
+    aiDisclosureCompact: 'AI द्वारा संचालित — उत्तरों में त्रुटियाँ हो सकती हैं',
+    aiDisclosureFull: 'यह सुविधा AI (OpenAI) द्वारा संचालित है। उत्तर स्वचालित रूप से उत्पन्न होते हैं और इनमें त्रुटियाँ हो सकती हैं। आपका व्याकरण नियम डेटाबेस हमेशा अंतिम प्राधिकरण है।',
+    aiDisclosureExpand: 'AI सुविधा। विवरण के लिए टैप करें।',
+    aiDisclosureMinimize: 'AI सूचना बैनर को छोटा करें',
   },
   hu: {
     home: 'Főoldal', practice: 'Gyakorlás', progress: 'Előrehaladás',
@@ -3880,6 +3946,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Gyakorlat típusa',
     teacherGroupAssignmentTitle: 'Feladat címe',
     teacherGroupAssignmentPlaceholder: 'pl. Múlt idő gyakorlás – üzleti angol',
+    aiDisclosureCompact: 'Mesterséges intelligencia hajtja — a válaszok hibákat tartalmazhatnak',
+    aiDisclosureFull: 'Ezt a funkciót mesterséges intelligencia (OpenAI) hajtja. A válaszok automatikusan generálódnak, és hibákat tartalmazhatnak. A nyelvtani szabályok adatbázisa mindig a végső hivatkozási pont.',
+    aiDisclosureExpand: 'Mesterséges intelligencia funkció. Koppintson a részletekért.',
+    aiDisclosureMinimize: 'AI értesítési sáv kicsinyítése',
   },
   ig: {
     home: 'Ụlọ', practice: 'Ịmụ', progress: 'Ọganihu',
@@ -4238,6 +4308,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Jenis latihan',
     teacherGroupAssignmentTitle: 'Judul tugas',
     teacherGroupAssignmentPlaceholder: 'mis. Latihan past tense – Bahasa Inggris Bisnis',
+    aiDisclosureCompact: 'Didukung oleh AI — respons mungkin mengandung kesalahan',
+    aiDisclosureFull: 'Fitur ini didukung oleh AI (OpenAI). Respons dihasilkan secara otomatis dan mungkin mengandung kesalahan. Basis data aturan tata bahasa Anda selalu menjadi otoritas akhir.',
+    aiDisclosureExpand: 'Fitur berbasis AI. Ketuk untuk detail.',
+    aiDisclosureMinimize: 'Perkecil banner pemberitahuan AI',
   },
   it: {
     home: 'Home', practice: 'Pratica', progress: 'Progressi',
@@ -4417,6 +4491,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Tipo di esercizio',
     teacherGroupAssignmentTitle: 'Titolo compito',
     teacherGroupAssignmentPlaceholder: 'es. Esercizio past tense – inglese commerciale',
+    aiDisclosureCompact: 'Generato dall\'IA — le risposte possono contenere errori',
+    aiDisclosureFull: 'Questa funzione è basata sull\'IA (OpenAI). Le risposte sono generate automaticamente e possono contenere errori. Il tuo database di regole grammaticali ha sempre l\'ultima parola.',
+    aiDisclosureExpand: 'Funzione basata sull\'IA. Tocca per i dettagli.',
+    aiDisclosureMinimize: 'Riduci l\'avviso IA',
   },
   ja: {
     home: 'ホーム', practice: '練習', progress: '進捗',
@@ -4596,6 +4674,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: '練習タイプ',
     teacherGroupAssignmentTitle: '課題タイトル',
     teacherGroupAssignmentPlaceholder: '例：過去形の練習 – ビジネス英語',
+    aiDisclosureCompact: 'AI 搭載 — 回答にエラーが含まれる場合があります',
+    aiDisclosureFull: 'この機能は AI（OpenAI）を使用しています。回答は自動生成されるため、エラーが含まれる場合があります。最終的な判断は文法ルールデータベースに基づきます。',
+    aiDisclosureExpand: 'AI 機能。タップで詳細を表示します。',
+    aiDisclosureMinimize: 'AI 通知バナーを最小化',
   },
   ko: {
     home: '홈', practice: '연습', progress: '진도',
@@ -4775,6 +4857,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: '연습 유형',
     teacherGroupAssignmentTitle: '과제 제목',
     teacherGroupAssignmentPlaceholder: '예: 과거 시제 연습 – 비즈니스 영어',
+    aiDisclosureCompact: 'AI 기반 — 답변에 오류가 있을 수 있습니다',
+    aiDisclosureFull: '이 기능은 AI(OpenAI)로 구동됩니다. 답변은 자동으로 생성되며 오류가 있을 수 있습니다. 문법 규칙 데이터베이스가 항상 최종 권한입니다.',
+    aiDisclosureExpand: 'AI 기반 기능. 자세히 보려면 탭하세요.',
+    aiDisclosureMinimize: 'AI 공지 배너 최소화',
   },
   ms: {
     home: 'Laman Utama', practice: 'Latihan', progress: 'Kemajuan',
@@ -4954,6 +5040,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Jenis latihan',
     teacherGroupAssignmentTitle: 'Tajuk tugasan',
     teacherGroupAssignmentPlaceholder: 'cth. Latihan masa lampau – Bahasa Inggeris Perniagaan',
+    aiDisclosureCompact: 'Dikuasakan oleh AI — respons mungkin mengandungi ralat',
+    aiDisclosureFull: 'Ciri ini dikuasakan oleh AI (OpenAI). Respons dijana secara automatik dan mungkin mengandungi ralat. Pangkalan data peraturan tatabahasa anda sentiasa menjadi pihak berkuasa muktamad.',
+    aiDisclosureExpand: 'Ciri berasaskan AI. Ketik untuk butiran.',
+    aiDisclosureMinimize: 'Kecilkan sepanduk pemberitahuan AI',
   },
   zh: {
     home: '主页', practice: '练习', progress: '进度',
@@ -5365,6 +5455,10 @@ const t: Record<LangCode, Translations> = {
     digestSendFailedTitle: '发送失败',
     digestSendFailedMsg: '无法发送摘要。请重试。',
     digestEnabledBlurb: '您将于每周一收到一份摘要，包含您的分数、连续记录、经验值以及需重点提升的领域。要取消订阅，请将此选项关闭。',
+    aiDisclosureCompact: '由 AI 提供支持 — 回复可能包含错误',
+    aiDisclosureFull: '此功能由 AI（OpenAI）提供支持。回复为自动生成，可能包含错误。您的语法规则数据库始终是最终权威。',
+    aiDisclosureExpand: 'AI 功能。点击查看详情。',
+    aiDisclosureMinimize: '最小化 AI 提示横幅',
   },
   mr: {
     home: 'मुख्यपृष्ठ', practice: 'सराव', progress: 'प्रगती',
@@ -5544,6 +5638,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'सराव प्रकार',
     teacherGroupAssignmentTitle: 'असाइनमेंट शीर्षक',
     teacherGroupAssignmentPlaceholder: 'उदा. भूतकाळ सराव – व्यावसायिक इंग्रजी',
+    aiDisclosureCompact: 'AI द्वारे चालवलेले — उत्तरांमध्ये त्रुटी असू शकतात',
+    aiDisclosureFull: 'हे वैशिष्ट्य AI (OpenAI) द्वारे चालवले जाते. उत्तरे स्वयंचलितपणे तयार होतात आणि त्यात त्रुटी असू शकतात. तुमचा व्याकरण नियम डेटाबेस नेहमी अंतिम प्राधिकरण असतो.',
+    aiDisclosureExpand: 'AI वैशिष्ट्य. तपशिलांसाठी टॅप करा.',
+    aiDisclosureMinimize: 'AI सूचना बॅनर लहान करा',
   },
   ne: {
     home: 'होम', practice: 'अभ्यास', progress: 'प्रगति',
@@ -5723,6 +5821,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'अभ्यास प्रकार',
     teacherGroupAssignmentTitle: 'काम शीर्षक',
     teacherGroupAssignmentPlaceholder: 'जस्तै भूतकाल अभ्यास – व्यापारिक अंग्रेजी',
+    aiDisclosureCompact: 'AI द्वारा संचालित — जवाफहरूमा त्रुटिहरू हुन सक्छन्',
+    aiDisclosureFull: 'यो सुविधा AI (OpenAI) द्वारा संचालित छ। जवाफहरू स्वचालित रूपमा उत्पन्न हुन्छन् र तिनमा त्रुटिहरू हुन सक्छन्। तपाईंको व्याकरण नियम डाटाबेस सधैं अन्तिम अधिकार हो।',
+    aiDisclosureExpand: 'AI सुविधा। विवरणको लागि ट्याप गर्नुहोस्।',
+    aiDisclosureMinimize: 'AI सूचना ब्यानर सानो बनाउनुहोस्',
   },
   no: {
     home: 'Hjem', practice: 'Øvelse', progress: 'Fremgang',
@@ -5902,6 +6004,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Øvelsestype',
     teacherGroupAssignmentTitle: 'Oppgavetittel',
     teacherGroupAssignmentPlaceholder: 'f.eks. Fortidsøvelse – forretningsengelsk',
+    aiDisclosureCompact: 'Drevet av AI — svar kan inneholde feil',
+    aiDisclosureFull: 'Denne funksjonen drives av AI (OpenAI). Svar genereres automatisk og kan inneholde feil. Din database med grammatikkregler har alltid det siste ordet.',
+    aiDisclosureExpand: 'AI-funksjon. Trykk for detaljer.',
+    aiDisclosureMinimize: 'Minimer AI-varselsbanner',
   },
   fa: {
     home: 'خانه', practice: 'تمرین', progress: 'پیشرفت',
@@ -6081,6 +6187,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'نوع تمرین',
     teacherGroupAssignmentTitle: 'عنوان تکلیف',
     teacherGroupAssignmentPlaceholder: 'مثلاً تمرین گذشته – انگلیسی تجاری',
+    aiDisclosureCompact: 'با هوش مصنوعی — پاسخ‌ها ممکن است شامل خطا باشند',
+    aiDisclosureFull: 'این ویژگی با هوش مصنوعی (OpenAI) کار می‌کند. پاسخ‌ها به‌صورت خودکار تولید می‌شوند و ممکن است شامل خطا باشند. پایگاه داده قوانین گرامری شما همیشه مرجع نهایی است.',
+    aiDisclosureExpand: 'ویژگی با هوش مصنوعی. برای جزئیات ضربه بزنید.',
+    aiDisclosureMinimize: 'بنر اطلاع‌رسانی هوش مصنوعی را کوچک کنید',
   },
   pl: {
     home: 'Strona główna', practice: 'Ćwiczenia', progress: 'Postępy',
@@ -6260,6 +6370,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Typ ćwiczenia',
     teacherGroupAssignmentTitle: 'Tytuł zadania',
     teacherGroupAssignmentPlaceholder: 'np. Ćwiczenie czasu przeszłego – angielski biznesowy',
+    aiDisclosureCompact: 'Wspierane przez AI — odpowiedzi mogą zawierać błędy',
+    aiDisclosureFull: 'Ta funkcja jest wspierana przez AI (OpenAI). Odpowiedzi są generowane automatycznie i mogą zawierać błędy. Twoja baza danych reguł gramatycznych zawsze ma ostateczny głos.',
+    aiDisclosureExpand: 'Funkcja wspierana przez AI. Dotknij, aby zobaczyć szczegóły.',
+    aiDisclosureMinimize: 'Zminimalizuj baner informacyjny o AI',
   },
   pt: {
     home: 'Início', practice: 'Praticar', progress: 'Progresso',
@@ -6439,6 +6553,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Tipo de exercício',
     teacherGroupAssignmentTitle: 'Título da tarefa',
     teacherGroupAssignmentPlaceholder: 'ex.: Exercício de passado – inglês para negócios',
+    aiDisclosureCompact: 'Com IA — as respostas podem conter erros',
+    aiDisclosureFull: 'Esta funcionalidade utiliza IA (OpenAI). As respostas são geradas automaticamente e podem conter erros. Sua base de dados de regras gramaticais sempre é a autoridade final.',
+    aiDisclosureExpand: 'Recurso com IA. Toque para ver detalhes.',
+    aiDisclosureMinimize: 'Minimizar aviso de IA',
   },
   pa: {
     home: 'ਹੋਮ', practice: 'ਅਭਿਆਸ', progress: 'ਤਰੱਕੀ',
@@ -6618,6 +6736,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'ਅਭਿਆਸ ਕਿਸਮ',
     teacherGroupAssignmentTitle: 'ਅਸਾਈਨਮੈਂਟ ਸਿਰਲੇਖ',
     teacherGroupAssignmentPlaceholder: 'ਜਿਵੇਂ ਭੂਤਕਾਲ ਅਭਿਆਸ – ਵਪਾਰਕ ਅੰਗਰੇਜ਼ੀ',
+    aiDisclosureCompact: 'AI ਦੁਆਰਾ ਸੰਚਾਲਿਤ — ਜਵਾਬਾਂ ਵਿੱਚ ਗਲਤੀਆਂ ਹੋ ਸਕਦੀਆਂ ਹਨ',
+    aiDisclosureFull: 'ਇਹ ਸੁਵਿਧਾ AI (OpenAI) ਦੁਆਰਾ ਸੰਚਾਲਿਤ ਹੈ। ਜਵਾਬ ਆਪਣੇ ਆਪ ਤਿਆਰ ਹੁੰਦੇ ਹਨ ਅਤੇ ਉਨ੍ਹਾਂ ਵਿੱਚ ਗਲਤੀਆਂ ਹੋ ਸਕਦੀਆਂ ਹਨ। ਤੁਹਾਡਾ ਵਿਆਕਰਣ ਨਿਯਮ ਡਾਟਾਬੇਸ ਹਮੇਸ਼ਾ ਅੰਤਮ ਅਥਾਰਟੀ ਹੈ।',
+    aiDisclosureExpand: 'AI ਸੁਵਿਧਾ। ਵੇਰਵਿਆਂ ਲਈ ਟੈਪ ਕਰੋ।',
+    aiDisclosureMinimize: 'AI ਸੂਚਨਾ ਬੈਨਰ ਨੂੰ ਛੋਟਾ ਕਰੋ',
   },
   ro: {
     home: 'Acasă', practice: 'Practică', progress: 'Progres',
@@ -6797,6 +6919,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Tipul exercițiului',
     teacherGroupAssignmentTitle: 'Titlul temei',
     teacherGroupAssignmentPlaceholder: 'ex.: Exercițiu la trecut – engleză de afaceri',
+    aiDisclosureCompact: 'Susținut de AI — răspunsurile pot conține erori',
+    aiDisclosureFull: 'Această funcție este susținută de AI (OpenAI). Răspunsurile sunt generate automat și pot conține erori. Baza ta de date cu reguli gramaticale are întotdeauna ultimul cuvânt.',
+    aiDisclosureExpand: 'Funcție AI. Atinge pentru detalii.',
+    aiDisclosureMinimize: 'Restrânge bannerul de notificare AI',
   },
   ru: {
     home: 'Главная', practice: 'Практика', progress: 'Прогресс',
@@ -6976,6 +7102,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Тип упражнения',
     teacherGroupAssignmentTitle: 'Название задания',
     teacherGroupAssignmentPlaceholder: 'например Упражнение на прошедшее время — деловой английский',
+    aiDisclosureCompact: 'Работает на ИИ — ответы могут содержать ошибки',
+    aiDisclosureFull: 'Эта функция работает на ИИ (OpenAI). Ответы генерируются автоматически и могут содержать ошибки. Ваша база данных грамматических правил всегда является окончательным авторитетом.',
+    aiDisclosureExpand: 'Функция с ИИ. Нажмите, чтобы узнать подробнее.',
+    aiDisclosureMinimize: 'Свернуть уведомление об ИИ',
   },
   si: {
     home: 'මුල් පිටුව', practice: 'පුහුණුව', progress: 'ප්‍රගතිය',
@@ -7334,6 +7464,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Tipo de ejercicio',
     teacherGroupAssignmentTitle: 'Título de la tarea',
     teacherGroupAssignmentPlaceholder: 'p. ej., Ejercicio de pasado – inglés de negocios',
+    aiDisclosureCompact: 'Funciona con IA — las respuestas pueden contener errores',
+    aiDisclosureFull: 'Esta función funciona con IA (OpenAI). Las respuestas se generan automáticamente y pueden contener errores. Tu base de datos de reglas gramaticales siempre tiene la última palabra.',
+    aiDisclosureExpand: 'Función con IA. Toca para ver más detalles.',
+    aiDisclosureMinimize: 'Minimizar el aviso de IA',
   },
   sw: {
     home: 'Nyumbani', practice: 'Mazoezi', progress: 'Maendeleo',
@@ -7513,6 +7647,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Aina ya zoezi',
     teacherGroupAssignmentTitle: 'Kichwa cha kazi',
     teacherGroupAssignmentPlaceholder: 'mfano Zoezi la wakati uliopita – Kiingereza cha biashara',
+    aiDisclosureCompact: 'Inaendeshwa na AI — majibu yanaweza kuwa na makosa',
+    aiDisclosureFull: 'Kipengele hiki kinaendeshwa na AI (OpenAI). Majibu hutengenezwa kiotomatiki na yanaweza kuwa na makosa. Hifadhidata yako ya sheria za sarufi daima ndiyo mamlaka ya mwisho.',
+    aiDisclosureExpand: 'Kipengele cha AI. Gusa kuona maelezo.',
+    aiDisclosureMinimize: 'Punguza bango la arifa la AI',
   },
   sv: {
     home: 'Hem', practice: 'Övning', progress: 'Framsteg',
@@ -7692,6 +7830,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Övningstyp',
     teacherGroupAssignmentTitle: 'Uppgiftstitel',
     teacherGroupAssignmentPlaceholder: 't.ex. Dåtidsövning – affärsengelska',
+    aiDisclosureCompact: 'Drivs av AI — svaren kan innehålla fel',
+    aiDisclosureFull: 'Den här funktionen drivs av AI (OpenAI). Svaren genereras automatiskt och kan innehålla fel. Din databas med grammatikregler har alltid sista ordet.',
+    aiDisclosureExpand: 'AI-funktion. Tryck för detaljer.',
+    aiDisclosureMinimize: 'Minimera AI-meddelandebanner',
   },
   ta: {
     home: 'முகப்பு', practice: 'பயிற்சி', progress: 'முன்னேற்றம்',
@@ -7871,6 +8013,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'பயிற்சி வகை',
     teacherGroupAssignmentTitle: 'பணி தலைப்பு',
     teacherGroupAssignmentPlaceholder: 'எ.கா. கடந்த கால பயிற்சி – வணிக ஆங்கிலம்',
+    aiDisclosureCompact: 'AI ஆல் இயக்கப்படுகிறது — பதில்களில் பிழைகள் இருக்கலாம்',
+    aiDisclosureFull: 'இந்த அம்சம் AI (OpenAI) ஆல் இயக்கப்படுகிறது. பதில்கள் தானாகவே உருவாக்கப்படுகின்றன, மேலும் அவற்றில் பிழைகள் இருக்கலாம். உங்கள் இலக்கண விதிகள் தரவுத்தளம் எப்போதும் இறுதி அதிகாரமாகும்.',
+    aiDisclosureExpand: 'AI அம்சம். விவரங்களுக்கு தட்டவும்.',
+    aiDisclosureMinimize: 'AI அறிவிப்பு பேனரை சுருக்கவும்',
   },
   th: {
     home: 'หน้าหลัก', practice: 'ฝึกหัด', progress: 'ความคืบหน้า',
@@ -8050,6 +8196,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'ประเภทแบบฝึกหัด',
     teacherGroupAssignmentTitle: 'ชื่องาน',
     teacherGroupAssignmentPlaceholder: 'เช่น ฝึกอดีตกาล – ภาษาอังกฤษธุรกิจ',
+    aiDisclosureCompact: 'ขับเคลื่อนด้วย AI — คำตอบอาจมีข้อผิดพลาด',
+    aiDisclosureFull: 'ฟีเจอร์นี้ขับเคลื่อนด้วย AI (OpenAI) คำตอบสร้างขึ้นโดยอัตโนมัติและอาจมีข้อผิดพลาด ฐานข้อมูลกฎไวยากรณ์ของคุณคือผู้มีอำนาจสูงสุดเสมอ',
+    aiDisclosureExpand: 'ฟีเจอร์ AI แตะเพื่อดูรายละเอียด',
+    aiDisclosureMinimize: 'ย่อแบนเนอร์การแจ้งเตือน AI',
   },
   tr: {
     home: 'Ana Sayfa', practice: 'Alıştırma', progress: 'İlerleme',
@@ -8229,6 +8379,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Alıştırma türü',
     teacherGroupAssignmentTitle: 'Ödev başlığı',
     teacherGroupAssignmentPlaceholder: 'örn. Geçmiş zaman alıştırması – iş İngilizcesi',
+    aiDisclosureCompact: 'Yapay zekâ destekli — yanıtlar hata içerebilir',
+    aiDisclosureFull: 'Bu özellik yapay zekâ (OpenAI) tarafından desteklenmektedir. Yanıtlar otomatik olarak oluşturulur ve hata içerebilir. Dil bilgisi kuralları veritabanınız her zaman nihai otoritedir.',
+    aiDisclosureExpand: 'Yapay zekâ destekli özellik. Ayrıntılar için dokunun.',
+    aiDisclosureMinimize: 'Yapay zekâ bildirim afişini küçült',
   },
   uk: {
     home: 'Головна', practice: 'Практика', progress: 'Прогрес',
@@ -8408,6 +8562,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Тип вправи',
     teacherGroupAssignmentTitle: 'Назва завдання',
     teacherGroupAssignmentPlaceholder: 'напр. Вправа на минулий час — ділова англійська',
+    aiDisclosureCompact: 'Працює на ШІ — відповіді можуть містити помилки',
+    aiDisclosureFull: 'Ця функція працює на ШІ (OpenAI). Відповіді генеруються автоматично та можуть містити помилки. Ваша база даних граматичних правил завжди є остаточним авторитетом.',
+    aiDisclosureExpand: 'Функція з ШІ. Натисніть, щоб дізнатися більше.',
+    aiDisclosureMinimize: 'Згорнути сповіщення про ШІ',
   },
   ur: {
     home: 'ہوم', practice: 'مشق', progress: 'پیشرفت',
@@ -8587,6 +8745,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'مشق کی قسم',
     teacherGroupAssignmentTitle: 'اسائنمنٹ عنوان',
     teacherGroupAssignmentPlaceholder: 'مثلاً ماضی کی مشق – کاروباری انگریزی',
+    aiDisclosureCompact: 'AI پر مبنی — جوابات میں غلطیاں ہو سکتی ہیں',
+    aiDisclosureFull: 'یہ خصوصیت AI (OpenAI) پر مبنی ہے۔ جوابات خودکار طور پر تخلیق ہوتے ہیں اور ان میں غلطیاں ہو سکتی ہیں۔ آپ کا گرامر اصول ڈیٹابیس ہمیشہ حتمی اتھارٹی ہے۔',
+    aiDisclosureExpand: 'AI پر مبنی خصوصیت۔ تفصیلات کے لیے تھپتھپائیں۔',
+    aiDisclosureMinimize: 'AI اطلاعی بینر کو چھوٹا کریں',
   },
   vi: {
     home: 'Trang chủ', practice: 'Luyện tập', progress: 'Tiến độ',
@@ -8766,6 +8928,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Loại bài tập',
     teacherGroupAssignmentTitle: 'Tiêu đề bài tập',
     teacherGroupAssignmentPlaceholder: 'vd. Luyện thì quá khứ – tiếng Anh thương mại',
+    aiDisclosureCompact: 'Được hỗ trợ bởi AI — phản hồi có thể chứa lỗi',
+    aiDisclosureFull: 'Tính năng này được hỗ trợ bởi AI (OpenAI). Phản hồi được tạo tự động và có thể chứa lỗi. Cơ sở dữ liệu quy tắc ngữ pháp của bạn luôn là cơ quan quyết định cuối cùng.',
+    aiDisclosureExpand: 'Tính năng AI. Nhấn để xem chi tiết.',
+    aiDisclosureMinimize: 'Thu nhỏ biểu ngữ thông báo AI',
   },
   yo: {
     home: 'Ile', practice: 'Adaṣe', progress: 'Ilọsiwaju',
@@ -9482,6 +9648,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'అభ్యాస రకం',
     teacherGroupAssignmentTitle: 'అసైన్‌మెంట్ శీర్షిక',
     teacherGroupAssignmentPlaceholder: 'ఉదా. భూత కాల అభ్యాసం – వ్యాపార ఆంగ్లం',
+    aiDisclosureCompact: 'AI ద్వారా శక్తి పొందినది — సమాధానాలలో లోపాలు ఉండవచ్చు',
+    aiDisclosureFull: 'ఈ ఫీచర్ AI (OpenAI) ద్వారా శక్తి పొందినది. సమాధానాలు స్వయంచాలకంగా ఉత్పత్తి అవుతాయి మరియు లోపాలు ఉండవచ్చు. మీ వ్యాకరణ నియమాల డేటాబేస్ ఎల్లప్పుడూ తుది అధికారం.',
+    aiDisclosureExpand: 'AI ఫీచర్. వివరాల కోసం నొక్కండి.',
+    aiDisclosureMinimize: 'AI నోటిఫికేషన్ బ్యానర్‌ని చిన్నదిగా చేయండి',
   },
   qu: {
     home: 'Qallariy', practice: 'Yachay', progress: 'Puriy',
@@ -10198,6 +10368,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Uri ng pagsasanay',
     teacherGroupAssignmentTitle: 'Pamagat ng takdang-aralin',
     teacherGroupAssignmentPlaceholder: 'hal. Pagsasanay sa nakaraang panahunan – Pang-negosyong Ingles',
+    aiDisclosureCompact: 'Pinatatakbo ng AI — maaaring may mga error sa mga sagot',
+    aiDisclosureFull: 'Pinatatakbo ang feature na ito ng AI (OpenAI). Awtomatikong nabubuo ang mga sagot at maaaring may mga error. Ang iyong database ng mga panuntunan sa gramatika ang palaging huling awtoridad.',
+    aiDisclosureExpand: 'Feature na may AI. I-tap para sa mga detalye.',
+    aiDisclosureMinimize: 'I-minimize ang banner ng abiso ng AI',
   },
   sk: {
     home: 'Domov', practice: 'Cvičenie', progress: 'Pokrok',
@@ -10377,6 +10551,10 @@ const t: Record<LangCode, Translations> = {
     teacherGroupExerciseType: 'Typ cvičenia',
     teacherGroupAssignmentTitle: 'Názov úlohy',
     teacherGroupAssignmentPlaceholder: 'napr. Cvičenie minulého času – obchodná angličtina',
+    aiDisclosureCompact: 'Poháňané AI — odpovede môžu obsahovať chyby',
+    aiDisclosureFull: 'Táto funkcia je poháňaná AI (OpenAI). Odpovede sa generujú automaticky a môžu obsahovať chyby. Vaša databáza gramatických pravidiel má vždy posledné slovo.',
+    aiDisclosureExpand: 'Funkcia s AI. Klepnite pre podrobnosti.',
+    aiDisclosureMinimize: 'Minimalizovať banner upozornenia AI',
   },
 };
 

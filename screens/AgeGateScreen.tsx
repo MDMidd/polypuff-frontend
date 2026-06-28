@@ -41,6 +41,10 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LanguageSelector from '../components/LanguageSelector';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getAgeGateCopy, ageGateText } from '../utils/ageGateTranslations';
+import { isRtlLanguage } from '../utils/languages';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
@@ -94,6 +98,9 @@ const REGIONS = [
 
 export default function AgeGateScreen({ onComplete }) {
   const insets = useSafeAreaInsets();
+  const { lang } = useLanguage();
+  const copy = getAgeGateCopy(lang);
+  const isRTL = isRtlLanguage(lang);
   const [step, setStep] = useState(1); // 1 = region, 2 = year
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
@@ -128,7 +135,7 @@ export default function AgeGateScreen({ onComplete }) {
 
   const handleRegionContinue = () => {
     if (!selectedRegion) {
-      setError('Please select your region to continue.');
+      setError(copy.selectRegionError);
       return;
     }
     setStep(2);
@@ -138,7 +145,7 @@ export default function AgeGateScreen({ onComplete }) {
   // ─── Handle final submit ───
   const handleSubmit = async () => {
     if (!selectedYear) {
-      setError('Please select your year of birth to continue.');
+      setError(copy.selectYearError);
       return;
     }
 
@@ -168,6 +175,13 @@ export default function AgeGateScreen({ onComplete }) {
     }
   };
 
+  const regionLabel = (region) => region ? (copy.regions[region.id] || region.label) : '';
+  const selectedRegionLabel = regionLabel(selectedRegion);
+  const selectedAge = selectedYear ? CURRENT_YEAR - selectedYear : '';
+  const textDirectionStyle = isRTL ? { textAlign: 'right', writingDirection: 'rtl' } : null;
+  const rowDirectionStyle = isRTL ? { flexDirection: 'row-reverse' } : null;
+  const edgeAlignStyle = isRTL ? { alignSelf: 'flex-end' } : null;
+
   return (
     <View style={s.container}>
       <View style={s.bgGlow} />
@@ -180,6 +194,10 @@ export default function AgeGateScreen({ onComplete }) {
         <Animated.View
           style={[s.content, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}
         >
+          <View style={s.languageRow}>
+            <LanguageSelector style={s.languageSelector} />
+          </View>
+
           {/* ── Mascot ── */}
           <View style={s.mascotWrap}>
             <Image
@@ -189,26 +207,26 @@ export default function AgeGateScreen({ onComplete }) {
             />
           </View>
 
-          <Text style={s.title}>Welcome to Poly-Puff!</Text>
-          <Text style={s.subtitle}>
+          <Text style={[s.title, textDirectionStyle]}>{copy.title}</Text>
+          <Text style={[s.subtitle, textDirectionStyle]}>
             {step === 1
-              ? 'First, tell us where you are so we can apply the right privacy protections.'
-              : `Great! Now tell us your year of birth.${selectedRegion?.hardStop > 13 ? `\nIn ${selectedRegion.label}, users under ${selectedRegion.hardStop} need parental consent.` : ''}`
+              ? copy.regionSubtitle
+              : `${copy.birthYearSubtitle}${selectedRegion?.hardStop > 13 ? `\n${ageGateText(copy.consentNote, { region: selectedRegionLabel, age: selectedRegion.hardStop })}` : ''}`
             }
           </Text>
 
           {/* ── Privacy badge ── */}
-          <View style={s.infoBadge}>
-            <Text style={s.infoBadgeIcon}>🔒</Text>
-            <Text style={s.infoBadgeText}>
-              We use your region and birth year only to comply with child safety laws (COPPA, GDPR, POPIA). This data is stored locally on your device.
+          <View style={[s.infoBadge, rowDirectionStyle]}>
+            <Text style={[s.infoBadgeIcon, isRTL && s.infoBadgeIconRtl]}>🔒</Text>
+            <Text style={[s.infoBadgeText, textDirectionStyle]}>
+              {copy.privacyNotice}
             </Text>
           </View>
 
           {/* ═══ STEP 1: REGION ═══ */}
           {step === 1 && (
             <>
-              <Text style={s.label}>YOUR REGION</Text>
+              <Text style={[s.label, textDirectionStyle, edgeAlignStyle]}>{copy.regionLabel}</Text>
               <View style={s.regionGrid}>
                 {REGIONS.map((region) => (
                   <TouchableOpacity
@@ -216,34 +234,46 @@ export default function AgeGateScreen({ onComplete }) {
                     style={[
                       s.regionItem,
                       selectedRegion?.id === region.id && s.regionItemSelected,
+                      rowDirectionStyle,
                     ]}
                     onPress={() => handleRegionSelect(region)}
                     activeOpacity={0.7}
+                    accessible
+                    accessibilityRole="radio"
+                    accessibilityLabel={`Select country or region: ${regionLabel(region)}`}
+                    accessibilityState={{ selected: selectedRegion?.id === region.id }}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
                     <Text style={s.regionFlag}>{region.flag}</Text>
                     <Text
                       style={[
                         s.regionLabel,
                         selectedRegion?.id === region.id && s.regionLabelSelected,
+                        textDirectionStyle,
                       ]}
                       numberOfLines={1}
                     >
-                      {region.label}
+                      {regionLabel(region)}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              {error ? <Text style={s.errorText}>{error}</Text> : null}
+              {error ? <Text style={s.errorText} accessibilityLiveRegion="polite" accessibilityRole="alert">{error}</Text> : null}
 
               <TouchableOpacity
                 style={[s.continueBtn, !selectedRegion && s.continueBtnDisabled]}
                 onPress={handleRegionContinue}
                 activeOpacity={0.8}
                 disabled={!selectedRegion}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={copy.continue}
+                accessibilityHint="Continues to the birth year step"
+                accessibilityState={{ disabled: !selectedRegion }}
               >
                 <Text style={[s.continueBtnText, !selectedRegion && s.continueBtnTextDisabled]}>
-                  Continue
+                  {copy.continue}
                 </Text>
               </TouchableOpacity>
             </>
@@ -253,26 +283,45 @@ export default function AgeGateScreen({ onComplete }) {
           {step === 2 && (
             <>
               {/* Region badge */}
-              <TouchableOpacity style={s.regionBadge} onPress={() => { setStep(1); setError(''); }}>
-                <Text style={s.regionBadgeText}>{selectedRegion.flag} {selectedRegion.label}</Text>
-                <Text style={s.regionBadgeChange}>Change</Text>
+              <TouchableOpacity
+                style={[s.regionBadge, rowDirectionStyle, edgeAlignStyle]}
+                onPress={() => { setStep(1); setError(''); }}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={`Selected region: ${selectedRegionLabel}. ${copy.change}`}
+                accessibilityHint="Returns to the region selection step"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={[s.regionBadgeText, textDirectionStyle]}>
+                  {selectedRegion.flag} {selectedRegionLabel}
+                </Text>
+                <Text style={[s.regionBadgeChange, textDirectionStyle]}>{copy.change}</Text>
               </TouchableOpacity>
 
-              <Text style={s.label}>YEAR OF BIRTH</Text>
+              <Text style={[s.label, textDirectionStyle, edgeAlignStyle]}>{copy.yearLabel}</Text>
 
               <TouchableOpacity
-                style={[s.pickerButton, selectedYear && s.pickerButtonSelected]}
+                style={[s.pickerButton, selectedYear && s.pickerButtonSelected, rowDirectionStyle]}
                 onPress={() => { setShowYearPicker(!showYearPicker); setError(''); }}
                 activeOpacity={0.7}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={`Year of birth: ${selectedYear ? String(selectedYear) : copy.yearPlaceholder}`}
+                accessibilityHint={showYearPicker ? 'Collapses the year of birth picker' : 'Opens a list of years to choose your year of birth'}
+                accessibilityState={{ expanded: showYearPicker }}
               >
-                <Text style={[s.pickerButtonText, selectedYear && s.pickerButtonTextSelected]}>
-                  {selectedYear ? String(selectedYear) : 'Tap to select your year of birth'}
+                <Text style={[s.pickerButtonText, textDirectionStyle, selectedYear && s.pickerButtonTextSelected]}>
+                  {selectedYear ? String(selectedYear) : copy.yearPlaceholder}
                 </Text>
                 <Text style={s.pickerArrow}>{showYearPicker ? '▲' : '▼'}</Text>
               </TouchableOpacity>
 
               {showYearPicker && (
-                <View style={s.yearListWrap}>
+                <View
+                  style={s.yearListWrap}
+                  accessibilityRole="radiogroup"
+                  accessibilityLabel="Year of birth"
+                >
                   <ScrollView
                     style={s.yearList}
                     nestedScrollEnabled
@@ -284,6 +333,10 @@ export default function AgeGateScreen({ onComplete }) {
                         key={year}
                         style={[s.yearItem, selectedYear === year && s.yearItemSelected]}
                         onPress={() => { setSelectedYear(year); setShowYearPicker(false); setError(''); }}
+                        accessible
+                        accessibilityRole="radio"
+                        accessibilityLabel={`Year ${year}`}
+                        accessibilityState={{ selected: selectedYear === year }}
                       >
                         <Text style={[s.yearItemText, selectedYear === year && s.yearItemTextSelected]}>
                           {year}
@@ -311,35 +364,40 @@ export default function AgeGateScreen({ onComplete }) {
                     color: getAgeGroup(selectedYear, selectedRegion) === 'child' ? C.red
                       : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone' ? C.amber
                       : C.emerald,
-                  }]}>
+                  }, textDirectionStyle]}>
                     {getAgeGroup(selectedYear, selectedRegion) === 'child'
-                      ? `👶 Age ${CURRENT_YEAR - selectedYear} — Parental consent required in ${selectedRegion.label}`
+                      ? `👶 ${ageGateText(copy.childIndicator, { age: selectedAge, region: selectedRegionLabel })}`
                       : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone'
-                        ? `🧑 Age ${CURRENT_YEAR - selectedYear} — You can register! Some data features will be restricted by default.`
-                        : `✅ Age ${CURRENT_YEAR - selectedYear} — Full access`
+                        ? `🧑 ${ageGateText(copy.greyIndicator, { age: selectedAge, region: selectedRegionLabel })}`
+                        : `✅ ${ageGateText(copy.adultIndicator, { age: selectedAge, region: selectedRegionLabel })}`
                     }
                   </Text>
                 </View>
               )}
 
-              {error ? <Text style={s.errorText}>{error}</Text> : null}
+              {error ? <Text style={s.errorText} accessibilityLiveRegion="polite" accessibilityRole="alert">{error}</Text> : null}
 
               <TouchableOpacity
                 style={[s.continueBtn, !selectedYear && s.continueBtnDisabled]}
                 onPress={handleSubmit}
                 activeOpacity={0.8}
                 disabled={!selectedYear}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={copy.continue}
+                accessibilityHint="Confirms your year of birth and continues"
+                accessibilityState={{ disabled: !selectedYear }}
               >
                 <Text style={[s.continueBtnText, !selectedYear && s.continueBtnTextDisabled]}>
-                  Continue
+                  {copy.continue}
                 </Text>
               </TouchableOpacity>
             </>
           )}
 
           {/* ── Footer ── */}
-          <Text style={s.footerText}>
-            Poly-Puff processes your age and region data in accordance with COPPA, GDPR, POPIA, LGPD, and applicable child safety regulations.
+          <Text style={[s.footerText, textDirectionStyle]}>
+            {copy.footer}
           </Text>
         </Animated.View>
       </ScrollView>
@@ -353,12 +411,15 @@ const s = StyleSheet.create({
   bgGlow: { position: 'absolute', top: -SH * 0.2, left: -SW * 0.3, width: SW * 1.6, height: SH * 0.6, borderRadius: SW, backgroundColor: C.cyanDark, opacity: 0.15 },
   scrollContent: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20, paddingBottom: 40 },
   content: { width: '100%', maxWidth: 440, backgroundColor: C.card + 'DD', borderRadius: 24, borderWidth: 1, borderColor: C.border, padding: 24, alignItems: 'center', shadowColor: C.cyan, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 8 },
+  languageRow: { width: '100%', alignItems: 'flex-end', marginBottom: 6 },
+  languageSelector: { minWidth: 82, height: 38, borderRadius: 12 },
   mascotWrap: { marginBottom: 12, alignItems: 'center' },
   mascotImage: { width: 96, height: 96, resizeMode: 'contain' },
   title: { fontSize: 24, fontWeight: '700', color: C.text, marginBottom: 6, textAlign: 'center' },
   subtitle: { fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 21, marginBottom: 16, paddingHorizontal: 4 },
   infoBadge: { flexDirection: 'row', backgroundColor: C.cyanDark + '30', borderRadius: 12, borderWidth: 1, borderColor: C.cyan + '20', padding: 12, marginBottom: 20, alignItems: 'flex-start' },
   infoBadgeIcon: { fontSize: 16, marginRight: 10, marginTop: 1 },
+  infoBadgeIconRtl: { marginRight: 0, marginLeft: 10 },
   infoBadgeText: { flex: 1, fontSize: 12, color: C.cyan, lineHeight: 18, opacity: 0.85 },
   label: { fontSize: 12, fontWeight: '700', color: C.textMuted, alignSelf: 'flex-start', marginBottom: 10, letterSpacing: 1 },
   // ── Region grid ──
@@ -375,7 +436,7 @@ const s = StyleSheet.create({
   // ── Year picker ──
   pickerButton: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: C.bg, borderRadius: 14, borderWidth: 1.5, borderColor: C.border, paddingVertical: 16, paddingHorizontal: 18, marginBottom: 4 },
   pickerButtonSelected: { borderColor: C.cyan + '60', backgroundColor: C.cyanDark + '15' },
-  pickerButtonText: { fontSize: 16, color: C.textMuted },
+  pickerButtonText: { flex: 1, fontSize: 16, color: C.textMuted },
   pickerButtonTextSelected: { color: C.text, fontWeight: '600' },
   pickerArrow: { fontSize: 12, color: C.textMuted },
   yearListWrap: { width: '100%', maxHeight: 180, backgroundColor: C.bg, borderRadius: 14, borderWidth: 1, borderColor: C.border, marginTop: 4, marginBottom: 8, overflow: 'hidden' },

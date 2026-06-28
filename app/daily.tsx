@@ -7,7 +7,6 @@
  *
  * Storage keys (same as web so vault sync carries them over):
  *   pp_daily_challenge   — { streak, best, completed, lastDate, lastStreak }
- *   pp_progress_daily    — array of progress records
  *
  * FILE: app/daily.tsx
  */
@@ -32,6 +31,7 @@ import { pushVaults } from '../services/syncService';
 import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { getAuthHeaders } from '../utils/auth';
 import { isRtlLanguage } from '../utils/languages';
 import { getDailyTranslations } from '../utils/dailyTranslations';
@@ -70,7 +70,6 @@ interface DailyStats {
 }
 
 const STORE_KEY = 'pp_daily_challenge';
-const PROGRESS_KEY = 'pp_progress_daily';
 const TASK_ORDER: TaskType[] = ['translation', 'grammar', 'writing'];
 
 const FALLBACK_TRANSLATION: TranslationTask = {
@@ -102,9 +101,6 @@ function yesterdayISO() {
   const d = new Date();
   d.setDate(d.getDate() - 1);
   return d.toISOString().slice(0, 10);
-}
-function uid() {
-  return 'daily-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
 }
 function localScore(answer: string, correct: string): number {
   const a = answer.trim().toLowerCase();
@@ -361,13 +357,6 @@ export default function DailyChallenge() {
 
     // Save to mobile progress store (progress_recent_daily_challenge → progress screen).
     await recordModuleProgress({ exerciseId: 'daily_challenge', score: avg, detail: 'Daily Challenge' });
-    // Also write the web-format key so vault sync carries it across platforms.
-    try {
-      const pgRaw = await AsyncStorage.getItem(PROGRESS_KEY);
-      const history = pgRaw ? JSON.parse(pgRaw) : [];
-      const entry = { id: uid(), date: new Date().toISOString(), exercise: 'Daily Challenge', score: avg, detail: 'Daily Challenge' };
-      await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify([entry, ...history].slice(0, 30)));
-    } catch {}
 
     hapticSuccess();
     announce(dailyT.completeAnnounce.replace('{score}', String(avg)));
@@ -400,6 +389,8 @@ export default function DailyChallenge() {
               <Text style={[s.headerTitle, { color: C.text, textAlign }]}>{dailyT.dailyChallenge}</Text>
             </View>
           </View>
+
+          <AIDisclosureBanner compact />
 
           {/* ── Stats bar ── */}
           <View style={[s.statsRow, { borderColor: (C.border || '#2A3352'), flexDirection: rowDirection }]}>

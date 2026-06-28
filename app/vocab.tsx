@@ -43,6 +43,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import DiscussWithPuff from '../components/DiscussWithPuff';
 import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
@@ -393,6 +394,7 @@ export default function VocabScreen() {
       </View>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}>
         <PolyPuffScene size={600} />
+        <AIDisclosureBanner compact />
         <Text style={s.header}>📚 {wt('vocabulary')}</Text>
         <Text style={s.headerSub}>{wt('vocab-subtitle')}</Text>
 

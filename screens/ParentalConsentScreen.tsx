@@ -33,6 +33,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLanguage } from '../contexts/LanguageContext';
+import { isRtlLanguage } from '../utils/languages';
+import { getParentalConsentCopy, parentalConsentText } from '../utils/parentalConsentTranslations';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
@@ -79,13 +82,18 @@ function generateMathProblem() {
 
   answer = op.fn(a, b);
   return {
-    question: `What is ${a} ${op.symbol} ${b}?`,
+    a,
+    b,
+    op: op.symbol,
     answer: answer,
   };
 }
 
 export default function ParentalConsentScreen({ ageGroup, onComplete }) {
   const insets = useSafeAreaInsets();
+  const { lang } = useLanguage();
+  const copy = getParentalConsentCopy(lang);
+  const isRTL = isRtlLanguage(lang);
   const [problem, setProblem] = useState(generateMathProblem());
   const [userAnswer, setUserAnswer] = useState('');
   const [error, setError] = useState('');
@@ -153,7 +161,7 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
     const parsed = parseInt(userAnswer.trim(), 10);
 
     if (isNaN(parsed)) {
-      setError('Please enter a number.');
+      setError(copy.numberError);
       triggerShake();
       return;
     }
@@ -181,9 +189,9 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
 
       if (newAttempts >= 3) {
         setCooldown(true);
-        setError('Too many incorrect attempts. Please wait 30 seconds.');
+        setError(copy.cooldownError);
       } else {
-        setError(`Incorrect. Please try again. (${3 - newAttempts} attempts remaining)`);
+        setError(parentalConsentText(copy.incorrectError, { attempts: 3 - newAttempts }));
         setProblem(generateMathProblem());
       }
       triggerShake();
@@ -191,6 +199,9 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
   };
 
   const isChild = ageGroup === 'child';
+  const textDirectionStyle = isRTL ? { textAlign: 'right', writingDirection: 'rtl' } : null;
+  const centerTextDirectionStyle = isRTL ? { writingDirection: 'rtl' } : null;
+  const rowDirectionStyle = isRTL ? { flexDirection: 'row-reverse' } : null;
 
   return (
     <KeyboardAvoidingView
@@ -220,49 +231,53 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
           </View>
 
           {/* ── Title ── */}
-          <Text style={s.title}>
-            {verified ? 'Consent Verified!' : 'Parental Approval Required'}
+          <Text style={[s.title, centerTextDirectionStyle]}>
+            {verified ? copy.verifiedTitle : copy.requiredTitle}
           </Text>
 
           {!verified ? (
             <>
               {/* ── Explanation ── */}
               <View style={s.messageCard}>
-                <Text style={s.messageTitle}>
-                  {isChild ? '🔒 For Users Under 13' : '🔒 For Users Under 16'}
+                <Text style={[s.messageTitle, textDirectionStyle]}>
+                  🔒 {isChild ? copy.under13Title : copy.under16Title}
                 </Text>
-                <Text style={s.messageText}>
+                <Text style={[s.messageText, textDirectionStyle]}>
                   {isChild
-                    ? 'Under the Children\'s Online Privacy Protection Act (COPPA), a parent or guardian must provide consent before you can use Poly-Puff. Please ask your parent or guardian to complete the verification below.'
-                    : 'Under the General Data Protection Regulation (GDPR), users under 16 require parental or guardian consent to use Poly-Puff. Please ask your parent or guardian to complete the verification below.'
+                    ? copy.coppaMessage
+                    : copy.gdprMessage
                   }
                 </Text>
               </View>
 
               {/* ── Parent instruction ── */}
               <View style={s.parentSection}>
-                <Text style={s.parentTitle}>
-                  📋 For the Parent or Guardian:
+                <Text style={[s.parentTitle, textDirectionStyle]}>
+                  📋 {copy.parentTitle}
                 </Text>
-                <Text style={s.parentText}>
-                  By completing this verification, you confirm that:
+                <Text style={[s.parentText, textDirectionStyle]}>
+                  {copy.parentIntro}
                 </Text>
                 <View style={s.bulletList}>
-                  <Text style={s.bulletItem}>• You are the parent or legal guardian of this child</Text>
-                  <Text style={s.bulletItem}>• You consent to their use of the Poly-Puff ESL learning app</Text>
-                  <Text style={s.bulletItem}>• You have read and agree to our Terms & Conditions and Privacy Policy</Text>
-                  <Text style={s.bulletItem}>• You understand that learning data (translations and scores) will be stored to track progress</Text>
+                  {[copy.bulletGuardian, copy.bulletConsent, copy.bulletTerms, copy.bulletLearningData].map((item) => (
+                    <View key={item} style={[s.bulletRow, rowDirectionStyle]}>
+                      <Text style={s.bulletDot}>•</Text>
+                      <Text style={[s.bulletItem, textDirectionStyle]}>{item}</Text>
+                    </View>
+                  ))}
                 </View>
               </View>
 
               {/* ── Math Problem ── */}
               <View style={s.mathCard}>
-                <Text style={s.mathLabel}>VERIFICATION QUESTION</Text>
-                <Text style={s.mathProblem}>{problem.question}</Text>
+                <Text style={[s.mathLabel, centerTextDirectionStyle]}>{copy.mathLabel}</Text>
+                <Text style={[s.mathProblem, centerTextDirectionStyle]}>
+                  {parentalConsentText(copy.mathQuestion, { a: problem.a, op: problem.op, b: problem.b })}
+                </Text>
 
                 <TextInput
                   style={[s.input, cooldown && s.inputDisabled]}
-                  placeholder="Enter your answer"
+                  placeholder={copy.answerPlaceholder}
                   placeholderTextColor={C.textMuted}
                   keyboardType="number-pad"
                   value={userAnswer}
@@ -273,17 +288,25 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
                   editable={!cooldown}
                   returnKeyType="done"
                   onSubmitEditing={handleSubmit}
+                  accessibilityLabel={`Answer to the math problem: ${problem.a} ${problem.op} ${problem.b}`}
+                  accessibilityHint="Enter the numeric answer to verify you are an adult"
                 />
 
                 {/* ── Error / Cooldown ── */}
                 {error ? (
-                  <Text style={s.errorText}>{error}</Text>
+                  <Text
+                    style={[s.errorText, centerTextDirectionStyle]}
+                    accessibilityLiveRegion="polite"
+                    accessibilityRole="alert"
+                  >
+                    {error}
+                  </Text>
                 ) : null}
 
                 {cooldown ? (
-                  <View style={s.cooldownBadge}>
-                    <Text style={s.cooldownText}>
-                      ⏳ Try again in {cooldownSec} seconds
+                  <View style={s.cooldownBadge} accessibilityLiveRegion="polite">
+                    <Text style={[s.cooldownText, centerTextDirectionStyle]}>
+                      ⏳ {parentalConsentText(copy.cooldownBadge, { seconds: cooldownSec })}
                     </Text>
                   </View>
                 ) : null}
@@ -297,6 +320,11 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
                   onPress={handleSubmit}
                   activeOpacity={0.8}
                   disabled={cooldown || !userAnswer.trim()}
+                  accessible
+                  accessibilityRole="button"
+                  accessibilityLabel={copy.verify}
+                  accessibilityHint="Submits the parent verification answer"
+                  accessibilityState={{ disabled: cooldown || !userAnswer.trim() }}
                 >
                   <Text
                     style={[
@@ -304,7 +332,7 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
                       (cooldown || !userAnswer.trim()) && s.submitBtnTextDisabled,
                     ]}
                   >
-                    Verify
+                    {copy.verify}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -318,16 +346,16 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
               ]}
             >
               <Text style={s.successEmoji}>🎉</Text>
-              <Text style={s.successTitle}>Parental Consent Granted</Text>
-              <Text style={s.successText}>
-                Thank you! Redirecting to Terms & Conditions...
+              <Text style={[s.successTitle, centerTextDirectionStyle]}>{copy.successTitle}</Text>
+              <Text style={[s.successText, centerTextDirectionStyle]}>
+                {copy.successText}
               </Text>
             </Animated.View>
           )}
 
           {/* ── Legal footer ── */}
-          <Text style={s.footerText}>
-            Poly-Puff complies with COPPA, GDPR, and Google Play's 2026 Families Policy. Parental consent may be revoked at any time by contacting support@poly-puff.com
+          <Text style={[s.footerText, centerTextDirectionStyle]}>
+            {copy.footer}
           </Text>
         </Animated.View>
       </ScrollView>
@@ -438,11 +466,22 @@ const s = StyleSheet.create({
   bulletList: {
     paddingLeft: 4,
   },
-  bulletItem: {
+  bulletRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    marginBottom: 2,
+  },
+  bulletDot: {
     fontSize: 13,
     color: C.textSec,
     lineHeight: 22,
-    marginBottom: 2,
+  },
+  bulletItem: {
+    flex: 1,
+    fontSize: 13,
+    color: C.textSec,
+    lineHeight: 22,
   },
   // ── Math card ──
   mathCard: {

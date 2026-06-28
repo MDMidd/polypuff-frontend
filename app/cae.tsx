@@ -35,6 +35,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
@@ -569,7 +570,15 @@ export default function CAEScreen() {
         {/* Parts */}
         <Text style={[S.label, { marginBottom: 8 }]}>Parts</Text>
         {paper.parts.map((part, i) => (
-          <TouchableOpacity key={i} style={S.card} onPress={() => toggle(i, expandedPart, setExpandedPart)}>
+          <TouchableOpacity
+            key={i}
+            style={S.card}
+            onPress={() => toggle(i, expandedPart, setExpandedPart)}
+            accessibilityRole="button"
+            accessibilityLabel={`Part ${part.num}: ${part.title}`}
+            accessibilityHint={expandedPart === i ? 'Collapses part details' : 'Expands part details'}
+            accessibilityState={{ expanded: expandedPart === i }}
+          >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ backgroundColor: paper.colour + '20', minWidth: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}>
                 <Text style={{ fontSize: scaledFont(12), fontWeight: '900', color: paper.colour }}>P{part.num}</Text>
@@ -599,7 +608,15 @@ export default function CAEScreen() {
           <>
             <Text style={[S.label, { marginBottom: 8 }]}>{t.part2TaskTypes}</Text>
             {paper.taskTypes.map((t, i) => (
-              <TouchableOpacity key={i} style={S.card} onPress={() => toggle(i, expandedTask, setExpandedTask)}>
+              <TouchableOpacity
+                key={i}
+                style={S.card}
+                onPress={() => toggle(i, expandedTask, setExpandedTask)}
+                accessibilityRole="button"
+                accessibilityLabel={`${t.type} — ${t.style}`}
+                accessibilityHint={expandedTask === i ? 'Collapses task purpose' : 'Expands task purpose'}
+                accessibilityState={{ expanded: expandedTask === i }}
+              >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <View style={{ backgroundColor: paper.colour + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                     <Text style={{ fontSize: scaledFont(12), fontWeight: '800', color: paper.colour }}>{t.type}</Text>
@@ -677,6 +694,9 @@ export default function CAEScreen() {
           <TouchableOpacity
             style={{ backgroundColor: paper.colour + '18', borderRadius: 14, padding: 16, alignItems: 'center', marginTop: 4, borderWidth: 1.5, borderColor: paper.colour + '50' }}
             onPress={() => startPractice(paperId === 'writing' ? 'essay' : 'speaking_longturn')}
+            accessibilityRole="button"
+            accessibilityLabel={`Practice ${paper.shortLabel} with AI`}
+            accessibilityHint="Opens the AI practice modal for this paper"
           >
             <Icon size={20} color={paper.colour} />
             <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: paper.colour, marginTop: 6 }}>{t.practiceWithAITemplate.replace('{paper}', paper.shortLabel)}</Text>
@@ -701,7 +721,14 @@ export default function CAEScreen() {
         { id: 'reading_uoe_cloze',          label: 'Open Cloze (Part 2)',              desc: 'Fill in 8 gaps with ONE word each. Tests grammar, vocabulary, and collocations.', colour: '#00E5A0', icon: '📝', weight: 'Part 2 — Use of English' },
         { id: 'reading_transformations',    label: 'Key Word Transformations (Part 4)',  desc: 'Complete a second sentence using a KEY WORD so it means the same as the first. 3–6 words only.', colour: '#00E5A0', icon: '🔄', weight: 'Part 4 — Use of English (hardest)' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -720,7 +747,14 @@ export default function CAEScreen() {
         { id: 'listening_extracts',     label: 'Multiple Choice — Short Extracts (Part 1)', desc: 'Three short recordings, two MCQ questions each. Tests attitude, gist, and main point.', colour: '#00E5FF', icon: '🎧', weight: 'Part 1 — 6 questions, 1 mark each' },
         { id: 'listening_completion',   label: 'Sentence Completion (Part 2)',               desc: 'A longer monologue. Complete 8 sentences with exact words from the recording.', colour: '#00E5FF', icon: '📝', weight: 'Part 2 — 8 questions, 1 mark each' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -740,7 +774,14 @@ export default function CAEScreen() {
         { id: 'report',  label: 'Part 2 — Report',             desc: 'Formal report with headings for a manager or committee. 220–260 words.', colour: '#FFBE0B', icon: '📊', weight: 'Part 2 choice' },
         { id: 'review',  label: 'Part 2 — Review',             desc: 'Semi-formal review of a book, film, place, or experience. Include a recommendation. 220–260 words.', colour: '#FFBE0B', icon: '⭐', weight: 'Part 2 choice' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -760,7 +801,14 @@ export default function CAEScreen() {
         { id: 'speaking_longturn',    label: 'Part 2 — Long Turn',          desc: 'Compare photographs and answer the printed task question. Speak for 1 full minute.', colour: '#B06CFF', icon: '🎙️', weight: '~4 minutes (both candidates)' },
         { id: 'speaking_discussion',  label: 'Parts 3 & 4 — Discussion',    desc: 'Discuss abstract questions with your examiner. Use sophisticated language and justify your views.', colour: '#B06CFF', icon: '💬', weight: '~9 minutes (both candidates)' },
       ].map((p, i) => (
-        <TouchableOpacity key={i} style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }} onPress={() => startPractice(p.id)}>
+        <TouchableOpacity
+          key={i}
+          style={{ backgroundColor: C.card, borderRadius: 16, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: p.colour + '30' }}
+          onPress={() => startPractice(p.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`Start ${p.label} practice`}
+          accessibilityHint={p.desc}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Text style={{ fontSize: 18 }}>{p.icon}</Text>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
@@ -799,7 +847,15 @@ export default function CAEScreen() {
       {/* Grade table */}
       <Text style={[S.label, { marginBottom: 8 }]}>{t.cambridgeScaleBoundaries}</Text>
       {GRADES.map((g, i) => (
-        <TouchableOpacity key={i} style={[S.card, { borderColor: g.colour + '30' }]} onPress={() => toggle(i, expandedGrade, setExpandedGrade)}>
+        <TouchableOpacity
+          key={i}
+          style={[S.card, { borderColor: g.colour + '30' }]}
+          onPress={() => toggle(i, expandedGrade, setExpandedGrade)}
+          accessibilityRole="button"
+          accessibilityLabel={`Grade ${g.grade}, ${g.range}, ${g.pass ? 'pass' : 'no certificate'}`}
+          accessibilityHint={expandedGrade === i ? 'Collapses grade details' : 'Expands grade details'}
+          accessibilityState={{ expanded: expandedGrade === i }}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 52, height: 52, borderRadius: 12, backgroundColor: g.colour + '20', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: g.colour + '50' }}>
               <Text style={{ fontSize: scaledFont(18), fontWeight: '900', color: g.colour }}>{g.grade}</Text>
@@ -883,7 +939,13 @@ export default function CAEScreen() {
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: C.border + '20' }}>
           <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>{wt('cae-prep')}</Text>
-          <TouchableOpacity onPress={() => setPracticeModal(false)}>
+          <TouchableOpacity
+            onPress={() => setPracticeModal(false)}
+            accessibilityRole="button"
+            accessibilityLabel="Close practice"
+            accessibilityHint="Closes the practice modal"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
             <X size={24} color={C.text} />
           </TouchableOpacity>
         </View>
@@ -893,11 +955,18 @@ export default function CAEScreen() {
           <View style={{ backgroundColor: C.card, borderRadius: 14, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: C.border + '30' }}>
             <Text style={[S.label, { marginBottom: 6, color: '#7BB7E0' }]}>{t.yourTask}</Text>
             <Text style={[S.bodyText, { lineHeight: 21 }]}>{practicePrompt}</Text>
-            <TouchableOpacity style={{ marginTop: 10, alignSelf: 'flex-end' }} onPress={() => {
-              const prompts = PRACTICE_PROMPTS[practiceType] || [];
-              setPracticePrompt(prompts[Math.floor(Math.random() * prompts.length)]);
-              setPracticeInput(''); setPracticeResult(null);
-            }}>
+            <TouchableOpacity
+              style={{ marginTop: 10, alignSelf: 'flex-end' }}
+              onPress={() => {
+                const prompts = PRACTICE_PROMPTS[practiceType] || [];
+                setPracticePrompt(prompts[Math.floor(Math.random() * prompts.length)]);
+                setPracticeInput(''); setPracticeResult(null);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="New prompt"
+              accessibilityHint="Loads a different practice prompt and clears your response"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>🔀 New Prompt</Text>
             </TouchableOpacity>
           </View>
@@ -960,6 +1029,10 @@ export default function CAEScreen() {
               <TouchableOpacity
                 style={{ backgroundColor: C.emerald, borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8, opacity: practiceLoading ? 0.7 : 1 }}
                 onPress={submitPractice} disabled={practiceLoading}
+                accessibilityRole="button"
+                accessibilityLabel={practiceLoading ? 'Analysing your response' : 'Submit for AI feedback'}
+                accessibilityHint="Sends your response for AI examiner-style grading"
+                accessibilityState={{ disabled: practiceLoading, busy: practiceLoading }}
               >
                 {practiceLoading ? <ActivityIndicator color="#000" /> : <Send size={18} color="#000" />}
                 <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: '#000' }}>
@@ -1069,6 +1142,9 @@ export default function CAEScreen() {
               <TouchableOpacity
                 style={{ backgroundColor: C.card, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, borderWidth: 1, borderColor: C.border + '30' }}
                 onPress={() => { setPracticeInput(''); setPracticeResult(null); setShowVocabSave(false); setSaveWord(''); }}
+                accessibilityRole="button"
+                accessibilityLabel={wt('try-again')}
+                accessibilityHint="Clears your response and feedback so you can try the prompt again"
               >
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{wt('try-again')}</Text>
               </TouchableOpacity>
@@ -1113,7 +1189,15 @@ export default function CAEScreen() {
           const isActive = activeTab === tab.id;
           const activeColor = '#7BB7E4';
           return (
-            <TouchableOpacity key={tab.id} style={{ flexDirection: 'column', alignItems: 'center', gap: 0, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minWidth: 58, backgroundColor: isActive ? '#003865' + '40' : C.card + 'AA', borderWidth: 1, borderColor: isActive ? '#7BB7E4' + '60' : C.border + '40' }} onPress={() => { setActiveTab(tab.id); setExpandedPart(null); setExpandedGrade(null); setExpandedTask(null); }}>
+            <TouchableOpacity
+              key={tab.id}
+              style={{ flexDirection: 'column', alignItems: 'center', gap: 0, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minWidth: 58, backgroundColor: isActive ? '#003865' + '40' : C.card + 'AA', borderWidth: 1, borderColor: isActive ? '#7BB7E4' + '60' : C.border + '40' }}
+              onPress={() => { setActiveTab(tab.id); setExpandedPart(null); setExpandedGrade(null); setExpandedTask(null); }}
+              accessibilityRole="tab"
+              accessibilityLabel={tab.label}
+              accessibilityState={{ selected: isActive }}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+            >
               <Icon size={14} color={isActive ? activeColor : '#9CA3AF'} />
               <Text style={{ fontSize: scaledFont(10), fontWeight: isActive ? '800' : '500', color: isActive ? activeColor : '#9CA3AF', marginTop: 2 }}>{tab.label}</Text>
             </TouchableOpacity>
@@ -1130,6 +1214,7 @@ export default function CAEScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
+        <AIDisclosureBanner compact />
         {activeTab === 'overview'  && renderOverview()}
         {activeTab === 'reading'   && renderPaper('reading')}
         {activeTab === 'writing'   && renderPaper('writing')}

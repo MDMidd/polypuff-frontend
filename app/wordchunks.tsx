@@ -46,6 +46,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, GlassCard } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import DiscussWithPuff from '../components/DiscussWithPuff';
 import * as Speech from 'expo-speech';
 import { recordExerciseTime } from '../services/timerService';
@@ -475,6 +476,8 @@ export default function WordChunksScreen() {
         <ScrollView contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">
 
           <PolyPuffScene size={600} />
+
+          <AIDisclosureBanner compact />
 
           {/* ✅ A11Y: Level pills with tablist */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', marginBottom: 12 }}

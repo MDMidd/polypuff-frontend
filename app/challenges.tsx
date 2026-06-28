@@ -38,6 +38,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
+import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { feedbackForScore, feedbackPerfect, feedbackLevelUp, hapticSelection } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
@@ -423,6 +424,8 @@ export default function ChallengesScreen() {
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
         <PolyPuffScene size={600} />
+
+        <AIDisclosureBanner compact />
 
         {CHALLENGES.map(challenge => {
           const accent = colorMap[challenge.color];
