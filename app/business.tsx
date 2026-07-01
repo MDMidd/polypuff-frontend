@@ -46,6 +46,7 @@ import { getServerUrl } from '../services/api';
 import { hapticSuccess, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
+import { recordXP } from '../services/progressSyncService';
 import { pushVaults } from '../services/syncService';
 import { getAuthHeaders } from '../utils/auth';
 
@@ -383,6 +384,7 @@ export default function BusinessScreen() {
       const xpEarned = Math.round((score / 100) * 30);
       const currentXP = parseInt(await AsyncStorage.getItem('totalXP') || '0', 10);
       await AsyncStorage.setItem('totalXP', String(currentXP + xpEarned));
+      await recordXP(xpEarned, 1);
 
       // Update streak
       const today = new Date().toDateString();

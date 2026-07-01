@@ -42,6 +42,7 @@ import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { feedbackForScore, feedbackPerfect, feedbackLevelUp, hapticSelection } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
+import { recordXP } from '../services/progressSyncService';
 // ✅ NEW
 import { scaledFont, announce, scoreAnnouncement } from '../utils/accessibility';
 
@@ -190,6 +191,7 @@ export default function ChallengesScreen() {
         await AsyncStorage.setItem('completedChallenges', JSON.stringify(updated));
         const currentXP = parseInt(await AsyncStorage.getItem('totalXP') || '0', 10);
         await AsyncStorage.setItem('totalXP', String(currentXP + activeChallenge.xpBonus));
+        await recordXP(activeChallenge.xpBonus, 1);
       } else {
         setChallengeProgress(newProgress);
         setTimeout(() => generateNext(newPrev), 800);
