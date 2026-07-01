@@ -1,7 +1,9 @@
 /**
  * profileService.ts — Cross-device profile sync for Poly-Puff mobile.
  *
- * Mirrors the web's profile.js GET/PUT calls to /api/user/{email}.
+ * Talks to the email-keyed /api/me endpoints so the website and the app
+ * share the same app_users row — the user_id is derived server-side from
+ * the JWT, not from a client-supplied path param.
  *
  * pullProfile() — fetch remote profile and merge into local 'userProfile' key.
  *   Called from syncService.pullAndMerge() on login and app focus.
@@ -24,13 +26,12 @@ type ProfileData = Record<string, unknown>;
 const PROFILE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between remote fetches
 const FETCHED_AT_KEY = 'pp_profile_fetched_at';
 
-async function getCredentials(): Promise<{ email: string; token: string; base: string }> {
-  const [email, token, base] = await Promise.all([
-    AsyncStorage.getItem('pp_email'),
+async function getCredentials(): Promise<{ token: string; base: string }> {
+  const [token, base] = await Promise.all([
     AsyncStorage.getItem('pp_token'),
     getServerUrl(),
   ]);
-  return { email: email || '', token: token || '', base };
+  return { token: token || '', base };
 }
 
 /**
@@ -47,15 +48,16 @@ export async function pullProfile(): Promise<void> {
     const lastFetched = await AsyncStorage.getItem(FETCHED_AT_KEY);
     if (lastFetched && Date.now() - Number(lastFetched) < PROFILE_COOLDOWN_MS) return;
 
-    const { email, token, base } = await getCredentials();
-    if (!email || !token) return;
+    const { token, base } = await getCredentials();
+    if (!token) return;
 
-    const res = await fetch(`${base}/api/user/${encodeURIComponent(email)}`, {
+    const res = await fetch(`${base}/api/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;
 
-    const remote: ProfileData = await res.json();
+    const body = await res.json();
+    const remote: ProfileData | null = body && typeof body === 'object' ? (body.profile as ProfileData) : null;
     if (!remote || typeof remote !== 'object') return;
 
     const raw = await AsyncStorage.getItem('userProfile');
@@ -89,13 +91,13 @@ export async function pullProfile(): Promise<void> {
  */
 export async function pushProfile(profile: ProfileData): Promise<void> {
   try {
-    const { email, token, base } = await getCredentials();
-    if (!email || !token) return;
+    const { token, base } = await getCredentials();
+    if (!token) return;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { photo, ...payload } = profile;
 
-    await fetch(`${base}/api/user/${encodeURIComponent(email)}`, {
+    await fetch(`${base}/api/me/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

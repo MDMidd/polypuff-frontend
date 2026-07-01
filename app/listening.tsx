@@ -46,6 +46,7 @@ import { hapticSuccess, hapticError, hapticMedium, feedbackForScore } from '../s
 import { useFocusEffect, useRouter } from 'expo-router';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
+import { recordXP } from '../services/progressSyncService';
 import PolyPuffScene from '../components/PolyPuffScene';
 import DiscussWithPuff from '../components/DiscussWithPuff';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
@@ -286,6 +287,7 @@ export default function ListeningScreen() {
       const xp = Math.round(sc / 5);
       const totalXP = parseInt(await AsyncStorage.getItem('totalXP') || '0', 10);
       await AsyncStorage.setItem('totalXP', String(totalXP + xp));
+      await recordXP(xp, 1);
     } catch (e) {}
   };
 

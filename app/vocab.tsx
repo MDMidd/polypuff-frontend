@@ -48,6 +48,7 @@ import DiscussWithPuff from '../components/DiscussWithPuff';
 import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
+import { recordXP } from '../services/progressSyncService';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab, a11yButton } from '../utils/accessibility';
 import { getServerUrl } from '../services/api';
@@ -289,6 +290,7 @@ export default function VocabScreen() {
       const xp = sessionResults.correct * 3 + (correct ? 3 : 0);
       const totalXP = parseInt(await AsyncStorage.getItem('totalXP') || '0', 10);
       await AsyncStorage.setItem('totalXP', String(totalXP + xp));
+      await recordXP(xp, 1);
       const totalAnswered = sessionResults.correct + sessionResults.wrong + (correct ? 1 : 0);
       const correctTotal  = sessionResults.correct + (correct ? 1 : 0);
       const pct = totalAnswered > 0 ? Math.round((correctTotal / totalAnswered) * 100) : 0;

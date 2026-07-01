@@ -58,6 +58,7 @@ import { feedbackForScore, feedbackTap, hapticSelection } from '../services/soun
 import { recordExerciseTime } from '../services/timerService';
 import { pushVaults } from '../services/syncService';
 import { recordModuleProgress } from '../services/progressService';
+import { recordXP } from '../services/progressSyncService';
 import PolyPuffScene from '../components/PolyPuffScene';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 // ✅ NEW: Accessibility utilities
@@ -739,6 +740,7 @@ export default function PracticeScreen() {
       await AsyncStorage.setItem('mistakeHistory', JSON.stringify(history.slice(-500)));
       const totalXP = parseInt(await AsyncStorage.getItem('totalXP') || '0', 10) + xpEarned;
       await AsyncStorage.setItem('totalXP', String(totalXP));
+      await recordXP(xpEarned, 1);
     } catch (e) {}
   };
 
