@@ -178,6 +178,14 @@ export default function SettingsScreen() {
   // Play Billing is actually configured, so a build without the RevenueCat
   // API key set doesn't show an upgrade button that's guaranteed to fail.
   const canShowAndroidUpgrade = canUpgradePlan && isPlayBillingConfigured();
+  // Android can't offer the external Paddle *checkout* (that would be a new
+  // purchase steered outside Play Billing), but Google's payments policy
+  // explicitly permits linking to an account-management page for a
+  // subscription that already exists, even one purchased outside Google
+  // Play — so an existing Paddle subscriber can still manage/cancel it from
+  // here. Gated on already being Pro via something other than RevenueCat, so
+  // this can never appear as a way to buy Pro for the first time on Android.
+  const canManagePaddleBillingOnAndroid = Platform.OS === 'android' && accountPlanTone === 'pro' && !isRevenueCatBilling;
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [paywallPackages, setPaywallPackages] = useState<PurchasesPackage[]>([]);
   const [paywallLoading, setPaywallLoading] = useState(false);
@@ -1124,6 +1132,20 @@ export default function SettingsScreen() {
               onPress={handleRestorePurchases}
               right={<RefreshCw size={16} color={C.textMuted} />}
               accessibilityLabel={ui('restorePurchases', 'Restore purchases')}
+            />
+          </Section>
+        )}
+
+        {canManagePaddleBillingOnAndroid && (
+          <Section title={t.billingSection} icon={<CreditCard size={18} color={C.emerald || '#00E5A0'} />}>
+            <Row
+              label={t.manageBilling}
+              desc={t.manageBillingDesc}
+              onPress={openBillingPortal}
+              right={openingBilling
+                  ? <Text style={{ fontSize: scaledFont(13), color: C.textMuted }}>{ui('opening', 'Opening...')}</Text>
+                : <ExternalLink size={16} color={C.textMuted} />}
+              accessibilityLabel={ui('openBillingPortal', 'Open billing portal')}
             />
           </Section>
         )}
