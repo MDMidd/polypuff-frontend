@@ -19,6 +19,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { identifyUser, signOutUser } from '../services/revenueCatService';
 
 const PRO_PLANS = ['pro', 'pro_monthly', 'pro_annual', 'classroom', 'teacher', 'voucher', 'admin'];
 const TEACHER_PLANS = ['classroom', 'teacher', 'school', 'admin'];
@@ -150,6 +151,10 @@ export async function storeAuthSession(
   // Remove plan/teacher keys if they shouldn't be set (multiSet can't delete).
   if (!plan) await AsyncStorage.multiRemove(['pp_plan', 'pp_access_plan']);
   if (!teacherFlag) await AsyncStorage.multiRemove(['pp_is_teacher', 'pp_classroom_access']);
+
+  // Ties the RevenueCat customer (Android Play Billing) to the same email
+  // identity as everything else. No-op on iOS/web or if not configured.
+  identifyUser(email).catch(() => {});
 }
 
 /**
@@ -157,6 +162,7 @@ export async function storeAuthSession(
  */
 export async function clearAuthSession(): Promise<void> {
   await AsyncStorage.multiRemove(AUTH_KEYS);
+  signOutUser().catch(() => {});
 }
 
 /**

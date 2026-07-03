@@ -13,7 +13,7 @@ import React, { useState, useEffect, useCallback, useMemo, type ReactNode } from
 import { useRouter, useFocusEffect } from 'expo-router';
 import {
   Image, View, Text, ScrollView, TouchableOpacity,
-  Switch, Alert, Linking, Modal, TextInput, Platform, type GestureResponderEvent,
+  Switch, Alert, Linking, Modal, TextInput, Platform, ActivityIndicator, type GestureResponderEvent,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
@@ -21,7 +21,7 @@ import {
   Volume2, Trash2, Info, ExternalLink, ChevronRight,
   Download, Shield, RotateCcw, Bell, Mail, Server,
   User, KeyRound, HelpCircle, MessageSquare, CreditCard, RefreshCw, LogOut,
-  Globe, Languages, BookOpen, CheckCircle,
+  Globe, Languages, BookOpen, CheckCircle, X, Sparkles,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -39,6 +39,10 @@ import {
 import { getReminderSettings, setReminderSettings, formatReminderTime } from '../services/notifications';
 import { clearAuthSession, getSavedToken } from '../utils/authSession';
 import { getSettingsTranslations } from '../utils/settingsTranslations';
+import {
+  isPlayBillingSupported, getPackages, purchasePackage, restorePurchases,
+} from '../services/revenueCatService';
+import type { PurchasesPackage } from 'react-native-purchases';
 // ✅ NEW v6.3: Weekly digest settings card
 import DigestSettings from '../components/DigestSettings';
 
@@ -162,6 +166,13 @@ export default function SettingsScreen() {
   const canUpgradePlan = accountPlanTone === 'free';
   const canOpenExternalPaymentLinks = Platform.OS !== 'android';
   const canShowPlanUpgrade = canUpgradePlan && canOpenExternalPaymentLinks;
+  // Android can't open the external Paddle checkout (Play Store policy), so
+  // it gets its own in-app Play Billing paywall instead.
+  const canShowAndroidUpgrade = canUpgradePlan && isPlayBillingSupported();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallPackages, setPaywallPackages] = useState<PurchasesPackage[]>([]);
+  const [paywallLoading, setPaywallLoading] = useState(false);
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const promptBarPercent = promptUsage.limit ? Math.min(100, Math.max(0, (promptUsage.used / promptUsage.limit) * 100)) : 100;
   const promptLimitReached = !!promptUsage.limit && promptUsage.used >= promptUsage.limit;
 
@@ -435,7 +446,13 @@ export default function SettingsScreen() {
     const periodEnd = formatBillingDate(billing.currentPeriodEnd);
     const cancelAt = formatBillingDate(billing.cancelAt);
 
-    if (billing.paddleStatus === 'active') {
+    if (billing.revenuecatActive) {
+      // Play Billing-sourced Pro — no Paddle record exists, so use the
+      // RevenueCat expiry instead of the paddle_* fields above.
+      const rcExpires = formatBillingDate(billing.revenuecatExpiresAt);
+      setBillingStatus(t.activeBilling);
+      setBillingDesc(rcExpires ? tx('renewsOn', { date: rcExpires }) : t.subscriptionActive);
+    } else if (billing.paddleStatus === 'active') {
       setBillingStatus(t.activeBilling);
       setBillingDesc(periodEnd ? tx('renewsOn', { date: periodEnd }) : t.subscriptionActive);
     } else if (billing.paddleStatus === 'trialing') {
@@ -569,6 +586,67 @@ export default function SettingsScreen() {
 
   const openPricing = () => {
     Linking.openURL('https://poly-puff.com/pricing');
+  };
+
+  const openAndroidPaywall = async () => {
+    setPaywallVisible(true);
+    setPaywallLoading(true);
+    try {
+      const pkgs = await getPackages();
+      setPaywallPackages(pkgs);
+    } finally {
+      setPaywallLoading(false);
+    }
+  };
+
+  // After a purchase/restore, RevenueCat's own SDK reflects the entitlement
+  // instantly (used for the immediate UI update), but web_users.revenuecat_*
+  // only updates once RevenueCat's webhook reaches the backend — usually a
+  // few seconds. Give that a moment, then pull a fresh account summary so
+  // server-side isPro-gated behavior is in sync too.
+  const syncAccountAfterEntitlementChange = () => {
+    setTimeout(() => { refreshAccountSummary().catch(() => {}); }, 4000);
+  };
+
+  const handlePurchase = async (pkg: PurchasesPackage) => {
+    setPurchasingId(pkg.identifier);
+    try {
+      const result = await purchasePackage(pkg);
+      if (result.cancelled) return;
+      if (!result.success) {
+        Alert.alert(t.billingPortalTitle, result.error || t.billingPortalTryAgain);
+        return;
+      }
+      setPaywallVisible(false);
+      if (result.isPro) {
+        setAccountPlan(t.proPlan);
+        setAccountPlanTone('pro');
+        Alert.alert(t.proPlan, t.subscriptionActive);
+      }
+      syncAccountAfterEntitlementChange();
+    } finally {
+      setPurchasingId(null);
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    setPaywallLoading(true);
+    try {
+      const result = await restorePurchases();
+      if (result.isPro) {
+        setPaywallVisible(false);
+        setAccountPlan(t.proPlan);
+        setAccountPlanTone('pro');
+        Alert.alert(t.proPlan, t.subscriptionActive);
+        syncAccountAfterEntitlementChange();
+      } else if (!result.success && result.error) {
+        Alert.alert(t.billingPortalTitle, result.error);
+      } else {
+        Alert.alert(t.billingPortalTitle, t.noActiveSubscription);
+      }
+    } finally {
+      setPaywallLoading(false);
+    }
   };
 
   const signOut = () => {
@@ -872,9 +950,9 @@ export default function SettingsScreen() {
             right={
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <PlanBadge label={accountPlan} tone={accountPlanTone} />
-                {canShowPlanUpgrade && (
+                {(canShowPlanUpgrade || canShowAndroidUpgrade) && (
                   <TouchableOpacity
-                    onPress={openPricing}
+                    onPress={canShowAndroidUpgrade ? openAndroidPaywall : openPricing}
                     style={{
                       backgroundColor: C.cyan || '#00E5FF',
                       paddingHorizontal: 10,
@@ -994,6 +1072,25 @@ export default function SettingsScreen() {
               onPress={() => Linking.openURL('https://poly-puff.com/refund')}
               right={<ExternalLink size={16} color={C.textMuted} />}
               accessibilityLabel={ui('moneyBackGuarantee', 'View 7-day money-back guarantee. Opens external link.')}
+            />
+          </Section>
+        )}
+
+        {isPlayBillingSupported() && accountPlanTone === 'pro' && (
+          <Section title={t.billingSection} icon={<CreditCard size={18} color={C.emerald || '#00E5A0'} />}>
+            <Row
+              label={t.manageBilling}
+              desc={ui('manageBillingDescGoogle', 'Open Google Play to manage your subscription, payment method, or cancellation')}
+              onPress={() => Linking.openURL(`https://play.google.com/store/account/subscriptions?package=${Constants.expoConfig?.android?.package || 'com.polypuff.app'}`)}
+              right={<ExternalLink size={16} color={C.textMuted} />}
+              accessibilityLabel={ui('openBillingPortal', 'Manage subscription in Google Play')}
+            />
+            <Row
+              label={ui('restorePurchases', 'Restore Purchases')}
+              desc={ui('restorePurchasesDesc', 'Already subscribed on this Google account? Restore access.')}
+              onPress={handleRestorePurchases}
+              right={<RefreshCw size={16} color={C.textMuted} />}
+              accessibilityLabel={ui('restorePurchases', 'Restore purchases')}
             />
           </Section>
         )}
@@ -1366,6 +1463,96 @@ export default function SettingsScreen() {
               accessibilityRole="button" accessibilityLabel={t.cancel}
             >
               <Text style={{ fontSize: scaledFont(14), color: C.textMuted }}>{t.cancel}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* ── ANDROID PLAY BILLING PAYWALL MODAL ────────────────────────── */}
+      <Modal visible={paywallVisible} transparent animationType="fade" onRequestClose={() => setPaywallVisible(false)}>
+        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }} activeOpacity={1} onPress={() => setPaywallVisible(false)}>
+          <View style={{ backgroundColor: C.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '75%' }}
+            accessibilityViewIsModal={true}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={20} color={C.purple || '#B06CFF'} />
+                <Text style={{ fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">
+                  {t.proPlan}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setPaywallVisible(false)}
+                style={{ padding: 6, minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button"
+                accessibilityLabel={t.cancel}
+              >
+                <X size={20} color={C.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            {paywallLoading && paywallPackages.length === 0 ? (
+              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color={C.purple || '#B06CFF'} />
+              </View>
+            ) : paywallPackages.length === 0 ? (
+              <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+                <Text style={{ fontSize: scaledFont(14), color: C.textMuted, textAlign: 'center' }}>
+                  {ui('noPlansAvailable', 'No plans are available right now. Please try again later.')}
+                </Text>
+              </View>
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {paywallPackages.map((pkg) => {
+                  const isPurchasing = purchasingId === pkg.identifier;
+                  const disabled = !!purchasingId;
+                  return (
+                    <TouchableOpacity
+                      key={pkg.identifier}
+                      disabled={disabled}
+                      onPress={() => handlePurchase(pkg)}
+                      style={{
+                        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                        paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, marginBottom: 8,
+                        backgroundColor: (C.purple || '#B06CFF') + '14',
+                        borderWidth: 1, borderColor: (C.purple || '#B06CFF') + '30',
+                        opacity: disabled && !isPurchasing ? 0.5 : 1,
+                        minHeight: 56,
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${pkg.product.title} — ${pkg.product.priceString}`}
+                      accessibilityState={{ disabled, busy: isPurchasing }}
+                    >
+                      <View style={{ flex: 1, marginRight: 12 }}>
+                        <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text }}>{pkg.product.title}</Text>
+                        {!!pkg.product.description && (
+                          <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }} numberOfLines={2}>
+                            {pkg.product.description}
+                          </Text>
+                        )}
+                      </View>
+                      {isPurchasing ? (
+                        <ActivityIndicator size="small" color={C.purple || '#B06CFF'} />
+                      ) : (
+                        <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.purple || '#B06CFF' }}>
+                          {pkg.product.priceString}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
+
+            <TouchableOpacity
+              style={{ paddingVertical: 12, alignItems: 'center', marginTop: 8, minHeight: 44 }}
+              onPress={handleRestorePurchases}
+              disabled={paywallLoading || !!purchasingId}
+              accessibilityRole="button"
+              accessibilityLabel={ui('restorePurchases', 'Restore purchases')}
+            >
+              <Text style={{ fontSize: scaledFont(14), color: C.textMuted }}>
+                {ui('restorePurchases', 'Restore Purchases')}
+              </Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

@@ -42,6 +42,7 @@ import { isRtlLanguage } from '../utils/languages';
 // ✅ NEW v3.1: Weekly digest scheduler
 import { checkAndSendWeeklyDigest } from '../services/digestService';
 import { pullAndMerge } from '../services/syncService';
+import { initRevenueCat, identifyUser } from '../services/revenueCatService';
 
 // ═══ CONTEXTS ═══
 export const ExerciseContext = createContext({ inExercise: false, setInExercise: () => {} });
@@ -293,16 +294,21 @@ function AppWithOnboarding() {
   const [mascotEnabled,  setMascotEnabled]  = useState(true);
 
   useEffect(() => {
+    initRevenueCat(); // no-op on iOS/web or if the API key isn't configured
     Promise.all([
       AsyncStorage.getItem('termsAccepted'),
       AsyncStorage.getItem('termsVersion'),
       AsyncStorage.getItem('loginComplete'),
       AsyncStorage.getItem('onboardingComplete'),
       AsyncStorage.getItem('mascotEnabled'),
-    ]).then(([termsAccepted, termsVersion, loginComplete, onboardingDone, mascotVal]) => {
+      AsyncStorage.getItem('pp_email'),
+    ]).then(([termsAccepted, termsVersion, loginComplete, onboardingDone, mascotVal, email]) => {
       setLegalCleared(termsAccepted === 'true' && termsVersion === '3.0' && loginComplete === 'true');
       setShowOnboarding(onboardingDone !== 'true');
       if (mascotVal === 'false') setMascotEnabled(false);
+      // Re-identify on every cold start — the RevenueCat SDK itself has no
+      // memory of who was logged in last session; only AsyncStorage does.
+      if (email) identifyUser(email).catch(() => {});
     }).catch(() => { setLegalCleared(false); setShowOnboarding(true); });
 
   }, []);
