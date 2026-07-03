@@ -64,6 +64,7 @@ export interface AuthLoginResponse {
   isClassroom?: boolean;
   plan?: string;
   promptsUsed?: number;
+  promptsLimit?: number | null;
   billing?: Record<string, unknown>;
   profile?: Record<string, unknown> | null;
   photoUrl?: string | null;
