@@ -154,7 +154,10 @@ export async function storeAuthSession(
 
   // Ties the RevenueCat customer (Android Play Billing) to the same email
   // identity as everything else. No-op on iOS/web or if not configured.
-  identifyUser(email).catch(() => {});
+  // Awaited (with the SDK call itself still swallowing its own errors) so
+  // callers that navigate right after storeAuthSession() resolves — e.g. a
+  // sign-in screen — can't race ahead of RevenueCat's identity switch.
+  await identifyUser(email).catch(() => {});
 }
 
 /**
@@ -162,7 +165,10 @@ export async function storeAuthSession(
  */
 export async function clearAuthSession(): Promise<void> {
   await AsyncStorage.multiRemove(AUTH_KEYS);
-  signOutUser().catch(() => {});
+  // Awaited for the same reason as identifyUser() above — a caller that
+  // signs back in right after clearAuthSession() resolves shouldn't race
+  // RevenueCat's still-in-flight logout.
+  await signOutUser().catch(() => {});
 }
 
 /**
@@ -170,12 +176,19 @@ export async function clearAuthSession(): Promise<void> {
  * Checks legacy keys too for safety.
  */
 export async function getSavedToken(): Promise<string> {
-  const entries = await AsyncStorage.multiGet([
-    'pp_token',
-    'webAuthToken',
-    'authToken',
-    'jwt',
-    'polyPuffToken',
-  ]);
-  return entries.find(([, v]) => !!v)?.[1] || '';
+  try {
+    const entries = await AsyncStorage.multiGet([
+      'pp_token',
+      'webAuthToken',
+      'authToken',
+      'jwt',
+      'polyPuffToken',
+    ]);
+    return entries.find(([, v]) => !!v)?.[1] || '';
+  } catch {
+    // A storage read failure here shouldn't break callers that used to work
+    // fine with no token at all (e.g. anonymous API calls in services/api.js)
+    // — degrade to "not signed in" instead of throwing.
+    return '';
+  }
 }

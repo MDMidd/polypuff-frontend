@@ -68,6 +68,7 @@ export default function FeedbackScreen() {
   const [sending,  setSending]  = useState(false);
   const [sent,     setSent]     = useState(false);
   const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
+  const [pickingScreenshot, setPickingScreenshot] = useState(false);
 
   useFocusEffect(useCallback(() => {
     Promise.all([
@@ -88,36 +89,44 @@ export default function FeedbackScreen() {
   }, []));
 
   const pickScreenshots = async () => {
+    if (pickingScreenshot) return; // guard against a double-tap re-entering the picker
     const remaining = MAX_SCREENSHOTS - screenshots.length;
     if (remaining <= 0) return;
 
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please allow access to your photo library to attach a screenshot.');
-      return;
-    }
+    setPickingScreenshot(true);
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please allow access to your photo library to attach a screenshot.');
+        return;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsMultipleSelection: remaining > 1,
-      selectionLimit: remaining,
-      quality: 0.7,
-    });
-    if (result.canceled || !result.assets?.length) return;
-
-    const accepted: Screenshot[] = [];
-    let tooLarge = false;
-    for (const asset of result.assets) {
-      if (screenshots.length + accepted.length >= MAX_SCREENSHOTS) break;
-      if (asset.fileSize && asset.fileSize > MAX_SCREENSHOT_BYTES) { tooLarge = true; continue; }
-      accepted.push({
-        uri: asset.uri,
-        name: asset.fileName || `screenshot-${Date.now()}-${accepted.length}.jpg`,
-        type: asset.mimeType || 'image/jpeg',
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsMultipleSelection: remaining > 1,
+        selectionLimit: remaining,
+        quality: 0.7,
       });
+      if (result.canceled || !result.assets?.length) return;
+
+      const accepted: Screenshot[] = [];
+      let tooLarge = false;
+      for (const asset of result.assets) {
+        if (screenshots.length + accepted.length >= MAX_SCREENSHOTS) break;
+        if (asset.fileSize && asset.fileSize > MAX_SCREENSHOT_BYTES) { tooLarge = true; continue; }
+        accepted.push({
+          uri: asset.uri,
+          name: asset.fileName || `screenshot-${Date.now()}-${accepted.length}.jpg`,
+          type: asset.mimeType || 'image/jpeg',
+        });
+      }
+      if (tooLarge) Alert.alert('Screenshot too large', 'Each screenshot must be under 5MB.');
+      if (accepted.length) setScreenshots(prev => [...prev, ...accepted].slice(0, MAX_SCREENSHOTS));
+    } catch (e) {
+      Alert.alert('Error', 'Could not open the photo library. Please try again.');
+    } finally {
+      setPickingScreenshot(false);
     }
-    if (tooLarge) Alert.alert('Screenshot too large', 'Each screenshot must be under 5MB.');
-    if (accepted.length) setScreenshots(prev => [...prev, ...accepted].slice(0, MAX_SCREENSHOTS));
   };
 
   const removeScreenshot = (index: number) => {
@@ -399,18 +408,26 @@ export default function FeedbackScreen() {
             {screenshots.length < MAX_SCREENSHOTS && (
               <TouchableOpacity
                 onPress={pickScreenshots}
+                disabled={pickingScreenshot}
                 style={{
                   width: 72, height: 72, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
                   backgroundColor: C.card, borderWidth: 1, borderStyle: 'dashed', borderColor: C.border + '60',
-                  minHeight: 44,
+                  minHeight: 44, opacity: pickingScreenshot ? 0.5 : 1,
                 }}
                 accessibilityRole="button"
                 accessibilityLabel="Add screenshot"
+                accessibilityState={{ disabled: pickingScreenshot, busy: pickingScreenshot }}
               >
-                <Paperclip size={20} color={C.textMuted} />
-                <Text style={{ fontSize: scaledFont(10), fontWeight: '600', color: C.textMuted, marginTop: 4 }}>
-                  Add
-                </Text>
+                {pickingScreenshot ? (
+                  <ActivityIndicator color={C.textMuted} />
+                ) : (
+                  <>
+                    <Paperclip size={20} color={C.textMuted} />
+                    <Text style={{ fontSize: scaledFont(10), fontWeight: '600', color: C.textMuted, marginTop: 4 }}>
+                      Add
+                    </Text>
+                  </>
+                )}
               </TouchableOpacity>
             )}
           </View>
