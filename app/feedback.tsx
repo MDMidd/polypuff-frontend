@@ -28,14 +28,15 @@
 
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView,
+  View, Text, TextInput, TouchableOpacity, ScrollView, Image,
   Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import {
-  MessageSquare, Bug, Lightbulb, Send, CheckCircle,
+  MessageSquare, Bug, Lightbulb, Send, CheckCircle, Paperclip, X,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -51,6 +52,10 @@ const CATEGORIES = [
 
 const MESSAGE_MIN = 10;
 const MESSAGE_MAX = 2000;
+const MAX_SCREENSHOTS = 3;
+const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
+
+type Screenshot = { uri: string; name: string; type: string };
 
 export default function FeedbackScreen() {
   const { colors: C } = useTheme();
@@ -62,6 +67,7 @@ export default function FeedbackScreen() {
   const [userName, setUserName] = useState('');
   const [sending,  setSending]  = useState(false);
   const [sent,     setSent]     = useState(false);
+  const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
 
   useFocusEffect(useCallback(() => {
     Promise.all([
@@ -81,6 +87,43 @@ export default function FeedbackScreen() {
     }).catch(() => {});
   }, []));
 
+  const pickScreenshots = async () => {
+    const remaining = MAX_SCREENSHOTS - screenshots.length;
+    if (remaining <= 0) return;
+
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow access to your photo library to attach a screenshot.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: remaining > 1,
+      selectionLimit: remaining,
+      quality: 0.7,
+    });
+    if (result.canceled || !result.assets?.length) return;
+
+    const accepted: Screenshot[] = [];
+    let tooLarge = false;
+    for (const asset of result.assets) {
+      if (screenshots.length + accepted.length >= MAX_SCREENSHOTS) break;
+      if (asset.fileSize && asset.fileSize > MAX_SCREENSHOT_BYTES) { tooLarge = true; continue; }
+      accepted.push({
+        uri: asset.uri,
+        name: asset.fileName || `screenshot-${Date.now()}-${accepted.length}.jpg`,
+        type: asset.mimeType || 'image/jpeg',
+      });
+    }
+    if (tooLarge) Alert.alert('Screenshot too large', 'Each screenshot must be under 5MB.');
+    if (accepted.length) setScreenshots(prev => [...prev, ...accepted].slice(0, MAX_SCREENSHOTS));
+  };
+
+  const removeScreenshot = (index: number) => {
+    setScreenshots(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSend = async () => {
     const trimmedMessage = message.trim();
     const trimmedEmail = email.trim();
@@ -97,18 +140,23 @@ export default function FeedbackScreen() {
     setSending(true);
     try {
       const BASE = await getServerUrl();
+      const formData = new FormData();
+      formData.append('category', category);
+      formData.append('message', trimmedMessage);
+      if (trimmedEmail) formData.append('email', trimmedEmail);
+      formData.append('userName', userName || 'Anonymous');
+      formData.append('source', 'mobile-app');
+      formData.append('platform', Platform.OS);
+      formData.append('appVersion', Constants.expoConfig?.version || 'unknown');
+      screenshots.forEach((s, i) => {
+        // React Native's FormData expects a {uri, name, type} descriptor
+        // rather than an actual File/Blob.
+        formData.append('screenshots', { uri: s.uri, name: s.name, type: s.type } as any);
+      });
+
       const res = await fetch(`${BASE}/api/feedback`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category,
-          message:  trimmedMessage,
-          email:    trimmedEmail || null,
-          userName: userName || 'Anonymous',
-          source:   'mobile-app',
-          platform: Platform.OS,
-          appVersion: Constants.expoConfig?.version || 'unknown',
-        }),
+        method: 'POST',
+        body: formData,
       });
 
       const data = await res.json();
@@ -130,6 +178,7 @@ export default function FeedbackScreen() {
   const handleReset = () => {
     setCategory('general');
     setMessage('');
+    setScreenshots([]);
     setSent(false);
   };
 
@@ -321,6 +370,52 @@ export default function FeedbackScreen() {
           />
           <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginBottom: 16, paddingHorizontal: 4 }}>
             Include your email if you'd like us to respond. We'll never share it or use it for marketing.
+          </Text>
+
+          {/* ── Screenshots ───────────────────────────────────────────── */}
+          <Text
+            style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, letterSpacing: 1, marginBottom: 8 }}
+            accessibilityRole="header"
+          >
+            ATTACH SCREENSHOTS (OPTIONAL)
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+            {screenshots.map((s, i) => (
+              <View key={s.uri} style={{ width: 72, height: 72, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '40' }}>
+                <Image source={{ uri: s.uri }} style={{ width: '100%', height: '100%' }} />
+                <TouchableOpacity
+                  onPress={() => removeScreenshot(i)}
+                  style={{
+                    position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: 11,
+                    backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center',
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove screenshot ${i + 1}`}
+                >
+                  <X size={13} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {screenshots.length < MAX_SCREENSHOTS && (
+              <TouchableOpacity
+                onPress={pickScreenshots}
+                style={{
+                  width: 72, height: 72, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: C.card, borderWidth: 1, borderStyle: 'dashed', borderColor: C.border + '60',
+                  minHeight: 44,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Add screenshot"
+              >
+                <Paperclip size={20} color={C.textMuted} />
+                <Text style={{ fontSize: scaledFont(10), fontWeight: '600', color: C.textMuted, marginTop: 4 }}>
+                  Add
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginBottom: 16, paddingHorizontal: 4 }}>
+            JPG, PNG, or WebP. Up to 3 images, 5MB each.
           </Text>
 
         </ScrollView>
