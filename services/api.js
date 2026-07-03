@@ -10,6 +10,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
+import { getAuthHeaders } from '../utils/auth';
 
 // ═══ PRODUCTION SERVER URL ═══
 export const DEFAULT_SERVER = 'https://polypuff-backend-production-bec9.up.railway.app';
@@ -83,7 +84,7 @@ export const generateExercise = async ({ level, nativeLanguage, sentenceLength, 
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/generate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, masteredSentences, profile, weakAreas }),
   });
   if (!res.ok) throw new Error('Server error');
@@ -98,7 +99,7 @@ export const checkTranslation = async ({ originalSentence, studentAnswer, correc
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/check`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ originalSentence, studentAnswer, correctAnswer, level, nativeLanguage }),
   });
   if (!res.ok) throw new Error('Server error');
@@ -113,7 +114,7 @@ export const revealTranslationAnswer = async ({ originalSentence, correctAnswer 
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/translate-prompt`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({
       originalSentence,
       correctAnswer,
@@ -136,7 +137,7 @@ export const getNextExercise = async ({ level, nativeLanguage, sentenceLength, p
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/exercises/next`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ level, nativeLanguage, sentenceLength, previousIds }),
   });
   if (!res.ok) throw new Error('Server error');
@@ -151,7 +152,7 @@ export const checkExercise = async ({ exerciseId, studentAnswer, level, nativeLa
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/exercises/check`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ exerciseId, studentAnswer, level, nativeLanguage }),
   });
   if (!res.ok) throw new Error('Server error');
@@ -167,7 +168,7 @@ export const chatWithTutor = async ({ message, context, history = [] }) => {
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/chat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ message, context, history }),
   });
   if (!res.ok) throw new Error('Server error');
