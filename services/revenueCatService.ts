@@ -43,8 +43,14 @@ export function initRevenueCat(): void {
     console.warn('EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY is not set — Play Billing is disabled.');
     return;
   }
-  Purchases.configure({ apiKey });
-  configured = true;
+  try {
+    Purchases.configure({ apiKey });
+    configured = true;
+  } catch (e) {
+    // Native module not linked (e.g. a build that predates this dependency,
+    // or Expo Go) — fail quietly rather than crashing app startup.
+    console.warn('RevenueCat configure failed:', e);
+  }
 }
 
 /** Call right after a successful sign-in (alongside storeAuthSession). */
@@ -126,4 +132,15 @@ export async function restorePurchases(): Promise<PurchaseResult> {
   }
 }
 
-export { isSupported as isPlayBillingSupported };
+/**
+ * Whether Play Billing is actually ready to use right now — the platform
+ * supports it AND initRevenueCat() successfully configured the SDK (API key
+ * present, native module linked). Use this (not isPlayBillingSupported) to
+ * gate any UI that lets the user attempt a purchase, so an unconfigured
+ * build shows no upgrade path instead of one that silently fails.
+ */
+function isConfigured(): boolean {
+  return isSupported() && configured;
+}
+
+export { isSupported as isPlayBillingSupported, isConfigured as isPlayBillingConfigured };

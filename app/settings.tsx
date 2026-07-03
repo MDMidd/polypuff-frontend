@@ -40,7 +40,7 @@ import { getReminderSettings, setReminderSettings, formatReminderTime } from '..
 import { clearAuthSession, getSavedToken } from '../utils/authSession';
 import { getSettingsTranslations } from '../utils/settingsTranslations';
 import {
-  isPlayBillingSupported, getPackages, purchasePackage, restorePurchases,
+  isPlayBillingSupported, isPlayBillingConfigured, getPackages, purchasePackage, restorePurchases,
 } from '../services/revenueCatService';
 import type { PurchasesPackage } from 'react-native-purchases';
 // ✅ NEW v6.3: Weekly digest settings card
@@ -106,6 +106,12 @@ type PickerMode = 'nativeLanguage' | 'appLanguage' | 'cefrLevel' | null;
 
 const PASSWORD_RESET_PROVIDERS = new Set(['email', 'password']);
 
+// Free-tier monthly AI-request quota fallback — used only until the server's
+// promptsLimit field is available (first render, or a cached pre-quota
+// account blob). Must match FREE_MONTHLY_PROMPT_LIMIT in the backend's
+// server.js; the server value always wins once a fresh account summary loads.
+const FREE_MONTHLY_PROMPT_LIMIT_FALLBACK = 300;
+
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors: C } = useTheme();
@@ -146,11 +152,12 @@ export default function SettingsScreen() {
   const [accountToken, setAccountToken] = useState('');
   const [accountPlan, setAccountPlan] = useState<string>('');
   const [accountPlanTone, setAccountPlanTone] = useState<'free' | 'pro' | 'admin' | 'local'>('local');
+  const [isRevenueCatBilling, setIsRevenueCatBilling] = useState(false);
   const [billingStatus, setBillingStatus] = useState('Not synced');
   const [billingDesc, setBillingDesc] = useState<string>('');
   const [promptsUsed, setPromptsUsed] = useState('-');
   const [promptDesc, setPromptDesc] = useState<string>('');
-  const [promptUsage, setPromptUsage] = useState<{ used: number; limit: number | null; synced: boolean }>({ used: 0, limit: 10, synced: false });
+  const [promptUsage, setPromptUsage] = useState<{ used: number; limit: number | null; synced: boolean }>({ used: 0, limit: FREE_MONTHLY_PROMPT_LIMIT_FALLBACK, synced: false });
   const [emailReminderEnabled, setEmailReminderEnabled] = useState(false);
   const [emailReminderDesc, setEmailReminderDesc] = useState<string>('');
   const [emailReminderLoading, setEmailReminderLoading] = useState(false);
@@ -167,14 +174,16 @@ export default function SettingsScreen() {
   const canOpenExternalPaymentLinks = Platform.OS !== 'android';
   const canShowPlanUpgrade = canUpgradePlan && canOpenExternalPaymentLinks;
   // Android can't open the external Paddle checkout (Play Store policy), so
-  // it gets its own in-app Play Billing paywall instead.
-  const canShowAndroidUpgrade = canUpgradePlan && isPlayBillingSupported();
+  // it gets its own in-app Play Billing paywall instead — but only once
+  // Play Billing is actually configured, so a build without the RevenueCat
+  // API key set doesn't show an upgrade button that's guaranteed to fail.
+  const canShowAndroidUpgrade = canUpgradePlan && isPlayBillingConfigured();
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [paywallPackages, setPaywallPackages] = useState<PurchasesPackage[]>([]);
   const [paywallLoading, setPaywallLoading] = useState(false);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
-  const promptBarPercent = promptUsage.limit ? Math.min(100, Math.max(0, (promptUsage.used / promptUsage.limit) * 100)) : 100;
-  const promptLimitReached = !!promptUsage.limit && promptUsage.used >= promptUsage.limit;
+  const promptBarPercent = promptUsage.limit !== null ? Math.min(100, Math.max(0, (promptUsage.used / promptUsage.limit) * 100)) : 100;
+  const promptLimitReached = promptUsage.limit !== null && promptUsage.used >= promptUsage.limit;
 
   useEffect(() => {
     estimateCache();
@@ -415,7 +424,7 @@ export default function SettingsScreen() {
     setBillingDesc(email ? t.webAccountNotSyncedYet : t.noWebAccountSaved);
     setPromptsUsed('-');
     setPromptDesc(email ? t.promptUsageSyncsAfterSignIn : t.signInWebPromptUsage);
-    setPromptUsage({ used: 0, limit: 10, synced: false });
+    setPromptUsage({ used: 0, limit: FREE_MONTHLY_PROMPT_LIMIT_FALLBACK, synced: false });
   };
 
   const applyAccountSummary = (account: any) => {
@@ -435,16 +444,19 @@ export default function SettingsScreen() {
 
     const limit = account?.promptsLimit !== undefined
       ? account.promptsLimit
-      : (account?.isPro || account?.isAdmin ? null : 300);
+      : (account?.isPro || account?.isAdmin ? null : FREE_MONTHLY_PROMPT_LIMIT_FALLBACK);
     const used = account?.isAdmin ? 0 : Number(account?.promptsUsed || 0);
-    setPromptsUsed(limit ? `${used} / ${limit}` : `${used}`);
-    setPromptDesc(limit ? tx('promptsRemainingToday', { count: Math.max(0, limit - used) }) : t.unlimitedPrompts);
+    setPromptsUsed(limit !== null ? `${used} / ${limit}` : `${used}`);
+    setPromptDesc(limit !== null ? tx('promptsRemainingToday', { count: Math.max(0, limit - used) }) : t.unlimitedPrompts);
     setPromptUsage({ used, limit, synced: true });
 
     const billing = account?.billing || {};
     const status = String(billing.paddleStatus || '').replace(/_/g, ' ');
     const periodEnd = formatBillingDate(billing.currentPeriodEnd);
     const cancelAt = formatBillingDate(billing.cancelAt);
+    // Which portal to point "Manage Billing" at — Play Store only applies
+    // when the active Pro entitlement actually came from RevenueCat.
+    setIsRevenueCatBilling(billing.revenuecatActive === true);
 
     if (billing.revenuecatActive) {
       // Play Billing-sourced Pro — no Paddle record exists, so use the
@@ -476,7 +488,7 @@ export default function SettingsScreen() {
   const refreshAccountSummary = async (token = accountToken) => {
     if (!token) {
       setLocalAccountSummary(accountEmail);
-      return;
+      return undefined;
     }
 
     setLoadingAccount(true);
@@ -489,8 +501,10 @@ export default function SettingsScreen() {
       if (!res.ok) throw new Error(data.error || t.couldNotRefreshAccount);
       await AsyncStorage.setItem('accountSummary', JSON.stringify(data));
       applyAccountSummary(data);
+      return data;
     } catch {
       setBillingDesc(t.couldNotRefreshAccount);
+      return undefined;
     } finally {
       setLoadingAccount(false);
     }
@@ -602,10 +616,21 @@ export default function SettingsScreen() {
   // After a purchase/restore, RevenueCat's own SDK reflects the entitlement
   // instantly (used for the immediate UI update), but web_users.revenuecat_*
   // only updates once RevenueCat's webhook reaches the backend — usually a
-  // few seconds. Give that a moment, then pull a fresh account summary so
-  // server-side isPro-gated behavior is in sync too.
+  // few seconds, occasionally longer. Poll with backoff instead of a single
+  // fixed-delay attempt, so a slow webhook doesn't leave stale billing status
+  // on screen with no automatic follow-up.
   const syncAccountAfterEntitlementChange = () => {
-    setTimeout(() => { refreshAccountSummary().catch(() => {}); }, 4000);
+    const delays = [2000, 4000, 8000];
+    let attempt = 0;
+    const tryRefresh = () => {
+      setTimeout(async () => {
+        const data = await refreshAccountSummary().catch(() => undefined);
+        attempt += 1;
+        if (data?.billing?.revenuecatActive || attempt >= delays.length) return;
+        tryRefresh();
+      }, delays[attempt]);
+    };
+    tryRefresh();
   };
 
   const handlePurchase = async (pkg: PurchasesPackage) => {
@@ -622,6 +647,14 @@ export default function SettingsScreen() {
         setAccountPlan(t.proPlan);
         setAccountPlanTone('pro');
         Alert.alert(t.proPlan, t.subscriptionActive);
+      } else {
+        // Purchase completed and the user was charged, but the product isn't
+        // (yet) linked to the "pro" entitlement in the RevenueCat dashboard —
+        // don't leave them with zero feedback about a real transaction.
+        Alert.alert(
+          ui('purchaseProcessingTitle', 'Purchase Received'),
+          ui('purchaseProcessingDesc', "Your purchase went through. It can take a minute to activate — if Pro access doesn't appear shortly, contact support with your purchase receipt."),
+        );
       }
       syncAccountAfterEntitlementChange();
     } finally {
@@ -1076,7 +1109,7 @@ export default function SettingsScreen() {
           </Section>
         )}
 
-        {isPlayBillingSupported() && accountPlanTone === 'pro' && (
+        {isPlayBillingSupported() && isRevenueCatBilling && (
           <Section title={t.billingSection} icon={<CreditCard size={18} color={C.emerald || '#00E5A0'} />}>
             <Row
               label={t.manageBilling}
