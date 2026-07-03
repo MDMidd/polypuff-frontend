@@ -422,7 +422,9 @@ export default function SettingsScreen() {
       setAccountPlanTone('free');
     }
 
-    const limit = account?.isPro || account?.isAdmin ? null : 10;
+    const limit = account?.promptsLimit !== undefined
+      ? account.promptsLimit
+      : (account?.isPro || account?.isAdmin ? null : 300);
     const used = account?.isAdmin ? 0 : Number(account?.promptsUsed || 0);
     setPromptsUsed(limit ? `${used} / ${limit}` : `${used}`);
     setPromptDesc(limit ? tx('promptsRemainingToday', { count: Math.max(0, limit - used) }) : t.unlimitedPrompts);
