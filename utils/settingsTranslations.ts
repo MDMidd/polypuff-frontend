@@ -38,6 +38,8 @@ const en: SettingsCopy = {
   cefrLevelDesc: 'Affects exercise difficulty',
   customPracticeDesc: 'Choose exercises, set order, and apply goal bundles',
   customisePracticeList: 'Customise Practice List',
+  streakReminders: 'Notifications & Streak Reminders',
+  dailyReminder: 'Daily Reminder',
   useLocalDesktop: 'Use Local Desktop',
   useAndroidEmulator: 'Use Android Emulator',
   useProduction: 'Use Production',
@@ -227,6 +229,7 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
     nativeLangDesc: 'Grammatika-wenke en vertalings gebruik hierdie taal', appLangDesc: 'Verander die koppelvlaktaal',
     cefrLevelDesc: 'Beinvloed oefeningmoeilikheid', customPracticeDesc: 'Kies oefeninge, stel volgorde, en pas doelbundels toe',
     customisePracticeList: 'Pas oefenlys aan',
+    streakReminders: 'Kennisgewings en Reeksherinneringe', dailyReminder: 'Daaglikse Herinnering',
     localDesktopBackend: 'plaaslike rekenaar-agterkant', androidEmulatorBackend: 'Android-emulator-agterkant', productionBackend: 'produksie-agterkant',
     showMascot: 'Wys gelukbringer', showMascotDesc: 'Poly-Puff verskyn op skerms met wenke en aanmoediging',
     soundEffects: 'Klankeffekte', soundEffectsDesc: 'Klankseine vir tellings en gebeure',
@@ -266,6 +269,7 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
     nativeLangDesc: 'የሰዋስው ምክሮችና ትርጉሞች ይህን ቋንቋ ይጠቀማሉ', appLangDesc: 'የበይነገጽ ቋንቋ ቀይር',
     cefrLevelDesc: 'የልምምድ ከባድነትን ይነካል', customPracticeDesc: 'ልምምዶችን ምረጥ፣ ቅደም ተከተል አዘጋጅ፣ የግብ ጥቅሎችን ተግብር',
     customisePracticeList: 'የልምምድ ዝርዝር አብጅ',
+    streakReminders: 'ማሳወቂያዎች እና የተከታታይነት ማስታወሻዎች', dailyReminder: 'ዕለታዊ ማስታወሻ',
     localDesktopBackend: 'የአካባቢ ዴስክቶፕ backend', androidEmulatorBackend: 'የAndroid emulator backend', productionBackend: 'የምርት backend',
     showMascot: 'ማስኮት አሳይ', showMascotDesc: 'Poly-Puff በምክርና በማበረታቻ ማያዎች ላይ ይታያል',
     soundEffects: 'የድምጽ ተፅዕኖዎች', soundEffectsDesc: 'ለውጤቶችና ክስተቶች የድምጽ ምልክቶች',
@@ -305,6 +309,7 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
     nativeLangDesc: 'تستخدم نصائح القواعد والترجمات هذه اللغة', appLangDesc: 'تغيير لغة الواجهة',
     cefrLevelDesc: 'يؤثر في صعوبة التمارين', customPracticeDesc: 'اختر التمارين ورتبها وطبق حزم الأهداف',
     customisePracticeList: 'تخصيص قائمة التدريب',
+    streakReminders: 'الإشعارات وتذكيرات السلسلة', dailyReminder: 'التذكير اليومي',
     localDesktopBackend: 'الخادم المحلي على الحاسوب', androidEmulatorBackend: 'خادم محاكي Android', productionBackend: 'خادم الإنتاج',
     showMascot: 'إظهار الشخصية', showMascotDesc: 'يظهر Poly-Puff على الشاشات مع نصائح وتشجيع',
     soundEffects: 'المؤثرات الصوتية', soundEffectsDesc: 'إشارات صوتية للنتائج والأحداث',
@@ -344,6 +349,7 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
     nativeLangDesc: 'ব্যাকরণ টিপস ও অনুবাদ এই ভাষা ব্যবহার করে', appLangDesc: 'ইন্টারফেসের ভাষা পরিবর্তন করুন',
     cefrLevelDesc: 'অনুশীলনের কঠিনতা প্রভাবিত করে', customPracticeDesc: 'অনুশীলন বেছে নিন, ক্রম ঠিক করুন, এবং লক্ষ্য প্যাক প্রয়োগ করুন',
     customisePracticeList: 'অনুশীলন তালিকা কাস্টমাইজ করুন',
+    streakReminders: 'নোটিফিকেশন ও স্ট্রিক রিমাইন্ডার', dailyReminder: 'দৈনিক রিমাইন্ডার',
     localDesktopBackend: 'লোকাল ডেস্কটপ ব্যাকএন্ড', androidEmulatorBackend: 'Android এমুলেটর ব্যাকএন্ড', productionBackend: 'প্রোডাকশন ব্যাকএন্ড',
     showMascot: 'মাসকট দেখান', showMascotDesc: 'Poly-Puff টিপস ও উৎসাহসহ স্ক্রিনে দেখা যায়',
     soundEffects: 'সাউন্ড ইফেক্ট', soundEffectsDesc: 'স্কোর ও ঘটনার জন্য অডিও সংকেত',
@@ -383,6 +389,7 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
     nativeLangDesc: 'Граматичните съвети и преводите използват този език', appLangDesc: 'Промени езика на интерфейса',
     cefrLevelDesc: 'Влияе на трудността на упражненията', customPracticeDesc: 'Избери упражнения, подреди ги и приложи пакети с цели',
     customisePracticeList: 'Персонализирай списъка с упражнения',
+    streakReminders: 'Известия и напомняния за серията', dailyReminder: 'Дневно напомняне',
     localDesktopBackend: 'локален desktop backend', androidEmulatorBackend: 'backend за Android emulator', productionBackend: 'production backend сървър',
     showMascot: 'Покажи талисмана', showMascotDesc: 'Poly-Puff се появява с tips и насърчение',
     soundEffects: 'Звукови ефекти', soundEffectsDesc: 'Звукови сигнали за резултати и събития',
@@ -1260,6 +1267,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mailová adresa pro týdenní přehled',
     digestSendingA11y: 'Odesílá se přehled',
     digestSendNowA11y: 'Odeslat týdenní přehled nyní',
+    streakReminders: 'Oznámení a připomínky série', dailyReminder: 'Denní připomínka',
   },
 });
 
@@ -1470,6 +1478,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mailadresse til ugentlig oversigt',
     digestSendingA11y: 'Sender oversigt',
     digestSendNowA11y: 'Send ugentlig oversigt nu',
+    streakReminders: 'Notifikationer & Streak-påmindelser', dailyReminder: 'Daglig påmindelse',
   },
 });
 
@@ -1680,6 +1689,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mailadres voor wekelijkse samenvatting',
     digestSendingA11y: 'Samenvatting verzenden',
     digestSendNowA11y: 'Wekelijkse samenvatting nu verzenden',
+    streakReminders: 'Meldingen & Reeksherinneringen', dailyReminder: 'Dagelijkse herinnering',
   },
 });
 
@@ -1890,6 +1900,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Email address para sa weekly digest',
     digestSendingA11y: 'Ipinapadala ang digest',
     digestSendNowA11y: 'Ipadala ang weekly digest ngayon',
+    streakReminders: 'Mga Notification at Paalala sa Streak', dailyReminder: 'Araw-araw na Paalala',
   },
 });
 
@@ -2100,6 +2111,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Sähköpostiosoite viikoittaista koostetta varten',
     digestSendingA11y: 'Lähetetään koostetta',
     digestSendNowA11y: 'Lähetä viikoittainen kooste nyt',
+    streakReminders: 'Ilmoitukset ja putkimuistutukset', dailyReminder: 'Päivittäinen muistutus',
   },
 });
 
@@ -2310,6 +2322,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Adresse e-mail pour le récapitulatif hebdomadaire',
     digestSendingA11y: 'Envoi du récapitulatif',
     digestSendNowA11y: 'Envoyer le récapitulatif hebdomadaire maintenant',
+    streakReminders: 'Notifications et rappels de série', dailyReminder: 'Rappel quotidien',
   },
 });
 
@@ -2520,6 +2533,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-Mail-Adresse für wöchentliche Zusammenfassung',
     digestSendingA11y: 'Zusammenfassung wird gesendet',
     digestSendNowA11y: 'Wöchentliche Zusammenfassung jetzt senden',
+    streakReminders: 'Benachrichtigungen & Serien-Erinnerungen', dailyReminder: 'Tägliche Erinnerung',
   },
 });
 
@@ -2730,6 +2744,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Διεύθυνση email για εβδομαδιαία σύνοψη',
     digestSendingA11y: 'Αποστολή σύνοψης',
     digestSendNowA11y: 'Αποστολή εβδομαδιαίας σύνοψης τώρα',
+    streakReminders: 'Ειδοποιήσεις & Υπενθυμίσεις Σερί', dailyReminder: 'Καθημερινή Υπενθύμιση',
   },
 });
 
@@ -2940,6 +2955,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Email dirección resumen semanal-pe g̃uarã',
     digestSendingA11y: 'Resumen oñemondo',
     digestSendNowA11y: 'Emondo resumen semanal koág̃a',
+    streakReminders: 'Marandu ha Streak Manduaha', dailyReminder: 'Manduaha Ára Rehegua',
   },
 });
 
@@ -3150,6 +3166,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'સાપ્તાહિક સારાંશ માટે ઇમેઇલ સરનામું',
     digestSendingA11y: 'સારાંશ મોકલાઈ રહ્યો છે',
     digestSendNowA11y: 'સાપ્તાહિક સારાંશ હવે મોકલો',
+    streakReminders: 'સૂચનાઓ અને સ્ટ્રીક રિમાઇન્ડર', dailyReminder: 'દૈનિક રિમાઇન્ડર',
   },
 });
 
@@ -3360,6 +3377,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Adrès imel pou rezime chak semèn',
     digestSendingA11y: 'Ap voye rezime',
     digestSendNowA11y: 'Voye rezime chak semèn kounye a',
+    streakReminders: 'Notifikasyon ak Rapèl Seri', dailyReminder: 'Rapèl Chak Jou',
   },
 });
 
@@ -3570,6 +3588,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Adireshin imel don takaitaccen sako na mako',
     digestSendingA11y: 'Ana aika takaitaccen sako',
     digestSendNowA11y: 'Aika takaitaccen sako na mako yanzu',
+    streakReminders: 'Sanarwa da Tunatarwar Jeri', dailyReminder: 'Tunatarwar Yau da Kullum',
   },
 });
 
@@ -3780,6 +3799,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'כתובת אימייל לסיכום שבועי',
     digestSendingA11y: 'שולח סיכום',
     digestSendNowA11y: 'שליחת סיכום שבועי עכשיו',
+    streakReminders: 'התראות ותזכורות רצף', dailyReminder: 'תזכורת יומית',
   },
 });
 
@@ -3990,6 +4010,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'साप्ताहिक सारांश के लिए ईमेल पता',
     digestSendingA11y: 'सारांश भेजा जा रहा है',
     digestSendNowA11y: 'साप्ताहिक सारांश अभी भेजें',
+    streakReminders: 'सूचनाएं और स्ट्रीक रिमाइंडर', dailyReminder: 'दैनिक रिमाइंडर',
   },
 });
 
@@ -4200,6 +4221,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mail cím a heti összefoglalóhoz',
     digestSendingA11y: 'Összefoglaló küldése',
     digestSendNowA11y: 'Heti összefoglaló küldése most',
+    streakReminders: 'Értesítések és sorozat-emlékeztetők', dailyReminder: 'Napi emlékeztető',
   },
 });
 
@@ -4410,6 +4432,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Adreesị email maka nchịkọta kwa izu',
     digestSendingA11y: 'Na-eziga nchịkọta',
     digestSendNowA11y: 'Zipu nchịkọta kwa izu ugbu a',
+    streakReminders: 'Ọkwa na Ncheta Streak', dailyReminder: 'Ncheta Kwa Ụbọchị',
   },
 });
 
@@ -4620,6 +4643,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Alamat email untuk ringkasan mingguan',
     digestSendingA11y: 'Mengirim ringkasan',
     digestSendNowA11y: 'Kirim ringkasan mingguan sekarang',
+    streakReminders: 'Notifikasi & Pengingat Streak', dailyReminder: 'Pengingat Harian',
   },
 });
 
@@ -4830,6 +4854,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Indirizzo email per riepilogo settimanale',
     digestSendingA11y: 'Invio riepilogo',
     digestSendNowA11y: 'Invia riepilogo settimanale ora',
+    streakReminders: 'Notifiche e promemoria serie', dailyReminder: 'Promemoria giornaliero',
   },
 });
 
@@ -5040,6 +5065,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: '週間ダイジェスト用メールアドレス',
     digestSendingA11y: 'ダイジェストを送信中',
     digestSendNowA11y: '週間ダイジェストを今すぐ送信',
+    streakReminders: '通知と連続記録リマインダー', dailyReminder: '毎日のリマインダー',
   },
 });
 
@@ -5250,6 +5276,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: '주간 요약용 이메일 주소',
     digestSendingA11y: '요약 보내는 중',
     digestSendNowA11y: '주간 요약 지금 보내기',
+    streakReminders: '알림 및 연속 기록 알림', dailyReminder: '일일 알림',
   },
 });
 
@@ -5460,6 +5487,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Alamat e-mel untuk ringkasan mingguan',
     digestSendingA11y: 'Menghantar ringkasan',
     digestSendNowA11y: 'Hantar ringkasan mingguan sekarang',
+    streakReminders: 'Pemberitahuan & Peringatan Streak', dailyReminder: 'Peringatan Harian',
   },
 });
 
@@ -5670,6 +5698,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: '每周摘要邮箱地址',
     digestSendingA11y: '正在发送摘要',
     digestSendNowA11y: '立即发送每周摘要',
+    streakReminders: '通知与连续记录提醒', dailyReminder: '每日提醒',
   },
 });
 
@@ -5880,6 +5909,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-postadresse for ukentlig sammendrag',
     digestSendingA11y: 'Sender sammendrag',
     digestSendNowA11y: 'Send ukentlig sammendrag nå',
+    streakReminders: 'Varsler og streak-påminnelser', dailyReminder: 'Daglig påminnelse',
   },
 });
 
@@ -6090,6 +6120,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'साप्ताहिक सारांशासाठी ईमेल पत्ता',
     digestSendingA11y: 'सारांश पाठवत आहे',
     digestSendNowA11y: 'साप्ताहिक सारांश आता पाठवा',
+    streakReminders: 'सूचना आणि स्ट्रीक स्मरणपत्रे', dailyReminder: 'दैनंदिन स्मरणपत्र',
   },
 });
 
@@ -6300,6 +6331,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'साप्ताहिक सारांशका लागि इमेल ठेगाना',
     digestSendingA11y: 'सारांश पठाइँदैछ',
     digestSendNowA11y: 'साप्ताहिक सारांश अहिले पठाउनुहोस्',
+    streakReminders: 'सूचना र Streak रिमाइन्डर', dailyReminder: 'दैनिक रिमाइन्डर',
   },
 });
 
@@ -6510,6 +6542,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Adres e-mail dla tygodniowego podsumowania',
     digestSendingA11y: 'Wysyłanie podsumowania',
     digestSendNowA11y: 'Wyślij tygodniowe podsumowanie teraz',
+    streakReminders: 'Powiadomienia i przypomnienia o serii', dailyReminder: 'Codzienne przypomnienie',
   },
 });
 
@@ -6720,6 +6753,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Endereço de e-mail para resumo semanal',
     digestSendingA11y: 'Enviando resumo',
     digestSendNowA11y: 'Enviar resumo semanal agora',
+    streakReminders: 'Notificações e lembretes de sequência', dailyReminder: 'Lembrete diário',
   },
 });
 
@@ -6930,6 +6964,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'د اوونیز لنډیز ایمیل پته',
     digestSendingA11y: 'لنډیز لېږل کېږي',
     digestSendNowA11y: 'اوونیز لنډیز اوس ولېږئ',
+    streakReminders: 'خبرتیاوې او د Streak یادونې', dailyReminder: 'ورځنۍ یادونه',
   },
 });
 
@@ -7140,6 +7175,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'آدرس ایمیل برای خلاصه هفتگی',
     digestSendingA11y: 'در حال ارسال خلاصه',
     digestSendNowA11y: 'ارسال خلاصه هفتگی اکنون',
+    streakReminders: 'اعلان‌ها و یادآورهای Streak', dailyReminder: 'یادآور روزانه',
   },
 });
 
@@ -7350,6 +7386,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'ਹਫਤਾਵਾਰੀ ਸੰਖੇਪ ਲਈ ਈਮੇਲ ਪਤਾ',
     digestSendingA11y: 'ਸੰਖੇਪ ਭੇਜਿਆ ਜਾ ਰਿਹਾ ਹੈ',
     digestSendNowA11y: 'ਹਫਤਾਵਾਰੀ ਸੰਖੇਪ ਹੁਣ ਭੇਜੋ',
+    streakReminders: 'ਸੂਚਨਾਵਾਂ ਅਤੇ Streak Reminders', dailyReminder: 'ਦੈਨਿਕ Reminder',
   },
 });
 
@@ -7560,6 +7597,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Adresă de e-mail pentru rezumatul săptămânal',
     digestSendingA11y: 'Se trimite rezumatul',
     digestSendNowA11y: 'Trimite rezumatul săptămânal acum',
+    streakReminders: 'Notificări și mementouri de serie', dailyReminder: 'Memento zilnic',
   },
   ru: {
     ...en,
@@ -7767,6 +7805,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mail адрес для еженедельного обзора',
     digestSendingA11y: 'Отправляется обзор',
     digestSendNowA11y: 'Отправить еженедельный обзор сейчас',
+    streakReminders: 'Уведомления и напоминания о серии', dailyReminder: 'Ежедневное напоминание',
   },
   sk: {
     ...en,
@@ -7974,6 +8013,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mailová adresa pre týždenný súhrn',
     digestSendingA11y: 'Odosiela sa súhrn',
     digestSendNowA11y: 'Odoslať týždenný súhrn teraz',
+    streakReminders: 'Oznámenia a pripomienky série', dailyReminder: 'Denná pripomienka',
   },
   qu: {
     ...en,
@@ -8181,6 +8221,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Sapan semana huñusqapaq e-mail dirección',
     digestSendingA11y: 'Huñusqa kachachkan',
     digestSendNowA11y: 'Sapan semana huñusqata kunan kachay',
+    streakReminders: 'Willaykuna hinaspa Streak Yuyarichiykuna', dailyReminder: 'Sapa Punchaw Yuyarichiy',
   },
   si: {
     ...en,
@@ -8388,6 +8429,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'සතිපතා සාරාංශය සඳහා ඊමේල් ලිපිනය',
     digestSendingA11y: 'සාරාංශය යවමින්',
     digestSendNowA11y: 'සතිපතා සාරාංශය දැන් යවන්න',
+    streakReminders: 'දැනුම්දීම් සහ දාම මතක්කිරීම්', dailyReminder: 'දෛනික මතක්කිරීම',
   },
   es: {
     ...en,
@@ -8595,6 +8637,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Dirección de e-mail para el resumen semanal',
     digestSendingA11y: 'Enviando resumen',
     digestSendNowA11y: 'Enviar resumen semanal ahora',
+    streakReminders: 'Notificaciones y recordatorios de racha', dailyReminder: 'Recordatorio diario',
   },
   sv: {
     ...en,
@@ -8802,6 +8845,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-postadress för veckosammanfattning',
     digestSendingA11y: 'Skickar sammanfattning',
     digestSendNowA11y: 'Skicka veckosammanfattning nu',
+    streakReminders: 'Aviseringar och serie-påminnelser', dailyReminder: 'Daglig påminnelse',
   },
   sw: {
     ...en,
@@ -9009,6 +9053,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Anwani ya e-mail kwa muhtasari wa kila wiki',
     digestSendingA11y: 'Inatuma muhtasari',
     digestSendNowA11y: 'Tuma muhtasari wa kila wiki sasa',
+    streakReminders: 'Arifa na Vikumbusho vya Mfululizo', dailyReminder: 'Kikumbusho cha Kila Siku',
   },
   ta: {
     ...en,
@@ -9216,6 +9261,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'வாராந்திர சுருக்கத்திற்கான மின்னஞ்சல் முகவரி',
     digestSendingA11y: 'சுருக்கம் அனுப்பப்படுகிறது',
     digestSendNowA11y: 'வாராந்திர சுருக்கத்தை இப்போது அனுப்பு',
+    streakReminders: 'அறிவிப்புகள் மற்றும் தொடர் நினைவூட்டல்கள்', dailyReminder: 'தினசரி நினைவூட்டல்',
   },
   te: {
     ...en,
@@ -9423,6 +9469,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'వారాంతపు సారాంశం కోసం ఇమెయిల్ చిరునామా',
     digestSendingA11y: 'సారాంశం పంపుతోంది',
     digestSendNowA11y: 'వారాంతపు సారాంశాన్ని ఇప్పుడే పంపు',
+    streakReminders: 'నోటిఫికేషన్లు మరియు Streak రిమైండర్లు', dailyReminder: 'రోజువారీ రిమైండర్',
   },
   th: {
     ...en,
@@ -9630,6 +9677,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'อีเมลสำหรับสรุปรายสัปดาห์',
     digestSendingA11y: 'กำลังส่งสรุป',
     digestSendNowA11y: 'ส่งสรุปรายสัปดาห์ตอนนี้',
+    streakReminders: 'การแจ้งเตือนและการเตือนสตรีก', dailyReminder: 'การเตือนรายวัน',
   },
   tr: {
     ...en,
@@ -9837,6 +9885,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Haftalık özet için e-posta adresi',
     digestSendingA11y: 'Özet gönderiliyor',
     digestSendNowA11y: 'Haftalık özeti şimdi gönder',
+    streakReminders: 'Bildirimler ve Seri Hatırlatıcıları', dailyReminder: 'Günlük Hatırlatıcı',
   },
   uk: {
     ...en,
@@ -10044,6 +10093,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'E-mail адреса для щотижневого огляду',
     digestSendingA11y: 'Огляд надсилається',
     digestSendNowA11y: 'Надіслати щотижневий огляд зараз',
+    streakReminders: 'Сповіщення та нагадування про серію', dailyReminder: 'Щоденне нагадування',
   },
   ur: {
     ...en,
@@ -10251,6 +10301,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'ہفتہ وار خلاصے کے لیے ای میل پتہ',
     digestSendingA11y: 'خلاصہ بھیجا جا رہا ہے',
     digestSendNowA11y: 'ہفتہ وار خلاصہ ابھی بھیجیں',
+    streakReminders: 'اطلاعات اور Streak Reminders', dailyReminder: 'روزانہ Reminder',
   },
   vi: {
     ...en,
@@ -10458,6 +10509,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Địa chỉ e-mail cho tóm tắt hằng tuần',
     digestSendingA11y: 'Đang gửi tóm tắt',
     digestSendNowA11y: 'Gửi tóm tắt hằng tuần ngay',
+    streakReminders: 'Thông báo & Nhắc nhở chuỗi', dailyReminder: 'Nhắc nhở hằng ngày',
   },
   yo: {
     ...en,
@@ -10665,6 +10717,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Àdírẹ́sì e-mail fún àkópọ̀ ọ̀sẹ̀',
     digestSendingA11y: 'Ń fi àkópọ̀ ranṣẹ',
     digestSendNowA11y: 'Fi àkópọ̀ ọ̀sẹ̀ ranṣẹ báyìí',
+    streakReminders: 'Ìfitónilétí àti Ìrántí Streak', dailyReminder: 'Ìrántí Ojoojúmọ́',
   },
   zu: {
     ...en,
@@ -10872,6 +10925,7 @@ Object.assign(settingsTranslations, {
     digestEmailA11y: 'Ikheli le-imeyili lesifinyezo sangeviki',
     digestSendingA11y: 'Kuthunyelwa isifinyezo',
     digestSendNowA11y: 'Thumela isifinyezo sangeviki manje',
+    streakReminders: 'Izaziso Nezikhumbuzo Zochungechunge', dailyReminder: 'Isikhumbuzo Sansuku Zonke',
   },
 });
 
