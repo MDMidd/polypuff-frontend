@@ -281,6 +281,7 @@ function TabsLayout() {
         <Tabs.Screen name="recordings"          options={{ href: null }} />
         <Tabs.Screen name="customise"           options={{ href: null }} />
         <Tabs.Screen name="voucher"            options={{ href: null }} />
+        <Tabs.Screen name="community"          options={{ href: null }} />
       </Tabs>
     </>
   );
