@@ -1335,7 +1335,7 @@ export default function SettingsScreen() {
         </Section>
 
         {/* ── STREAK REMINDERS ─────────────────────────────────────────── */}
-        <Section title={ui('streakReminders', 'Streak Reminders')} icon={<Bell size={18} color={C.purple || '#B06CFF'} />}>
+        <Section title={ui('streakReminders', 'Notifications & Streak Reminders')} icon={<Bell size={18} color={C.purple || '#B06CFF'} />}>
           <Row
             label={ui('dailyReminder', 'Daily Reminder')}
             desc={t.keepStreakAliveDesc}
