@@ -21,7 +21,7 @@ import {
   Volume2, Trash2, Info, ExternalLink, ChevronRight,
   Download, Shield, RotateCcw, Bell, Mail, Server,
   User, KeyRound, HelpCircle, MessageSquare, CreditCard, RefreshCw, LogOut,
-  Globe, Languages, BookOpen, CheckCircle, X, Sparkles,
+  Globe, Languages, BookOpen, CheckCircle, X, Sparkles, Trophy,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -1410,6 +1410,13 @@ export default function SettingsScreen() {
             onPress={clearAllProgress} right={<Trash2 size={16} color={C.red} />} danger
             accessibilityLabel={ui('clearAllProgressPermanently', 'Clear all progress permanently. This cannot be undone.')}
             accessibilityHint={t.clearAllProgressDesc} />
+        </Section>
+
+        <Section title={ui('communitySection', 'Community')} icon={<Trophy size={18} color={C.cyan || '#00E5FF'} />}>
+          <Row label={ui('communityLabel', 'Community Leaderboard')}
+            desc={ui('communityDesc', 'See how you rank against other learners. Opt-in, chosen display name only.')}
+            onPress={() => router.push('/community')} right={<ChevronRight size={16} color={C.textMuted} style={chevronStyle} />}
+            accessibilityLabel={ui('communityLabel', 'Community Leaderboard')} />
         </Section>
 
         <Section title={t.helpSection} icon={<HelpCircle size={18} color={C.cyan || '#00E5FF'} />}>

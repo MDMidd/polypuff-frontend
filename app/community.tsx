@@ -1,0 +1,323 @@
+/**
+ * community.tsx — Poly-Puff Community Leaderboard Screen (Stage 2).
+ *
+ * Read-only ranked list of opted-in users, ordered by community_score
+ * (see computeCommunityScore() in server.js — progress/XP dominant, streak
+ * and per-skill grade improvement as smaller bonuses). Nobody appears
+ * unless they've explicitly opted in with a chosen handle; minors are
+ * blocked from opting in entirely (enforced server-side too — see
+ * PUT /api/me/community-settings).
+ *
+ * FILE LOCATION: app/community.tsx
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+  Switch,
+  RefreshControl,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Trophy, ArrowLeft, Flame, Users } from 'lucide-react-native';
+import { useTheme } from '../contexts/ThemeContext';
+import { scaledFont } from '../utils/accessibility';
+import {
+  getCommunitySettings,
+  updateCommunitySettings,
+  getLeaderboard,
+  isMinorAccount,
+  type LeaderboardEntry,
+} from '../services/communityService';
+
+const HANDLE_RE = /^[A-Za-z0-9 _-]{3,24}$/;
+
+export default function CommunityScreen() {
+  const { colors: C } = useTheme();
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isMinor, setIsMinor] = useState(false);
+  const [optIn, setOptIn] = useState(false);
+  const [handle, setHandle] = useState('');
+  const [handleInput, setHandleInput] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [myRank, setMyRank] = useState<number | null>(null);
+  const [myScore, setMyScore] = useState<number | null>(null);
+
+  const loadAll = useCallback(async () => {
+    setError('');
+    const [minor, settings] = await Promise.all([isMinorAccount(), getCommunitySettings()]);
+    setIsMinor(minor || settings?.isMinor === true);
+    if (settings) {
+      setOptIn(settings.communityOptIn);
+      setHandle(settings.communityHandle || '');
+      setHandleInput(settings.communityHandle || '');
+    }
+    if (settings?.communityOptIn) {
+      const board = await getLeaderboard();
+      if (board) {
+        setEntries(board.leaderboard);
+        setMyRank(board.myRank);
+        setMyScore(board.myScore);
+      } else {
+        setError('Could not load the leaderboard. Please try again.');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      await loadAll();
+      setLoading(false);
+    })();
+  }, [loadAll]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadAll();
+    setRefreshing(false);
+  };
+
+  const handleJoin = async () => {
+    const cleaned = handleInput.trim();
+    if (!HANDLE_RE.test(cleaned)) {
+      setError('Handle must be 3-24 characters (letters, numbers, spaces, - or _).');
+      return;
+    }
+    setError('');
+    setSaving(true);
+    const result = await updateCommunitySettings({ optIn: true, handle: cleaned });
+    setSaving(false);
+    if (!result.success) {
+      setError(result.error || 'Could not join the community.');
+      return;
+    }
+    setOptIn(!!result.communityOptIn);
+    setHandle(result.communityHandle || cleaned);
+    if (result.communityOptIn) {
+      const board = await getLeaderboard();
+      if (board) {
+        setEntries(board.leaderboard);
+        setMyRank(board.myRank);
+        setMyScore(board.myScore);
+      }
+    }
+  };
+
+  const handleLeave = async () => {
+    setSaving(true);
+    const result = await updateCommunitySettings({ optIn: false });
+    setSaving(false);
+    if (result.success) {
+      setOptIn(false);
+      setEntries([]);
+      setMyRank(null);
+      setMyScore(null);
+    } else {
+      setError(result.error || 'Could not update your settings.');
+    }
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: C.bg || '#0A0E1A' }}>
+      <View style={[s.header, { borderBottomColor: C.border, backgroundColor: C.card || '#121829' }]}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={s.backBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <ArrowLeft size={22} color={C.text || '#F0F4FF'} />
+        </TouchableOpacity>
+        <Text style={[s.headerTitle, { color: C.cyan || '#00E5FF' }]}>Community</Text>
+        <View style={{ width: 44 }} />
+      </View>
+
+      {loading ? (
+        <View style={s.centerFill}>
+          <ActivityIndicator size="large" color={C.cyan || '#00E5FF'} />
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={s.scroll}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.cyan} />}
+        >
+          {isMinor ? (
+            <View style={[s.infoBox, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
+              <Users size={28} color={C.textMuted || '#5A6380'} style={{ marginBottom: 10 }} />
+              <Text style={[s.heroTitle, { color: C.text || '#F0F4FF' }]}>Community isn't available yet</Text>
+              <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
+                The Community leaderboard is only available for accounts 18 and older.
+              </Text>
+            </View>
+          ) : !optIn ? (
+            <>
+              <View style={s.heroRow}>
+                <View style={[s.iconCircle, { backgroundColor: (C.cyan || '#00E5FF') + '18', borderColor: (C.cyan || '#00E5FF') + '40' }]}>
+                  <Trophy size={32} color={C.cyan || '#00E5FF'} />
+                </View>
+                <Text style={[s.heroTitle, { color: C.text || '#F0F4FF' }]}>Join the Community</Text>
+                <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
+                  See how you rank against other learners, based on your progress, streak, and improvement. Pick a
+                  display name — your real name and email are never shown.
+                </Text>
+              </View>
+
+              <View style={s.inputSection}>
+                <Text style={[s.inputLabel, { color: C.textSec || '#8B95B0' }]}>Choose a display name</Text>
+                <TextInput
+                  style={[s.input, { backgroundColor: C.card || '#121829', color: C.text || '#F0F4FF', borderColor: C.border + '60' }]}
+                  value={handleInput}
+                  onChangeText={setHandleInput}
+                  placeholder="e.g. PuffMaster"
+                  placeholderTextColor={C.textMuted || '#5A6380'}
+                  maxLength={24}
+                  autoCorrect={false}
+                  editable={!saving}
+                  accessibilityLabel="Display name"
+                />
+                {error ? (
+                  <Text style={[s.errorText, { color: C.red || '#FF4D6A' }]}>{error}</Text>
+                ) : null}
+                <TouchableOpacity
+                  style={[s.joinBtn, { backgroundColor: C.cyan || '#00E5FF', opacity: saving ? 0.7 : 1 }]}
+                  onPress={handleJoin}
+                  disabled={saving}
+                  accessibilityRole="button"
+                  accessibilityLabel="Join the community leaderboard"
+                >
+                  {saving ? <ActivityIndicator color="#000" size="small" /> : (
+                    <Text style={s.joinBtnText}>Join the Community</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={[s.meRow, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.meHandle, { color: C.text || '#F0F4FF' }]}>{handle}</Text>
+                  <Text style={[s.meSub, { color: C.textSec || '#8B95B0' }]}>
+                    {myRank ? `Your rank: #${myRank} · ${myScore} pts` : 'Not ranked yet'}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>Visible</Text>
+                  <Switch
+                    value={optIn}
+                    onValueChange={(v) => { if (!v) handleLeave(); }}
+                    disabled={saving}
+                    trackColor={{ false: '#D1D5DB', true: (C.cyan || '#00E5FF') + '50' }}
+                    thumbColor={C.cyan || '#00E5FF'}
+                    accessibilityRole="switch"
+                    accessibilityLabel="Visible on community leaderboard"
+                    accessibilityState={{ checked: optIn, disabled: saving }}
+                  />
+                </View>
+              </View>
+
+              {error ? <Text style={[s.errorText, { color: C.red || '#FF4D6A' }]}>{error}</Text> : null}
+
+              {entries.length === 0 ? (
+                <View style={[s.infoBox, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
+                  <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
+                    No one has joined the community yet — check back soon!
+                  </Text>
+                </View>
+              ) : (
+                <View style={{ gap: 8 }}>
+                  {entries.map((entry) => (
+                    <View
+                      key={entry.rank}
+                      style={[
+                        s.rankRow,
+                        {
+                          backgroundColor: entry.isMe ? (C.cyan || '#00E5FF') + '12' : C.card || '#121829',
+                          borderColor: entry.isMe ? (C.cyan || '#00E5FF') + '50' : C.border || '#2A3352',
+                        },
+                      ]}
+                    >
+                      <Text style={[s.rankNum, { color: C.textSec || '#8B95B0' }]}>#{entry.rank}</Text>
+                      <Text
+                        style={[s.rankHandle, { color: C.text || '#F0F4FF' }]}
+                        numberOfLines={1}
+                      >
+                        {entry.handle}{entry.isMe ? ' (you)' : ''}
+                      </Text>
+                      {entry.streakDays > 0 ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginRight: 10 }}>
+                          <Flame size={13} color={C.amber || '#F5A623'} />
+                          <Text style={[s.rankStreak, { color: C.textMuted || '#5A6380' }]}>{entry.streakDays}</Text>
+                        </View>
+                      ) : null}
+                      <Text style={[s.rankScore, { color: C.cyan || '#00E5FF' }]}>{entry.score}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  header: {
+    paddingTop: 56,
+    paddingBottom: 14,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+  },
+  backBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-start' },
+  headerTitle: { fontSize: scaledFont(18), fontWeight: '700', letterSpacing: 0.3 },
+  scroll: { padding: 24, paddingBottom: 60 },
+  centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  heroRow: { alignItems: 'center', marginBottom: 24 },
+  iconCircle: {
+    width: 72, height: 72, borderRadius: 36, borderWidth: 1,
+    justifyContent: 'center', alignItems: 'center', marginBottom: 16,
+  },
+  heroTitle: { fontSize: scaledFont(20), fontWeight: '700', marginBottom: 8, textAlign: 'center' },
+  heroSub: { fontSize: scaledFont(14), textAlign: 'center', lineHeight: 20 },
+  infoBox: { borderRadius: 14, borderWidth: 1, padding: 20, alignItems: 'center' },
+  inputSection: { gap: 10 },
+  inputLabel: { fontSize: scaledFont(13), fontWeight: '600' },
+  input: {
+    borderRadius: 14, borderWidth: 2, paddingHorizontal: 18, paddingVertical: 14,
+    fontSize: scaledFont(16), fontWeight: '600',
+  },
+  errorText: { fontSize: scaledFont(13), marginTop: 2 },
+  joinBtn: {
+    borderRadius: 14, paddingVertical: 16, alignItems: 'center', justifyContent: 'center', minHeight: 52, marginTop: 4,
+  },
+  joinBtnText: { fontSize: scaledFont(16), fontWeight: '700', color: '#000' },
+  meRow: {
+    flexDirection: 'row', alignItems: 'center', borderRadius: 14, borderWidth: 1,
+    padding: 16, marginBottom: 16, gap: 12,
+  },
+  meHandle: { fontSize: scaledFont(16), fontWeight: '700' },
+  meSub: { fontSize: scaledFont(12), marginTop: 2 },
+  rankRow: {
+    flexDirection: 'row', alignItems: 'center', borderRadius: 12, borderWidth: 1,
+    paddingVertical: 12, paddingHorizontal: 14, gap: 10,
+  },
+  rankNum: { fontSize: scaledFont(13), fontWeight: '700', width: 34 },
+  rankHandle: { fontSize: scaledFont(14), fontWeight: '600', flex: 1 },
+  rankStreak: { fontSize: scaledFont(12), fontWeight: '600' },
+  rankScore: { fontSize: scaledFont(14), fontWeight: '700' },
+});
