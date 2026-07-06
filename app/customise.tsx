@@ -173,6 +173,11 @@ const PRESETS = [
   },
 ];
 
+// Entry points to this screen (settings.tsx, index.tsx) are hidden while the
+// Practice-list sync issue is investigated. Flip to true to bring the
+// "Customise Practice List" button back once it's fixed.
+export const CUSTOMISE_PRACTICE_LIST_VISIBLE = false;
+
 // ── AsyncStorage key ──────────────────────────────────────────────────────────
 export const PRACTICE_CONFIG_KEY = 'practiceModuleConfig';
 
