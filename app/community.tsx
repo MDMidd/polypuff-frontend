@@ -32,6 +32,7 @@ import {
   updateCommunitySettings,
   getLeaderboard,
   isMinorAccount,
+  syncExerciseAccuracy,
   type LeaderboardEntry,
 } from '../services/communityService';
 
@@ -63,6 +64,7 @@ export default function CommunityScreen() {
       setHandleInput(settings.communityHandle || '');
     }
     if (settings?.communityOptIn) {
+      await syncExerciseAccuracy();
       const board = await getLeaderboard();
       if (board) {
         setEntries(board.leaderboard);
@@ -105,6 +107,7 @@ export default function CommunityScreen() {
     setOptIn(!!result.communityOptIn);
     setHandle(result.communityHandle || cleaned);
     if (result.communityOptIn) {
+      await syncExerciseAccuracy();
       const board = await getLeaderboard();
       if (board) {
         setEntries(board.leaderboard);
