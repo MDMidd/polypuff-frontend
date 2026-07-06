@@ -81,6 +81,10 @@ export interface ProgressStrings {
   exCae: string;
   exBusiness: string;
   exDaily: string;
+
+  // Community leaderboard CTA
+  communityCta: string;
+  communityCtaDesc: string;
 }
 
 const en: ProgressStrings = {
@@ -144,6 +148,9 @@ const en: ProgressStrings = {
   exCae: 'CAE — C1 Advanced',
   exBusiness: 'Business English',
   exDaily: 'Daily Challenge',
+
+  communityCta: 'Community',
+  communityCtaDesc: 'See how you rank against other learners',
 };
 
 const af: ProgressStrings = {
@@ -207,6 +214,9 @@ const af: ProgressStrings = {
   exCae: 'CAE — C1 Gevorderd',
   exBusiness: 'Sake-Engels',
   exDaily: 'Daaglikse uitdaging',
+
+  communityCta: 'Gemeenskap',
+  communityCtaDesc: 'Kyk hoe jy vaar teenoor ander leerders',
 };
 
 const am: ProgressStrings = {
@@ -270,6 +280,9 @@ const am: ProgressStrings = {
   exCae: 'CAE — C1 የተራቀቀ',
   exBusiness: 'የንግድ እንግሊዝኛ',
   exDaily: 'የቀን ፈተና',
+
+  communityCta: 'ማህበረሰብ',
+  communityCtaDesc: 'ከሌሎች ተማሪዎች ጋር ሲወዳደሩ ደረጃዎ ምን እንደሚመስል ይመልከቱ',
 };
 
 // RTL
@@ -334,6 +347,9 @@ const ar: ProgressStrings = {
   exCae: 'CAE — C1 متقدم',
   exBusiness: 'الإنجليزية للأعمال',
   exDaily: 'تحدي اليوم',
+
+  communityCta: 'المجتمع',
+  communityCtaDesc: 'انظر إلى ترتيبك مقارنة بالمتعلمين الآخرين',
 };
 
 const bn: ProgressStrings = {
@@ -397,6 +413,9 @@ const bn: ProgressStrings = {
   exCae: 'CAE — C1 উন্নত',
   exBusiness: 'ব্যবসায়িক ইংরেজি',
   exDaily: 'দৈনিক চ্যালেঞ্জ',
+
+  communityCta: 'কমিউনিটি',
+  communityCtaDesc: 'অন্যান্য শিক্ষার্থীদের তুলনায় আপনার অবস্থান দেখুন',
 };
 
 const bg: ProgressStrings = {
@@ -460,6 +479,9 @@ const bg: ProgressStrings = {
   exCae: 'CAE — C1 Напреднало',
   exBusiness: 'Бизнес английски',
   exDaily: 'Дневно предизвикателство',
+
+  communityCta: 'Общност',
+  communityCtaDesc: 'Вижте класирането си спрямо другите обучаеми',
 };
 
 const cs: ProgressStrings = {
@@ -523,6 +545,9 @@ const cs: ProgressStrings = {
   exCae: 'CAE — C1 Pokročilá',
   exBusiness: 'Obchodní angličtina',
   exDaily: 'Denní výzva',
+
+  communityCta: 'Komunita',
+  communityCtaDesc: 'Podívejte se, jak si vedete oproti ostatním studentům',
 };
 
 const da: ProgressStrings = {
@@ -586,6 +611,9 @@ const da: ProgressStrings = {
   exCae: 'CAE — C1 Avanceret',
   exBusiness: 'Forretningsengelsk',
   exDaily: 'Daglig udfordring',
+
+  communityCta: 'Fællesskab',
+  communityCtaDesc: 'Se hvordan du klarer dig i forhold til andre elever',
 };
 
 const nl: ProgressStrings = {
@@ -649,6 +677,9 @@ const nl: ProgressStrings = {
   exCae: 'CAE — C1 Gevorderd',
   exBusiness: 'Zakelijk Engels',
   exDaily: 'Dagelijkse uitdaging',
+
+  communityCta: 'Community',
+  communityCtaDesc: 'Bekijk hoe je scoort ten opzichte van andere leerlingen',
 };
 
 const fi: ProgressStrings = {
@@ -712,6 +743,9 @@ const fi: ProgressStrings = {
   exCae: 'CAE — C1 Edistynyt',
   exBusiness: 'Liike-englanti',
   exDaily: 'Päivän haaste',
+
+  communityCta: 'Yhteisö',
+  communityCtaDesc: 'Katso, miten sijoitut muihin oppijoihin verrattuna',
 };
 
 const fr: ProgressStrings = {
@@ -775,6 +809,9 @@ const fr: ProgressStrings = {
   exCae: 'CAE — C1 Avancé',
   exBusiness: 'Anglais des affaires',
   exDaily: 'Défi quotidien',
+
+  communityCta: 'Communauté',
+  communityCtaDesc: 'Découvrez votre classement par rapport aux autres apprenants',
 };
 
 const de: ProgressStrings = {
@@ -838,6 +875,9 @@ const de: ProgressStrings = {
   exCae: 'CAE — C1 Fortgeschritten',
   exBusiness: 'Wirtschaftsenglisch',
   exDaily: 'Tägliche Herausforderung',
+
+  communityCta: 'Gemeinschaft',
+  communityCtaDesc: 'Sieh, wie du im Vergleich zu anderen Lernenden abschneidest',
 };
 
 const el: ProgressStrings = {
@@ -901,6 +941,9 @@ const el: ProgressStrings = {
   exCae: 'CAE — C1 Προχωρημένο',
   exBusiness: 'Επιχειρηματικά Αγγλικά',
   exDaily: 'Καθημερινή πρόκληση',
+
+  communityCta: 'Κοινότητα',
+  communityCtaDesc: 'Δείτε πώς κατατάσσεστε σε σχέση με άλλους εκπαιδευόμενους',
 };
 
 const gu: ProgressStrings = {
@@ -964,6 +1007,9 @@ const gu: ProgressStrings = {
   exCae: 'CAE — C1 આગળ વધેલું',
   exBusiness: 'વ્યવસાયિક અંગ્રેજી',
   exDaily: 'દૈનિક પડકાર',
+
+  communityCta: 'સમુદાય',
+  communityCtaDesc: 'અન્ય શીખનારાઓની સરખામણીમાં તમારો ક્રમ જુઓ',
 };
 
 const ha: ProgressStrings = {
@@ -1027,6 +1073,9 @@ const ha: ProgressStrings = {
   exCae: 'CAE — C1 Mai cigaba',
   exBusiness: 'Turancin kasuwanci',
   exDaily: 'Ƙalubalen yau da kullum',
+
+  communityCta: 'Al\'umma',
+  communityCtaDesc: 'Duba yadda kake matsayi idan aka kwatanta da sauran masu koyo',
 };
 
 // RTL
@@ -1091,6 +1140,9 @@ const he: ProgressStrings = {
   exCae: 'CAE — C1 מתקדם',
   exBusiness: 'אנגלית עסקית',
   exDaily: 'אתגר יומי',
+
+  communityCta: 'קהילה',
+  communityCtaDesc: 'ראה איך אתה מדורג מול לומדים אחרים',
 };
 
 const hi: ProgressStrings = {
@@ -1154,6 +1206,9 @@ const hi: ProgressStrings = {
   exCae: 'CAE — C1 उन्नत',
   exBusiness: 'व्यावसायिक अंग्रेज़ी',
   exDaily: 'दैनिक चुनौती',
+
+  communityCta: 'समुदाय',
+  communityCtaDesc: 'देखें कि आप अन्य शिक्षार्थियों की तुलना में कहाँ खड़े हैं',
 };
 
 const hu: ProgressStrings = {
@@ -1217,6 +1272,9 @@ const hu: ProgressStrings = {
   exCae: 'CAE — C1 Haladó',
   exBusiness: 'Üzleti angol',
   exDaily: 'Napi kihívás',
+
+  communityCta: 'Közösség',
+  communityCtaDesc: 'Nézd meg, hogyan állsz a többi tanulóhoz képest',
 };
 
 const ig: ProgressStrings = {
@@ -1280,6 +1338,9 @@ const ig: ProgressStrings = {
   exCae: 'CAE — C1 Ọkachamara',
   exBusiness: 'Bekee azụmahịa',
   exDaily: 'Ihe ịma aka kwa ụbọchị',
+
+  communityCta: 'Obodo',
+  communityCtaDesc: 'Lee etu ị dị n\'ọnọdụ n\'ebe ndị ọzọ na-amụ ihe nọ',
 };
 
 const id: ProgressStrings = {
@@ -1343,6 +1404,9 @@ const id: ProgressStrings = {
   exCae: 'CAE — C1 Lanjutan',
   exBusiness: 'Bahasa Inggris Bisnis',
   exDaily: 'Tantangan Harian',
+
+  communityCta: 'Komunitas',
+  communityCtaDesc: 'Lihat peringkat Anda dibandingkan pelajar lain',
 };
 
 const it: ProgressStrings = {
@@ -1406,6 +1470,9 @@ const it: ProgressStrings = {
   exCae: 'CAE — C1 Avanzato',
   exBusiness: 'Inglese commerciale',
   exDaily: 'Sfida giornaliera',
+
+  communityCta: 'Community',
+  communityCtaDesc: 'Scopri come ti classifichi rispetto ad altri studenti',
 };
 
 const ja: ProgressStrings = {
@@ -1469,6 +1536,9 @@ const ja: ProgressStrings = {
   exCae: 'CAE — C1上級',
   exBusiness: 'ビジネス英語',
   exDaily: '毎日のチャレンジ',
+
+  communityCta: 'コミュニティ',
+  communityCtaDesc: '他の学習者と比べた自分の順位を確認しよう',
 };
 
 const ko: ProgressStrings = {
@@ -1532,6 +1602,9 @@ const ko: ProgressStrings = {
   exCae: 'CAE — C1 고급',
   exBusiness: '비즈니스 영어',
   exDaily: '일일 챌린지',
+
+  communityCta: '커뮤니티',
+  communityCtaDesc: '다른 학습자와 비교한 나의 순위를 확인하세요',
 };
 
 const ms: ProgressStrings = {
@@ -1595,6 +1668,9 @@ const ms: ProgressStrings = {
   exCae: 'CAE — C1 Lanjutan',
   exBusiness: 'Bahasa Inggeris Perniagaan',
   exDaily: 'Cabaran Harian',
+
+  communityCta: 'Komuniti',
+  communityCtaDesc: 'Lihat kedudukan anda berbanding pelajar lain',
 };
 
 const zh: ProgressStrings = {
@@ -1658,6 +1734,9 @@ const zh: ProgressStrings = {
   exCae: 'CAE — C1 高级',
   exBusiness: '商务英语',
   exDaily: '每日挑战',
+
+  communityCta: '社区',
+  communityCtaDesc: '看看你与其他学习者相比的排名',
 };
 
 const mr: ProgressStrings = {
@@ -1721,6 +1800,9 @@ const mr: ProgressStrings = {
   exCae: 'CAE — C1 प्रगत',
   exBusiness: 'व्यावसायिक इंग्रजी',
   exDaily: 'दैनंदिन आव्हान',
+
+  communityCta: 'समुदाय',
+  communityCtaDesc: 'इतर विद्यार्थ्यांच्या तुलनेत तुमचा क्रमांक पहा',
 };
 
 const ne: ProgressStrings = {
@@ -1784,6 +1866,9 @@ const ne: ProgressStrings = {
   exCae: 'CAE — C1 उन्नत',
   exBusiness: 'व्यावसायिक अंग्रेजी',
   exDaily: 'दैनिक चुनौती',
+
+  communityCta: 'समुदाय',
+  communityCtaDesc: 'अन्य सिकारुहरूको तुलनामा तपाईंको स्थान हेर्नुहोस्',
 };
 
 const no: ProgressStrings = {
@@ -1847,6 +1932,9 @@ const no: ProgressStrings = {
   exCae: 'CAE — C1 Avansert',
   exBusiness: 'Forretningsengelsk',
   exDaily: 'Daglig utfordring',
+
+  communityCta: 'Fellesskap',
+  communityCtaDesc: 'Se hvordan du gjør det sammenlignet med andre elever',
 };
 
 // RTL
@@ -1911,6 +1999,9 @@ const fa: ProgressStrings = {
   exCae: 'CAE — C1 پیشرفته',
   exBusiness: 'انگلیسی تجاری',
   exDaily: 'چالش روزانه',
+
+  communityCta: 'انجمن',
+  communityCtaDesc: 'ببینید رتبه شما در مقایسه با سایر زبان‌آموزان چگونه است',
 };
 
 const pl: ProgressStrings = {
@@ -1974,6 +2065,9 @@ const pl: ProgressStrings = {
   exCae: 'CAE — C1 Zaawansowany',
   exBusiness: 'Business English',
   exDaily: 'Codzienne wyzwanie',
+
+  communityCta: 'Społeczność',
+  communityCtaDesc: 'Zobacz, jak wypadasz na tle innych uczących się',
 };
 
 const pt: ProgressStrings = {
@@ -2037,6 +2131,9 @@ const pt: ProgressStrings = {
   exCae: 'CAE — C1 Avançado',
   exBusiness: 'Inglês de Negócios',
   exDaily: 'Desafio Diário',
+
+  communityCta: 'Comunidade',
+  communityCtaDesc: 'Veja como você se compara a outros alunos',
 };
 
 const pa: ProgressStrings = {
@@ -2100,6 +2197,9 @@ const pa: ProgressStrings = {
   exCae: 'CAE — C1 ਉੱਨਤ',
   exBusiness: 'ਵਪਾਰਕ ਅੰਗਰੇਜ਼ੀ',
   exDaily: 'ਰੋਜ਼ਾਨਾ ਚੁਣੌਤੀ',
+
+  communityCta: 'ਭਾਈਚਾਰਾ',
+  communityCtaDesc: 'ਵੇਖੋ ਕਿ ਤੁਸੀਂ ਹੋਰ ਸਿਖਿਆਰਥੀਆਂ ਦੇ ਮੁਕਾਬਲੇ ਕਿੱਥੇ ਖੜ੍ਹੇ ਹੋ',
 };
 
 const ro: ProgressStrings = {
@@ -2163,6 +2263,9 @@ const ro: ProgressStrings = {
   exCae: 'CAE — C1 Avansat',
   exBusiness: 'Engleza de afaceri',
   exDaily: 'Provocarea zilnică',
+
+  communityCta: 'Comunitate',
+  communityCtaDesc: 'Vezi cum te clasezi față de alți cursanți',
 };
 
 const ru: ProgressStrings = {
@@ -2226,6 +2329,9 @@ const ru: ProgressStrings = {
   exCae: 'CAE — C1 Продвинутый',
   exBusiness: 'Деловой английский',
   exDaily: 'Ежедневный вызов',
+
+  communityCta: 'Сообщество',
+  communityCtaDesc: 'Узнайте, как вы соотноситесь с другими учащимися',
 };
 
 const si: ProgressStrings = {
@@ -2289,6 +2395,9 @@ const si: ProgressStrings = {
   exCae: 'CAE — C1 උසස්',
   exBusiness: 'ව්‍යාපාරික ඉංග්‍රීසි',
   exDaily: 'දෛනික අභියෝගය',
+
+  communityCta: 'ප්‍රජාව',
+  communityCtaDesc: 'අනෙකුත් ඉගෙන ගන්නන් හා සසඳන විට ඔබේ ශ්‍රේණිය බලන්න',
 };
 
 const es: ProgressStrings = {
@@ -2352,6 +2461,9 @@ const es: ProgressStrings = {
   exCae: 'CAE — C1 Avanzado',
   exBusiness: 'Inglés de negocios',
   exDaily: 'Desafío diario',
+
+  communityCta: 'Comunidad',
+  communityCtaDesc: 'Descubre cómo te comparas con otros estudiantes',
 };
 
 const sw: ProgressStrings = {
@@ -2415,6 +2527,9 @@ const sw: ProgressStrings = {
   exCae: 'CAE — C1 Hali ya juu',
   exBusiness: 'Kiingereza cha biashara',
   exDaily: 'Changamoto ya kila siku',
+
+  communityCta: 'Jumuiya',
+  communityCtaDesc: 'Ona jinsi unavyoshindana na wanafunzi wengine',
 };
 
 const sv: ProgressStrings = {
@@ -2478,6 +2593,9 @@ const sv: ProgressStrings = {
   exCae: 'CAE — C1 Avancerad',
   exBusiness: 'Affärsengelska',
   exDaily: 'Daglig utmaning',
+
+  communityCta: 'Gemenskap',
+  communityCtaDesc: 'Se hur du ligger till jämfört med andra elever',
 };
 
 const ta: ProgressStrings = {
@@ -2541,6 +2659,9 @@ const ta: ProgressStrings = {
   exCae: 'CAE — C1 மேம்பட்ட',
   exBusiness: 'வணிக ஆங்கிலம்',
   exDaily: 'தினசரி சவால்',
+
+  communityCta: 'சமூகம்',
+  communityCtaDesc: 'மற்ற கற்பவர்களுடன் ஒப்பிடும்போது உங்கள் தரவரிசையைப் பாருங்கள்',
 };
 
 const th: ProgressStrings = {
@@ -2604,6 +2725,9 @@ const th: ProgressStrings = {
   exCae: 'CAE — C1 ขั้นสูง',
   exBusiness: 'ภาษาอังกฤษธุรกิจ',
   exDaily: 'ความท้าทายประจำวัน',
+
+  communityCta: 'ชุมชน',
+  communityCtaDesc: 'ดูอันดับของคุณเทียบกับผู้เรียนคนอื่น',
 };
 
 const tr: ProgressStrings = {
@@ -2667,6 +2791,9 @@ const tr: ProgressStrings = {
   exCae: 'CAE — C1 İleri',
   exBusiness: 'İş İngilizcesi',
   exDaily: 'Günlük Meydan Okuma',
+
+  communityCta: 'Topluluk',
+  communityCtaDesc: 'Diğer öğrenicilere göre sıralamanı gör',
 };
 
 const uk: ProgressStrings = {
@@ -2730,6 +2857,9 @@ const uk: ProgressStrings = {
   exCae: 'CAE — C1 Просунутий',
   exBusiness: 'Ділова англійська',
   exDaily: 'Щоденне завдання',
+
+  communityCta: 'Спільнота',
+  communityCtaDesc: 'Дізнайтеся, як ви оцінюєтеся порівняно з іншими учнями',
 };
 
 // RTL
@@ -2794,6 +2924,9 @@ const ur: ProgressStrings = {
   exCae: 'CAE — C1 اعلیٰ',
   exBusiness: 'کاروباری انگریزی',
   exDaily: 'روزانہ کا چیلنج',
+
+  communityCta: 'کمیونٹی',
+  communityCtaDesc: 'دیکھیں کہ آپ دوسرے سیکھنے والوں کے مقابلے میں کہاں ہیں',
 };
 
 const vi: ProgressStrings = {
@@ -2857,6 +2990,9 @@ const vi: ProgressStrings = {
   exCae: 'CAE — C1 Nâng cao',
   exBusiness: 'Tiếng Anh thương mại',
   exDaily: 'Thử thách hằng ngày',
+
+  communityCta: 'Cộng đồng',
+  communityCtaDesc: 'Xem thứ hạng của bạn so với những người học khác',
 };
 
 const yo: ProgressStrings = {
@@ -2920,6 +3056,9 @@ const yo: ProgressStrings = {
   exCae: 'CAE — C1 Gíga',
   exBusiness: 'Èdè Gẹ̀ẹ́sì òwò',
   exDaily: 'Ìpèníjà ojoojúmọ́',
+
+  communityCta: 'Àdùgbò',
+  communityCtaDesc: 'Wo bí o ṣe wà ní ipò ní ìfiwéra pẹ̀lú àwọn akẹ́kọ̀ọ́ mìíràn',
 };
 
 const zu: ProgressStrings = {
@@ -2983,6 +3122,9 @@ const zu: ProgressStrings = {
   exCae: 'CAE — C1 Ethuthukile',
   exBusiness: 'IsiNgisi sebhizinisi',
   exDaily: 'Inselelo yansuku zonke',
+
+  communityCta: 'Umphakathi',
+  communityCtaDesc: 'Bona ukuthi ubalwa kanjani uma kuqhathaniswa nabanye abafundi',
 };
 
 const fil: ProgressStrings = {
@@ -3046,6 +3188,9 @@ const fil: ProgressStrings = {
   exCae: 'CAE — C1 Mataas',
   exBusiness: 'Business English',
   exDaily: 'Pang-araw-araw na Hamon',
+
+  communityCta: 'Komunidad',
+  communityCtaDesc: 'Tingnan kung paano ka nakaranggo laban sa ibang mga nag-aaral',
 };
 
 const gn: ProgressStrings = {
@@ -3109,6 +3254,9 @@ const gn: ProgressStrings = {
   exCae: 'CAE — C1 Yvategua',
   exBusiness: 'Inglés ñemuha',
   exDaily: 'Arajeyha káda ára',
+
+  communityCta: 'Tekoha',
+  communityCtaDesc: 'Ehecha mba\'éichapa nde ranking ambue hekombo\'e kuéra rehe',
 };
 
 const ht: ProgressStrings = {
@@ -3172,6 +3320,9 @@ const ht: ProgressStrings = {
   exCae: 'CAE — C1 Avanse',
   exBusiness: 'Anglè biznis',
   exDaily: 'Defi chak jou',
+
+  communityCta: 'Kominote',
+  communityCtaDesc: 'Gade kijan ou klase parapò ak lòt aprenan yo',
 };
 
 // RTL
@@ -3236,6 +3387,9 @@ const ps: ProgressStrings = {
   exCae: 'CAE — C1 پرمختللی',
   exBusiness: 'سوداګریزه انګلیسي',
   exDaily: 'ورځنۍ ننګونه',
+
+  communityCta: 'ټولنه',
+  communityCtaDesc: 'وګورئ چې تاسو د نورو زده کوونکو په پرتله چیرته یاست',
 };
 
 const qu: ProgressStrings = {
@@ -3299,6 +3453,9 @@ const qu: ProgressStrings = {
   exCae: 'CAE — C1 Ñawpariq',
   exBusiness: 'Qhatuy inglés simi',
   exDaily: 'Sapa pʼunchaw pugllakuy',
+
+  communityCta: 'Ayllu',
+  communityCtaDesc: 'Rikuy imayna ranking kanki huk yachaqkunawan tupasqa',
 };
 
 const sk: ProgressStrings = {
@@ -3362,6 +3519,9 @@ const sk: ProgressStrings = {
   exCae: 'CAE — C1 Pokročilá',
   exBusiness: 'Obchodná angličtina',
   exDaily: 'Denná výzva',
+
+  communityCta: 'Komunita',
+  communityCtaDesc: 'Zistite, ako si vediete v porovnaní s ostatnými študentmi',
 };
 
 const te: ProgressStrings = {
@@ -3425,6 +3585,9 @@ const te: ProgressStrings = {
   exCae: 'CAE — C1 ఉన్నతం',
   exBusiness: 'వ్యాపార ఆంగ్లం',
   exDaily: 'రోజువారీ సవాలు',
+
+  communityCta: 'సంఘం',
+  communityCtaDesc: 'ఇతర అభ్యాసకులతో పోలిస్తే మీ ర్యాంక్ చూడండి',
 };
 
 const PROGRESS_STRINGS: Partial<Record<LangCode, ProgressStrings>> = {

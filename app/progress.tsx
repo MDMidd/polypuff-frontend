@@ -746,18 +746,18 @@ export default function ProgressScreen() {
           }}
           onPress={() => router.push('/community')}
           accessibilityRole="button"
-          accessibilityLabel="Community leaderboard"
-          accessibilityHint="See how you rank against other learners"
+          accessibilityLabel={p.communityCta}
+          accessibilityHint={p.communityCtaDesc}
         >
           <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: (C.cyan || '#00E5FF') + '18', alignItems: 'center', justifyContent: 'center' }}>
             <Trophy size={20} color={C.cyan || '#00E5FF'} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.cyan || '#00E5FF', textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
-              Community
+              {p.communityCta}
             </Text>
             <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
-              See how you rank against other learners
+              {p.communityCtaDesc}
             </Text>
           </View>
           <ChevronIcon size={16} color={C.textMuted} />
