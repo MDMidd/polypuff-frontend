@@ -10,11 +10,23 @@
  * opt-in value is requested. This file never touches the age thresholds
  * themselves, only consumes their already-computed output.
  *
+ * syncExerciseAccuracy() (Stage 3) reads the per-exercise stats app/progress.tsx
+ * already computes locally from AsyncStorage's progress_recent_<exerciseId>
+ * entries, and pushes an avg/sessions snapshot to the server so it can factor
+ * into the community score. Exercise ids here must stay in sync with
+ * ALL_EXERCISES in app/progress.tsx and KNOWN_EXERCISE_IDS in server.js.
+ *
  * FILE LOCATION: services/communityService.ts
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getServerUrl } from './api';
+
+const EXERCISE_IDS = [
+  'placement_test', 'translation_trainer', 'word_chunks', 'listening', 'writing',
+  'grammar_quiz', 'grammar', 'vocabulary', 'vocab_vault', 'ielts', 'toefl',
+  'cae', 'business_english', 'daily_challenge',
+];
 
 export interface LeaderboardEntry {
   rank: number;
@@ -106,4 +118,39 @@ export async function getLeaderboard(limit = 50, offset = 0): Promise<Leaderboar
   } catch {
     return null;
   }
+}
+
+/**
+ * Reads each exercise's locally-tracked scores (progress_recent_<id>, the
+ * same AsyncStorage keys app/progress.tsx already aggregates for its own
+ * stats screen) and pushes an avg/session-count snapshot to the server.
+ * Best-effort and silent — call this opportunistically (e.g. when the
+ * Community screen loads) rather than on a tight loop.
+ */
+export async function syncExerciseAccuracy(): Promise<void> {
+  try {
+    const { token, base } = await getCredentials();
+    if (!token) return;
+
+    const stats: Record<string, { avg: number; sessions: number }> = {};
+    for (const id of EXERCISE_IDS) {
+      const raw = await AsyncStorage.getItem(`progress_recent_${id}`);
+      if (!raw) continue;
+      let recent: Array<{ score?: number }> = [];
+      try { recent = JSON.parse(raw); } catch { continue; }
+      const scores = recent.filter(r => Number.isFinite(r?.score)).map(r => Number(r.score));
+      if (!scores.length) continue;
+      stats[id] = {
+        avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+        sessions: scores.length,
+      };
+    }
+    if (!Object.keys(stats).length) return;
+
+    await fetch(`${base}/api/me/exercise-accuracy`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ stats }),
+    });
+  } catch {}
 }
