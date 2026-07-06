@@ -32,6 +32,7 @@ import { useMascot, useAuth } from './_layout';
 import { isSoundEnabled, setSoundEnabled, isHapticEnabled, setHapticEnabled } from '../services/sounds';
 import { pushProfile } from '../services/profileService';
 import { scaledFont } from '../utils/accessibility';
+import { CUSTOMISE_PRACTICE_LIST_VISIBLE } from './customise';
 import {
   getServerUrl, setServerUrl, checkHealth,
   DEFAULT_SERVER, LOCAL_SERVER, ANDROID_EMULATOR_SERVER,
@@ -1188,6 +1189,7 @@ export default function SettingsScreen() {
         </Section>
 
         {/* ── CUSTOMISE PRACTICE ──────────────────────────────────────── */}
+        {CUSTOMISE_PRACTICE_LIST_VISIBLE && (
         <Section title={t.practice} icon={<Text style={{ fontSize: 18 }}>✏️</Text>}>
           <Row
             label={t.customisePracticeList}
@@ -1207,6 +1209,7 @@ export default function SettingsScreen() {
             accessibilityHint={t.customPracticeDesc}
           />
         </Section>
+        )}
 
         {/* Backend section — dev-only. Hidden in production builds so end users
             can't accidentally repoint the app at a broken or hostile URL.

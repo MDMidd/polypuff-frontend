@@ -27,6 +27,7 @@ import { scaledFont } from '../utils/accessibility';
 import { recordPracticeToday } from '../services/notifications';
 import { isRtlLanguage } from '../utils/languages';
 import { getPracticeTranslations } from '../utils/practiceTranslations';
+import { CUSTOMISE_PRACTICE_LIST_VISIBLE } from './customise';
 
 type MenuColor = 'cyan' | 'purple' | 'emerald' | 'amber' | 'pink';
 
@@ -288,6 +289,7 @@ export default function PracticeHub() {
         </View>
 
         {/* ── CUSTOMISE LINK ── */}
+        {CUSTOMISE_PRACTICE_LIST_VISIBLE && (
         <TouchableOpacity
           style={{ flexDirection: rowDirection, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4, borderRadius: 14, backgroundColor: (C.emerald || '#00E5A0') + '10', borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '25' }}
           onPress={() => router.push('/customise')}
@@ -300,6 +302,7 @@ export default function PracticeHub() {
           </Text>
           <DirectionChevron size={14} color={C.emerald || '#00E5A0'} />
         </TouchableOpacity>
+        )}
 
         <View style={{ height: 40 }} />
       </ScrollView>
