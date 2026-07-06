@@ -209,12 +209,17 @@ const en: SettingsCopy = {
   digestEmailA11y: 'Email address for weekly digest',
   digestSendingA11y: 'Sending digest',
   digestSendNowA11y: 'Send weekly digest now',
+  communitySection: 'Community',
+  communityLabel: 'Community Leaderboard',
+  communityDesc: 'See how you rank against other learners. Opt-in, chosen display name only.',
 };
 
 export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
   en,
   af: {
     ...en,
+    communitySection: 'Gemeenskap', communityLabel: 'Gemeenskapranglys',
+    communityDesc: 'Sien hoe jy vergelyk met ander leerders. Opt-in, slegs \'n gekose vertoonnaam.',
     refreshAccount: 'Verfris rekening', refreshAccountDesc: 'Herlaai plan, fakturering, promptgebruik en e-posherinnerings',
     settingsScreenDesc: 'Voorkeure, toeganklikheid, kennisgewings en rekeningbeheer.',
     settingsTitle: 'Instellings',
@@ -255,6 +260,8 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
   },
   am: {
     ...en,
+    communitySection: 'ማህበረሰብ', communityLabel: 'የማህበረሰብ ደረጃ ሰሌዳ',
+    communityDesc: 'ከሌሎች ተማሪዎች ጋር ያለዎትን ደረጃ ይመልከቱ። በምርጫ ብቻ፣ የተመረጠ የማሳያ ስም ብቻ።',
     refreshAccount: 'መለያ አድስ', refreshAccountDesc: 'ዕቅድ፣ ክፍያ፣ የጥያቄ አጠቃቀም እና የኢሜይል ማስታወሻዎችን ዳግም ጫን',
     settingsScreenDesc: 'ምርጫዎች፣ ተደራሽነት፣ ማሳወቂያዎች እና የመለያ ቁጥጥሮች።',
     settingsTitle: 'ቅንብሮች',
@@ -295,6 +302,8 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
   },
   ar: {
     ...en,
+    communitySection: 'المجتمع', communityLabel: 'لوحة صدارة المجتمع',
+    communityDesc: 'شاهد ترتيبك بين المتعلمين الآخرين. الانضمام اختياري، باسم عرض فقط.',
     refreshAccount: 'تحديث الحساب', refreshAccountDesc: 'إعادة تحميل الخطة والفوترة واستخدام المطالبات وتذكيرات البريد',
     settingsScreenDesc: 'التفضيلات، وإمكانية الوصول، والإشعارات، وإعدادات الحساب.',
     settingsTitle: 'الإعدادات',
@@ -335,6 +344,8 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
   },
   bn: {
     ...en,
+    communitySection: 'কমিউনিটি', communityLabel: 'কমিউনিটি লিডারবোর্ড',
+    communityDesc: 'অন্যান্য শিক্ষার্থীদের তুলনায় আপনার অবস্থান দেখুন। ঐচ্ছিক, শুধুমাত্র একটি নির্বাচিত প্রদর্শন নাম দিয়ে।',
     refreshAccount: 'অ্যাকাউন্ট রিফ্রেশ করুন', refreshAccountDesc: 'প্ল্যান, বিলিং, প্রম্পট ব্যবহার এবং ইমেইল রিমাইন্ডার আবার লোড করুন',
     settingsScreenDesc: 'পছন্দ, অ্যাক্সেসিবিলিটি, নোটিফিকেশন এবং অ্যাকাউন্ট নিয়ন্ত্রণ।',
     settingsTitle: 'সেটিংস',
@@ -375,6 +386,8 @@ export const settingsTranslations: Partial<Record<LangCode, SettingsCopy>> = {
   },
   bg: {
     ...en,
+    communitySection: 'Общност', communityLabel: 'Класация на общността',
+    communityDesc: 'Вижте класирането си спрямо други учащи. По избор, само с избрано показвано име.',
     refreshAccount: 'Обнови акаунта', refreshAccountDesc: 'Презареди план, плащане, използване на подсказки и имейл напомняния',
     settingsScreenDesc: 'Предпочитания, достъпност, известия и настройки на акаунта.',
     settingsTitle: 'Настройки',
@@ -1063,6 +1076,8 @@ Object.assign(settingsTranslations.bg!, {
 Object.assign(settingsTranslations, {
   cs: {
     ...en,
+    communitySection: 'Komunita', communityLabel: 'Žebříček komunity',
+    communityDesc: 'Podívejte se, jak si stojíte oproti ostatním studujícím. Dobrovolné, pouze se zvoleným zobrazovaným jménem.',
     notTested: 'Netestováno',
     settingsScreenDesc: 'Předvolby, přístupnost, oznámení a správa účtu.',
     settingsTitle: 'Nastavení',
@@ -1274,6 +1289,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   da: {
     ...en,
+    communitySection: 'Fællesskab', communityLabel: 'Fællesskabets rangliste',
+    communityDesc: 'Se hvordan du klarer dig i forhold til andre elever. Valgfrit, kun med et valgt visningsnavn.',
     notTested: 'Ikke testet',
     settingsScreenDesc: 'Præferencer, tilgængelighed, notifikationer og kontostyring.',
     settingsTitle: 'Indstillinger',
@@ -1485,6 +1502,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   nl: {
     ...en,
+    communitySection: 'Community', communityLabel: 'Communityklassement',
+    communityDesc: 'Bekijk hoe je scoort ten opzichte van andere leerlingen. Aanmelden optioneel, alleen een weergavenaam.',
     notTested: 'Niet getest',
     settingsScreenDesc: 'Voorkeuren, toegankelijkheid, meldingen en accountbeheer.',
     settingsTitle: 'Instellingen',
@@ -1696,6 +1715,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   fil: {
     ...en,
+    communitySection: 'Komunidad', communityLabel: 'Community Leaderboard',
+    communityDesc: 'Tingnan kung paano ka nakaranggo laban sa ibang mga nag-aaral. Opsyonal na pagsali, ipinapakita lang ang piniling display name.',
     notTested: 'Hindi pa nasusubukan',
     settingsScreenDesc: 'Mga preference, accessibility, notification, at kontrol ng account.',
     settingsTitle: 'Mga Setting',
@@ -1907,6 +1928,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   fi: {
     ...en,
+    communitySection: 'Yhteisö', communityLabel: 'Yhteisön tulostaulukko',
+    communityDesc: 'Katso sijoituksesi muihin oppijoihin verrattuna. Vapaaehtoinen, vain valitulla näyttönimellä.',
     notTested: 'Ei testattu',
     settingsScreenDesc: 'Asetukset, saavutettavuus, ilmoitukset ja tilin hallinta.',
     settingsTitle: 'Asetukset',
@@ -2118,6 +2141,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   fr: {
     ...en,
+    communitySection: 'Communauté', communityLabel: 'Classement de la communauté',
+    communityDesc: 'Voyez votre classement parmi les autres apprenants. Inscription facultative, nom d\'affichage uniquement.',
     notTested: 'Non testé',
     settingsScreenDesc: 'Préférences, accessibilité, notifications et gestion du compte.',
     settingsTitle: 'Paramètres',
@@ -2329,6 +2354,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   de: {
     ...en,
+    communitySection: 'Gemeinschaft', communityLabel: 'Community-Bestenliste',
+    communityDesc: 'Sehen Sie, wie Sie im Vergleich zu anderen Lernenden abschneiden. Freiwillig, nur mit einem gewählten Anzeigenamen.',
     notTested: 'Nicht getestet',
     settingsScreenDesc: 'Einstellungen, Barrierefreiheit, Benachrichtigungen und Kontoverwaltung.',
     settingsTitle: 'Einstellungen',
@@ -2540,6 +2567,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   el: {
     ...en,
+    communitySection: 'Κοινότητα', communityLabel: 'Πίνακας κατάταξης κοινότητας',
+    communityDesc: 'Δείτε πώς κατατάσσεστε σε σχέση με άλλους μαθητές. Προαιρετική συμμετοχή, μόνο με επιλεγμένο όνομα εμφάνισης.',
     notTested: 'Δεν δοκιμάστηκε',
     settingsScreenDesc: 'Προτιμήσεις, προσβασιμότητα, ειδοποιήσεις και έλεγχος λογαριασμού.',
     settingsTitle: 'Ρυθμίσεις',
@@ -2751,6 +2780,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   gn: {
     ...en,
+    communitySection: 'Tekoha', communityLabel: 'Tekoha Rendaguasa',
+    communityDesc: 'Ehecha mba\'éichapa nde ranking ambue hekombo\'e kuéra rehe. Eike gustavoháicha, héra jehechauka poravopyre añónte.',
     notTested: 'Noñehaãirĩ',
     settingsScreenDesc: 'Jeporavorã, jeikeporã, marandu ha cuenta ñangareko.',
     settingsTitle: 'Ñemboheko',
@@ -2962,6 +2993,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   gu: {
     ...en,
+    communitySection: 'સમુદાય', communityLabel: 'સમુદાય લીડરબોર્ડ',
+    communityDesc: 'અન્ય શીખનારાઓની સરખામણીમાં તમારો ક્રમ જુઓ. વૈકલ્પિક, ફક્ત પસંદ કરેલા પ્રદર્શન નામ સાથે.',
     notTested: 'પરીક્ષણ થયું નથી',
     settingsScreenDesc: 'પસંદગીઓ, ઍક્સેસિબિલિટી, સૂચનાઓ અને ખાતા નિયંત્રણો.',
     settingsTitle: 'સેટિંગ્સ',
@@ -3173,6 +3206,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ht: {
     ...en,
+    communitySection: 'Kominote', communityLabel: 'Klasman Kominote a',
+    communityDesc: 'Gade kijan ou klase parapò ak lòt aprenan yo. Patisipasyon opsyonèl, sèlman ak yon non afichaj chwazi.',
     notTested: 'Pa teste',
     settingsScreenDesc: 'Preferans, aksesibilite, notifikasyon, ak kontwòl kont.',
     settingsTitle: 'Anviwònman',
@@ -3384,6 +3419,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ha: {
     ...en,
+    communitySection: 'Al\'umma', communityLabel: 'Jerin Manyan Al\'umma',
+    communityDesc: 'Duba yadda kake matsayi idan aka kwatanta da sauran masu koyo. Na son rai, tare da sunan nuni da aka zaɓa kawai.',
     notTested: 'Ba a gwada ba',
     settingsScreenDesc: 'Zaɓuɓɓuka, sauƙin amfani, sanarwa, da sarrafa asusu.',
     settingsTitle: 'Saituna',
@@ -3595,6 +3632,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   he: {
     ...en,
+    communitySection: 'קהילה', communityLabel: 'לוח מובילים קהילתי',
+    communityDesc: 'ראה איך אתה מדורג מול לומדים אחרים. הצטרפות מרצון, עם שם תצוגה נבחר בלבד.',
     notTested: 'לא נבדק',
     settingsScreenDesc: 'העדפות, נגישות, התראות וניהול חשבון.',
     settingsTitle: 'הגדרות',
@@ -3806,6 +3845,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   hi: {
     ...en,
+    communitySection: 'समुदाय', communityLabel: 'समुदाय लीडरबोर्ड',
+    communityDesc: 'देखें कि आप अन्य शिक्षार्थियों की तुलना में कहाँ खड़े हैं। वैकल्पिक, केवल एक चुने हुए प्रदर्शन नाम के साथ।',
     notTested: 'परीक्षण नहीं हुआ',
     settingsScreenDesc: 'प्राथमिकताएं, पहुंच-योग्यता, सूचनाएं और खाता नियंत्रण.',
     settingsTitle: 'सेटिंग्स',
@@ -4017,6 +4058,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   hu: {
     ...en,
+    communitySection: 'Közösség', communityLabel: 'Közösségi ranglista',
+    communityDesc: 'Nézze meg, hogyan teljesít más tanulókhoz képest. Opcionális, csak egy választott megjelenítendő névvel.',
     notTested: 'Nincs tesztelve',
     settingsScreenDesc: 'Beállítások, akadálymentesség, értesítések és fiókvezérlés.',
     settingsTitle: 'Beállítások',
@@ -4228,6 +4271,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ig: {
     ...en,
+    communitySection: 'Obodo', communityLabel: 'Ihe Ndozi Obodo',
+    communityDesc: 'Lee etu ị dị n\'ọnọdụ n\'ebe ndị ọzọ na-amụ ihe nọ. Nhọrọ, naanị aha ngosipụta a họpụtara.',
     notTested: 'Anwalebeghị',
     settingsScreenDesc: 'Nhọrọ, nnweta, ọkwa, na njikwa akaụntụ.',
     settingsTitle: 'Ntọala',
@@ -4439,6 +4484,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   id: {
     ...en,
+    communitySection: 'Komunitas', communityLabel: 'Papan Peringkat Komunitas',
+    communityDesc: 'Lihat peringkat Anda dibandingkan pelajar lain. Ikut serta secara opsional, hanya nama tampilan yang dipilih.',
     notTested: 'Belum diuji',
     settingsScreenDesc: 'Preferensi, aksesibilitas, notifikasi, dan kontrol akun.',
     settingsTitle: 'Pengaturan',
@@ -4650,6 +4697,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   it: {
     ...en,
+    communitySection: 'Community', communityLabel: 'Classifica della community',
+    communityDesc: 'Scopri come ti classifichi rispetto ad altri studenti. Facoltativo, solo con un nome visualizzato scelto.',
     notTested: 'Non testato',
     settingsScreenDesc: 'Preferenze, accessibilità, notifiche e controlli account.',
     settingsTitle: 'Impostazioni',
@@ -4861,6 +4910,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ja: {
     ...en,
+    communitySection: 'コミュニティ', communityLabel: 'コミュニティランキング',
+    communityDesc: '他の学習者と比べて自分がどの位置にいるかを確認できます。任意参加で、選択した表示名のみが使用されます。',
     notTested: '未テスト',
     settingsScreenDesc: '設定、アクセシビリティ、通知、アカウント管理。',
     settingsTitle: '設定',
@@ -5072,6 +5123,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ko: {
     ...en,
+    communitySection: '커뮤니티', communityLabel: '커뮤니티 순위표',
+    communityDesc: '다른 학습자와 비교한 순위를 확인하세요. 선택 사항이며, 선택한 표시 이름만 사용됩니다.',
     notTested: '테스트 안 됨',
     settingsScreenDesc: '환경설정, 접근성, 알림, 계정 관리.',
     settingsTitle: '설정',
@@ -5283,6 +5336,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ms: {
     ...en,
+    communitySection: 'Komuniti', communityLabel: 'Papan Pendahulu Komuniti',
+    communityDesc: 'Lihat kedudukan anda berbanding pelajar lain. Sertai secara pilihan, hanya nama paparan yang dipilih.',
     notTested: 'Belum diuji',
     settingsScreenDesc: 'Keutamaan, kebolehcapaian, pemberitahuan dan kawalan akaun.',
     settingsTitle: 'Tetapan',
@@ -5494,6 +5549,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   zh: {
     ...en,
+    communitySection: '社区', communityLabel: '社区排行榜',
+    communityDesc: '查看您与其他学习者相比的排名。可选加入，仅显示您选择的昵称。',
     notTested: '未测试',
     settingsScreenDesc: '偏好设置、无障碍、通知和账户控制。',
     settingsTitle: '设置',
@@ -5705,6 +5762,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   no: {
     ...en,
+    communitySection: 'Fellesskap', communityLabel: 'Fellesskapets resultatliste',
+    communityDesc: 'Se hvordan du gjør det sammenlignet med andre elever. Valgfritt, kun med et valgt visningsnavn.',
     notTested: 'Ikke testet',
     settingsScreenDesc: 'Innstillinger, tilgjengelighet, varsler og kontokontroll.',
     settingsTitle: 'Innstillinger',
@@ -5916,6 +5975,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   mr: {
     ...en,
+    communitySection: 'समुदाय', communityLabel: 'समुदाय लीडरबोर्ड',
+    communityDesc: 'इतर विद्यार्थ्यांच्या तुलनेत तुमचा क्रमांक कसा आहे ते पहा. ऐच्छिक सहभाग, फक्त निवडलेल्या प्रदर्शन नावासह.',
     notTested: 'चाचणी केलेली नाही',
     settingsScreenDesc: 'प्राधान्ये, प्रवेशयोग्यता, सूचना आणि खाते नियंत्रण.',
     settingsTitle: 'सेटिंग्ज',
@@ -6127,6 +6188,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ne: {
     ...en,
+    communitySection: 'समुदाय', communityLabel: 'सामुदायिक लिडरबोर्ड',
+    communityDesc: 'अन्य सिकारुहरूको तुलनामा तपाईं कस्तो स्थानमा हुनुहुन्छ हेर्नुहोस्। वैकल्पिक सहभागिता, छानिएको प्रदर्शन नाम मात्र देखाइन्छ।',
     notTested: 'परीक्षण गरिएको छैन',
     settingsScreenDesc: 'प्राथमिकता, पहुँचयोग्यता, सूचना र खाता नियन्त्रणहरू।',
     settingsTitle: 'सेटिङहरू',
@@ -6338,6 +6401,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   pl: {
     ...en,
+    communitySection: 'Społeczność', communityLabel: 'Ranking społeczności',
+    communityDesc: 'Zobacz, jak wypadasz na tle innych uczących się. Opcjonalne, tylko z wybraną nazwą wyświetlaną.',
     notTested: 'Nie testowano',
     settingsScreenDesc: 'Preferencje, dostępność, powiadomienia i kontrola konta.',
     settingsTitle: 'Ustawienia',
@@ -6549,6 +6614,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   pt: {
     ...en,
+    communitySection: 'Comunidade', communityLabel: 'Classificação da comunidade',
+    communityDesc: 'Veja como você se compara a outros alunos. Opcional, apenas com um nome de exibição escolhido.',
     notTested: 'Não testado',
     settingsScreenDesc: 'Preferências, acessibilidade, notificações e controles da conta.',
     settingsTitle: 'Configurações',
@@ -6760,6 +6827,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ps: {
     ...en,
+    communitySection: 'ټولنه', communityLabel: 'د ټولنې د مشرۍ تخته',
+    communityDesc: 'وګورئ چې تاسو د نورو زده کوونکو په پرتله څنګه درجه بندي شوي یاست. اختیاري ګډون، یوازې ټاکل شوی د ښودلو نوم ښودل کیږي.',
     notTested: 'نه دی ازمویل شوی',
     settingsScreenDesc: 'غوراوي، لاسرسي، خبرتیاوې او د حساب کنټرولونه.',
     settingsTitle: 'امستنې',
@@ -6971,6 +7040,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   fa: {
     ...en,
+    communitySection: 'انجمن', communityLabel: 'جدول امتیازات انجمن',
+    communityDesc: 'ببینید رتبه شما در مقایسه با سایر زبان‌آموزان چگونه است. عضویت اختیاری، فقط با نام نمایشی انتخابی.',
     notTested: 'آزمایش نشده',
     settingsScreenDesc: 'ترجیحات، دسترس‌پذیری، اعلان‌ها و کنترل حساب.',
     settingsTitle: 'تنظیمات',
@@ -7182,6 +7253,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   pa: {
     ...en,
+    communitySection: 'ਭਾਈਚਾਰਾ', communityLabel: 'ਭਾਈਚਾਰਕ ਲੀਡਰਬੋਰਡ',
+    communityDesc: 'ਵੇਖੋ ਕਿ ਤੁਸੀਂ ਹੋਰ ਸਿਖਿਆਰਥੀਆਂ ਦੇ ਮੁਕਾਬਲੇ ਕਿੱਥੇ ਖੜ੍ਹੇ ਹੋ। ਵਿਕਲਪਿਕ, ਸਿਰਫ਼ ਚੁਣੇ ਹੋਏ ਡਿਸਪਲੇ ਨਾਮ ਨਾਲ।',
     notTested: 'ਟੈਸਟ ਨਹੀਂ ਕੀਤਾ',
     settingsScreenDesc: 'ਤਰਜੀਹਾਂ, ਪਹੁੰਚਯੋਗਤਾ, ਸੂਚਨਾਵਾਂ ਅਤੇ ਖਾਤਾ ਕੰਟਰੋਲ।',
     settingsTitle: 'ਸੈਟਿੰਗਾਂ',
@@ -7393,6 +7466,8 @@ Object.assign(settingsTranslations, {
 Object.assign(settingsTranslations, {
   ro: {
     ...en,
+    communitySection: 'Comunitate', communityLabel: 'Clasamentul comunității',
+    communityDesc: 'Vezi cum te clasezi față de alți cursanți. Opțional, doar cu un nume afișat ales.',
     notTested: 'Netestat',
     settingsScreenDesc: 'Preferințe, accesibilitate, notificări și controale de cont.',
     settingsTitle: 'Setări',
@@ -7601,6 +7676,8 @@ Object.assign(settingsTranslations, {
   },
   ru: {
     ...en,
+    communitySection: 'Сообщество', communityLabel: 'Рейтинг сообщества',
+    communityDesc: 'Узнайте, как вы сравниваетесь с другими учащимися. Необязательно, только с выбранным отображаемым именем.',
     notTested: 'Не проверено',
     settingsScreenDesc: 'Предпочтения, доступность, уведомления и управление аккаунтом.',
     settingsTitle: 'Настройки',
@@ -7809,6 +7886,8 @@ Object.assign(settingsTranslations, {
   },
   sk: {
     ...en,
+    communitySection: 'Komunita', communityLabel: 'Rebríček komunity',
+    communityDesc: 'Pozrite sa, ako si stojíte oproti ostatným študujúcim. Dobrovoľné, len so zvoleným zobrazovaným menom.',
     notTested: 'Netestované',
     settingsScreenDesc: 'Predvoľby, prístupnosť, oznámenia a nastavenia účtu.',
     settingsTitle: 'Nastavenia',
@@ -8017,6 +8096,8 @@ Object.assign(settingsTranslations, {
   },
   qu: {
     ...en,
+    communitySection: 'Ayllu', communityLabel: 'Ayllu ñawpaqman riy tabla',
+    communityDesc: 'Rikuy imayna ranking kanki huk yachaqkunawan tupasqa. Munaspa yaykuy, akllasqa rikuchiy sutiwan.',
     notTested: 'Mana pruebasqa',
     settingsScreenDesc: 'Munaykuna, yaykuy yanapay, willaykuna, cuenta kamachiykuna.',
     settingsTitle: 'Churaykuna',
@@ -8225,6 +8306,8 @@ Object.assign(settingsTranslations, {
   },
   si: {
     ...en,
+    communitySection: 'ප්‍රජාව', communityLabel: 'ප්‍රජා ලීඩර්බෝඩුව',
+    communityDesc: 'අනෙකුත් ඉගෙන ගන්නන් හා සසඳන විට ඔබේ ස්ථානය බලන්න. විකල්ප වශයෙන්, තෝරාගත් සංදර්ශන නාමයක් පමණි.',
     notTested: 'පරීක්ෂා කර නැත',
     settingsScreenDesc: 'මනාප, ප්‍රවේශ පහසුකම්, දැනුම්දීම් සහ ගිණුම් පාලන.',
     settingsTitle: 'සැකසුම්',
@@ -8433,6 +8516,8 @@ Object.assign(settingsTranslations, {
   },
   es: {
     ...en,
+    communitySection: 'Comunidad', communityLabel: 'Clasificación de la comunidad',
+    communityDesc: 'Mira cómo te comparas con otros estudiantes. Inscripción opcional, solo con un nombre de usuario elegido.',
     notTested: 'No probado',
     settingsScreenDesc: 'Preferencias, accesibilidad, notificaciones y controles de cuenta.',
     settingsTitle: 'Ajustes',
@@ -8641,6 +8726,8 @@ Object.assign(settingsTranslations, {
   },
   sv: {
     ...en,
+    communitySection: 'Gemenskap', communityLabel: 'Gemenskapens topplista',
+    communityDesc: 'Se hur du rankas jämfört med andra elever. Valfritt, endast med ett valt visningsnamn.',
     notTested: 'Inte testad',
     settingsScreenDesc: 'Inställningar, tillgänglighet, aviseringar och kontokontroller.',
     settingsTitle: 'Inställningar',
@@ -8849,6 +8936,8 @@ Object.assign(settingsTranslations, {
   },
   sw: {
     ...en,
+    communitySection: 'Jumuiya', communityLabel: 'Ubao wa Jumuiya',
+    communityDesc: 'Ona jinsi unavyolinganishwa na wanafunzi wengine. Ni hiari, kwa jina la kuonyesha ulilochagua tu.',
     notTested: 'Haijajaribiwa',
     settingsScreenDesc: 'Mapendeleo, ufikivu, arifa na udhibiti wa akaunti.',
     settingsTitle: 'Mipangilio',
@@ -9057,6 +9146,8 @@ Object.assign(settingsTranslations, {
   },
   ta: {
     ...en,
+    communitySection: 'சமூகம்', communityLabel: 'சமூக தரவரிசைப் பலகை',
+    communityDesc: 'மற்ற கற்பவர்களுடன் ஒப்பிடும்போது நீங்கள் எவ்வாறு தரவரிசைப்படுத்தப்படுகிறீர்கள் என்பதைப் பாருங்கள். விருப்பமான இணைவு, தேர்ந்தெடுக்கப்பட்ட காட்சிப் பெயருடன் மட்டும்.',
     notTested: 'சோதிக்கப்படவில்லை',
     settingsScreenDesc: 'விருப்பங்கள், அணுகல் வசதி, அறிவிப்புகள் மற்றும் கணக்கு கட்டுப்பாடுகள்.',
     settingsTitle: 'அமைப்புகள்',
@@ -9265,6 +9356,8 @@ Object.assign(settingsTranslations, {
   },
   te: {
     ...en,
+    communitySection: 'సంఘం', communityLabel: 'కమ్యూనిటీ లీడర్‌బోర్డ్',
+    communityDesc: 'ఇతర అభ్యాసకులతో పోలిస్తే మీ ర్యాంక్ ఎలా ఉందో చూడండి. ఐచ్ఛిక చేరిక, ఎంచుకున్న ప్రదర్శన పేరుతో మాత్రమే.',
     notTested: 'పరీక్షించలేదు',
     settingsScreenDesc: 'ప్రాధాన్యతలు, యాక్సెసిబిలిటీ, నోటిఫికేషన్లు మరియు ఖాతా నియంత్రణలు.',
     settingsTitle: 'సెట్టింగులు',
@@ -9473,6 +9566,8 @@ Object.assign(settingsTranslations, {
   },
   th: {
     ...en,
+    communitySection: 'ชุมชน', communityLabel: 'กระดานผู้นำชุมชน',
+    communityDesc: 'ดูอันดับของคุณเทียบกับผู้เรียนคนอื่น เข้าร่วมได้ตามต้องการ แสดงเฉพาะชื่อที่แสดงที่เลือกเท่านั้น',
     notTested: 'ยังไม่ได้ทดสอบ',
     settingsScreenDesc: 'การตั้งค่า การเข้าถึง การแจ้งเตือน และการควบคุมบัญชี',
     settingsTitle: 'การตั้งค่า',
@@ -9681,6 +9776,8 @@ Object.assign(settingsTranslations, {
   },
   tr: {
     ...en,
+    communitySection: 'Topluluk', communityLabel: 'Topluluk sıralaması',
+    communityDesc: 'Diğer öğrencilere göre nasıl sıralandığınızı görün. İsteğe bağlı katılım, yalnızca seçilen bir görünen adla.',
     notTested: 'Test edilmedi',
     settingsScreenDesc: 'Tercihler, erişilebilirlik, bildirimler ve hesap kontrolleri.',
     settingsTitle: 'Ayarlar',
@@ -9889,6 +9986,8 @@ Object.assign(settingsTranslations, {
   },
   uk: {
     ...en,
+    communitySection: 'Спільнота', communityLabel: 'Рейтинг спільноти',
+    communityDesc: 'Дізнайтеся, як ви оцінюєтеся порівняно з іншими учнями. Необов\'язково, лише з обраним відображуваним ім\'ям.',
     notTested: 'Не перевірено',
     settingsScreenDesc: 'Налаштування, доступність, сповіщення та керування обліковим записом.',
     settingsTitle: 'Налаштування',
@@ -10097,6 +10196,8 @@ Object.assign(settingsTranslations, {
   },
   ur: {
     ...en,
+    communitySection: 'کمیونٹی', communityLabel: 'کمیونٹی لیڈر بورڈ',
+    communityDesc: 'دیکھیں کہ آپ دوسرے سیکھنے والوں کے مقابلے میں کہاں ہیں۔ اختیاری شمولیت، صرف منتخب کردہ ڈسپلے نام دکھایا جاتا ہے۔',
     notTested: 'ٹیسٹ نہیں کیا گیا',
     settingsScreenDesc: 'ترجیحات، رسائی، اطلاعات اور اکاؤنٹ کنٹرولز۔',
     settingsTitle: 'ترتیبات',
@@ -10305,6 +10406,8 @@ Object.assign(settingsTranslations, {
   },
   vi: {
     ...en,
+    communitySection: 'Cộng đồng', communityLabel: 'Bảng xếp hạng cộng đồng',
+    communityDesc: 'Xem thứ hạng của bạn so với những người học khác. Tùy chọn tham gia, chỉ hiển thị tên hiển thị đã chọn.',
     notTested: 'Chưa kiểm tra',
     settingsScreenDesc: 'Tùy chọn, trợ năng, thông báo và điều khiển tài khoản.',
     settingsTitle: 'Cài đặt',
@@ -10513,6 +10616,8 @@ Object.assign(settingsTranslations, {
   },
   yo: {
     ...en,
+    communitySection: 'Àwùjọ', communityLabel: 'Àkójọ Ipò Àwùjọ',
+    communityDesc: 'Wo bí o ṣe wà ní ìfiwéra pẹ̀lú àwọn akẹ́kọ̀ọ́ mìíràn. Ìdásí àyànfẹ́, pẹ̀lú orúkọ ìfihàn tí a yàn nìkan.',
     notTested: 'Kò tíì dánwò',
     settingsScreenDesc: 'Àwọn ayanfẹ, ìrọrun ìwọlé, ìfitónilétí àti ìṣàkóso àkáǹtì.',
     settingsTitle: 'Eto',
@@ -10721,6 +10826,8 @@ Object.assign(settingsTranslations, {
   },
   zu: {
     ...en,
+    communitySection: 'Umphakathi', communityLabel: 'Uhlu lwabaphakeme lomphakathi',
+    communityDesc: 'Bona ukuthi uzinze kanjani uma kuqhathaniswa nabanye abafundi. Kuzikhethela, ngegama lokubonisa elikhethiwe kuphela.',
     notTested: 'Akukahlolwa',
     settingsScreenDesc: 'Okuncanyelwayo, ukufinyeleleka, izaziso nokulawula i-akhawunti.',
     settingsTitle: 'Izilungiselelo',
