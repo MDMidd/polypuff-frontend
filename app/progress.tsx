@@ -24,7 +24,7 @@ import * as Sharing from 'expo-sharing';
 import {
   BookOpen, PenTool, Headphones, Mic, Award, Flame,
   TrendingUp, Download, ChevronRight, ChevronLeft, Star, Zap,
-  Target, Clock, ArrowLeft, ArrowRight,
+  Target, Clock, ArrowLeft, ArrowRight, Trophy,
 } from 'lucide-react-native';
 import {
   getAllTimeRecords, getTotalTimeSeconds, formatDuration,
@@ -730,6 +730,33 @@ export default function ProgressScreen() {
             </TouchableOpacity>
           );
         })}
+
+        {/* ── Community leaderboard CTA ───────────────────────────────────── */}
+        <TouchableOpacity
+          style={{
+            flexDirection: rowDir, alignItems: 'center', gap: 12,
+            backgroundColor: C.card || '#111827', borderRadius: 14,
+            padding: 14, marginTop: 4, marginBottom: 8,
+            borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '30',
+          }}
+          onPress={() => router.push('/community')}
+          accessibilityRole="button"
+          accessibilityLabel="Community leaderboard"
+          accessibilityHint="See how you rank against other learners"
+        >
+          <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: (C.cyan || '#00E5FF') + '18', alignItems: 'center', justifyContent: 'center' }}>
+            <Trophy size={20} color={C.cyan || '#00E5FF'} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.cyan || '#00E5FF', textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
+              Community
+            </Text>
+            <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>
+              See how you rank against other learners
+            </Text>
+          </View>
+          <ChevronIcon size={16} color={C.textMuted} />
+        </TouchableOpacity>
 
       </ScrollView>
     </ScreenBackground>
