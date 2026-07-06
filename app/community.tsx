@@ -11,7 +11,7 @@
  * FILE LOCATION: app/community.tsx
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -26,7 +26,9 @@ import {
 import { useRouter } from 'expo-router';
 import { Trophy, ArrowLeft, Flame, Users, Crown } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { scaledFont } from '../utils/accessibility';
+import { getCommunityTranslations, cInterp } from '../utils/communityTranslations';
 import {
   getCommunitySettings,
   updateCommunitySettings,
@@ -40,16 +42,6 @@ import {
 
 const HANDLE_RE = /^[A-Za-z0-9 _-]{3,24}$/;
 
-const PERIOD_OPTIONS: { value: CommunityPeriod; label: string }[] = [
-  { value: 'all', label: 'All Time' },
-  { value: 'month', label: 'This Month' },
-  { value: 'week', label: 'This Week' },
-];
-const SORT_OPTIONS: { value: CommunitySort; label: string }[] = [
-  { value: 'score', label: 'Top' },
-  { value: 'improved', label: 'Most Improved' },
-];
-
 // 100+ day streaks get a crown instead of a flame; otherwise the flame's
 // color tiers up with the streak length so long streaks stand out at a glance.
 function streakBadgeColor(days: number, C: Record<string, string>): string {
@@ -62,6 +54,18 @@ function streakBadgeColor(days: number, C: Record<string, string>): string {
 export default function CommunityScreen() {
   const { colors: C } = useTheme();
   const router = useRouter();
+  const { lang } = useLanguage();
+  const t = useMemo(() => getCommunityTranslations(lang), [lang]);
+
+  const PERIOD_OPTIONS: { value: CommunityPeriod; label: string }[] = [
+    { value: 'all', label: t.periodAll },
+    { value: 'month', label: t.periodMonth },
+    { value: 'week', label: t.periodWeek },
+  ];
+  const SORT_OPTIONS: { value: CommunitySort; label: string }[] = [
+    { value: 'score', label: t.sortTop },
+    { value: 'improved', label: t.sortImproved },
+  ];
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -84,9 +88,9 @@ export default function CommunityScreen() {
       setMyRank(board.myRank);
       setMyScore(board.myScore);
     } else {
-      setError('Could not load the leaderboard. Please try again.');
+      setError(t.loadError);
     }
-  }, []);
+  }, [t]);
 
   const loadAll = useCallback(async () => {
     setError('');
@@ -130,7 +134,7 @@ export default function CommunityScreen() {
   const handleJoin = async () => {
     const cleaned = handleInput.trim();
     if (!HANDLE_RE.test(cleaned)) {
-      setError('Handle must be 3-24 characters (letters, numbers, spaces, - or _).');
+      setError(t.handleInvalid);
       return;
     }
     setError('');
@@ -138,7 +142,7 @@ export default function CommunityScreen() {
     const result = await updateCommunitySettings({ optIn: true, handle: cleaned });
     setSaving(false);
     if (!result.success) {
-      setError(result.error || 'Could not join the community.');
+      setError(result.error || t.couldNotJoin);
       return;
     }
     setOptIn(!!result.communityOptIn);
@@ -159,7 +163,7 @@ export default function CommunityScreen() {
       setMyRank(null);
       setMyScore(null);
     } else {
-      setError(result.error || 'Could not update your settings.');
+      setError(result.error || t.settingsUpdateError);
     }
   };
 
@@ -170,11 +174,11 @@ export default function CommunityScreen() {
           onPress={() => router.back()}
           style={s.backBtn}
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t.goBack}
         >
           <ArrowLeft size={22} color={C.text || '#F0F4FF'} />
         </TouchableOpacity>
-        <Text style={[s.headerTitle, { color: C.cyan || '#00E5FF' }]}>Community</Text>
+        <Text style={[s.headerTitle, { color: C.cyan || '#00E5FF' }]}>{t.communityTitle}</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -190,9 +194,9 @@ export default function CommunityScreen() {
           {isMinor ? (
             <View style={[s.infoBox, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
               <Users size={28} color={C.textMuted || '#5A6380'} style={{ marginBottom: 10 }} />
-              <Text style={[s.heroTitle, { color: C.text || '#F0F4FF' }]}>Community isn't available yet</Text>
+              <Text style={[s.heroTitle, { color: C.text || '#F0F4FF' }]}>{t.minorTitle}</Text>
               <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
-                The Community leaderboard is only available for accounts 18 and older.
+                {t.minorBody}
               </Text>
             </View>
           ) : !optIn ? (
@@ -201,15 +205,14 @@ export default function CommunityScreen() {
                 <View style={[s.iconCircle, { backgroundColor: (C.cyan || '#00E5FF') + '18', borderColor: (C.cyan || '#00E5FF') + '40' }]}>
                   <Trophy size={32} color={C.cyan || '#00E5FF'} />
                 </View>
-                <Text style={[s.heroTitle, { color: C.text || '#F0F4FF' }]}>Join the Community</Text>
+                <Text style={[s.heroTitle, { color: C.text || '#F0F4FF' }]}>{t.joinTitle}</Text>
                 <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
-                  See how you rank against other learners, based on your progress, streak, and improvement. Pick a
-                  display name — your real name and email are never shown.
+                  {t.joinBody}
                 </Text>
               </View>
 
               <View style={s.inputSection}>
-                <Text style={[s.inputLabel, { color: C.textSec || '#8B95B0' }]}>Choose a display name</Text>
+                <Text style={[s.inputLabel, { color: C.textSec || '#8B95B0' }]}>{t.chooseDisplayName}</Text>
                 <TextInput
                   style={[s.input, { backgroundColor: C.card || '#121829', color: C.text || '#F0F4FF', borderColor: C.border + '60' }]}
                   value={handleInput}
@@ -219,7 +222,7 @@ export default function CommunityScreen() {
                   maxLength={24}
                   autoCorrect={false}
                   editable={!saving}
-                  accessibilityLabel="Display name"
+                  accessibilityLabel={t.displayNameA11y}
                 />
                 {error ? (
                   <Text style={[s.errorText, { color: C.red || '#FF4D6A' }]}>{error}</Text>
@@ -229,10 +232,10 @@ export default function CommunityScreen() {
                   onPress={handleJoin}
                   disabled={saving}
                   accessibilityRole="button"
-                  accessibilityLabel="Join the community leaderboard"
+                  accessibilityLabel={t.joinBtnA11y}
                 >
                   {saving ? <ActivityIndicator color="#000" size="small" /> : (
-                    <Text style={s.joinBtnText}>Join the Community</Text>
+                    <Text style={s.joinBtnText}>{t.joinTitle}</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -243,11 +246,11 @@ export default function CommunityScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={[s.meHandle, { color: C.text || '#F0F4FF' }]}>{handle}</Text>
                   <Text style={[s.meSub, { color: C.textSec || '#8B95B0' }]}>
-                    {myRank ? `Your rank: #${myRank} · ${myScore} pts` : 'Not ranked yet'}
+                    {myRank ? cInterp(t.yourRank, { rank: myRank, score: myScore ?? 0 }) : t.notRankedYet}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>Visible</Text>
+                  <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>{t.visible}</Text>
                   <Switch
                     value={optIn}
                     onValueChange={(v) => { if (!v) handleLeave(); }}
@@ -255,7 +258,7 @@ export default function CommunityScreen() {
                     trackColor={{ false: '#D1D5DB', true: (C.cyan || '#00E5FF') + '50' }}
                     thumbColor={C.cyan || '#00E5FF'}
                     accessibilityRole="switch"
-                    accessibilityLabel="Visible on community leaderboard"
+                    accessibilityLabel={t.visibleA11y}
                     accessibilityState={{ checked: optIn, disabled: saving }}
                   />
                 </View>
@@ -307,7 +310,7 @@ export default function CommunityScreen() {
               {entries.length === 0 ? (
                 <View style={[s.infoBox, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
                   <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
-                    No one has joined the community yet — check back soon!
+                    {t.emptyState}
                   </Text>
                 </View>
               ) : (
@@ -328,7 +331,7 @@ export default function CommunityScreen() {
                         style={[s.rankHandle, { color: C.text || '#F0F4FF' }]}
                         numberOfLines={1}
                       >
-                        {entry.handle}{entry.isMe ? ' (you)' : ''}
+                        {entry.handle}{entry.isMe ? t.youSuffix : ''}
                       </Text>
                       {entry.streakDays > 0 ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginRight: 10 }}>
