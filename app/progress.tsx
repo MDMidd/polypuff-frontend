@@ -36,6 +36,7 @@ import { isRtlLanguage } from '../utils/languages';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { getPdfBrandingImages } from '../utils/pdfBranding';
+import { CUSTOMISE_PRACTICE_LIST_VISIBLE } from './customise';
 
 // ── Master exercise registry (all 13 modules) ─────────────────────────────────
 // IDs must match the ids used in customise.tsx / practiceModuleConfig
@@ -187,8 +188,12 @@ export default function ProgressScreen() {
   const loadAll = async () => {
     setLoading(true);
     try {
-      // Load practice order from customise config — mirrors the Practice list
-      const configRaw = await AsyncStorage.getItem(PRACTICE_CONFIG_KEY);
+      // Load practice order from customise config — mirrors the Practice list.
+      // Skipped while Customise is hidden (see customise.tsx): its ids don't
+      // all match ALL_EXERCISES below (e.g. 'vault' vs 'vocab_vault'), so
+      // applying a saved config here permanently dims the mismatched ones
+      // regardless of what the user actually chose.
+      const configRaw = CUSTOMISE_PRACTICE_LIST_VISIBLE ? await AsyncStorage.getItem(PRACTICE_CONFIG_KEY) : null;
       if (configRaw) {
         try {
           const cfg = JSON.parse(configRaw);
