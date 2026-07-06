@@ -27,6 +27,7 @@ import { ScreenBackground, GlassCard } from '../components/PolyPuffUI';
 import SettingsButton from '../components/SettingsButton';
 import { useMascot } from './_layout';
 import PolyPuffScene from '../components/PolyPuffScene';
+import { loadPracticeConfig, ALL_MODULES } from './customise';
 
 type SkillLevels = {
   reading?: string;
@@ -78,6 +79,11 @@ const GOAL_EXERCISES: MenuItem[] = [
   { id: 'cae', label: 'CAE', labelKey: 'cae', route: '/cae', icon: BookOpen, color: 'emerald' },
 ];
 
+// Ids the Customise Practice List screen lets users hide/reorder — anything
+// else here (challenges, wordchunks-vault, grammar-vault, classroom) isn't
+// offered as a toggle there, so it always stays visible.
+const CUSTOMIZABLE_IDS = ALL_MODULES.map(m => m.id);
+
 export default function PracticeHub() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
@@ -88,11 +94,44 @@ export default function PracticeHub() {
   const [placementDone, setPlacementDone] = useState(false);
   const [additionalOpen, setAdditionalOpen] = useState(true);
   const [goalsOpen, setGoalsOpen] = useState(true);
+  const [practiceActive, setPracticeActive] = useState<string[] | null>(null);
+  const [practiceOrder, setPracticeOrder] = useState<string[]>([]);
 
   useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('placementComplete').then(v => setPlacementDone(v === 'true')).catch(() => {});
     AsyncStorage.getItem('skillLevels').then(v => { if (v) setSkillLevels(JSON.parse(v)); }).catch(() => {});
+    loadPracticeConfig().then(cfg => {
+      setPracticeActive(cfg.active);
+      setPracticeOrder(cfg.order);
+    }).catch(() => {});
   }, []));
+
+  // Not customizable (e.g. Daily Challenge, Share with Teacher) always shows.
+  // Until the config has loaded, show everything to avoid a flash of an
+  // empty list.
+  const isModuleVisible = (id: string) => {
+    if (!practiceActive) return true;
+    if (!CUSTOMIZABLE_IDS.includes(id)) return true;
+    return practiceActive.includes(id);
+  };
+
+  // Sorts by the user's saved order; ids that aren't customizable (and so
+  // never appear in that order) keep their original relative position,
+  // after the ones the user did arrange.
+  const sortByPracticeOrder = (items: MenuItem[]) => {
+    if (!practiceOrder.length) return items;
+    return [...items].sort((a, b) => {
+      const ai = practiceOrder.indexOf(a.id);
+      const bi = practiceOrder.indexOf(b.id);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  };
+
+  const visibleAdditionalExercises = sortByPracticeOrder(ADDITIONAL_EXERCISES.filter(item => isModuleVisible(item.id)));
+  const visibleGoalExercises = sortByPracticeOrder(GOAL_EXERCISES.filter(item => isModuleVisible(item.id)));
 
   const getColor = (colorName: ModuleColor) => {
     const map = { cyan: C.cyan || '#00E5FF', purple: C.purple || '#B06CFF', pink: C.pink || '#FF6EB4',
@@ -247,37 +286,49 @@ export default function PracticeHub() {
 
         {/* Website-synced exercise menu */}
         <View style={{ gap: 10 }}>
-          <Text style={{ fontSize: 11, fontWeight: '900', color: C.textMuted, letterSpacing: 1, marginLeft: 6 }}>
-            {webText('main-exercise', 'Main Exercise').toUpperCase()}
-          </Text>
-          {renderMenuItem(MAIN_EXERCISE, 'primary')}
-
-          {renderSectionHeader(
-            'additional-exercises',
-            'Additional Exercises',
-            Wrench,
-            getColor('amber'),
-            additionalOpen,
-            () => setAdditionalOpen(open => !open),
-          )}
-          {additionalOpen && (
-            <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
-              {ADDITIONAL_EXERCISES.map(item => renderMenuItem(item))}
-            </View>
+          {isModuleVisible('translation') && (
+            <>
+              <Text style={{ fontSize: 11, fontWeight: '900', color: C.textMuted, letterSpacing: 1, marginLeft: 6 }}>
+                {webText('main-exercise', 'Main Exercise').toUpperCase()}
+              </Text>
+              {renderMenuItem(MAIN_EXERCISE, 'primary')}
+            </>
           )}
 
-          {renderSectionHeader(
-            'goals',
-            'Goals',
-            Target,
-            getColor('pink'),
-            goalsOpen,
-            () => setGoalsOpen(open => !open),
+          {visibleAdditionalExercises.length > 0 && (
+            <>
+              {renderSectionHeader(
+                'additional-exercises',
+                'Additional Exercises',
+                Wrench,
+                getColor('amber'),
+                additionalOpen,
+                () => setAdditionalOpen(open => !open),
+              )}
+              {additionalOpen && (
+                <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
+                  {visibleAdditionalExercises.map(item => renderMenuItem(item))}
+                </View>
+              )}
+            </>
           )}
-          {goalsOpen && (
-            <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
-              {GOAL_EXERCISES.map(item => renderMenuItem(item))}
-            </View>
+
+          {visibleGoalExercises.length > 0 && (
+            <>
+              {renderSectionHeader(
+                'goals',
+                'Goals',
+                Target,
+                getColor('pink'),
+                goalsOpen,
+                () => setGoalsOpen(open => !open),
+              )}
+              {goalsOpen && (
+                <View style={{ gap: 4, paddingLeft: 6, paddingRight: 2 }}>
+                  {visibleGoalExercises.map(item => renderMenuItem(item))}
+                </View>
+              )}
+            </>
           )}
         </View>
       </ScrollView>
