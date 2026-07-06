@@ -232,21 +232,27 @@ export default function CustomisePracticeScreen() {
     setSaved(false);
   };
 
+  // Swaps happen within the active-only sequence, then that sequence is
+  // written back followed by the inactive ids. Swapping adjacent entries in
+  // the raw `order` array (as before) could silently swap an active id with
+  // an *inactive* neighbor — a no-op from the user's point of view, since
+  // orderedModules only ever shows active-first — making the up/down
+  // buttons appear to do nothing whenever at least one module was toggled off.
   const moveUp = (id: string) => {
-    const idx = order.indexOf(id);
+    const activeIds = order.filter(i => active.includes(i));
+    const idx = activeIds.indexOf(id);
     if (idx <= 0) return;
-    const newOrder = [...order];
-    [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
-    setOrder(newOrder);
+    [activeIds[idx - 1], activeIds[idx]] = [activeIds[idx], activeIds[idx - 1]];
+    setOrder([...activeIds, ...order.filter(i => !active.includes(i))]);
     setSaved(false);
   };
 
   const moveDown = (id: string) => {
-    const idx = order.indexOf(id);
-    if (idx >= order.length - 1) return;
-    const newOrder = [...order];
-    [newOrder[idx], newOrder[idx + 1]] = [newOrder[idx + 1], newOrder[idx]];
-    setOrder(newOrder);
+    const activeIds = order.filter(i => active.includes(i));
+    const idx = activeIds.indexOf(id);
+    if (idx === -1 || idx >= activeIds.length - 1) return;
+    [activeIds[idx], activeIds[idx + 1]] = [activeIds[idx + 1], activeIds[idx]];
+    setOrder([...activeIds, ...order.filter(i => !active.includes(i))]);
     setSaved(false);
   };
 
