@@ -41,7 +41,12 @@ export interface LeaderboardResult {
   total: number;
   myRank: number | null;
   myScore: number | null;
+  period: 'all' | 'week' | 'month';
+  sort: 'score' | 'improved';
 }
+
+export type CommunityPeriod = 'all' | 'week' | 'month';
+export type CommunitySort = 'score' | 'improved';
 
 export interface CommunitySettings {
   isMinor: boolean;
@@ -106,11 +111,17 @@ export async function updateCommunitySettings(
   }
 }
 
-export async function getLeaderboard(limit = 50, offset = 0): Promise<LeaderboardResult | null> {
+export async function getLeaderboard(
+  limit = 50,
+  offset = 0,
+  period: CommunityPeriod = 'all',
+  sort: CommunitySort = 'score',
+): Promise<LeaderboardResult | null> {
   try {
     const { token, base } = await getCredentials();
     if (!token) return null;
-    const res = await fetch(`${base}/api/community/leaderboard?limit=${limit}&offset=${offset}`, {
+    const qs = `limit=${limit}&offset=${offset}&period=${period}&sort=${sort}`;
+    const res = await fetch(`${base}/api/community/leaderboard?${qs}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return null;

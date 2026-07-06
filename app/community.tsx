@@ -24,7 +24,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Trophy, ArrowLeft, Flame, Users } from 'lucide-react-native';
+import { Trophy, ArrowLeft, Flame, Users, Crown } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { scaledFont } from '../utils/accessibility';
 import {
@@ -34,9 +34,30 @@ import {
   isMinorAccount,
   syncExerciseAccuracy,
   type LeaderboardEntry,
+  type CommunityPeriod,
+  type CommunitySort,
 } from '../services/communityService';
 
 const HANDLE_RE = /^[A-Za-z0-9 _-]{3,24}$/;
+
+const PERIOD_OPTIONS: { value: CommunityPeriod; label: string }[] = [
+  { value: 'all', label: 'All Time' },
+  { value: 'month', label: 'This Month' },
+  { value: 'week', label: 'This Week' },
+];
+const SORT_OPTIONS: { value: CommunitySort; label: string }[] = [
+  { value: 'score', label: 'Top' },
+  { value: 'improved', label: 'Most Improved' },
+];
+
+// 100+ day streaks get a crown instead of a flame; otherwise the flame's
+// color tiers up with the streak length so long streaks stand out at a glance.
+function streakBadgeColor(days: number, C: Record<string, string>): string {
+  if (days >= 100) return C.gold || '#FFD700';
+  if (days >= 30) return C.red || '#FF4D6A';
+  if (days >= 7) return C.amber || '#F5A623';
+  return C.textMuted || '#5A6380';
+}
 
 export default function CommunityScreen() {
   const { colors: C } = useTheme();
@@ -53,6 +74,19 @@ export default function CommunityScreen() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [myRank, setMyRank] = useState<number | null>(null);
   const [myScore, setMyScore] = useState<number | null>(null);
+  const [period, setPeriod] = useState<CommunityPeriod>('all');
+  const [sortMode, setSortMode] = useState<CommunitySort>('score');
+
+  const loadBoard = useCallback(async (p: CommunityPeriod, s: CommunitySort) => {
+    const board = await getLeaderboard(50, 0, p, s);
+    if (board) {
+      setEntries(board.leaderboard);
+      setMyRank(board.myRank);
+      setMyScore(board.myScore);
+    } else {
+      setError('Could not load the leaderboard. Please try again.');
+    }
+  }, []);
 
   const loadAll = useCallback(async () => {
     setError('');
@@ -65,16 +99,9 @@ export default function CommunityScreen() {
     }
     if (settings?.communityOptIn) {
       await syncExerciseAccuracy();
-      const board = await getLeaderboard();
-      if (board) {
-        setEntries(board.leaderboard);
-        setMyRank(board.myRank);
-        setMyScore(board.myScore);
-      } else {
-        setError('Could not load the leaderboard. Please try again.');
-      }
+      await loadBoard(period, sortMode);
     }
-  }, []);
+  }, [loadBoard, period, sortMode]);
 
   useEffect(() => {
     (async () => {
@@ -82,7 +109,17 @@ export default function CommunityScreen() {
       await loadAll();
       setLoading(false);
     })();
-  }, [loadAll]);
+    // Only re-run the full load (settings + accuracy sync + board) on mount;
+    // period/sort changes below use loadBoard() directly to avoid re-syncing
+    // on every tab switch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!optIn) return;
+    loadBoard(period, sortMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, sortMode]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -108,12 +145,7 @@ export default function CommunityScreen() {
     setHandle(result.communityHandle || cleaned);
     if (result.communityOptIn) {
       await syncExerciseAccuracy();
-      const board = await getLeaderboard();
-      if (board) {
-        setEntries(board.leaderboard);
-        setMyRank(board.myRank);
-        setMyScore(board.myScore);
-      }
+      await loadBoard(period, sortMode);
     }
   };
 
@@ -231,6 +263,47 @@ export default function CommunityScreen() {
 
               {error ? <Text style={[s.errorText, { color: C.red || '#FF4D6A' }]}>{error}</Text> : null}
 
+              <View style={s.tabRow}>
+                {PERIOD_OPTIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[
+                      s.tabPill,
+                      { borderColor: period === opt.value ? (C.cyan || '#00E5FF') : (C.border || '#2A3352') },
+                      period === opt.value ? { backgroundColor: (C.cyan || '#00E5FF') + '18' } : null,
+                    ]}
+                    onPress={() => setPeriod(opt.value)}
+                    accessibilityRole="button"
+                    accessibilityLabel={opt.label}
+                    accessibilityState={{ selected: period === opt.value }}
+                  >
+                    <Text style={[s.tabPillText, { color: period === opt.value ? (C.cyan || '#00E5FF') : C.textMuted }]}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={[s.tabRow, { marginBottom: 16 }]}>
+                {SORT_OPTIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[
+                      s.tabPill,
+                      { borderColor: sortMode === opt.value ? (C.emerald || '#00E5A0') : (C.border || '#2A3352') },
+                      sortMode === opt.value ? { backgroundColor: (C.emerald || '#00E5A0') + '18' } : null,
+                    ]}
+                    onPress={() => setSortMode(opt.value)}
+                    accessibilityRole="button"
+                    accessibilityLabel={opt.label}
+                    accessibilityState={{ selected: sortMode === opt.value }}
+                  >
+                    <Text style={[s.tabPillText, { color: sortMode === opt.value ? (C.emerald || '#00E5A0') : C.textMuted }]}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
               {entries.length === 0 ? (
                 <View style={[s.infoBox, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
                   <Text style={[s.heroSub, { color: C.textSec || '#8B95B0' }]}>
@@ -259,8 +332,10 @@ export default function CommunityScreen() {
                       </Text>
                       {entry.streakDays > 0 ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginRight: 10 }}>
-                          <Flame size={13} color={C.amber || '#F5A623'} />
-                          <Text style={[s.rankStreak, { color: C.textMuted || '#5A6380' }]}>{entry.streakDays}</Text>
+                          {entry.streakDays >= 100
+                            ? <Crown size={13} color={streakBadgeColor(entry.streakDays, C)} />
+                            : <Flame size={13} color={streakBadgeColor(entry.streakDays, C)} />}
+                          <Text style={[s.rankStreak, { color: streakBadgeColor(entry.streakDays, C) }]}>{entry.streakDays}</Text>
                         </View>
                       ) : null}
                       <Text style={[s.rankScore, { color: C.cyan || '#00E5FF' }]}>{entry.score}</Text>
@@ -315,6 +390,12 @@ const s = StyleSheet.create({
   },
   meHandle: { fontSize: scaledFont(16), fontWeight: '700' },
   meSub: { fontSize: scaledFont(12), marginTop: 2 },
+  tabRow: { flexDirection: 'row', gap: 8, marginBottom: 10 },
+  tabPill: {
+    flex: 1, borderRadius: 999, borderWidth: 1.5, paddingVertical: 8,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  tabPillText: { fontSize: scaledFont(12), fontWeight: '700' },
   rankRow: {
     flexDirection: 'row', alignItems: 'center', borderRadius: 12, borderWidth: 1,
     paddingVertical: 12, paddingHorizontal: 14, gap: 10,
