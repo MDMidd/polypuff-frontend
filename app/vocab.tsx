@@ -45,7 +45,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import DiscussWithPuff from '../components/DiscussWithPuff';
-import { hapticError, hapticLight, playCorrectSound } from '../services/sounds';
+import { hapticError, hapticLight, playCorrectSound, playWrongSound } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { recordXP } from '../services/progressSyncService';
@@ -269,6 +269,7 @@ export default function VocabScreen() {
       announce(`Correct! ${card.en} moves to box ${card.box}.`);
     } else {
       hapticError();
+      playWrongSound();
       card.box = 1;
       card.wrongCount = (card.wrongCount || 0) + 1;
       setSessionResults(prev => ({ ...prev, wrong: prev.wrong + 1 }));
