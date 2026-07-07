@@ -40,7 +40,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
-import { hapticLight, hapticError, feedbackForScore, playCorrectSound } from '../services/sounds';
+import { hapticLight, hapticError, feedbackForScore, playCorrectSound, playWrongSound } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { recordXP } from '../services/progressSyncService';
@@ -242,6 +242,7 @@ export default function QuizScreen() {
       setScore(prev => prev + 1);
     } else {
       hapticError();
+      playWrongSound();
     }
     setAnswers(prev => [...prev, { question: q, selected: idx, correct: isCorrect }]);
     nudge.recordInteraction();

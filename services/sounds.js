@@ -62,13 +62,18 @@ export const hapticSelection = () => safeHaptic(() => Haptics.selectionAsync());
 
 // ── COMPOSITE FEEDBACK ──
 
-export const feedbackCorrect = () => hapticSuccess();
-export const feedbackIncorrect = () => hapticError();
-export const feedbackFair = () => hapticWarning();
+// Delegate entirely to playSound() — it plays the real sound file when
+// available and falls back to the matching haptic (see playHapticFallback)
+// when sound is off/unavailable, so there's exactly one feedback signal per
+// call instead of a haptic firing here AND another one from the fallback.
+export const feedbackCorrect = () => playSound('correct');
+export const feedbackIncorrect = () => playSound('wrong');
+export const feedbackFair = () => playSound('partial');
 
 export const feedbackPerfect = () => {
   hapticHeavy();
   setTimeout(() => hapticSuccess(), 200);
+  playSound('correct');
 };
 
 export const feedbackLevelUp = () => {
@@ -109,8 +114,8 @@ try { Audio = require('expo-av').Audio; } catch (e) {}
 // correct quiz answer) don't re-read the asset from disk each time.
 const SOUND_FILES = {
   correct: require('../assets/sounds/correct.mp3'),
-  // partial: require('../assets/sounds/partial.mp3'),
-  // wrong:   require('../assets/sounds/wrong.mp3'),
+  partial: require('../assets/sounds/partial.mp3'),
+  wrong:   require('../assets/sounds/wrong.mp3'),
 };
 
 const soundCache = {};
@@ -145,7 +150,8 @@ const playHapticFallback = (type) => {
     setTimeout(() => hapticSuccess(), 200);
   } else if (type === 'wrong') {
     hapticError();
-    setTimeout(() => hapticError(), 150);
+  } else if (type === 'partial') {
+    hapticWarning();
   } else if (type === 'happy' || type === 'correct') {
     hapticLight();
   }
@@ -155,3 +161,4 @@ export const playVictorySound = () => playSound('victory');
 export const playWrongSound = () => playSound('wrong');
 export const playHappySound = () => playSound('happy');
 export const playCorrectSound = () => playSound('correct');
+export const playPartialSound = () => playSound('partial');
