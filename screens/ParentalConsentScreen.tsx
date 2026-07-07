@@ -36,6 +36,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from '../contexts/LanguageContext';
 import { isRtlLanguage } from '../utils/languages';
 import { getParentalConsentCopy, parentalConsentText } from '../utils/parentalConsentTranslations';
+import LanguageSelector from '../components/LanguageSelector';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
@@ -225,6 +226,11 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
             },
           ]}
         >
+          {/* ── Language ── */}
+          <View style={s.languageRow}>
+            <LanguageSelector style={s.languageSelector} />
+          </View>
+
           {/* ── Header icon ── */}
           <View style={s.iconWrap}>
             <Text style={s.iconEmoji}>{verified ? '✅' : '👨‍👩‍👧'}</Text>
@@ -403,6 +409,8 @@ const s = StyleSheet.create({
     shadowRadius: 30,
     elevation: 8,
   },
+  languageRow: { width: '100%', alignItems: 'flex-end', marginBottom: 6 },
+  languageSelector: { minWidth: 82, height: 38, borderRadius: 12 },
   // ── Icon ──
   iconWrap: {
     width: 72,
