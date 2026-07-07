@@ -36,7 +36,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import {
-  BookOpen, PenTool, Headphones, Mic, MicOff, CheckCircle,
+  BookOpen, PenTool, Headphones, Mic, MicOff, CheckCircle, XCircle,
   ArrowRight, ArrowLeft, Award, Zap, Clock, BarChart3,
 } from 'lucide-react-native';
 import * as Speech from 'expo-speech';
@@ -488,6 +488,7 @@ export default function PlacementScreen() {
   const [writingInput,   setWritingInput]   = useState('');
   const [scores,         setScores]         = useState({ reading: 0, writing: 0, listening: 0, speaking: 0 });
   const [totals,         setTotals]         = useState({ reading: 0, writing: 0, listening: 0, speaking: 0 });
+  const [mistakes,       setMistakes]       = useState<any[]>([]); // wrong MC answers (reading/listening), for the results-screen review section
 
   // ── Derived values based on mode ──────────────────────────────────────────
   const activeIndices  = testMode === 'short' ? SHORT_INDICES : [0, 1, 2, 3, 4];
@@ -512,7 +513,12 @@ export default function PlacementScreen() {
     setSelectedAnswer(idx);
     const correct = idx === question.answer;
     if (correct) { hapticLight(); playCorrectSound(); announce('Correct!'); }
-    else { hapticError(); playWrongSound(); announce(`Incorrect. The answer was: ${question.opts[question.answer]}`); }
+    else {
+      hapticError(); playWrongSound(); announce(`Incorrect. The answer was: ${question.opts[question.answer]}`);
+      setMistakes(prev => [...prev, {
+        skill, q: question.q, opts: question.opts, selected: idx, correct: question.answer,
+      }]);
+    }
 
     setTimeout(() => {
       setScores(prev => ({ ...prev, [skill]: prev[skill] + (correct ? 1 : 0) }));
@@ -809,6 +815,7 @@ export default function PlacementScreen() {
                 setCurrentQ(0);
                 setScores({ reading: 0, writing: 0, listening: 0, speaking: 0 });
                 setTotals({ reading: 0, writing: 0, listening: 0, speaking: 0 });
+                setMistakes([]);
               }}
               accessibilityRole="button"
               accessibilityLabel="Take the intensive test for a more detailed result"
@@ -826,6 +833,33 @@ export default function PlacementScreen() {
             icon={null}
             accessibilityHint="Saves your placement results and takes you to practice"
           />
+
+          {mistakes.length > 0 && (
+            <GlassCard style={{ marginTop: 12, width: '100%' }}>
+              <Text
+                style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 10 }}
+                accessibilityRole="header"
+              >
+                📝 Review Mistakes
+              </Text>
+              {mistakes.map((m, i) => (
+                <View
+                  key={i}
+                  style={{ flexDirection: 'row', gap: 10, paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: C.border + '20' }}
+                  accessibilityRole="text"
+                  accessibilityLabel={`Mistake ${i + 1}, ${m.skill}: ${m.q}. You answered: ${m.opts[m.selected]}. Correct answer: ${m.opts[m.correct]}.`}
+                >
+                  <XCircle size={16} color={C.red || '#FF4D6A'} style={{ marginTop: 2 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted, textTransform: 'uppercase', marginBottom: 2 }}>{m.skill}</Text>
+                    <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.text }}>{m.q}</Text>
+                    <Text style={{ fontSize: scaledFont(12), color: C.red || '#FF4D6A', marginTop: 2 }}>Your answer: {m.opts[m.selected]}</Text>
+                    <Text style={{ fontSize: scaledFont(12), color: C.emerald || '#00E5A0', marginTop: 1 }}>Correct: {m.opts[m.correct]}</Text>
+                  </View>
+                </View>
+              ))}
+            </GlassCard>
+          )}
         </ScrollView>
       </ScreenBackground>
     );
