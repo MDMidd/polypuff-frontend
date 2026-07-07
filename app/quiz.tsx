@@ -40,7 +40,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
 import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
-import { hapticSuccess, hapticError, feedbackForScore } from '../services/sounds';
+import { hapticLight, hapticError, feedbackForScore } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { recordXP } from '../services/progressSyncService';
@@ -237,7 +237,7 @@ export default function QuizScreen() {
     const q = questions[currentQ];
     const isCorrect = idx === q.correct;
     if (isCorrect) {
-      hapticSuccess();
+      hapticLight();
       setScore(prev => prev + 1);
     } else {
       hapticError();

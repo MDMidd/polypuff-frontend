@@ -20,7 +20,7 @@ import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   ActivityIndicator, Animated, StyleSheet, Keyboard, AccessibilityInfo, Alert,
 } from 'react-native';
-import { MessageCircle, Send, X, Sparkles, ChevronUp, Flag } from 'lucide-react-native';
+import { MessageCircle, Send, X, Sparkles, ChevronDown, Flag } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { getServerUrl } from '../services/api';
 import { scaledFont, announce } from '../utils/accessibility';
@@ -141,7 +141,7 @@ export default function DiscussWithPuff({
         <Text style={[st.toggleText, { color: C.purple || '#8B5CF6' }]}>
           {adjustedScore !== null ? `Discuss with Poly-Puff (Score: ${adjustedScore})` : 'Discuss with Poly-Puff'}
         </Text>
-        <ChevronUp size={14} color={C.purple || '#8B5CF6'} />
+        <ChevronDown size={14} color={C.purple || '#8B5CF6'} />
       </TouchableOpacity>
     );
   }
