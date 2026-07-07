@@ -46,6 +46,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LanguageSelector from '../components/LanguageSelector';
 
 // ─── Version constant ─────────────────────────────────────────────────────────
 // IMPORTANT: Changing this value forces every existing user to re-read and
@@ -149,6 +150,9 @@ export default function TermsScreen({ onAccept, onComplete, onDecline, ageGroup 
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: 16 + insets.top }]}>
+        <View style={styles.languageRow}>
+          <LanguageSelector style={styles.languageSelector} />
+        </View>
         <Image
           source={require('../assets/images/logo-transparent.png')}
           style={{ width: 160, height: 36, resizeMode: 'contain', marginBottom: 8 }}
@@ -736,6 +740,15 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#1E1E2E',
+  },
+  languageRow: {
+    alignItems: 'flex-end',
+    marginBottom: 8,
+  },
+  languageSelector: {
+    minWidth: 82,
+    height: 38,
+    borderRadius: 12,
   },
   headerTitle: {
     fontSize: 22,

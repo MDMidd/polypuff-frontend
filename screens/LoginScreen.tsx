@@ -62,6 +62,7 @@ import { getServerUrl } from '../services/api';
 import { storeAuthSession } from '../utils/authSession';
 import { pullAndMerge } from '../services/syncService';
 import { redeemVoucher } from '../services/voucherService';
+import LanguageSelector from '../components/LanguageSelector';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -428,6 +429,11 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
         <Animated.View
           style={[s.content, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}
         >
+          {/* ── Language ── */}
+          <View style={s.languageRow}>
+            <LanguageSelector style={s.languageSelector} />
+          </View>
+
           {/* ── Logo ── */}
           <View style={s.mascotWrap}>
             <Image
@@ -877,6 +883,8 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   scrollContent: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20, paddingBottom: 40 },
   content: { width: '100%', maxWidth: 420, backgroundColor: C.card + 'DD', borderRadius: 24, borderWidth: 1, borderColor: C.border, padding: 24, alignItems: 'center', shadowColor: C.purple, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 8 },
+  languageRow: { width: '100%', alignItems: 'flex-end', marginBottom: 6 },
+  languageSelector: { minWidth: 82, height: 38, borderRadius: 12 },
   mascotWrap: { alignItems: 'center', justifyContent: 'center', marginBottom: 16, paddingVertical: 8 },
   title: { fontSize: 22, fontWeight: '700', color: C.text, marginBottom: 6, textAlign: 'center' },
   subtitle: { fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 21, marginBottom: 20 },
