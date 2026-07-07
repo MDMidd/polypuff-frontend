@@ -98,33 +98,60 @@ export const feedbackForScore = (score) => {
 };
 
 // ── AUDIO FEEDBACK (expo-av) ──
-// If expo-av is available, play actual sound files
-// Falls back to haptic-only if not installed
+// Real sound files, bundled as static assets. Falls back to haptic-only
+// patterns for any effect that doesn't have a sound file yet.
 
 let Audio = null;
 try { Audio = require('expo-av').Audio; } catch (e) {}
 
+// Add an entry here as each new sound file arrives — the key is the `type`
+// passed to playSound(). Loaded lazily and cached so repeat plays (e.g. every
+// correct quiz answer) don't re-read the asset from disk each time.
+const SOUND_FILES = {
+  correct: require('../assets/sounds/correct.mp3'),
+  // partial: require('../assets/sounds/partial.mp3'),
+  // wrong:   require('../assets/sounds/wrong.mp3'),
+};
+
+const soundCache = {};
+
+const getSound = async (type) => {
+  if (soundCache[type]) return soundCache[type];
+  const source = SOUND_FILES[type];
+  if (!source) return null;
+  const { sound } = await Audio.Sound.createAsync(source);
+  soundCache[type] = sound;
+  return sound;
+};
+
 const playSound = async (type) => {
-  if (!soundEnabled || !Audio) return;
+  if (!soundEnabled || !Audio) return playHapticFallback(type);
   try {
-    // Use system sounds via expo-av
-    // For now, use haptic patterns as audio placeholders
-    if (type === 'victory') {
-      hapticSuccess();
-      setTimeout(() => hapticLight(), 100);
-      setTimeout(() => hapticSuccess(), 200);
-    } else if (type === 'wrong') {
-      hapticError();
-      setTimeout(() => hapticError(), 150);
-    } else if (type === 'happy') {
-      hapticSuccess();
-      setTimeout(() => hapticLight(), 100);
-      setTimeout(() => hapticLight(), 200);
-      setTimeout(() => hapticSuccess(), 300);
-    }
-  } catch (e) {}
+    const sound = await getSound(type);
+    if (!sound) return playHapticFallback(type);
+    await sound.setPositionAsync(0);
+    await sound.playAsync();
+  } catch (e) {
+    playHapticFallback(type);
+  }
+};
+
+// Used when a type has no sound file yet, or playback fails for any reason —
+// keeps the pre-existing haptic-only behavior as a safety net.
+const playHapticFallback = (type) => {
+  if (type === 'victory') {
+    hapticSuccess();
+    setTimeout(() => hapticLight(), 100);
+    setTimeout(() => hapticSuccess(), 200);
+  } else if (type === 'wrong') {
+    hapticError();
+    setTimeout(() => hapticError(), 150);
+  } else if (type === 'happy' || type === 'correct') {
+    hapticLight();
+  }
 };
 
 export const playVictorySound = () => playSound('victory');
 export const playWrongSound = () => playSound('wrong');
 export const playHappySound = () => playSound('happy');
+export const playCorrectSound = () => playSound('correct');
