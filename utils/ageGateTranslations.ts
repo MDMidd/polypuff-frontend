@@ -19,6 +19,7 @@ export type AgeGateCopy = {
   greyIndicator: string;
   adultIndicator: string;
   footer: string;
+  loginInstead: string;
   regions: RegionCopy;
 };
 
@@ -42,6 +43,7 @@ const en: AgeGateCopy = {
   greyIndicator: 'Age {age} - You can register! Some data features will be restricted by default.',
   adultIndicator: 'Age {age} - Full access',
   footer: 'Poly-Puff processes your age and region data in accordance with COPPA, GDPR, POPIA, LGPD, and applicable child safety regulations.',
+  loginInstead: 'Already have an account? Log in',
   regions: {
     global: 'Other / Global',
     usa: 'United States',

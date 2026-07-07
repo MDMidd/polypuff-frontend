@@ -142,6 +142,23 @@ export default function AgeGateScreen({ onComplete }) {
     setError('');
   };
 
+  // ─── Returning user shortcut ───
+  // Region/birth year are only ever stored locally (never sent to the
+  // backend), so a device that already holds an account has no way to know
+  // its real age group here. Default to 'adult' — the actual minor-safety
+  // enforcement (is_minor) lives server-side regardless of this guess.
+  // Terms is intentionally NOT skipped: it's the only place that records
+  // consent for this install, and the backend keeps no record of its own.
+  const handleLoginInstead = async () => {
+    try {
+      await AsyncStorage.setItem('ageVerified', 'true');
+      await AsyncStorage.setItem('userAgeGroup', 'adult');
+    } catch (e) {
+      console.error('AgeGate storage error:', e);
+    }
+    onComplete('terms', 'adult');
+  };
+
   // ─── Handle final submit ───
   const handleSubmit = async () => {
     if (!selectedYear) {
@@ -275,6 +292,17 @@ export default function AgeGateScreen({ onComplete }) {
                 <Text style={[s.continueBtnText, !selectedRegion && s.continueBtnTextDisabled]}>
                   {copy.continue}
                 </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={s.loginLink}
+                onPress={handleLoginInstead}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={copy.loginInstead}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={[s.loginLinkText, textDirectionStyle]}>{copy.loginInstead}</Text>
               </TouchableOpacity>
             </>
           )}
@@ -455,5 +483,7 @@ const s = StyleSheet.create({
   continueBtnDisabled: { backgroundColor: C.border, shadowOpacity: 0, elevation: 0 },
   continueBtnText: { fontSize: 17, fontWeight: '700', color: C.bg, letterSpacing: 0.5 },
   continueBtnTextDisabled: { color: C.textMuted },
+  loginLink: { marginTop: 14 },
+  loginLinkText: { fontSize: 13, color: C.textSec, textAlign: 'center' },
   footerText: { fontSize: 11, color: C.textMuted, textAlign: 'center', marginTop: 20, lineHeight: 16, paddingHorizontal: 4 },
 });
