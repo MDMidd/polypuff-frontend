@@ -21,6 +21,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState } from 'react-native';
 import { getServerUrl } from './api';
 import { pullProfile } from './profileService';
 
@@ -418,3 +419,16 @@ async function pushNow(): Promise<void> {
     }
   } catch {}
 }
+
+// A finished exercise calls pushVaults(), which waits PUSH_DEBOUNCE_MS before
+// actually sending anything. If the app backgrounds inside that window (very
+// common — finishing an exercise and immediately switching away is the
+// normal flow), the timer never fires and that progress is silently lost.
+// Flush immediately the moment the app stops being active.
+AppState.addEventListener('change', (state) => {
+  if (state !== 'active' && pushTimer) {
+    clearTimeout(pushTimer);
+    pushTimer = null;
+    void pushNow();
+  }
+});
