@@ -45,7 +45,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import DiscussWithPuff from '../components/DiscussWithPuff';
-import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
+import { hapticError, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { recordXP } from '../services/progressSyncService';
@@ -260,7 +260,7 @@ export default function VocabScreen() {
 
     nudge.recordInteraction();
     if (correct) {
-      hapticSuccess();
+      hapticLight();
       card.box = Math.min(5, card.box + 1);
       card.correctCount = (card.correctCount || 0) + 1;
       setSessionResults(prev => ({ ...prev, correct: prev.correct + 1 }));

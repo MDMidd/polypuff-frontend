@@ -608,13 +608,19 @@ export default function DailyChallenge() {
               )}
 
               <TouchableOpacity
-                style={[s.checkBtn, { backgroundColor: C.cyan || '#00E5FF', marginTop: 12 }]}
+                style={[s.skipBtn, {
+                  backgroundColor: (C.cyan || '#00E5FF') + '12',
+                  borderColor: (C.cyan || '#00E5FF') + '50',
+                  marginTop: 12,
+                  justifyContent: 'center',
+                }]}
                 onPress={() => router.push('/progress')}
                 activeOpacity={0.8}
                 accessibilityRole="button"
                 accessibilityLabel={dailyT.viewProgress}
               >
-                <Text style={[s.checkBtnText, { color: C.bg || '#0A0E1A', textAlign: 'center' }]}>{dailyT.viewProgress}</Text>
+                <TrendingUp size={16} color={C.cyan || '#00E5FF'} />
+                <Text style={[s.skipBtnText, { color: C.cyan || '#00E5FF' }]}>{dailyT.viewProgress}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
