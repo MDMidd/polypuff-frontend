@@ -53,7 +53,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, GlassCard, NeonButton, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
-import { hapticLight, hapticError, feedbackForScore } from '../services/sounds';
+import { hapticLight, hapticError, feedbackForScore, playCorrectSound } from '../services/sounds';
 import { scaledFont, announce } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
@@ -511,7 +511,7 @@ export default function PlacementScreen() {
     nudge.recordInteraction();
     setSelectedAnswer(idx);
     const correct = idx === question.answer;
-    if (correct) { hapticLight(); announce('Correct!'); }
+    if (correct) { hapticLight(); playCorrectSound(); announce('Correct!'); }
     else { hapticError(); announce(`Incorrect. The answer was: ${question.opts[question.answer]}`); }
 
     setTimeout(() => {
@@ -529,7 +529,7 @@ export default function PlacementScreen() {
     setScores(prev => ({ ...prev, [skill]: prev[skill] + score }));
     setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
     setWritingInput('');
-    if (score > 0) { hapticLight(); announce('Good writing!'); } else { hapticError(); announce('Try to write more next time.'); }
+    if (score > 0) { hapticLight(); playCorrectSound(); announce('Good writing!'); } else { hapticError(); announce('Try to write more next time.'); }
     advance();
   };
 
