@@ -26,6 +26,33 @@ type ProfileData = Record<string, unknown>;
 const PROFILE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between remote fetches
 const FETCHED_AT_KEY = 'pp_profile_fetched_at';
 
+const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+// Highest of the two CEFR levels — never lets a merge downgrade a skill.
+function higherLevel(a: unknown, b: unknown): string | undefined {
+  const as = typeof a === 'string' ? a.toUpperCase() : '';
+  const bs = typeof b === 'string' ? b.toUpperCase() : '';
+  const ai = CEFR_ORDER.indexOf(as);
+  const bi = CEFR_ORDER.indexOf(bs);
+  if (ai < 0) return bs || undefined;
+  if (bi < 0) return as;
+  return bi > ai ? bs : as;
+}
+
+function mergeSkillLevels(
+  local: Record<string, unknown> | null | undefined,
+  remote: Record<string, unknown> | null | undefined,
+): Record<string, string> | null {
+  if (!local && !remote) return null;
+  const keys = new Set([...Object.keys(local || {}), ...Object.keys(remote || {})]);
+  const out: Record<string, string> = {};
+  keys.forEach((key) => {
+    const level = higherLevel((local || {})[key], (remote || {})[key]);
+    if (level) out[key] = level;
+  });
+  return out;
+}
+
 async function getCredentials(): Promise<{ token: string; base: string }> {
   const [token, base] = await Promise.all([
     AsyncStorage.getItem('pp_token'),
@@ -80,6 +107,43 @@ export async function pullProfile(): Promise<void> {
     };
 
     await AsyncStorage.setItem('userProfile', JSON.stringify(merged));
+
+    // Aggregate stats (totalXP / streak / skill levels) — separate flat
+    // AsyncStorage keys, read directly by progress.tsx, index.tsx, and the
+    // exercise screens. progressSyncService.recordXP() only ever pushes these
+    // up; this is the only place that pulls them back down, so a fresh
+    // install logging into an existing account restores them instead of
+    // starting every stat at zero. Max-merged so a device with unsynced
+    // local progress never gets rolled backward.
+    const remoteProgress = remote.progress && typeof remote.progress === 'object'
+      ? remote.progress as Record<string, unknown> : null;
+    if (remoteProgress) {
+      const [localXPRaw, localStreakRaw, localBestRaw] = await Promise.all([
+        AsyncStorage.getItem('totalXP'),
+        AsyncStorage.getItem('currentStreak'),
+        AsyncStorage.getItem('bestStreak'),
+      ]);
+      const remoteXP     = Number(remoteProgress.totalXP)   || 0;
+      const remoteStreak = Number(remoteProgress.streakDays) || 0;
+      const nextXP     = Math.max(parseInt(localXPRaw     || '0', 10) || 0, remoteXP);
+      const nextStreak = Math.max(parseInt(localStreakRaw || '0', 10) || 0, remoteStreak);
+      const nextBest   = Math.max(parseInt(localBestRaw   || '0', 10) || 0, remoteStreak);
+      await AsyncStorage.multiSet([
+        ['totalXP', String(nextXP)],
+        ['currentStreak', String(nextStreak)],
+        ['bestStreak', String(nextBest)],
+      ]);
+    }
+
+    const remoteSkillLevels = remote.skillLevels && typeof remote.skillLevels === 'object'
+      ? remote.skillLevels as Record<string, unknown> : null;
+    if (remoteSkillLevels) {
+      const rawLocalLevels = await AsyncStorage.getItem('skillLevels');
+      const localLevels = rawLocalLevels ? JSON.parse(rawLocalLevels) : null;
+      const mergedLevels = mergeSkillLevels(localLevels, remoteSkillLevels);
+      if (mergedLevels) await AsyncStorage.setItem('skillLevels', JSON.stringify(mergedLevels));
+    }
+
     // Record successful fetch time so the next focus event can skip the call.
     await AsyncStorage.setItem(FETCHED_AT_KEY, String(Date.now()));
   } catch {}
