@@ -27,6 +27,53 @@ const TOPIC_LABELS = {
   toefl:            'TOEFL Exam Prep',
 };
 
+// Maps each exercise to the one of the 4 CEFR skills (reading/writing/
+// listening/speaking) its score counts toward — mirrors the mapping used in
+// sync-client.js on the web so the two platforms feed the same skill.
+// placement_test is deliberately excluded: it *seeds* skillLevels once at
+// completion (see placement.tsx), it doesn't grade into them on a rolling
+// basis. Nothing here currently produces a standalone speaking score.
+export const SKILL_FOR_EXERCISE = {
+  grammar:             'reading',
+  grammar_quiz:        'reading',
+  vocabulary:          'reading',
+  word_chunks:         'reading',
+  translation_trainer: 'reading',
+  cae:                 'reading',
+  ielts:               'reading',
+  toefl:               'reading',
+  writing:             'writing',
+  business_english:    'writing',
+  listening:           'listening',
+  daily_challenge:     'listening',
+};
+
+// Reports a score toward the mapped CEFR skill so ongoing exercise
+// performance — not just the one-time placement test — can level a skill up.
+// Fire-and-forget: a failed grade call shouldn't block the exercise's own
+// local progress recording above.
+async function gradeSkill(exerciseId, score) {
+  try {
+    const skill = SKILL_FOR_EXERCISE[exerciseId];
+    if (!skill || !Number.isFinite(score)) return;
+
+    const [token, base] = await Promise.all([AsyncStorage.getItem('pp_token'), getServerUrl()]);
+    if (!token) return;
+
+    const res = await fetch(`${base}/api/me/grade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ skill, score }),
+    });
+    if (!res.ok) return;
+
+    const data = await res.json().catch(() => null);
+    if (data?.skillLevels) {
+      await AsyncStorage.setItem('skillLevels', JSON.stringify(data.skillLevels));
+    }
+  } catch {}
+}
+
 async function submitToClassroom(exerciseId, score, weakAreas) {
   try {
     const raw = await AsyncStorage.getItem('classroomJoined');
@@ -117,6 +164,8 @@ export const recordModuleProgress = async ({
 
     // Push to classroom if this student has joined a teacher group.
     submitToClassroom(exerciseId, score, weakAreas);
+    // Report toward the mapped CEFR skill's ongoing level-up tracking.
+    gradeSkill(exerciseId, score);
     // Push to cross-device sync (debounced inside syncService).
     pushVaults();
   } catch (e) {}

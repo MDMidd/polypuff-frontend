@@ -54,6 +54,7 @@ import { scaledFont, announce, scoreAnnouncement, a11yTab, a11yButton } from '..
 import { getServerUrl } from '../services/api';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getAuthHeaders } from '../utils/auth';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -395,6 +396,9 @@ export default function VocabScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('vocabulary').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="vocabulary" />
       </View>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}>
         <PolyPuffScene size={600} />

@@ -53,6 +53,7 @@ import { recordModuleProgress } from '../services/progressService';
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getAuthHeaders } from '../utils/auth';
 
 // ── Prompt options ──────────────────────────────────────────────────────────
@@ -311,6 +312,9 @@ export default function WritingScreen() {
             <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>{t.writeInEnglishGetAIFeedback}</Text>
           </View>
           <View style={{ width: 44 }} />
+        </View>
+        <View style={{ alignItems: 'center', paddingTop: 8 }}>
+          <SkillLevelBadge exerciseId="writing" />
         </View>
 
         <ScrollView contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">

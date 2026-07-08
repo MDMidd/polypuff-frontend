@@ -29,6 +29,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
+import { pushSkillLevels } from '../services/profileService';
 import {
   View, Text, Image, TouchableOpacity, ScrollView, TextInput, Alert,
   ActivityIndicator, Platform,
@@ -567,6 +568,7 @@ export default function PlacementScreen() {
     const avgIdx  = Math.round(SKILLS.reduce((sum, s) => sum + LEVELS_ORDER.indexOf(levels[s]), 0) / SKILLS.length);
     levels.overall = LEVELS_ORDER[Math.min(avgIdx, LEVELS_ORDER.length - 1)];
     await AsyncStorage.setItem('skillLevels', JSON.stringify(levels));
+    pushSkillLevels(levels);
     await AsyncStorage.setItem('placementComplete', 'true');
     const profile = JSON.parse(await AsyncStorage.getItem('userProfile') || '{}');
     profile.level = levels.overall;

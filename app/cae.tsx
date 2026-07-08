@@ -36,6 +36,7 @@ import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
@@ -1180,6 +1181,9 @@ export default function CAEScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('cae-prep').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="cae" />
       </View>
 
       {/* Tab bar */}

@@ -58,6 +58,7 @@ import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getAuthHeaders } from '../utils/auth';
 import NativeLanguagePicker from '../components/NativeLanguagePicker';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { normalizeNativeLanguage } from '../utils/nativeLanguages';
 import {
   masteredTexts,
@@ -471,6 +472,9 @@ export default function WordChunksScreen() {
             >
               <Settings2 size={20} color={C.textSec || '#A8B3CF'} />
             </TouchableOpacity>
+          </View>
+          <View style={{ alignItems: 'center', paddingTop: 8 }}>
+            <SkillLevelBadge exerciseId="word_chunks" />
           </View>
 
         <ScrollView contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">

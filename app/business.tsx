@@ -42,6 +42,7 @@ import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getServerUrl } from '../services/api';
 import { hapticSuccess, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
@@ -1103,6 +1104,9 @@ export default function BusinessScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('business-english').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="business_english" />
       </View>
 
       {/* Tab bar */}

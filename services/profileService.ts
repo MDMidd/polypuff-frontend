@@ -171,3 +171,25 @@ export async function pushProfile(profile: ProfileData): Promise<void> {
     });
   } catch {}
 }
+
+/**
+ * Push the placement test's freshly-computed skillLevels to the server.
+ * Without this, the server's skill_levels stays empty until the first
+ * /api/me/grade call, which would then start the ratchet-up logic from
+ * 'A1' instead of the placement test's real starting point.
+ */
+export async function pushSkillLevels(skillLevels: Record<string, string>): Promise<void> {
+  try {
+    const { token, base } = await getCredentials();
+    if (!token) return;
+
+    await fetch(`${base}/api/me/skill-levels`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ skillLevels }),
+    });
+  } catch {}
+}
