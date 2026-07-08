@@ -13,7 +13,7 @@ import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import {
   ClipboardCheck, BookOpen, Headphones, PenTool,
   Brain, Layers, Puzzle, ChevronLeft, ChevronRight, Pencil,
-  Archive, GraduationCap, Briefcase, Settings,
+  Box, BookMarked, Landmark, GraduationCap, Globe, Briefcase, Settings, Award, Zap,
   ChevronDown, ChevronUp, Wrench, Target, School, Star,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -55,12 +55,12 @@ const MAIN_EXERCISE: MenuItem = {
 
 const ADDITIONAL_EXERCISES: MenuItem[] = [
   { id: 'wordchunks', label: 'Word Chunks', labelKey: 'word-chunks', mobileKey: 'wordChunks', route: '/wordchunks', icon: Puzzle, color: 'emerald' },
-  { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/word-chunks-vault', icon: Archive, color: 'amber' },
+  { id: 'wordchunks-vault', label: 'Word Chunks Vault', labelKey: 'word-chunks-vault', route: '/word-chunks-vault', icon: Box, color: 'amber' },
   { id: 'grammar', label: 'Grammar Practice', labelKey: 'grammar-practice', mobileKey: 'grammarPractice', route: '/grammar', icon: Pencil, color: 'pink' },
-  { id: 'grammar-vault', label: 'Grammar Vault', labelKey: 'grammar-vault', route: '/grammar-vault', icon: Archive, color: 'purple' },
+  { id: 'grammar-vault', label: 'Grammar Vault', labelKey: 'grammar-vault', route: '/grammar-vault', icon: BookMarked, color: 'purple' },
   { id: 'quiz', label: 'Grammar Quiz', labelKey: 'grammar-quiz', mobileKey: 'grammarQuiz', route: '/quiz', icon: Brain, color: 'amber' },
   { id: 'vocab', label: 'Vocabulary', labelKey: 'vocabulary', route: '/vocab', icon: Layers, color: 'emerald' },
-  { id: 'vault', label: 'Vocabulary Vault', labelKey: 'vocabulary-vault', mobileKey: 'vocabularyVault', route: '/vault', icon: Archive, color: 'cyan' },
+  { id: 'vault', label: 'Vocabulary Vault', labelKey: 'vocabulary-vault', mobileKey: 'vocabularyVault', route: '/vault', icon: Landmark, color: 'cyan' },
   { id: 'listening', label: 'Listening', labelKey: 'listening', mobileKey: 'listening', route: '/listening', icon: Headphones, color: 'amber' },
   { id: 'writing', label: 'Writing', labelKey: 'writing', mobileKey: 'writing', route: '/writing', icon: PenTool, color: 'pink' },
   { id: 'classroom', label: 'Share with Teacher', labelKey: 'classroom', route: '/classroom', icon: School, color: 'pink' },
@@ -68,12 +68,12 @@ const ADDITIONAL_EXERCISES: MenuItem[] = [
 
 const GOAL_EXERCISES: MenuItem[] = [
   { id: 'daily', label: 'Daily Challenge', labelKey: 'daily-challenge', mobileKey: 'dailyChallenges', route: '/daily', icon: Star, color: 'amber' },
-  { id: 'challenges', label: 'Challenge Mode', labelKey: 'challenge-mode', route: '/challenges', icon: Target, color: 'purple' },
+  { id: 'challenges', label: 'Challenge Mode', labelKey: 'challenge-mode', route: '/challenges', icon: Zap, color: 'purple' },
   { id: 'placement', label: 'Placement Test', labelKey: 'placement-test', mobileKey: 'placementTest', route: '/placement', icon: ClipboardCheck, color: 'cyan' },
   { id: 'business', label: 'Business English', labelKey: 'business-english', mobileKey: 'businessEnglish', route: '/business', icon: Briefcase, color: 'amber' },
-  { id: 'ielts', label: 'IELTS', labelKey: 'ielts', route: '/ielts', icon: GraduationCap, color: 'cyan' },
+  { id: 'ielts', label: 'IELTS', labelKey: 'ielts', route: '/ielts', icon: Globe, color: 'cyan' },
   { id: 'toefl', label: 'TOEFL', labelKey: 'toefl', route: '/toefl', icon: GraduationCap, color: 'purple' },
-  { id: 'cae', label: 'CAE', labelKey: 'cae', route: '/cae', icon: BookOpen, color: 'emerald' },
+  { id: 'cae', label: 'CAE', labelKey: 'cae', route: '/cae', icon: Award, color: 'emerald' },
 ];
 
 export default function PracticeHub() {

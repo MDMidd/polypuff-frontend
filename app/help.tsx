@@ -25,7 +25,7 @@ import {
   BookOpen, Headphones, PenTool, Brain, Layers, Puzzle,
   Pencil, ClipboardCheck, ChevronDown, ChevronRight,
   HelpCircle, Lightbulb, Award, Target, MessageCircle,
-  Star, Zap, TrendingUp, Info, Archive, GraduationCap,
+  Star, Zap, TrendingUp, Info, Landmark, GraduationCap, Globe,
   Briefcase, Settings, BarChart3,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -275,14 +275,14 @@ export default function HelpScreen() {
             'Missed words come back more often (spaced repetition)',
           ]} tip="Review vocabulary daily, even for just 5 minutes. Consistency beats long sessions!" />
 
-          <ExerciseGuide C={C} icon={Archive} name="Vocabulary Vault" color="#FBBF24" steps={[
+          <ExerciseGuide C={C} icon={Landmark} name="Vocabulary Vault" color="#FBBF24" steps={[
             'Collect useful words from practice or add your own manually',
             'Search for definitions and example sentences',
             'Study saved words as focused flashcards',
             'Export your vocabulary as Word, CSV, or PDF files',
           ]} tip="Save words you actually want to use. A smaller, personal list is more useful than a huge random one." />
 
-          <ExerciseGuide C={C} icon={GraduationCap} name="IELTS Preparation" color="#00E5FF" steps={[
+          <ExerciseGuide C={C} icon={Globe} name="IELTS Preparation" color="#00E5FF" steps={[
             'Review the IELTS overview, scoring, and section guides',
             'Practise Writing, Speaking, Reading, and Listening-style tasks',
             'Use AI feedback to estimate band performance and improve responses',
@@ -296,7 +296,7 @@ export default function HelpScreen() {
             'Use the Scores section to understand band-style and legacy score ranges',
           ]} tip="TOEFL is especially useful for academic English and campus-style communication tasks." />
 
-          <ExerciseGuide C={C} icon={GraduationCap} name="CAE — C1 Advanced" color="#34D399" steps={[
+          <ExerciseGuide C={C} icon={Award} name="CAE — C1 Advanced" color="#34D399" steps={[
             'Study Cambridge C1 Advanced exam sections and task types',
             'Practise exam-style Reading, Use of English, Writing, Listening, and Speaking prompts',
             'Review model answers, strategies, and high-level language patterns',
@@ -310,7 +310,7 @@ export default function HelpScreen() {
             'Get a professional score, strengths, improvements, and a polished rewrite',
           ]} tip="Practise real situations from your work life so the feedback transfers directly into meetings and messages." />
 
-          <ExerciseGuide C={C} icon={Award} name="Daily Challenge" color="#F59E0B" steps={[
+          <ExerciseGuide C={C} icon={Star} name="Daily Challenge" color="#F59E0B" steps={[
             'Open Daily Challenge from the Practice tab',
             'Complete the daily task for bonus XP',
             'Keep your streak alive by practising regularly',

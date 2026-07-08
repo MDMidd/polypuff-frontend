@@ -34,7 +34,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 import {
   RotateCcw, Check, X, Award,
-  Layers, Brain, Volume2, MessageSquarePlus, Archive,
+  Layers, Brain, Volume2, MessageSquarePlus, Landmark,
   ArrowLeft,
 } from 'lucide-react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -417,9 +417,9 @@ export default function VocabScreen() {
           accessibilityRole="button"
           accessibilityLabel={`${wt('open')} ${wt('vocabulary-vault')}: ${wt('vault-subtitle')}`}
         >
-          <Archive size={22} color={C.amber || '#FFBE0B'} />
+          <Landmark size={22} color={C.amber || '#FFBE0B'} />
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text }}>📦 {wt('vocabulary-vault')}</Text>
+            <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text }}>{wt('vocabulary-vault')}</Text>
             <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 1 }}>{wt('vault-subtitle')}</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: C.amber || '#FFBE0B', fontWeight: '600' }}>{wt('open')} →</Text>

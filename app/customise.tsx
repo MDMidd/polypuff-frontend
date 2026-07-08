@@ -18,8 +18,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
-  BookOpen, PenTool, Headphones, Mic, Brain, Layers,
-  Puzzle, Archive, ClipboardCheck, GraduationCap, Briefcase,
+  BookOpen, PenTool, Headphones, Mic, Brain, Layers, Pencil,
+  Puzzle, Landmark, ClipboardCheck, GraduationCap, Briefcase,
   CheckCircle, ChevronRight, ChevronUp, ChevronDown,
   Zap, Star, Users, Globe, Award, X, Info,
 } from 'lucide-react-native';
@@ -32,7 +32,7 @@ import { scaledFont } from '../utils/accessibility';
 export const ALL_MODULES = [
   {
     id: 'placement',   label: 'Placement Test',       desc: 'Find your CEFR level',
-    icon: ClipboardCheck, color: 'cyan',    route: '/placement',   badge: '⭐',
+    icon: ClipboardCheck, color: 'cyan',    route: '/placement',
     tags: ['beginner', 'assessment'],
   },
   {
@@ -62,7 +62,7 @@ export const ALL_MODULES = [
   },
   {
     id: 'grammar',     label: 'Grammar Practice',      desc: 'Error correction & sentence building',
-    icon: PenTool,        color: 'pink',    route: '/grammar',
+    icon: Pencil,         color: 'pink',    route: '/grammar',
     tags: ['core', 'grammar', 'intermediate', 'advanced'],
   },
   {
@@ -72,27 +72,27 @@ export const ALL_MODULES = [
   },
   {
     id: 'vault',       label: 'Vocabulary Vault',      desc: 'Collect words & practice sentences',
-    icon: Archive,        color: 'amber',   route: '/vault',       badge: '📦',
+    icon: Landmark,       color: 'amber',   route: '/vault',
     tags: ['vocabulary', 'intermediate', 'advanced'],
   },
   {
     id: 'ielts',       label: 'IELTS Preparation',     desc: 'Full guide + AI practice',
-    icon: GraduationCap,  color: 'cyan',    route: '/ielts',       badge: '🎓',
+    icon: Globe,          color: 'cyan',    route: '/ielts',
     tags: ['exam', 'advanced', 'academic'],
   },
   {
     id: 'toefl',       label: 'TOEFL iBT Preparation', desc: 'Full guide + AI practice',
-    icon: GraduationCap,  color: 'purple',  route: '/toefl',       badge: '🏫',
+    icon: GraduationCap,  color: 'purple',  route: '/toefl',
     tags: ['exam', 'advanced', 'academic'],
   },
   {
     id: 'cae',         label: 'CAE — C1 Advanced',     desc: 'Cambridge exam guide + AI practice',
-    icon: GraduationCap,  color: 'emerald', route: '/cae',         badge: '🎓',
+    icon: Award,          color: 'emerald', route: '/cae',
     tags: ['exam', 'advanced', 'academic'],
   },
   {
     id: 'business',    label: 'Business English',       desc: 'Emails, meetings, negotiations',
-    icon: Briefcase,      color: 'emerald', route: '/business',    badge: '💼',
+    icon: Briefcase,      color: 'emerald', route: '/business',
     tags: ['professional', 'intermediate', 'advanced'],
   },
 ];
@@ -386,7 +386,6 @@ export default function CustomisePracticeScreen() {
                     <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: isActive ? C.text : C.textMuted }}>
                       {mod.label}
                     </Text>
-                    {mod.badge && <Text style={{ fontSize: 11 }}>{mod.badge}</Text>}
                   </View>
                   <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 1 }}>
                     {mod.desc}

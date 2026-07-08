@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
-import { Archive, Download, Plus, Search, Trash2, Upload } from 'lucide-react-native';
+import { Box, BookMarked, Download, Plus, Search, Trash2, Upload } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -44,6 +44,7 @@ type Config = {
   itemLabel: string;
   category: string;
   accent: 'cyan' | 'emerald' | 'amber' | 'purple';
+  icon: React.ComponentType<{ size?: number; color?: string }>;
 };
 
 const CONFIG: Record<VaultKind, Config> = {
@@ -59,6 +60,7 @@ const CONFIG: Record<VaultKind, Config> = {
     itemLabel: 'English chunk',
     category: 'Word Chunk',
     accent: 'cyan',
+    icon: Box,
   },
   grammar: {
     kind: 'grammar',
@@ -72,6 +74,7 @@ const CONFIG: Record<VaultKind, Config> = {
     itemLabel: 'Grammar item',
     category: 'Grammar Rule',
     accent: 'emerald',
+    icon: BookMarked,
   },
 };
 
@@ -120,6 +123,7 @@ export default function LearningVaultScreen({ kind }: { kind: VaultKind }) {
   const [newItem, setNewItem] = useState('');
 
   const accent = C[cfg.accent] || (cfg.kind === 'grammar' ? '#34D399' : '#60A5FA');
+  const EmptyIcon = cfg.icon;
   const title = wt(cfg.titleKey) !== cfg.titleKey ? wt(cfg.titleKey) : cfg.titleFallback;
   const desc = wt(cfg.descKey) !== cfg.descKey ? wt(cfg.descKey) : cfg.descFallback;
 
@@ -355,7 +359,7 @@ td{padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:10px;vertical-alig
 
         {filtered.length === 0 ? (
           <View style={{ alignItems: 'center', padding: 24, borderRadius: 14, backgroundColor: (C.card || '#121829') + '88', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-            <Archive size={28} color={accent} />
+            <EmptyIcon size={28} color={accent} />
             <Text style={{ marginTop: 10, fontSize: scaledFont(15), fontWeight: '900', color: C.text }}>Your {title} is empty</Text>
             <Text style={{ marginTop: 4, textAlign: 'center', fontSize: scaledFont(13), color: C.textMuted, lineHeight: 19 }}>{cfg.emptyFallback}</Text>
           </View>
