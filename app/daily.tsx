@@ -32,6 +32,7 @@ import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getAuthHeaders } from '../utils/auth';
 import { isRtlLanguage } from '../utils/languages';
 import { getDailyTranslations } from '../utils/dailyTranslations';
@@ -388,6 +389,10 @@ export default function DailyChallenge() {
               <Star size={18} color={C.amber || '#FFBE0B'} />
               <Text style={[s.headerTitle, { color: C.text, textAlign }]}>{dailyT.dailyChallenge}</Text>
             </View>
+          </View>
+
+          <View style={{ alignItems: 'center', marginBottom: 8 }}>
+            <SkillLevelBadge exerciseId="daily_challenge" />
           </View>
 
           <AIDisclosureBanner compact />

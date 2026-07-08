@@ -33,6 +33,7 @@ import { scaledFont } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
@@ -1151,6 +1152,9 @@ export default function IELTSScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('ielts-prep').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="ielts" />
       </View>
 
       {/* Tab bar */}

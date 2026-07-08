@@ -54,6 +54,7 @@ import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { scaledFont, useScreenReader, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 
 const DIFFICULTIES = [
   { key: 'easy', label: '🟢 Easy', desc: 'Slow audio + see text', speed: 0.7, showText: true, showTime: 5000, level: 'A1-A2' },
@@ -357,6 +358,9 @@ export default function ListeningScreen() {
           <Text style={{ fontSize: scaledFont(12), color: C.textSec, marginTop: 2 }}>Listen to English sentences and type exactly what you hear</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="listening" />
       </View>
       <PolyPuffScene size={600} />
       <ScrollView style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }} keyboardShouldPersistTaps="handled">

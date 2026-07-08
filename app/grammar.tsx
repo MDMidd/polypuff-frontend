@@ -52,6 +52,7 @@ import { ScreenBackground, GlassCard, BackHeader } from '../components/PolyPuffU
 import PolyPuffScene from '../components/PolyPuffScene';
 import DiscussWithPuff from '../components/DiscussWithPuff';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { recordExerciseTime } from '../services/timerService';
 import { getServerUrl } from '../services/api';
 import { recordModuleProgress } from '../services/progressService';
@@ -552,6 +553,9 @@ export default function GrammarScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('grammar-practice').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="grammar" />
       </View>
         <ScrollView contentContainerStyle={styles.menuContent} showsVerticalScrollIndicator={false}>
           <View style={styles.mascotRow}>

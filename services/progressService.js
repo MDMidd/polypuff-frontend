@@ -33,7 +33,7 @@ const TOPIC_LABELS = {
 // placement_test is deliberately excluded: it *seeds* skillLevels once at
 // completion (see placement.tsx), it doesn't grade into them on a rolling
 // basis. Nothing here currently produces a standalone speaking score.
-const SKILL_FOR_EXERCISE = {
+export const SKILL_FOR_EXERCISE = {
   grammar:             'reading',
   grammar_quiz:        'reading',
   vocabulary:          'reading',

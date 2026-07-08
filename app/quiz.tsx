@@ -51,6 +51,7 @@ import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { scaledFont, announce, scoreAnnouncement, a11yTab, a11yButton } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 
 const QUIZ_LENGTH = 10;
 
@@ -371,6 +372,9 @@ export default function QuizScreen() {
           <Text style={{ fontSize: scaledFont(11), fontWeight: '700', color: C.textMuted || '#6B7280', letterSpacing: 1 }}>{wt('grammar-quiz').toUpperCase()}</Text>
         </View>
         <View style={{ width: 52 }} />
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="grammar_quiz" />
       </View>
       <PolyPuffScene size={600} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}>

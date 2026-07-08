@@ -66,6 +66,7 @@ import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/acces
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import NativeLanguagePicker from '../components/NativeLanguagePicker';
+import SkillLevelBadge from '../components/SkillLevelBadge';
 import { normalizeNativeLanguage } from '../utils/nativeLanguages';
 import {
   masteredTexts,
@@ -887,6 +888,9 @@ export default function PracticeScreen() {
         >
           <Settings2 size={20} color={C.textSec} />
         </TouchableOpacity>
+      </View>
+      <View style={{ alignItems: 'center', paddingTop: 8 }}>
+        <SkillLevelBadge exerciseId="translation_trainer" />
       </View>
 
       <ScrollView ref={scrollRef} style={s.scrollView} contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
