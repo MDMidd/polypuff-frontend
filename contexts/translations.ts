@@ -148,6 +148,10 @@ export interface Translations {
   nextExercise?: string;
   doneLabel?: string;
   averageLabel?: string;
+  skillReading?: string;
+  skillWriting?: string;
+  skillListening?: string;
+  skillSpeaking?: string;
   chooseMode?: string;
   grammarIntro?: string;
   errorCorrection?: string;
@@ -519,6 +523,10 @@ const t: Record<LangCode, Translations> = {
     nextExercise: 'Next Exercise',
     doneLabel: 'Done',
     averageLabel: 'Avg',
+    skillReading: 'Reading',
+    skillWriting: 'Writing',
+    skillListening: 'Listening',
+    skillSpeaking: 'Speaking',
     chooseMode: 'Choose a mode',
     grammarIntro: "Let's sharpen your grammar! Pick a mode to practice.",
     errorCorrection: 'Error Correction',

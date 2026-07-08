@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SKILL_FOR_EXERCISE } from '../services/progressService';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const SKILL_LABELS: Record<string, string> = {
-  reading: 'Reading',
-  writing: 'Writing',
-  listening: 'Listening',
-  speaking: 'Speaking',
+const SKILL_LABEL_KEYS: Record<string, { key: 'skillReading' | 'skillWriting' | 'skillListening' | 'skillSpeaking'; fallback: string }> = {
+  reading: { key: 'skillReading', fallback: 'Reading' },
+  writing: { key: 'skillWriting', fallback: 'Writing' },
+  listening: { key: 'skillListening', fallback: 'Listening' },
+  speaking: { key: 'skillSpeaking', fallback: 'Speaking' },
 };
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
  * Placement Test score. Renders nothing until a level exists for that skill.
  */
 export default function SkillLevelBadge({ exerciseId, color = '#00E5FF' }: Props) {
+  const { t } = useLanguage();
   const [level, setLevel] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,10 +42,13 @@ export default function SkillLevelBadge({ exerciseId, color = '#00E5FF' }: Props
   const skill = SKILL_FOR_EXERCISE[exerciseId];
   if (!skill || !level) return null;
 
+  const labelInfo = SKILL_LABEL_KEYS[skill];
+  const label = (t[labelInfo.key] as string | undefined) ?? labelInfo.fallback;
+
   return (
     <View
       accessibilityRole="text"
-      accessibilityLabel={`Your ${SKILL_LABELS[skill]} level: ${level}`}
+      accessibilityLabel={`Your ${label} level: ${level}`}
       style={{
         flexDirection: 'row', alignItems: 'center',
         backgroundColor: color + '20', borderWidth: 1, borderColor: color + '40',
@@ -51,7 +56,7 @@ export default function SkillLevelBadge({ exerciseId, color = '#00E5FF' }: Props
       }}
     >
       <Text style={{ fontSize: 11, fontWeight: '700', color }}>
-        {SKILL_LABELS[skill]}: {level}
+        {label}: {level}
       </Text>
     </View>
   );
