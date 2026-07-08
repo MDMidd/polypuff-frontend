@@ -58,7 +58,7 @@ import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getAuthHeaders } from '../utils/auth';
 import NativeLanguagePicker from '../components/NativeLanguagePicker';
-import { normalizeNativeLanguage, speechCodeForNativeLanguage } from '../utils/nativeLanguages';
+import { normalizeNativeLanguage } from '../utils/nativeLanguages';
 import {
   masteredTexts,
   masteryScopeKey,
@@ -607,20 +607,6 @@ export default function WordChunksScreen() {
                 {chunk.native}
               </Text>
               <Text style={ds.chunkHint}>{ui('translatePhraseToEnglish', 'Translate this phrase into English')}</Text>
-
-              {/* ✅ A11Y: Listen button */}
-              <TouchableOpacity
-                onPress={() => {
-                  Speech.speak(chunk.native, { language: speechCodeForNativeLanguage(nativeLanguage), rate: 0.85 });
-                }}
-                style={ds.listenBtn}
-                accessibilityRole="button"
-                accessibilityLabel={`Hear chunk in ${nativeLanguage}`}
-                accessibilityHint={t.accHintHearPronunciation}
-              >
-                <Volume2 size={16} color={C.cyan || '#00E5FF'} />
-                <Text style={ds.listenText}>{ui('hearInLanguage', 'Hear in')} {nativeLanguage}</Text>
-              </TouchableOpacity>
             </Animated.View>
           ) : null}
 
@@ -865,8 +851,6 @@ function dynamicStyles(C) {
     categoryText:  { fontSize: scaledFont(11), fontWeight: '700', color: C.purple || '#B06CFF', letterSpacing: 1 },
     chunkNative:   { fontSize: scaledFont(32), fontWeight: '800', color: C.text, textAlign: 'center', marginBottom: 8, letterSpacing: 0.5 },
     chunkHint:     { fontSize: scaledFont(13), color: C.textMuted, marginBottom: 16 },
-    listenBtn:     { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: (C.cyan || '#00E5FF') + '15', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, minHeight: 44 },
-    listenText:    { fontSize: scaledFont(13), fontWeight: '600', color: C.cyan || '#00E5FF' },
     inputSection:  { marginBottom: 16 },
     input:         { backgroundColor: C.card, borderRadius: 14, padding: 16, fontSize: scaledFont(16), color: C.text, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '30', marginBottom: 10, minHeight: 44 },
     inputActions:  { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' },

@@ -89,6 +89,3 @@ export const normalizeNativeLanguage = (value?: string | null) => {
   if (trimmed === 'Chinese') return 'Mandarin';
   return nativeLanguageValues.has(trimmed) ? trimmed : 'Spanish';
 };
-
-export const speechCodeForNativeLanguage = (value?: string | null) =>
-  NATIVE_LANGUAGE_OPTIONS.find(option => option.value === normalizeNativeLanguage(value))?.speechCode || 'en';
