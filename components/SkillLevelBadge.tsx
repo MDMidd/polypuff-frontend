@@ -48,14 +48,14 @@ export default function SkillLevelBadge({ exerciseId, color = '#00E5FF' }: Props
   return (
     <View
       accessibilityRole="text"
-      accessibilityLabel={`Your ${label} level: ${level}`}
+      accessibilityLabel={`Your ongoing ${label} skill level: ${level}. Based on exercise performance, separate from your Placement Test score.`}
       style={{
         flexDirection: 'row', alignItems: 'center',
         backgroundColor: color + '20', borderWidth: 1, borderColor: color + '40',
-        borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4,
+        borderRadius: 10, paddingHorizontal: 11, paddingVertical: 5,
       }}
     >
-      <Text style={{ fontSize: 11, fontWeight: '700', color }}>
+      <Text style={{ fontSize: 12, fontWeight: '600', color }}>
         {label}: {level}
       </Text>
     </View>
