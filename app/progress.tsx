@@ -296,6 +296,18 @@ export default function ProgressScreen() {
           </tr>`;
       }).join('');
 
+      // Per-skill CEFR breakdown — separate from the single overall figure
+      // below and from the Placement Test score, reflects ongoing exercise
+      // performance via POST /api/me/grade.
+      const skillLevelsRaw = await AsyncStorage.getItem('skillLevels');
+      const skillLevelsMap = skillLevelsRaw ? JSON.parse(skillLevelsRaw) : {};
+      const skillRowLabels: Record<string, string> = { reading: 'Reading', writing: 'Writing', listening: 'Listening', speaking: 'Speaking' };
+      const skillRows = Object.keys(skillRowLabels).map(s => `
+        <tr>
+          <td>${skillRowLabels[s]}</td>
+          <td style="text-align:center">${escapePdfHtml(skillLevelsMap[s] || '-')}</td>
+        </tr>`).join('');
+
       // Build mistake rows HTML
       const mistakeRows = mistakeRanking.slice(0, 6).map((m, i) => `
         <tr>
@@ -455,6 +467,12 @@ export default function ProgressScreen() {
               <div class="stat-label">Total Study Time</div>
             </div>
           </div>
+
+          <div class="section-title">Skill Levels</div>
+          <table>
+            <tr><th>Skill</th><th>CEFR Level</th></tr>
+            ${skillRows}
+          </table>
 
           <div class="section-title">Exercise Performance</div>
           <table>
