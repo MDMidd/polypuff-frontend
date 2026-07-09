@@ -25,8 +25,9 @@ import {
   BookOpen, Headphones, PenTool, Brain, Layers, Puzzle,
   Pencil, ClipboardCheck, ChevronDown, ChevronRight,
   HelpCircle, Lightbulb, Award, Target, MessageCircle,
-  Star, Zap, TrendingUp, Info, Landmark, GraduationCap, Globe,
-  Briefcase, Settings, BarChart3,
+  Star, TrendingUp, Info, Landmark, GraduationCap, Globe,
+  Briefcase, Settings, BarChart3, User, LayoutGrid, Repeat,
+  XCircle, Compass, Shapes,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -185,15 +186,15 @@ export default function HelpScreen() {
           </Text>
           <View style={st.startSteps}>
             {[
-              { emoji: '👤', text: 'Set up your profile — choose your native language and English level' },
-              { emoji: '🎯', text: 'Take the Placement Test to find your CEFR level (or choose it manually)' },
-              { emoji: '📚', text: 'Pick any exercise from the Practice hub, including exam prep and Business English' },
-              { emoji: '⚙️', text: 'Use Customise Practice List to show, hide, or reorder your modules' },
-              { emoji: '📊', text: 'Track your progress on the Progress tab' },
-              { emoji: '💬', text: 'After each exercise, discuss your score with me if you disagree!' },
+              { icon: User, color: '#60A5FA', text: 'Set up your profile — choose your native language and English level' },
+              { icon: ClipboardCheck, color: '#00E5FF', text: 'Take the Placement Test to find your CEFR level (or choose it manually)' },
+              { icon: LayoutGrid, color: '#FB923C', text: 'Pick any exercise from the Practice hub, including exam prep and Business English' },
+              { icon: Settings, color: '#B06CFF', text: 'Use Customise Practice List to show, hide, or reorder your modules' },
+              { icon: BarChart3, color: '#34D399', text: 'Track your progress on the Progress tab' },
+              { icon: MessageCircle, color: '#A78BFA', text: 'After each exercise, discuss your score with me if you disagree!' },
             ].map((s, i) => (
               <View key={i} style={st.startStep}>
-                <Text style={st.startEmoji}>{s.emoji}</Text>
+                <s.icon size={18} color={s.color} style={st.startEmoji} />
                 <Text style={[st.startText, { color: C.textSec }]}>{s.text}</Text>
               </View>
             ))}
@@ -396,19 +397,19 @@ export default function HelpScreen() {
         {/* ── 7. TIPS & TRICKS ───────────────────────────────────────────── */}
         <Section title="Tips & Tricks" icon={Lightbulb} iconColor="#FBBF24" C={C}>
           {[
-            { emoji: '🔁', title: 'Practice daily', text: 'Even 10 minutes a day is better than 2 hours once a week. Consistency is key!' },
-            { emoji: '🎧', title: 'Use the audio', text: 'Always listen to the native pronunciation. It trains your ear and helps with speaking too.' },
-            { emoji: '📖', title: 'Learn word chunks', text: 'Native speakers use fixed phrases (like "by the way", "as soon as possible"). Learning these makes you sound natural.' },
-            { emoji: '❌', title: 'Embrace mistakes', text: 'Errors are how you learn! Review your mistakes on the Progress screen and focus on weak areas.' },
-            { emoji: '⬆️', title: 'Level up gradually', text: 'Start at your CEFR level. When you consistently score 85+, move up one level.' },
-            { emoji: '💬', title: 'Challenge your scores', text: 'If you think your answer was correct, discuss it with Poly-Puff! Sometimes there are multiple valid answers.' },
-            { emoji: '🧭', title: 'Make the hub yours', text: 'Hide modules you do not need and apply a bundle that matches your goal, such as exams, business, or vocabulary.' },
-            { emoji: '✍️', title: 'Write more than minimum', text: 'In Writing exercises, longer answers with varied vocabulary score higher than short ones.' },
-            { emoji: '🧩', title: 'Try every exercise type', text: 'Translation trains accuracy. Listening trains comprehension. Grammar trains rules. Use them all!' },
-            { emoji: '💡', title: wt('help-tip-nudge-title'), text: wt('help-tip-nudge-body') },
+            { icon: Repeat, color: '#00E5FF', title: 'Practice daily', text: 'Even 10 minutes a day is better than 2 hours once a week. Consistency is key!' },
+            { icon: Headphones, color: '#FBBF24', title: 'Use the audio', text: 'Always listen to the native pronunciation. It trains your ear and helps with speaking too.' },
+            { icon: Puzzle, color: '#34D399', title: 'Learn word chunks', text: 'Native speakers use fixed phrases (like "by the way", "as soon as possible"). Learning these makes you sound natural.' },
+            { icon: XCircle, color: '#F87171', title: 'Embrace mistakes', text: 'Errors are how you learn! Review your mistakes on the Progress screen and focus on weak areas.' },
+            { icon: TrendingUp, color: '#34D399', title: 'Level up gradually', text: 'Start at your CEFR level. When you consistently score 85+, move up one level.' },
+            { icon: MessageCircle, color: '#A78BFA', title: 'Challenge your scores', text: 'If you think your answer was correct, discuss it with Poly-Puff! Sometimes there are multiple valid answers.' },
+            { icon: Compass, color: '#B06CFF', title: 'Make the hub yours', text: 'Hide modules you do not need and apply a bundle that matches your goal, such as exams, business, or vocabulary.' },
+            { icon: PenTool, color: '#F472B6', title: 'Write more than minimum', text: 'In Writing exercises, longer answers with varied vocabulary score higher than short ones.' },
+            { icon: Shapes, color: '#00E5FF', title: 'Try every exercise type', text: 'Translation trains accuracy. Listening trains comprehension. Grammar trains rules. Use them all!' },
+            { icon: Lightbulb, color: '#FBBF24', title: wt('help-tip-nudge-title'), text: wt('help-tip-nudge-body') },
           ].map((t, i) => (
             <View key={i} style={st.tipCard}>
-              <Text style={st.tipEmoji}>{t.emoji}</Text>
+              <t.icon size={20} color={t.color} style={st.tipEmoji} />
               <View style={{ flex: 1 }}>
                 <Text style={[st.tipTitle, { color: C.text }]}>{t.title}</Text>
                 <Text style={[st.tipBody, { color: C.textSec }]}>{t.text}</Text>
@@ -533,7 +534,7 @@ const st = StyleSheet.create({
   // Getting started
   startSteps: { gap: 10, marginTop: 4 },
   startStep: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  startEmoji: { fontSize: scaledFont(18), marginTop: 1 },
+  startEmoji: { marginTop: 1 },
   startText: { flex: 1, fontSize: scaledFont(13), lineHeight: 19 },
 
   // Exercise guides
@@ -594,7 +595,7 @@ const st = StyleSheet.create({
   tipCard: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 10,
   },
-  tipEmoji: { fontSize: scaledFont(20), marginTop: 1 },
+  tipEmoji: { marginTop: 1 },
   tipTitle: { fontSize: scaledFont(13), fontWeight: '700', marginBottom: 2 },
   tipBody: { fontSize: scaledFont(12), lineHeight: 17 },
 

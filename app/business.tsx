@@ -34,6 +34,7 @@ import {
   Star, Send, X, Zap, RefreshCw, CheckCircle,
   MessageSquare, TrendingUp, Award, Headphones,
   Coffee, Building, FileText, ArrowLeft,
+  MapPin, Lightbulb, BookmarkPlus,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -58,7 +59,6 @@ const DOMAINS = [
     label: 'Emails & Writing',
     icon: Mail,
     colour: '#00E5FF',
-    emoji: '✉️',
     desc: 'Professional emails, memos, formal letters',
     skills: ['Email etiquette', 'Formal vs informal register', 'Subject lines', 'CC/BCC', 'Follow-ups'],
     phrases: [
@@ -83,7 +83,6 @@ const DOMAINS = [
     label: 'Meetings',
     icon: Users,
     colour: '#00E5A0',
-    emoji: '🤝',
     desc: 'Chairing, participating, and following up on meetings',
     skills: ['Chairing meetings', 'Taking minutes', 'Interrupting politely', 'Making proposals', 'Agreeing/disagreeing'],
     phrases: [
@@ -108,7 +107,6 @@ const DOMAINS = [
     label: 'Presentations',
     icon: TrendingUp,
     colour: '#FFBE0B',
-    emoji: '📊',
     desc: 'Pitching ideas, delivering data, Q&A handling',
     skills: ['Structure', 'Signposting', 'Data language', 'Handling questions', 'Persuasion'],
     phrases: [
@@ -134,7 +132,6 @@ const DOMAINS = [
     label: 'Negotiations',
     icon: Briefcase,
     colour: '#B06CFF',
-    emoji: '🤜',
     desc: 'Contracts, pricing, deadlines, compromise',
     skills: ['Opening positions', 'Making concessions', 'BATNA', 'Anchoring', 'Closing deals'],
     phrases: [
@@ -160,7 +157,6 @@ const DOMAINS = [
     label: 'Reports & Proposals',
     icon: FileText,
     colour: '#FF8A65',
-    emoji: '📋',
     desc: 'Business reports, proposals, executive summaries',
     skills: ['Executive summaries', 'Report structure', 'Formal language', 'Recommendations', 'Data presentation'],
     phrases: [
@@ -184,7 +180,6 @@ const DOMAINS = [
     label: 'Calls & Video',
     icon: Phone,
     colour: '#00E5FF',
-    emoji: '📞',
     desc: 'Phone calls, conference calls, video meetings',
     skills: ['Opening calls', 'Taking messages', 'Clarifying on phone', 'Technical issues', 'Conference calls'],
     phrases: [
@@ -208,7 +203,6 @@ const DOMAINS = [
     label: 'Networking & Small Talk',
     icon: Coffee,
     colour: '#FB923C',
-    emoji: '☕',
     desc: 'First impressions, elevator pitches, small talk',
     skills: ['Elevator pitch', 'Conversation starters', 'Following up', 'LinkedIn', 'Business events'],
     phrases: [
@@ -232,7 +226,6 @@ const DOMAINS = [
     label: 'Cross-Cultural',
     icon: Globe,
     colour: '#00E5A0',
-    emoji: '🌍',
     desc: 'Working across cultures, global teams, sensitivities',
     skills: ['High/low context cultures', 'Directness scales', 'Meeting styles', 'Hierarchy', 'Relationship vs task focus'],
     phrases: [
@@ -562,15 +555,21 @@ export default function BusinessScreen() {
             <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: C.text, lineHeight: 24, fontStyle: 'italic', marginBottom: 8 }}>
               "{dailyPhrase.phrase}"
             </Text>
-            <Text style={{ fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '600', marginBottom: 6 }}>📍 {dailyPhrase.context}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+              <MapPin size={12} color="#FFBE0B" />
+              <Text style={{ fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '600' }}>{dailyPhrase.context}</Text>
+            </View>
             <View style={{ backgroundColor: C.bg, borderRadius: 10, padding: 10, marginBottom: 6 }}>
               <Text style={[S.label, { marginBottom: 4 }]}>Breakdown</Text>
               <Text style={S.bodyText}>{dailyPhrase.breakdown}</Text>
             </View>
             {dailyPhrase.alternative && (
-              <Text style={{ fontSize: scaledFont(12), color: C.textMuted, fontStyle: 'italic' }}>
-                💡 Alternative: {dailyPhrase.alternative}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 4 }}>
+                <Lightbulb size={12} color={C.textMuted} style={{ marginTop: 2 }} />
+                <Text style={{ flex: 1, fontSize: scaledFont(12), color: C.textMuted, fontStyle: 'italic' }}>
+                  Alternative: {dailyPhrase.alternative}
+                </Text>
+              </View>
             )}
           </View>
         ) : null}
@@ -618,7 +617,10 @@ export default function BusinessScreen() {
 
       {/* Quick tips */}
       <View style={[S.card, { borderColor: '#00E5FF30' }]}>
-        <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text, marginBottom: 10 }}>⚡ 2026 Business English Quick Tips</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <Zap size={16} color={C.text} />
+          <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text }}>2026 Business English Quick Tips</Text>
+        </View>
         {[
           'Cut the AI filler: start emails with the key point, not "I hope this finds you well"',
           "Replace \"circle back\" with a specific time: \"Let\'s decide by Friday\"",
@@ -655,7 +657,7 @@ export default function BusinessScreen() {
 
         <View style={{ backgroundColor: domain.colour + '12', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: domain.colour + '30' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <Text style={{ fontSize: 26 }}>{domain.emoji}</Text>
+            <Icon size={26} color={domain.colour} />
             <Text style={{ fontSize: scaledFont(20), fontWeight: '900', color: domain.colour }}>{domain.label}</Text>
           </View>
           <Text style={[S.bodyText, { color: C.textSec, marginBottom: 10 }]}>{domain.desc}</Text>
@@ -671,9 +673,11 @@ export default function BusinessScreen() {
         {/* Sub-tabs */}
         <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16 }}>
           {[
-            { id: 'learn',    label: '📖 Learn' },
-            { id: 'practice', label: '⚡ Practice' },
-          ].map(tab => (
+            { id: 'learn',    label: 'Learn', icon: BookOpen },
+            { id: 'practice', label: 'Practice', icon: Zap },
+          ].map(tab => {
+            const TabIcon = tab.icon;
+            return (
             <TouchableOpacity
               key={tab.id}
               style={{ flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: domainSubTab === tab.id ? domain.colour + '20' : C.card, borderWidth: 1, borderColor: domainSubTab === tab.id ? domain.colour + '50' : C.border + '20' }}
@@ -682,9 +686,13 @@ export default function BusinessScreen() {
               accessibilityLabel={tab.label}
               accessibilityState={{ selected: domainSubTab === tab.id }}
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: domainSubTab === tab.id ? domain.colour : C.textMuted }}>{tab.label}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <TabIcon size={13} color={domainSubTab === tab.id ? domain.colour : C.textMuted} />
+                <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: domainSubTab === tab.id ? domain.colour : C.textMuted }}>{tab.label}</Text>
+              </View>
             </TouchableOpacity>
-          ))}
+            );
+          })}
         </View>
 
         {/* LEARN sub-tab */}
@@ -797,7 +805,10 @@ export default function BusinessScreen() {
               <View>
                 {/* Scenario card */}
                 <View style={[S.card, { borderColor: domain.colour + '30' }]}>
-                  <Text style={[S.label, { color: domain.colour, marginBottom: 8 }]}>📍 Scenario</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+                    <MapPin size={11} color={domain.colour} />
+                    <Text style={[S.label, { color: domain.colour }]}>Scenario</Text>
+                  </View>
                   <Text style={[S.bodyText, { lineHeight: 21, marginBottom: 10 }]}>{exercise.scenario}</Text>
                   <View style={{ backgroundColor: domain.colour + '10', borderRadius: 10, padding: 10 }}>
                     <Text style={[S.label, { color: domain.colour, marginBottom: 4 }]}>Your Task</Text>
@@ -814,7 +825,10 @@ export default function BusinessScreen() {
                 {/* Useful phrases hint */}
                 {exercise.usefulPhrases && exercise.usefulPhrases.length > 0 && (
                   <View style={[S.card]}>
-                    <Text style={[S.label, { marginBottom: 8 }]}>💡 Useful phrases</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+                      <Lightbulb size={11} color={C.textMuted} />
+                      <Text style={S.label}>Useful phrases</Text>
+                    </View>
                     {exercise.usefulPhrases.map((p, i) => (
                       <View key={i} style={{ flexDirection: 'row', gap: 6, marginBottom: 4 }}>
                         <Text style={{ color: domain.colour, fontWeight: '700' }}>→</Text>
@@ -905,7 +919,10 @@ export default function BusinessScreen() {
 
                     {feedback.vocabulary && feedback.vocabulary.length > 0 && (
                       <View style={[S.card, { borderColor: domain.colour + '30' }]}>
-                        <Text style={[S.label, { color: domain.colour, marginBottom: 8 }]}>📚 Vocabulary to Learn</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+                          <BookOpen size={11} color={domain.colour} />
+                          <Text style={[S.label, { color: domain.colour }]}>Vocabulary to Learn</Text>
+                        </View>
                         {feedback.vocabulary.map((v, i) => (
                           <View key={i} style={{ marginBottom: i < feedback.vocabulary.length - 1 ? 8 : 0 }}>
                             <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{v.word}</Text>
@@ -969,7 +986,10 @@ export default function BusinessScreen() {
 
       {/* Quick vocab quiz */}
       <View style={[S.card, { borderColor: '#FFBE0B30', marginBottom: 16 }]}>
-        <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text, marginBottom: 8 }}>⚡ Quick Vocab Quiz</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <Zap size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text }}>Quick Vocab Quiz</Text>
+        </View>
         {!vocabQuiz ? (
           <TouchableOpacity
             style={{ backgroundColor: '#FFBE0B20', borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#FFBE0B40' }}
@@ -1008,9 +1028,14 @@ export default function BusinessScreen() {
             ) : (
               <View>
                 <View style={{ backgroundColor: (quizResult.correct ? '#00E5A0' : '#FF8A65') + '15', borderRadius: 12, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: (quizResult.correct ? '#00E5A0' : '#FF8A65') + '40' }}>
-                  <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: quizResult.correct ? '#00E5A0' : '#FF8A65', marginBottom: 4 }}>
-                    {quizResult.correct ? '✅ Great work!' : '❌ Not quite — here\'s the answer:'}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    {quizResult.correct
+                      ? <CheckCircle size={15} color="#00E5A0" />
+                      : <X size={15} color="#FF8A65" />}
+                    <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: quizResult.correct ? '#00E5A0' : '#FF8A65' }}>
+                      {quizResult.correct ? 'Great work!' : 'Not quite — here\'s the answer:'}
+                    </Text>
+                  </View>
                   <Text style={S.bodyText}><Text style={{ fontWeight: '700', color: C.text }}>{vocabQuiz.word}:</Text> {vocabQuiz.def}</Text>
                   <Text style={[S.bodyText, { fontStyle: 'italic', marginTop: 4, color: C.textMuted }]}>"{vocabQuiz.example}"</Text>
                 </View>
@@ -1065,7 +1090,7 @@ export default function BusinessScreen() {
               accessibilityRole="button"
               accessibilityLabel={`${t.saveToVault}: ${v.word}`}
             >
-              <Text style={{ fontSize: 18 }}>💾</Text>
+              <BookmarkPlus size={18} color={C.textMuted} />
             </TouchableOpacity>
           </View>
         </View>

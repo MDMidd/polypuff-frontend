@@ -30,9 +30,9 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useFocusEffect } from 'expo-router';
 import {
-  Users, TrendingUp, Award, Zap, Plus, X,
-  BookOpen, Target, MessageSquare, ClipboardList,
-  CheckCircle, Clock,
+  Users, TrendingUp, Zap, Plus, X,
+  BookOpen, Target, ClipboardList,
+  CheckCircle, Trophy, Languages, Brain, Headphones, PenTool, Layers, Medal,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -43,7 +43,6 @@ import { getAuthHeaders } from '../utils/auth';
 import { ensureUserId } from '../utils/userId';
 
 // Medal colours for top 3
-const MEDALS = ['🥇', '🥈', '🥉'];
 const RANK_COLORS = ['#FBBF24', '#9CA3AF', '#B45309'];
 
 // Score colour helper
@@ -60,16 +59,16 @@ const HEATMAP_COLORS = ['#EF4444','#FB923C','#FBBF24','#34D399','#60A5FA','#A78B
 
 // Assignment type config
 const ASSIGNMENT_TYPES = [
-  { id: 'translation', label: 'Translation',  icon: '🎯', color: '#00D9FF' },
-  { id: 'quiz',        label: 'Grammar Quiz', icon: '🧠', color: '#34D399' },
-  { id: 'listening',   label: 'Listening',    icon: '🎧', color: '#A78BFA' },
-  { id: 'writing',     label: 'Writing',      icon: '✏️',  color: '#F472B6' },
-  { id: 'vocab',       label: 'Vocabulary',   icon: '📖', color: '#FBBF24' },
+  { id: 'translation', label: 'Translation',  icon: Languages,  color: '#00D9FF' },
+  { id: 'quiz',        label: 'Grammar Quiz', icon: Brain,      color: '#34D399' },
+  { id: 'listening',   label: 'Listening',    icon: Headphones, color: '#A78BFA' },
+  { id: 'writing',     label: 'Writing',      icon: PenTool,    color: '#F472B6' },
+  { id: 'vocab',       label: 'Vocabulary',   icon: Layers,     color: '#FBBF24' },
 ];
 
 // ── Leaderboard row ───────────────────────────────────────────────────────────
 function LeaderRow({ student, rank, C, isCurrentUser }) {
-  const medal = rank <= 3 ? MEDALS[rank - 1] : null;
+  const hasMedal = rank <= 3;
   const rankColor = rank <= 3 ? RANK_COLORS[rank - 1] : C.textMuted;
 
   return (
@@ -80,8 +79,8 @@ function LeaderRow({ student, rank, C, isCurrentUser }) {
     }}>
       {/* Rank */}
       <View style={{ width: 32, alignItems: 'center' }}>
-        {medal
-          ? <Text style={{ fontSize: 18 }}>{medal}</Text>
+        {hasMedal
+          ? <Medal size={18} color={rankColor} />
           : <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: rankColor }}>#{rank}</Text>
         }
       </View>
@@ -155,7 +154,7 @@ function AssignmentCard({ assignment, C }) {
     }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
         <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: typeConfig.color + '18', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 16 }}>{typeConfig.icon}</Text>
+          <typeConfig.icon size={16} color={typeConfig.color} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: typeConfig.color }}>{assignment.title}</Text>
@@ -339,14 +338,15 @@ export default function ClassroomDetailScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {[
-              { id: 'leaderboard',  label: '🏆 Leaderboard',  count: leaderboard.length },
-              { id: 'weakareas',    label: '🎯 Weak Areas',    count: weakAreas.length   },
-              { id: 'assignments',  label: '📋 Assignments',   count: assignments.length },
-              { id: 'activity',     label: '⚡ Activity',      count: recentSubs.length  },
+              { id: 'leaderboard',  label: 'Leaderboard',  icon: Trophy,     count: leaderboard.length },
+              { id: 'weakareas',    label: 'Weak Areas',   icon: TrendingUp, count: weakAreas.length   },
+              { id: 'assignments',  label: 'Assignments',  icon: BookOpen,   count: assignments.length },
+              { id: 'activity',     label: 'Activity',     icon: Zap,        count: recentSubs.length  },
             ].map(tab => (
               <TouchableOpacity
                 key={tab.id}
                 style={{
+                  flexDirection: 'row', alignItems: 'center', gap: 6,
                   paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10,
                   backgroundColor: activeTab === tab.id ? (C.cyan || '#00D9FF') + '18' : C.card || '#111827',
                   borderWidth: 1,
@@ -357,6 +357,7 @@ export default function ClassroomDetailScreen() {
                 accessibilityRole="tab"
                 accessibilityState={{ selected: activeTab === tab.id }}
               >
+                <tab.icon size={14} color={activeTab === tab.id ? C.cyan || '#00D9FF' : C.textMuted} />
                 <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: activeTab === tab.id ? C.cyan || '#00D9FF' : C.textMuted }}>
                   {tab.label}{tab.count > 0 ? ` (${tab.count})` : ''}
                 </Text>
@@ -370,7 +371,7 @@ export default function ClassroomDetailScreen() {
           <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#FBBF2430' }}>
             {leaderboard.length === 0 ? (
               <View style={{ padding: 32, alignItems: 'center' }}>
-                <Text style={{ fontSize: 32, marginBottom: 8 }}>🏆</Text>
+                <Trophy size={32} color={C.textMuted} style={{ marginBottom: 8 }} />
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-students')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
                   {wt('share-code-desc', { code })}
@@ -395,7 +396,7 @@ export default function ClassroomDetailScreen() {
           <>
             {weakAreas.length === 0 ? (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, padding: 32, alignItems: 'center', borderWidth: 1, borderColor: (C.border || '#374151') + '20' }}>
-                <Text style={{ fontSize: 32, marginBottom: 8 }}>📊</Text>
+                <TrendingUp size={32} color={C.textMuted} style={{ marginBottom: 8 }} />
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-data')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
                   {wt('weak-desc')}
@@ -444,7 +445,7 @@ export default function ClassroomDetailScreen() {
 
             {assignments.length === 0 ? (
               <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: (C.border || '#374151') + '20' }}>
-                <Text style={{ fontSize: 32, marginBottom: 8 }}>📋</Text>
+                <BookOpen size={32} color={C.textMuted} style={{ marginBottom: 8 }} />
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-assignments')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
                   {isStudent ? wt('no-assignments-student') : wt('no-assignments-teacher')}
@@ -465,7 +466,7 @@ export default function ClassroomDetailScreen() {
           <View style={{ backgroundColor: C.card || '#111827', borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: (C.cyan || '#00D9FF') + '20' }}>
             {recentSubs.length === 0 ? (
               <View style={{ padding: 28, alignItems: 'center' }}>
-                <Text style={{ fontSize: 32, marginBottom: 8 }}>⚡</Text>
+                <Zap size={32} color={C.textMuted} style={{ marginBottom: 8 }} />
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 4 }}>{wt('no-activity')}</Text>
                 <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textAlign: 'center' }}>
                   {wt('no-activity-desc')}
@@ -538,7 +539,7 @@ export default function ClassroomDetailScreen() {
                   accessibilityRole="radio"
                   accessibilityState={{ selected: assignType === type.id }}
                 >
-                  <Text style={{ fontSize: 18, marginBottom: 2 }}>{type.icon}</Text>
+                  <type.icon size={18} color={assignType === type.id ? type.color : C.textMuted} style={{ marginBottom: 2 }} />
                   <Text style={{ fontSize: 10, fontWeight: '700', color: assignType === type.id ? type.color : C.textMuted }}>{type.label}</Text>
                 </TouchableOpacity>
               ))}

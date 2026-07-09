@@ -64,9 +64,9 @@ import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 
 // ─── Mode definitions ─────────────────────────────────────────────────────────
 const MODE_DEFS = [
-  { id: 'error_correction', labelKey: 'errorCorrection', labelFallback: 'Error Correction', icon: Pencil, color: '#F472B6', descKey: 'errorCorrectionDesc', descFallback: 'Find and fix the grammar mistakes', emoji: '🔍' },
-  { id: 'sentence_builder', labelKey: 'sentenceBuilder', labelFallback: 'Sentence Builder', icon: Shuffle, color: '#60A5FA', descKey: 'sentenceBuilderDesc', descFallback: 'Tap words to build the correct sentence', emoji: '🧩' },
-  { id: 'fill_blank',       labelKey: 'fillInTheBlank', labelFallback: 'Fill in the Blank', icon: AlignLeft, color: '#34D399', descKey: 'fillInTheBlankDesc', descFallback: 'Type the missing word or phrase', emoji: '✏️' },
+  { id: 'error_correction', labelKey: 'errorCorrection', labelFallback: 'Error Correction', icon: Pencil, color: '#F472B6', descKey: 'errorCorrectionDesc', descFallback: 'Find and fix the grammar mistakes' },
+  { id: 'sentence_builder', labelKey: 'sentenceBuilder', labelFallback: 'Sentence Builder', icon: Shuffle, color: '#60A5FA', descKey: 'sentenceBuilderDesc', descFallback: 'Tap words to build the correct sentence' },
+  { id: 'fill_blank',       labelKey: 'fillInTheBlank', labelFallback: 'Fill in the Blank', icon: AlignLeft, color: '#34D399', descKey: 'fillInTheBlankDesc', descFallback: 'Type the missing word or phrase' },
 ];
 
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -627,7 +627,7 @@ export default function GrammarScreen() {
                 accessibilityState={{ disabled: loading, busy: loadingMode === mode.id }}
               >
                 <View style={[styles.modeIconBg, { backgroundColor: mode.color + '18' }]}>
-                  <Text style={styles.modeEmoji}>{mode.emoji}</Text>
+                  <Icon size={22} color={mode.color} />
                 </View>
                 <View style={styles.modeText}>
                   <Text style={[styles.modeName, { color: mode.color }]}>{mode.label}</Text>
@@ -804,8 +804,12 @@ export default function GrammarScreen() {
               <Text style={styles.hintBtnText}>{showHint ? t.hideHint : t.showHint}</Text>
             </TouchableOpacity>
             {showHint && !!exercise.hint && (
-              <View style={styles.hintBox} accessibilityLabel={`Hint: ${exercise.hint}`}>
-                <Text style={styles.hintText}>💡 {exercise.hint}</Text>
+              <View
+                style={[styles.hintBox, { flexDirection: 'row', alignItems: 'flex-start', gap: 6 }]}
+                accessibilityLabel={`Hint: ${exercise.hint}`}
+              >
+                <Lightbulb size={14} color="#FBBF24" style={{ marginTop: 2 }} />
+                <Text style={[styles.hintText, { flex: 1 }]}>{exercise.hint}</Text>
               </View>
             )}
 
@@ -953,7 +957,6 @@ const styles = StyleSheet.create({
   statDivider: { width: 1, height: 36 },
   modeCard: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, minHeight: 44 },
   modeIconBg: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  modeEmoji: { fontSize: 22 },
   modeText: { flex: 1 },
   modeName: { fontSize: scaledFont(16), fontWeight: '700', marginBottom: 2 },
   modeDesc: { fontSize: scaledFont(12) },

@@ -38,6 +38,7 @@ import { useFocusEffect } from 'expo-router';
 import {
   ArrowLeft, Send, CheckCircle, RotateCcw,
   PenTool, ChevronRight, ChevronDown, Star, BookOpen, AlertTriangle,
+  Calendar, MessageCircle, BookText, Mail, PenLine, Scale,
 } from 'lucide-react-native';
 import { pushVaults } from '../services/syncService';
 import { useTheme } from '../contexts/ThemeContext';
@@ -58,13 +59,13 @@ import { getAuthHeaders } from '../utils/auth';
 
 // ── Prompt options ──────────────────────────────────────────────────────────
 const PROMPTS = [
-  { id: 'free',     label: '✍️ Free Writing', desc: 'Write about anything you want' },
-  { id: 'daily',    label: '📅 My Day',       desc: 'Describe what you did today' },
-  { id: 'opinion',  label: '💬 Opinion',      desc: 'Share your opinion on a topic' },
-  { id: 'story',    label: '📖 Short Story',  desc: 'Write a short fictional story' },
-  { id: 'email',    label: '📧 Email',        desc: 'Write a formal or informal email' },
-  { id: 'describe', label: '🖊️ Description', desc: 'Describe a place, person, or thing' },
-  { id: 'compare',  label: '⚖️ Compare',     desc: 'Compare two things' },
+  { id: 'free',     label: 'Free Writing', desc: 'Write about anything you want', icon: PenTool },
+  { id: 'daily',    label: 'My Day',       desc: 'Describe what you did today', icon: Calendar },
+  { id: 'opinion',  label: 'Opinion',      desc: 'Share your opinion on a topic', icon: MessageCircle },
+  { id: 'story',    label: 'Short Story',  desc: 'Write a short fictional story', icon: BookText },
+  { id: 'email',    label: 'Email',        desc: 'Write a formal or informal email', icon: Mail },
+  { id: 'describe', label: 'Description', desc: 'Describe a place, person, or thing', icon: PenLine },
+  { id: 'compare',  label: 'Compare',     desc: 'Compare two things', icon: Scale },
 ];
 
 const WORD_TARGETS = [
@@ -360,17 +361,23 @@ export default function WritingScreen() {
           <Text style={ds.sectionLabel} accessibilityRole="header">{t.chooseTopic}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}
             accessibilityRole="tablist" accessibilityLabel={t.accLabelSelectWritingTopic}>
-            {PROMPTS.map(p => (
+            {PROMPTS.map(p => {
+              const PromptIcon = p.icon;
+              return (
               <TouchableOpacity
                 key={p.id}
                 style={[ds.promptPill, selectedPrompt === p.id && ds.promptPillActive]}
                 onPress={() => setSelectedPrompt(p.id)}
-                {...a11yTab(`${p.label.replace(/^[^\w]+/, '').trim()}: ${p.desc}`, selectedPrompt === p.id)}
+                {...a11yTab(`${p.label}: ${p.desc}`, selectedPrompt === p.id)}
               >
-                <Text style={[ds.promptLabel, selectedPrompt === p.id && { color: C.cyan || '#00E5FF' }]}>{p.label}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <PromptIcon size={13} color={selectedPrompt === p.id ? (C.cyan || '#00E5FF') : C.text} />
+                  <Text style={[ds.promptLabel, selectedPrompt === p.id && { color: C.cyan || '#00E5FF' }]}>{p.label}</Text>
+                </View>
                 <Text style={ds.promptDesc}>{p.desc}</Text>
               </TouchableOpacity>
-            ))}
+              );
+            })}
           </ScrollView>
 
           {/* ✅ A11Y: Length selector */}

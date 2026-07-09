@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import {
   Volume2, VolumeX, CheckCircle, AlertTriangle, Info,
-  Star, X, BookOpen, Award, ChevronRight, Headphones, User,
+  Star, X, XCircle, BookOpen, BookText, Globe, Database, Award, ChevronRight, Headphones, User,
 } from 'lucide-react-native';
 import { speakCorrectVersion, speakStudentVersion, stopSpeaking } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
@@ -110,10 +110,10 @@ const RulePopover = ({ rule, visible, onClose, nativeLanguage, C }) => {
               <Text style={{ fontSize: 11, fontWeight: '700', color: C.amber, backgroundColor: (C.amberDark || '#92400E') + '30', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>{rule.rule_id}</Text>
               <Text style={{ fontSize: 12, color: C.textMuted }}>{rule.topic}</Text>
             </View>
-            {rule.explanation && <View style={{ marginBottom: 16 }}><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>📖 Explanation</Text><Text style={{ fontSize: 15, color: C.text, lineHeight: 22 }}>{rule.explanation}</Text></View>}
-            {rule.correct_example && <View style={{ marginBottom: 16 }}><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>✅ Correct</Text><View style={{ backgroundColor: C.cardAlt, borderRadius: 8, padding: 12, borderLeftWidth: 3, borderLeftColor: C.emerald }}><Text style={{ fontSize: 14, color: C.emeraldLight, fontStyle: 'italic' }}>{rule.correct_example}</Text></View></View>}
-            {rule.incorrect_example && <View style={{ marginBottom: 16 }}><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>❌ Incorrect</Text><View style={{ backgroundColor: C.cardAlt, borderRadius: 8, padding: 12, borderLeftWidth: 3, borderLeftColor: C.red }}><Text style={{ fontSize: 14, color: C.redLight || '#FCA5A5', fontStyle: 'italic', textDecorationLine: 'line-through' }}>{rule.incorrect_example}</Text></View></View>}
-            {translation && <View style={{ marginBottom: 16 }}><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec, marginBottom: 6 }}>🌍 In {nativeLanguage}</Text><Text style={{ fontSize: 14, color: C.blueLight, lineHeight: 20 }}>{translation}</Text></View>}
+            {rule.explanation && <View style={{ marginBottom: 16 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}><BookText size={14} color={C.textSec} /><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec }}>Explanation</Text></View><Text style={{ fontSize: 15, color: C.text, lineHeight: 22 }}>{rule.explanation}</Text></View>}
+            {rule.correct_example && <View style={{ marginBottom: 16 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}><CheckCircle size={14} color={C.textSec} /><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec }}>Correct</Text></View><View style={{ backgroundColor: C.cardAlt, borderRadius: 8, padding: 12, borderLeftWidth: 3, borderLeftColor: C.emerald }}><Text style={{ fontSize: 14, color: C.emeraldLight, fontStyle: 'italic' }}>{rule.correct_example}</Text></View></View>}
+            {rule.incorrect_example && <View style={{ marginBottom: 16 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}><XCircle size={14} color={C.textSec} /><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec }}>Incorrect</Text></View><View style={{ backgroundColor: C.cardAlt, borderRadius: 8, padding: 12, borderLeftWidth: 3, borderLeftColor: C.red }}><Text style={{ fontSize: 14, color: C.redLight || '#FCA5A5', fontStyle: 'italic', textDecorationLine: 'line-through' }}>{rule.incorrect_example}</Text></View></View>}
+            {translation && <View style={{ marginBottom: 16 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}><Globe size={14} color={C.textSec} /><Text style={{ fontSize: 13, fontWeight: '600', color: C.textSec }}>In {nativeLanguage}</Text></View><Text style={{ fontSize: 14, color: C.blueLight, lineHeight: 20 }}>{translation}</Text></View>}
           </ScrollView>
         </View>
       </TouchableOpacity>
@@ -197,7 +197,7 @@ const FeedbackDashboard = ({
       {/* DATABASE RULE VIOLATIONS */}
       {ruleViolations.length > 0 && (
         <View style={{ backgroundColor: C.card, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: C.border + '40' }}>
-          <View style={{ marginBottom: 8 }}><View style={{ backgroundColor: (C.amberDark || '#92400E') + '30', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' }}><Text style={{ fontSize: 12, color: C.amberLight, fontWeight: '600' }}>📚 Database Rules</Text></View></View>
+          <View style={{ marginBottom: 8 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: (C.amberDark || '#92400E') + '30', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' }}><Database size={12} color={C.amberLight} /><Text style={{ fontSize: 12, color: C.amberLight, fontWeight: '600' }}>Database Rules</Text></View></View>
           {ruleViolations.map((v, i) => (
             <TouchableOpacity key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: C.border + '15' }} onPress={() => { if (ruleDetails[v.rule_id]) { setSelectedRule(ruleDetails[v.rule_id]); setShowPopover(true); } }}>
               <AlertTriangle size={14} color={C.amber} />

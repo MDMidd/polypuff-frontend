@@ -37,6 +37,7 @@ import {
   Send, BookOpen, MessageCircle,
   Zap, X, ArrowRight, ArrowLeft, Settings2, Pause, Play, LogOut,
   Clock, Star, Flag,
+  FileText, Files, ScrollText, MicOff, Lightbulb, Eye, BookmarkPlus,
 } from 'lucide-react-native';
 import {
   generateExercise, checkTranslation,
@@ -83,9 +84,9 @@ import {
 
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const LENGTHS = [
-  { key: 'short',  labelKey: 'lengthShort'  as const, descKey: 'lengthShortDesc'  as const, icon: '📝' },
-  { key: 'medium', labelKey: 'lengthMedium' as const, descKey: 'lengthMediumDesc' as const, icon: '📄' },
-  { key: 'long',   labelKey: 'lengthLong'   as const, descKey: 'lengthLongDesc'   as const, icon: '📜' },
+  { key: 'short',  labelKey: 'lengthShort'  as const, descKey: 'lengthShortDesc'  as const, icon: FileText },
+  { key: 'medium', labelKey: 'lengthMedium' as const, descKey: 'lengthMediumDesc' as const, icon: Files },
+  { key: 'long',   labelKey: 'lengthLong'   as const, descKey: 'lengthLongDesc'   as const, icon: ScrollText },
 ] as const;
 
 const LENGTH_RULES = {
@@ -922,6 +923,7 @@ export default function PracticeScreen() {
               {LENGTHS.map(len => {
                 const lenLabel = tt[len.labelKey];
                 const lenDesc  = tt[len.descKey];
+                const LenIcon = len.icon;
                 return (
                   <TouchableOpacity
                     key={len.key}
@@ -929,7 +931,7 @@ export default function PracticeScreen() {
                     onPress={() => handleSentenceLengthSelect(len.key)}
                     {...a11yTab(tInterp(tt.lengthOptionA11y, { label: lenLabel, desc: lenDesc }), sentenceLength === len.key)}
                   >
-                    <Text style={s.lengthIcon}>{len.icon}</Text>
+                    <LenIcon size={20} color={sentenceLength === len.key ? (C.blueLight || C.blue) : C.textMuted} style={{ marginBottom: 4 }} />
                     <Text style={[s.lengthName, sentenceLength === len.key && s.lengthNameActive]}>{lenLabel}</Text>
                     <Text style={s.lengthDesc}>{lenDesc}</Text>
                   </TouchableOpacity>
@@ -1033,7 +1035,7 @@ export default function PracticeScreen() {
                     }}
                     accessibilityLabel={tt.voiceInputUnavailable}
                   >
-                    <Text style={{ fontSize: 18 }}>🎤</Text>
+                    <MicOff size={18} color={C.textMuted || '#6B7280'} />
                     <View style={{
                       position: 'absolute', top: -2, right: -2,
                       width: 10, height: 10, borderRadius: 5,
@@ -1051,7 +1053,7 @@ export default function PracticeScreen() {
                   borderRadius: 10, padding: 10, marginBottom: 10,
                   borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '30',
                 }}>
-                  <Text style={{ fontSize: 14 }}>🎤</Text>
+                  <MicOff size={14} color={C.amber || '#FFBE0B'} />
                   <Text style={{
                     flex: 1, fontSize: scaledFont(11),
                     color: C.amber || '#FFBE0B', lineHeight: 16,
@@ -1118,7 +1120,7 @@ export default function PracticeScreen() {
                       accessibilityLabel={wt('hint')}
                       accessibilityHint={tt.revealClueHint}
                     >
-                      <Text style={{ fontSize: 14 }}>💡</Text>
+                      <Lightbulb size={14} color="#FFBE0B" />
                       <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: '#FFBE0B' }}>{wt('hint')} {tt.hintScorePenalty}</Text>
                     </TouchableOpacity>
                   ) : (
@@ -1128,7 +1130,7 @@ export default function PracticeScreen() {
                       backgroundColor: 'rgba(255,190,11,0.10)',
                       borderWidth: 1, borderColor: 'rgba(255,190,11,0.28)',
                     }}>
-                      <Text style={{ fontSize: 13 }}>💡</Text>
+                      <Lightbulb size={13} color="#FFBE0B" />
                       <Text style={{ flex: 1, fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '600' }}>
                         {hintText}
                       </Text>
@@ -1154,7 +1156,7 @@ export default function PracticeScreen() {
                     {revealing
                       ? <ActivityIndicator size="small" color={C.textMuted || '#9CA3AF'} />
                       : <>
-                          <Text style={{ fontSize: 14 }}>👁</Text>
+                          <Eye size={14} color={C.textMuted || '#9CA3AF'} />
                           <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: C.textMuted || '#9CA3AF' }}>{wt('show-answer')}</Text>
                         </>
                     }
@@ -1205,7 +1207,7 @@ export default function PracticeScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={t.saveToVault}
                 >
-                  <Text style={{ fontSize: 16 }}>💾</Text>
+                  <BookmarkPlus size={16} color={C.emerald || '#00E5A0'} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: C.emerald || '#00E5A0', letterSpacing: 0.8, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{t.saveToVault.toUpperCase()}</Text>
                     <Text style={{ fontSize: scaledFont(12), color: C.text, marginTop: 2, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }} numberOfLines={1}>{correctTranslation || result.correctAnswer}</Text>
@@ -1231,7 +1233,10 @@ export default function PracticeScreen() {
       <Modal visible={vaultModal} transparent animationType="fade" onRequestClose={() => setVaultModal(false)}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.65)', padding: 24 }}>
           <View style={{ backgroundColor: C.card || '#1F2937', borderRadius: 16, padding: 20, width: '100%', maxWidth: 380, borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '40' }}>
-            <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text, marginBottom: 4 }}>💾 {wt('vault-save-to-vault')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <BookmarkPlus size={16} color={C.emerald || '#00E5A0'} />
+              <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>{wt('vault-save-to-vault')}</Text>
+            </View>
             <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 14, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{tt.saveToVaultPrompt}</Text>
             <TouchableOpacity
               onPress={() => { addToVault(vaultPhrase); setVaultModal(false); }}

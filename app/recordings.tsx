@@ -17,7 +17,9 @@ import { Audio } from 'expo-av';
 import * as Sharing from 'expo-sharing';
 import {
   Mic, Play, Pause, Trash2, Share2, ChevronDown, ChevronUp,
-  Volume2, Clock, Calendar, HardDrive, Settings, AlertCircle,
+  Volume2, Clock, Calendar, HardDrive, AlertCircle,
+  ClipboardCheck, BookOpen, Headphones, Pencil, PenTool, Puzzle,
+  Briefcase, Globe, GraduationCap, Award, MessageCircle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -30,23 +32,23 @@ import {
 } from '../services/recordingService';
 
 // ── Exercise display names & colours ─────────────────────────────────────────
-const EXERCISE_INFO: Record<string, { label: string; colour: string; icon: string }> = {
-  placement:    { label: 'Placement Test — Speaking',    colour: '#C084FC', icon: '📋' },
-  translation:  { label: 'Translation Trainer',          colour: '#00D9FF', icon: '🎯' },
-  listening:    { label: 'Listening',                    colour: '#A78BFA', icon: '🎧' },
-  speaking:     { label: 'Speaking Practice',            colour: '#B06CFF', icon: '🎙️' },
-  grammar:      { label: 'Grammar Practice',             colour: '#34D399', icon: '📚' },
-  writing:      { label: 'Writing',                      colour: '#F472B6', icon: '✏️' },
-  word_chunks:  { label: 'Word Chunks',                  colour: '#60A5FA', icon: '🧩' },
-  business:     { label: 'Business English',             colour: '#00E5A0', icon: '💼' },
-  ielts:        { label: 'IELTS Practice',               colour: '#B06CFF', icon: '🎓' },
-  toefl:        { label: 'TOEFL Practice',               colour: '#7B7FD4', icon: '🏫' },
-  cae:          { label: 'CAE Practice',                 colour: '#7BB7E4', icon: '🎓' },
-  general:      { label: 'General Practice',             colour: '#FFBE0B', icon: '🗣️' },
+const EXERCISE_INFO: Record<string, { label: string; colour: string; icon: any }> = {
+  placement:    { label: 'Placement Test — Speaking',    colour: '#C084FC', icon: ClipboardCheck },
+  translation:  { label: 'Translation Trainer',          colour: '#00D9FF', icon: BookOpen },
+  listening:    { label: 'Listening',                    colour: '#A78BFA', icon: Headphones },
+  speaking:     { label: 'Speaking Practice',            colour: '#B06CFF', icon: Mic },
+  grammar:      { label: 'Grammar Practice',             colour: '#34D399', icon: Pencil },
+  writing:      { label: 'Writing',                      colour: '#F472B6', icon: PenTool },
+  word_chunks:  { label: 'Word Chunks',                  colour: '#60A5FA', icon: Puzzle },
+  business:     { label: 'Business English',             colour: '#00E5A0', icon: Briefcase },
+  ielts:        { label: 'IELTS Practice',               colour: '#B06CFF', icon: Globe },
+  toefl:        { label: 'TOEFL Practice',               colour: '#7B7FD4', icon: GraduationCap },
+  cae:          { label: 'CAE Practice',                 colour: '#7BB7E4', icon: Award },
+  general:      { label: 'General Practice',             colour: '#FFBE0B', icon: MessageCircle },
 };
 
 function getExerciseInfo(id: string) {
-  return EXERCISE_INFO[id] || { label: id, colour: '#6b7280', icon: '🎙️' };
+  return EXERCISE_INFO[id] || { label: id, colour: '#6b7280', icon: Mic };
 }
 
 // ── Playback bar component ─────────────────────────────────────────────────────
@@ -326,15 +328,16 @@ export default function RecordingsScreen() {
                 return (
                   <TouchableOpacity
                     key={ex}
-                    style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: filter === ex ? info.colour + '20' : C.card, borderWidth: 1, borderColor: filter === ex ? info.colour + '50' : C.border + '30' }}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: filter === ex ? info.colour + '20' : C.card, borderWidth: 1, borderColor: filter === ex ? info.colour + '50' : C.border + '30' }}
                     onPress={() => setFilter(ex)}
                     accessibilityRole="button"
                     accessibilityLabel={`Filter by ${info.label}, ${grouped[ex]?.length || 0} recording${(grouped[ex]?.length || 0) !== 1 ? 's' : ''}`}
                     accessibilityState={{ selected: filter === ex }}
                     hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
                   >
+                    <info.icon size={12} color={filter === ex ? info.colour : C.textMuted} />
                     <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: filter === ex ? info.colour : C.textMuted }}>
-                      {info.icon} {info.label.split(' ')[0]} ({grouped[ex]?.length || 0})
+                      {info.label.split(' ')[0]} ({grouped[ex]?.length || 0})
                     </Text>
                   </TouchableOpacity>
                 );
@@ -359,7 +362,7 @@ export default function RecordingsScreen() {
                   {/* Header row */}
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
                     <View style={{ backgroundColor: info.colour + '20', width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
-                      <Text style={{ fontSize: 18 }}>{info.icon}</Text>
+                      <info.icon size={18} color={info.colour} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text, lineHeight: 18 }} numberOfLines={2}>

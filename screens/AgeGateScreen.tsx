@@ -40,6 +40,7 @@ import {
   Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Lock, Baby, User, CheckCircle } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LanguageSelector from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -234,7 +235,9 @@ export default function AgeGateScreen({ onComplete }) {
 
           {/* ── Privacy badge ── */}
           <View style={[s.infoBadge, rowDirectionStyle]}>
-            <Text style={[s.infoBadgeIcon, isRTL && s.infoBadgeIconRtl]}>🔒</Text>
+            <View style={[s.infoBadgeIcon, isRTL && s.infoBadgeIconRtl]}>
+              <Lock size={16} color={C.cyan} />
+            </View>
             <Text style={[s.infoBadgeText, textDirectionStyle]}>
               {copy.privacyNotice}
             </Text>
@@ -388,18 +391,27 @@ export default function AgeGateScreen({ onComplete }) {
                       : C.emerald + '10',
                   }
                 ]}>
-                  <Text style={[s.ageIndicatorText, {
-                    color: getAgeGroup(selectedYear, selectedRegion) === 'child' ? C.red
-                      : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone' ? C.amber
-                      : C.emerald,
-                  }, textDirectionStyle]}>
-                    {getAgeGroup(selectedYear, selectedRegion) === 'child'
-                      ? `👶 ${ageGateText(copy.childIndicator, { age: selectedAge, region: selectedRegionLabel })}`
-                      : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone'
-                        ? `🧑 ${ageGateText(copy.greyIndicator, { age: selectedAge, region: selectedRegionLabel })}`
-                        : `✅ ${ageGateText(copy.adultIndicator, { age: selectedAge, region: selectedRegionLabel })}`
-                    }
-                  </Text>
+                  <View style={[s.ageIndicatorRow, rowDirectionStyle]}>
+                    {getAgeGroup(selectedYear, selectedRegion) === 'child' ? (
+                      <Baby size={16} color={C.red} />
+                    ) : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone' ? (
+                      <User size={16} color={C.amber} />
+                    ) : (
+                      <CheckCircle size={16} color={C.emerald} />
+                    )}
+                    <Text style={[s.ageIndicatorText, {
+                      color: getAgeGroup(selectedYear, selectedRegion) === 'child' ? C.red
+                        : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone' ? C.amber
+                        : C.emerald,
+                    }, textDirectionStyle]}>
+                      {getAgeGroup(selectedYear, selectedRegion) === 'child'
+                        ? ageGateText(copy.childIndicator, { age: selectedAge, region: selectedRegionLabel })
+                        : getAgeGroup(selectedYear, selectedRegion) === 'grey_zone'
+                          ? ageGateText(copy.greyIndicator, { age: selectedAge, region: selectedRegionLabel })
+                          : ageGateText(copy.adultIndicator, { age: selectedAge, region: selectedRegionLabel })
+                      }
+                    </Text>
+                  </View>
                 </View>
               )}
 
@@ -446,7 +458,7 @@ const s = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '700', color: C.text, marginBottom: 6, textAlign: 'center' },
   subtitle: { fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 21, marginBottom: 16, paddingHorizontal: 4 },
   infoBadge: { flexDirection: 'row', backgroundColor: C.cyanDark + '30', borderRadius: 12, borderWidth: 1, borderColor: C.cyan + '20', padding: 12, marginBottom: 20, alignItems: 'flex-start' },
-  infoBadgeIcon: { fontSize: 16, marginRight: 10, marginTop: 1 },
+  infoBadgeIcon: { marginRight: 10, marginTop: 1 },
   infoBadgeIconRtl: { marginRight: 0, marginLeft: 10 },
   infoBadgeText: { flex: 1, fontSize: 12, color: C.cyan, lineHeight: 18, opacity: 0.85 },
   label: { fontSize: 12, fontWeight: '700', color: C.textMuted, alignSelf: 'flex-start', marginBottom: 10, letterSpacing: 1 },
@@ -475,7 +487,8 @@ const s = StyleSheet.create({
   yearItemTextSelected: { color: C.cyan, fontWeight: '700' },
   // ── Age indicator ──
   ageIndicator: { width: '100%', borderRadius: 12, borderWidth: 1, padding: 12, marginTop: 8, marginBottom: 4 },
-  ageIndicatorText: { fontSize: 13, fontWeight: '600', textAlign: 'center', lineHeight: 19 },
+  ageIndicatorRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
+  ageIndicatorText: { flexShrink: 1, fontSize: 13, fontWeight: '600', textAlign: 'center', lineHeight: 19 },
   // ── Error ──
   errorText: { fontSize: 13, color: C.red, marginTop: 8, marginBottom: 4, textAlign: 'center' },
   // ── Continue ──

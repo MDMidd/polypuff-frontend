@@ -22,9 +22,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import {
-  BookOpen, PenTool, Headphones, Mic, Award, Flame,
+  BookOpen, PenTool, Headphones, Award, Flame,
   TrendingUp, Download, ChevronRight, ChevronLeft, Star, Zap,
   Target, Clock, ArrowLeft, ArrowRight, Trophy,
+  ClipboardCheck, Puzzle, Brain, Pencil, Layers, Landmark,
+  Globe, GraduationCap, Briefcase, Medal,
 } from 'lucide-react-native';
 import {
   getAllTimeRecords, getTotalTimeSeconds, formatDuration,
@@ -41,20 +43,20 @@ import { CUSTOMISE_PRACTICE_LIST_VISIBLE } from './customise';
 // ── Master exercise registry (all 13 modules) ─────────────────────────────────
 // IDs must match the ids used in customise.tsx / practiceModuleConfig
 const ALL_EXERCISES = [
-  { id: 'placement_test',      label: 'Placement Test',      labelKey: 'exPlacement' as const,   icon: '📋', color: '#C084FC', route: 'placement' },
-  { id: 'translation_trainer', label: 'Translation Trainer', labelKey: 'exTranslation' as const, icon: '🎯', color: '#00D9FF', route: 'translation' },
-  { id: 'word_chunks',         label: 'Word Chunks',         labelKey: 'exWordChunks' as const,  icon: '🧩', color: '#60A5FA', route: 'wordchunks' },
-  { id: 'listening',           label: 'Listening',           labelKey: 'exListening' as const,   icon: '🎧', color: '#A78BFA', route: 'listening' },
-  { id: 'writing',             label: 'Writing',             labelKey: 'exWriting' as const,     icon: '✏️',  color: '#F472B6', route: 'writing' },
-  { id: 'grammar_quiz',        label: 'Grammar Quiz',        labelKey: 'exGrammarQuiz' as const, icon: '🧠', color: '#34D399', route: 'quiz' },
-  { id: 'grammar',             label: 'Grammar Practice',    labelKey: 'exGrammar' as const,     icon: '📚', color: '#34D399', route: 'grammar' },
-  { id: 'vocabulary',          label: 'Vocabulary',          labelKey: 'exVocabulary' as const,  icon: '📖', color: '#FBBF24', route: 'vocab' },
-  { id: 'vocab_vault',         label: 'Vocabulary Vault',    labelKey: 'exVocabVault' as const,  icon: '📦', color: '#FB923C', route: 'vault' },
-  { id: 'ielts',               label: 'IELTS Preparation',   labelKey: 'exIelts' as const,       icon: '🎓', color: '#00E5FF', route: 'ielts' },
-  { id: 'toefl',               label: 'TOEFL iBT Prep',      labelKey: 'exToefl' as const,       icon: '🏫', color: '#B06CFF', route: 'toefl' },
-  { id: 'cae',                 label: 'CAE — C1 Advanced',   labelKey: 'exCae' as const,         icon: '🎓', color: '#00E5A0', route: 'cae' },
-  { id: 'business_english',    label: 'Business English',    labelKey: 'exBusiness' as const,    icon: '💼', color: '#FFBE0B', route: 'business' },
-  { id: 'daily_challenge',     label: 'Daily Challenge',     labelKey: 'exDaily' as const,       icon: '\u26a1', color: '#F59E0B', route: 'daily' },
+  { id: 'placement_test',      label: 'Placement Test',      labelKey: 'exPlacement' as const,   icon: ClipboardCheck, color: '#C084FC', route: 'placement' },
+  { id: 'translation_trainer', label: 'Translation Trainer', labelKey: 'exTranslation' as const, icon: BookOpen, color: '#00D9FF', route: 'translation' },
+  { id: 'word_chunks',         label: 'Word Chunks',         labelKey: 'exWordChunks' as const,  icon: Puzzle, color: '#60A5FA', route: 'wordchunks' },
+  { id: 'listening',           label: 'Listening',           labelKey: 'exListening' as const,   icon: Headphones, color: '#A78BFA', route: 'listening' },
+  { id: 'writing',             label: 'Writing',             labelKey: 'exWriting' as const,     icon: PenTool,  color: '#F472B6', route: 'writing' },
+  { id: 'grammar_quiz',        label: 'Grammar Quiz',        labelKey: 'exGrammarQuiz' as const, icon: Brain, color: '#34D399', route: 'quiz' },
+  { id: 'grammar',             label: 'Grammar Practice',    labelKey: 'exGrammar' as const,     icon: Pencil, color: '#34D399', route: 'grammar' },
+  { id: 'vocabulary',          label: 'Vocabulary',          labelKey: 'exVocabulary' as const,  icon: Layers, color: '#FBBF24', route: 'vocab' },
+  { id: 'vocab_vault',         label: 'Vocabulary Vault',    labelKey: 'exVocabVault' as const,  icon: Landmark, color: '#FB923C', route: 'vault' },
+  { id: 'ielts',               label: 'IELTS Preparation',   labelKey: 'exIelts' as const,       icon: Globe, color: '#00E5FF', route: 'ielts' },
+  { id: 'toefl',               label: 'TOEFL iBT Prep',      labelKey: 'exToefl' as const,       icon: GraduationCap, color: '#B06CFF', route: 'toefl' },
+  { id: 'cae',                 label: 'CAE — C1 Advanced',   labelKey: 'exCae' as const,         icon: Medal, color: '#00E5A0', route: 'cae' },
+  { id: 'business_english',    label: 'Business English',    labelKey: 'exBusiness' as const,    icon: Briefcase, color: '#FFBE0B', route: 'business' },
+  { id: 'daily_challenge',     label: 'Daily Challenge',     labelKey: 'exDaily' as const,       icon: Star, color: '#F59E0B', route: 'daily' },
 ];
 
 const PRACTICE_CONFIG_KEY = 'practiceModuleConfig';
@@ -750,7 +752,7 @@ export default function ProgressScreen() {
               accessibilityLabel={pInterp(p.viewDetailsA11y, { label: localLabel })}
             >
               <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: ex.color + '18', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 20 }}>{ex.icon}</Text>
+                <ex.icon size={20} color={ex.color} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: ex.color, textAlign, writingDirection: isRTL ? 'rtl' : 'ltr' }}>{localLabel}</Text>

@@ -25,6 +25,8 @@ import {
   BookOpen, Headphones, PenTool, Mic, ChevronDown, ChevronUp,
   Star, Clock, Target, CheckCircle, AlertCircle, Send, X, Zap,
   GraduationCap, Globe, Award, RefreshCw, Layers, ArrowLeft,
+  Sparkles, Calendar, ArrowLeftRight, BarChart3, PenLine, Search,
+  MessageCircle, School, Mail, MessagesSquare, Volume2, MicVocal, Shuffle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -71,7 +73,8 @@ const SECTIONS = {
     colour: '#00E5A0',
     time: '~30 minutes',
     items: '50 items',
-    badge: '🔄 Adaptive',
+    badge: 'Adaptive',
+    badgeIcon: RefreshCw,
     overview: 'The Reading section tests your ability to understand academic and real-world texts. Since January 2026, it uses a multistage adaptive format — questions adjust in difficulty based on your performance. You read passages and complete tasks across three types.',
     isNew2026: true,
     parts: [
@@ -131,7 +134,8 @@ const SECTIONS = {
     colour: '#00E5FF',
     time: '~29 minutes',
     items: '47 items',
-    badge: '🔄 Adaptive',
+    badge: 'Adaptive',
+    badgeIcon: RefreshCw,
     overview: 'The Listening section tests your ability to understand spoken English in academic and everyday settings. Now adaptive, it includes four new task types featuring campus conversations, announcements, and academic lectures.',
     isNew2026: true,
     parts: [
@@ -195,7 +199,8 @@ const SECTIONS = {
     colour: '#FFBE0B',
     time: '~23 minutes',
     items: '12 items',
-    badge: '✨ Updated 2026',
+    badge: 'Updated 2026',
+    badgeIcon: Sparkles,
     overview: 'The Writing section has been significantly updated for 2026. It now has three task types (up from 2) and a shorter time limit. Tasks focus on functional writing skills relevant to real academic and professional situations.',
     isNew2026: true,
     parts: [
@@ -249,7 +254,8 @@ const SECTIONS = {
     colour: '#B06CFF',
     time: '~8 minutes',
     items: '11 items',
-    badge: '✨ Updated 2026',
+    badge: 'Updated 2026',
+    badgeIcon: Sparkles,
     overview: 'The Speaking section tests your ability to communicate naturally in English. Updated for 2026 with new task types. All responses are recorded and scored by a certified scoring team. The section now includes more conversational English alongside academic tasks.',
     isNew2026: true,
     parts: [
@@ -461,7 +467,7 @@ export default function TOEFLScreen() {
         </Text>
         {/* 2026 update notice */}
         <View style={{ backgroundColor: '#FFBE0B10', borderRadius: 10, padding: 10, marginTop: 12, borderWidth: 1, borderColor: '#FFBE0B30', flexDirection: 'row', gap: 8 }}>
-          <Text style={{ fontSize: 14 }}>⚡</Text>
+          <Zap size={14} color="#FFBE0B" />
           <Text style={{ flex: 1, fontSize: scaledFont(12), color: '#FFBE0B', fontWeight: '600', lineHeight: 17 }}>
             Major update effective January 21, 2026: New 1–6 score scale (CEFR-aligned), adaptive Reading & Listening, new task types, shorter test time (~2 hours).
           </Text>
@@ -479,13 +485,13 @@ export default function TOEFLScreen() {
       {/* Quick stats */}
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
         {[
-          { label: 'Duration', value: '~2 hrs', icon: '⏱️' },
-          { label: 'Sections', value: '4', icon: '📋' },
-          { label: 'Score Range', value: '1–6', icon: '📊' },
-          { label: 'Valid For', value: '2 years', icon: '📅' },
+          { label: 'Duration', value: '~2 hrs', icon: Clock },
+          { label: 'Sections', value: '4', icon: Layers },
+          { label: 'Score Range', value: '1–6', icon: Award },
+          { label: 'Valid For', value: '2 years', icon: Calendar },
         ].map((s, i) => (
           <View key={i} style={{ flex: 1, backgroundColor: C.card, borderRadius: 12, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}>
-            <Text style={{ fontSize: 18 }}>{s.icon}</Text>
+            <s.icon size={18} color={C.text} />
             <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text, marginTop: 4 }}>{s.value}</Text>
             <Text style={{ fontSize: scaledFont(9), color: C.textMuted, textAlign: 'center', marginTop: 2 }}>{s.label}</Text>
           </View>
@@ -494,7 +500,10 @@ export default function TOEFLScreen() {
 
       {/* TOEFL vs IELTS */}
       <View style={[S.card, { marginBottom: 16 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 12 }}>🆚 TOEFL vs IELTS — Which should you take?</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <ArrowLeftRight size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>TOEFL vs IELTS — Which should you take?</Text>
+        </View>
         {[
           { aspect: 'Format', toefl: 'All computer-based', ielts: 'Computer or paper; Speaking is face-to-face' },
           { aspect: 'Speaking', toefl: 'Recorded responses to prompts', ielts: 'Live interview with examiner' },
@@ -517,26 +526,30 @@ export default function TOEFLScreen() {
       {/* Test structure */}
       <Text style={[S.label, { marginBottom: 8 }]}>2026 Test Structure</Text>
       {[
-        { section: 'Reading',   time: '~30 min', items: '50 items',  icon: '📖', colour: '#00E5A0', note: 'Adaptive' },
-        { section: 'Listening', time: '~29 min', items: '47 items',  icon: '🎧', colour: '#00E5FF', note: 'Adaptive' },
-        { section: 'Writing',   time: '~23 min', items: '12 items',  icon: '✍️',  colour: '#FFBE0B', note: 'Updated' },
-        { section: 'Speaking',  time: '~8 min',  items: '11 items',  icon: '🎙️', colour: '#B06CFF', note: 'Updated' },
+        { section: 'Reading',   time: '~30 min', items: '50 items',  icon: BookOpen, colour: '#00E5A0', note: 'Adaptive', noteIcon: RefreshCw },
+        { section: 'Listening', time: '~29 min', items: '47 items',  icon: Headphones, colour: '#00E5FF', note: 'Adaptive', noteIcon: RefreshCw },
+        { section: 'Writing',   time: '~23 min', items: '12 items',  icon: PenTool,  colour: '#FFBE0B', note: 'Updated', noteIcon: Sparkles },
+        { section: 'Speaking',  time: '~8 min',  items: '11 items',  icon: Mic, colour: '#B06CFF', note: 'Updated', noteIcon: Sparkles },
       ].map((s, i) => (
         <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: C.border + '20' }}>
-          <Text style={{ fontSize: 24 }}>{s.icon}</Text>
+          <s.icon size={24} color={s.colour} />
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{s.section}</Text>
             <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>{s.time} · {s.items}</Text>
           </View>
-          <View style={{ backgroundColor: s.colour + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-            <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: s.colour }}>🔄 {s.note}</Text>
+          <View style={{ backgroundColor: s.colour + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <s.noteIcon size={11} color={s.colour} />
+            <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: s.colour }}>{s.note}</Text>
           </View>
         </View>
       ))}
 
       {/* How scores work - 2026 */}
       <View style={[S.card, { marginTop: 4, borderColor: '#FFBE0B30' }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 4 }}>📊 New Scoring (January 2026)</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <BarChart3 size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>New Scoring (January 2026)</Text>
+        </View>
         <Text style={[S.bodyText, { marginBottom: 12 }]}>{t.eachSectionScoredTOEFL}</Text>
         <View style={{ backgroundColor: C.bg, borderRadius: 10, padding: 12 }}>
           <Text style={[S.label, { marginBottom: 8 }]}>{t.exampleCalculation}</Text>
@@ -575,7 +588,8 @@ export default function TOEFLScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <Icon size={22} color={sec.colour} />
             <Text style={{ fontSize: scaledFont(20), fontWeight: '900', color: sec.colour }}>{sec.label}</Text>
-            <View style={{ backgroundColor: sec.colour + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+            <View style={{ backgroundColor: sec.colour + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <sec.badgeIcon size={11} color={sec.colour} />
               <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: sec.colour }}>{sec.badge}</Text>
             </View>
           </View>
@@ -711,15 +725,21 @@ export default function TOEFLScreen() {
   const renderPractice = () => (
     <View>
       <View style={{ backgroundColor: '#0d1f0d', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#00E5A040' }}>
-        <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#00E5A0', marginBottom: 6 }}>⚡ AI-Powered TOEFL Practice</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <Zap size={16} color="#00E5A0" />
+          <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#00E5A0' }}>AI-Powered TOEFL Practice</Text>
+        </View>
         <Text style={[S.bodyText, { color: '#aaa' }]}>{t.practiceAllFourSkillsTOEFL}</Text>
       </View>
 
       {/* READING */}
-      <Text style={[S.label, { marginBottom: 8, color: '#00E5A0' }]}>📖 Reading</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <BookOpen size={13} color="#00E5A0" />
+        <Text style={[S.label, { color: '#00E5A0' }]}>Reading</Text>
+      </View>
       {[
-        { id: 'reading_completion', label: 'Fill in the Blanks',       desc: 'Complete sentences using words from an academic passage. Tests vocabulary and reading comprehension.', colour: '#00E5A0', icon: '📝', badge: 'NEW 2026' },
-        { id: 'reading_prose',     label: 'Academic Passage — MCQ',   desc: 'Read an academic text and answer multiple-choice questions on detail, inference, and purpose.', colour: '#00E5A0', icon: '🔍', badge: '' },
+        { id: 'reading_completion', label: 'Fill in the Blanks',       desc: 'Complete sentences using words from an academic passage. Tests vocabulary and reading comprehension.', colour: '#00E5A0', icon: PenLine, badge: 'NEW 2026' },
+        { id: 'reading_prose',     label: 'Academic Passage — MCQ',   desc: 'Read an academic text and answer multiple-choice questions on detail, inference, and purpose.', colour: '#00E5A0', icon: Search, badge: '' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -730,7 +750,7 @@ export default function TOEFLScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
             {p.badge ? <View style={{ backgroundColor: '#FFBE0B20', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5 }}><Text style={{ fontSize: scaledFont(8), fontWeight: '800', color: '#FFBE0B' }}>{p.badge}</Text></View> : null}
           </View>
@@ -742,10 +762,13 @@ export default function TOEFLScreen() {
       ))}
 
       {/* LISTENING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#00E5FF' }]}>🎧 Listening</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <Headphones size={13} color="#00E5FF" />
+        <Text style={[S.label, { color: '#00E5FF' }]}>Listening</Text>
+      </View>
       {[
-        { id: 'listening_campus',  label: 'Campus Conversation',      desc: 'Answer questions about a student-to-student or student-to-staff conversation.', colour: '#00E5FF', icon: '🗣️', badge: 'NEW 2026' },
-        { id: 'listening_lecture', label: 'Academic Lecture',         desc: 'Take notes on a university lecture and answer comprehension questions.', colour: '#00E5FF', icon: '🎓', badge: '' },
+        { id: 'listening_campus',  label: 'Campus Conversation',      desc: 'Answer questions about a student-to-student or student-to-staff conversation.', colour: '#00E5FF', icon: MessageCircle, badge: 'NEW 2026' },
+        { id: 'listening_lecture', label: 'Academic Lecture',         desc: 'Take notes on a university lecture and answer comprehension questions.', colour: '#00E5FF', icon: School, badge: '' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -756,7 +779,7 @@ export default function TOEFLScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
             {p.badge ? <View style={{ backgroundColor: '#FFBE0B20', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5 }}><Text style={{ fontSize: scaledFont(8), fontWeight: '800', color: '#FFBE0B' }}>{p.badge}</Text></View> : null}
           </View>
@@ -768,10 +791,13 @@ export default function TOEFLScreen() {
       ))}
 
       {/* WRITING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#FFBE0B' }]}>✍️ Writing</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <PenTool size={13} color="#FFBE0B" />
+        <Text style={[S.label, { color: '#FFBE0B' }]}>Writing</Text>
+      </View>
       {[
-        { id: 'writing_email',      label: 'Email Task',               desc: 'Write a short functional email in response to a campus situation. 7-minute task.', colour: '#FFBE0B', icon: '✉️', badge: 'NEW 2026' },
-        { id: 'writing_discussion', label: 'Academic Discussion Post', desc: 'Contribute to a class discussion board with your opinion, reasons, and examples.', colour: '#FFBE0B', icon: '💬', badge: '' },
+        { id: 'writing_email',      label: 'Email Task',               desc: 'Write a short functional email in response to a campus situation. 7-minute task.', colour: '#FFBE0B', icon: Mail, badge: 'NEW 2026' },
+        { id: 'writing_discussion', label: 'Academic Discussion Post', desc: 'Contribute to a class discussion board with your opinion, reasons, and examples.', colour: '#FFBE0B', icon: MessagesSquare, badge: '' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -782,7 +808,7 @@ export default function TOEFLScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
             {p.badge ? <View style={{ backgroundColor: '#FFBE0B20', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5 }}><Text style={{ fontSize: scaledFont(8), fontWeight: '800', color: '#FFBE0B' }}>{p.badge}</Text></View> : null}
           </View>
@@ -794,10 +820,13 @@ export default function TOEFLScreen() {
       ))}
 
       {/* SPEAKING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#B06CFF' }]}>🎙️ Speaking</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <Mic size={13} color="#B06CFF" />
+        <Text style={[S.label, { color: '#B06CFF' }]}>Speaking</Text>
+      </View>
       {[
-        { id: 'speaking_repeat',    label: 'Listen and Repeat',        desc: 'Practice pronunciation, stress, and intonation with academic phrases and sentences.', colour: '#B06CFF', icon: '🔊', badge: 'NEW 2026' },
-        { id: 'speaking_interview', label: 'Interview Questions',      desc: 'Respond to personal and campus-topic questions. Write what you would say aloud.', colour: '#B06CFF', icon: '🎤', badge: 'NEW 2026' },
+        { id: 'speaking_repeat',    label: 'Listen and Repeat',        desc: 'Practice pronunciation, stress, and intonation with academic phrases and sentences.', colour: '#B06CFF', icon: Volume2, badge: 'NEW 2026' },
+        { id: 'speaking_interview', label: 'Interview Questions',      desc: 'Respond to personal and campus-topic questions. Write what you would say aloud.', colour: '#B06CFF', icon: MicVocal, badge: 'NEW 2026' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -808,7 +837,7 @@ export default function TOEFLScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
             {p.badge ? <View style={{ backgroundColor: '#FFBE0B20', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5 }}><Text style={{ fontSize: scaledFont(8), fontWeight: '800', color: '#FFBE0B' }}>{p.badge}</Text></View> : null}
           </View>
@@ -821,7 +850,10 @@ export default function TOEFLScreen() {
 
       {/* Study tips */}
       <View style={[S.card, { marginTop: 8 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>📅 Study Plan Tips</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <Calendar size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>Study Plan Tips</Text>
+        </View>
         {[
           { period: '3+ months', tip: 'Build broad academic vocabulary. Read English-language university websites and academic journals. Do full adaptive practice tests monthly.' },
           { period: '1–3 months', tip: 'Alternate sections daily. Focus on new 2026 task types (email writing, repeat & respond). Time every practice session strictly.' },
@@ -946,7 +978,10 @@ export default function TOEFLScreen() {
               accessibilityHint="Loads a different practice prompt and clears your response"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>🔀 New Prompt</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Shuffle size={13} color={C.cyan} />
+                <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>New Prompt</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -1178,7 +1213,8 @@ export default function TOEFLScreen() {
 
       {/* 2026 notice strip */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 6, backgroundColor: '#FFBE0B10', borderBottomWidth: 1, borderBottomColor: '#FFBE0B20', gap: 6 }}>
-        <Text style={{ fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '700' }}>⚡ Updated January 2026 — New 1–6 score scale · Adaptive format</Text>
+        <Zap size={12} color="#FFBE0B" />
+        <Text style={{ fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '700' }}>Updated January 2026 — New 1–6 score scale · Adaptive format</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>

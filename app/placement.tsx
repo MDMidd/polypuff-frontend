@@ -38,7 +38,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import {
   BookOpen, PenTool, Headphones, Mic, MicOff, CheckCircle, XCircle,
-  ArrowRight, ArrowLeft, Award, Zap, Clock, BarChart3,
+  ArrowRight, ArrowLeft, Award, Zap, Clock, BarChart3, Rocket, Volume2, ListChecks,
 } from 'lucide-react-native';
 import * as Speech from 'expo-speech';
 // ── Voice recording ────────────────────────────────────────────────────────────
@@ -407,7 +407,7 @@ function SpeakingQuestion({ question, onDone, C }) {
           {/* ── Saved recording indicator ─────────────────────────────── */}
           {savedRec && (
             <View style={{ backgroundColor: '#00E5A015', borderRadius: 10, padding: 10, marginBottom: 10, borderWidth: 1, borderColor: '#00E5A030', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ fontSize: 14 }}>🎙️</Text>
+              <Mic size={14} color="#00E5A0" />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: '#00E5A0' }}>Recording saved to your device</Text>
                 <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 1 }}>
@@ -829,21 +829,24 @@ export default function PlacementScreen() {
           )}
 
           <NeonButton
-            title="🚀 Start Practising"
+            title="Start Practising"
             onPress={saveResults}
             style={{ marginTop: 16, width: '100%' }}
-            icon={null}
+            icon={<Rocket size={16} color="#000" />}
             accessibilityHint="Saves your placement results and takes you to practice"
           />
 
           {mistakes.length > 0 && (
             <GlassCard style={{ marginTop: 12, width: '100%' }}>
-              <Text
-                style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 10 }}
-                accessibilityRole="header"
-              >
-                📝 Review Mistakes
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <ListChecks size={16} color={C.text} />
+                <Text
+                  style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}
+                  accessibilityRole="header"
+                >
+                  Review Mistakes
+                </Text>
+              </View>
               {mistakes.map((m, i) => (
                 <View
                   key={i}
@@ -925,9 +928,10 @@ export default function PlacementScreen() {
           <GlassCard>
             {skill === 'listening' && (
               <NeonButton
-                title="🔊 Listen"
+                title="Listen"
                 onPress={playListening}
                 size="small"
+                icon={<Volume2 size={16} color="#000" />}
                 style={{ marginBottom: 16, alignSelf: 'center' }}
                 accessibilityLabel="Play sentence audio"
                 accessibilityHint="Double tap to hear the sentence spoken aloud"

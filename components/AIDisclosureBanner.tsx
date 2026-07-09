@@ -46,6 +46,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { Bot, X } from 'lucide-react-native';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // English fallbacks — used when the current language pack hasn't translated
@@ -105,7 +106,7 @@ export default function AIDisclosureBanner({
         accessibilityLabel={expandLabel}
         accessibilityRole="button"
       >
-        <Text style={s.dismissedIcon}>🤖</Text>
+        <Bot size={12} color={C.cyan} style={s.dismissedIcon} />
         <Text style={s.dismissedText}>AI</Text>
       </TouchableOpacity>
     );
@@ -122,7 +123,7 @@ export default function AIDisclosureBanner({
       accessibilityRole="text"
     >
       <View style={s.contentRow}>
-        <Text style={compact ? s.iconCompact : s.icon}>🤖</Text>
+        <Bot size={compact ? 13 : 16} color={C.cyan} style={compact ? s.iconCompact : s.icon} />
         <Text style={compact ? s.textCompact : s.text}>
           {displayMessage}
         </Text>
@@ -134,7 +135,7 @@ export default function AIDisclosureBanner({
             accessibilityLabel={minimizeLabel}
             accessibilityRole="button"
           >
-            <Text style={s.dismissX}>✕</Text>
+            <X size={14} color={C.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -171,12 +172,10 @@ const s = StyleSheet.create({
   },
   // ── Icon ──
   icon: {
-    fontSize: 16,
     marginRight: 10,
     marginTop: 1,
   },
   iconCompact: {
-    fontSize: 13,
     marginRight: 6,
     marginTop: 1,
   },
@@ -200,11 +199,6 @@ const s = StyleSheet.create({
     marginLeft: 8,
     paddingTop: 0,
   },
-  dismissX: {
-    fontSize: 14,
-    color: C.textMuted,
-    fontWeight: '600',
-  },
   // ── Dismissed pill ──
   dismissedPill: {
     flexDirection: 'row',
@@ -219,7 +213,6 @@ const s = StyleSheet.create({
     marginBottom: 10,
   },
   dismissedIcon: {
-    fontSize: 12,
     marginRight: 4,
   },
   dismissedText: {

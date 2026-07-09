@@ -32,7 +32,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Brain, CheckCircle2, XCircle, ArrowRight, ArrowLeft, RotateCcw,
-  Award, Star, Zap, Target, BookOpen, ChevronRight, ChevronDown,
+  Award, Star, Zap, BookOpen, ChevronRight, ChevronDown,
+  ListChecks, Lightbulb, ThumbsUp, Library, ListX,
 } from 'lucide-react-native';
 import { pushVaults } from '../services/syncService';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -378,7 +379,10 @@ export default function QuizScreen() {
       </View>
       <PolyPuffScene size={600} />
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}>
-        <Text style={s.header}>🧠 Grammar Quiz</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Brain size={22} color={C.amber} />
+          <Text style={s.header}>Grammar Quiz</Text>
+        </View>
         <Text style={s.headerSub}>Test your grammar with multiple choice questions</Text>
 
         <AIDisclosureBanner compact />
@@ -409,7 +413,7 @@ export default function QuizScreen() {
 
         <View style={s.card}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <Brain size={24} color={C.emerald} />
+            <ListChecks size={24} color={C.emerald} />
             <View>
               <Text style={{ fontSize: scaledFont(16), fontWeight: '700', color: C.text }}>{QUIZ_LENGTH} Questions</Text>
               <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>Covering {new Set(QUESTION_BANK.map(q => q.topic)).size} grammar topics</Text>
@@ -565,12 +569,13 @@ export default function QuizScreen() {
           <>
             {/* ✅ A11Y: Explanation live region so screen reader picks it up */}
             <View
-              style={s.explainCard}
+              style={[s.explainCard, { flexDirection: 'row', alignItems: 'flex-start', gap: 8 }]}
               accessibilityLiveRegion="polite"
               accessibilityRole="text"
               accessibilityLabel={`Explanation: ${q.explain}`}
             >
-              <Text style={s.explainText}>💡 {q.explain}</Text>
+              <Lightbulb size={14} color={C.blue} style={{ marginTop: 2 }} />
+              <Text style={[s.explainText, { flex: 1 }]}>{q.explain}</Text>
             </View>
             {/* ✅ A11Y: Next button with dynamic label */}
             <TouchableOpacity
@@ -642,7 +647,18 @@ export default function QuizScreen() {
               {getScoreLabel(pct)}
             </Text>
           </View>
-          <Text style={s.resultTitle}>{pct >= 90 ? '🏆 Excellent!' : pct >= 70 ? '⭐ Great Job!' : pct >= 50 ? '👍 Good Effort!' : '📚 Keep Learning!'}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            {pct >= 90
+              ? <Award size={20} color={color} />
+              : pct >= 70
+              ? <Star size={20} color={color} />
+              : pct >= 50
+              ? <ThumbsUp size={20} color={color} />
+              : <Library size={20} color={color} />}
+            <Text style={[s.resultTitle, { marginBottom: 0 }]}>
+              {pct >= 90 ? 'Excellent!' : pct >= 70 ? 'Great Job!' : pct >= 50 ? 'Good Effort!' : 'Keep Learning!'}
+            </Text>
+          </View>
           <Text style={s.resultSub}>{pct}% correct</Text>
 
           {/* ── SAVE VOCAB ── */}
@@ -725,12 +741,15 @@ export default function QuizScreen() {
         {/* ✅ A11Y: Review Mistakes with per-item labels */}
         {answers.filter(a => !a.correct).length > 0 && (
           <View style={[s.card, { marginTop: 12 }]}>
-            <Text
-              style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, marginBottom: 10 }}
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}
               accessibilityRole="header"
             >
-              📝 Review Mistakes
-            </Text>
+              <ListX size={16} color={C.red} />
+              <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>
+                Review Mistakes
+              </Text>
+            </View>
             {answers.filter(a => !a.correct).map((a, i) => (
               <View
                 key={i}

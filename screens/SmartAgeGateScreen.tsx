@@ -38,6 +38,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
+import { Calculator } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
@@ -317,7 +318,10 @@ export default function SmartAgeGateScreen() {
       {/* ── STEP 3: Parental Math Gate ───────────── */}
       {step === 'parental_gate' && (
         <View accessibilityLabel="Parental verification challenge">
-          <Text style={styles.title}>🧮 Parent Check</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+            <Calculator size={20} color="#F1F5F9" />
+            <Text style={[styles.title, { marginBottom: 0 }]}>Parent Check</Text>
+          </View>
           <Text style={styles.subtitle}>
             Because you are under {regionRule.parentalGateBelow} in {regionRule.label},{'\n'}
             a parent or guardian must verify your access.

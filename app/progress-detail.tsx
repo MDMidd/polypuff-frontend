@@ -12,8 +12,8 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  Award, Target, TrendingUp, Clock, MessageSquare,
-  ArrowLeft, Star, Zap, CheckCircle, BookOpen,
+  ArrowLeft, Star, Zap, BookOpen, Target,
+  Flag, Dumbbell, Flame, Trophy, Sparkles, GraduationCap, Gem,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { ScreenBackground } from '../components/PolyPuffUI';
@@ -32,16 +32,16 @@ function scoreColor(score, C) {
 }
 
 const BADGES = [
-  { id: 'first',      label: 'First Step',        icon: '🎯', xp: 1   },
-  { id: 'starter',    label: 'Getting Started',   icon: '🌱', xp: 5   },
-  { id: 'regular',    label: 'Regular Practice',  icon: '📅', xp: 10  },
-  { id: 'achiever',   label: 'High Achiever',     icon: '⭐', xp: 20  },
-  { id: 'dedicated',  label: 'Dedicated Learner', icon: '💪', xp: 30  },
-  { id: 'perfect',    label: 'Perfect Score',     icon: '💯', xp: 50  },
-  { id: 'streak3',    label: 'Hat-Trick',         icon: '🔥', xp: 50  },
-  { id: 'streak7',    label: 'Week Warrior',      icon: '🏆', xp: 100 },
-  { id: 'master',     label: 'Exercise Master',   icon: '🎓', xp: 200 },
-  { id: 'legendary',  label: 'Legendary',         icon: '👑', xp: 500 },
+  { id: 'first',      label: 'First Step',        icon: Flag,          xp: 1   },
+  { id: 'starter',    label: 'Getting Started',   icon: Target,        xp: 5   },
+  { id: 'regular',    label: 'Regular Practice',  icon: Dumbbell,      xp: 10  },
+  { id: 'achiever',   label: 'High Achiever',     icon: Star,          xp: 20  },
+  { id: 'dedicated',  label: 'Dedicated Learner', icon: Flame,         xp: 30  },
+  { id: 'perfect',    label: 'Perfect Score',     icon: Trophy,        xp: 50  },
+  { id: 'streak3',    label: 'Hat-Trick',         icon: Sparkles,      xp: 50  },
+  { id: 'streak7',    label: 'Week Warrior',      icon: Zap,           xp: 100 },
+  { id: 'master',     label: 'Exercise Master',   icon: GraduationCap, xp: 200 },
+  { id: 'legendary',  label: 'Legendary',         icon: Gem,           xp: 500 },
 ];
 
 function computeBadges(sessions) {
@@ -250,7 +250,7 @@ export default function ProgressDetailScreen() {
                   borderWidth: 1, borderColor: has ? color : 'rgba(255,255,255,0.08)',
                   opacity: has ? 1 : 0.4,
                 }}>
-                  <Text style={{ fontSize: 12 }}>{b.icon}</Text>
+                  <b.icon size={12} color={has ? color : C.textMuted} />
                   <Text style={{
                     fontSize: scaledFont(10), fontWeight: '600',
                     color: has ? color : C.textMuted,
@@ -264,10 +264,20 @@ export default function ProgressDetailScreen() {
             const next = BADGES.find(b => !earned.has(b.id));
             if (!next) return null;
             return (
-              <Text style={{
-                fontSize: scaledFont(10), color: C.textMuted,
-                marginTop: 10, fontStyle: 'italic',
-              }}>Next: {next.icon} {next.label}</Text>
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 4,
+                marginTop: 10,
+              }}>
+                <Text style={{
+                  fontSize: scaledFont(10), color: C.textMuted,
+                  fontStyle: 'italic',
+                }}>Next:</Text>
+                <next.icon size={12} color={C.textMuted} />
+                <Text style={{
+                  fontSize: scaledFont(10), color: C.textMuted,
+                  fontStyle: 'italic',
+                }}>{next.label}</Text>
+              </View>
             );
           })()}
         </View>

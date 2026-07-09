@@ -25,7 +25,7 @@ import * as Localization from 'expo-localization';
 import {
   Globe, GraduationCap, CheckCircle, BookOpen, UserCircle,
   Briefcase, Calendar, Heart, Save, Camera, Edit3,
-  FileText, Languages, ArrowLeft,
+  FileText, Languages, ArrowLeft, Mic, MicOff,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -569,7 +569,7 @@ export default function ProfileScreen() {
                   {nativeLanguage === lang.name && <CheckCircle size={16} color={C.emerald} />}
                   {/* Mic-off badge for unsupported languages */}
                   {SPEECH_UNSUPPORTED_LANGUAGES.includes(lang.name) && (
-                    <Text style={{ fontSize: scaledFont(13) }}>🎤🚫</Text>
+                    <MicOff size={14} color={C.textMuted} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -584,7 +584,7 @@ export default function ProfileScreen() {
               borderRadius: 12, padding: 12, marginTop: 10,
               borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '30',
             }}>
-              <Text style={{ fontSize: scaledFont(20), marginTop: 1 }}>🎤</Text>
+              <Mic size={20} color={C.amber || '#FFBE0B'} style={{ marginTop: 1 }} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.amber || '#FFBE0B', marginBottom: 3 }}>
                   Voice input limited for {nativeLanguage} speakers

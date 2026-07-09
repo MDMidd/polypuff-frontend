@@ -28,6 +28,9 @@ import {
   BookOpen, PenTool, Headphones, Mic, ChevronDown, ChevronUp,
   Star, Clock, Target, CheckCircle, AlertCircle, Send, X, Zap,
   GraduationCap, Globe, Award, Layers, ArrowLeft,
+  ClipboardList, Trophy, Users, BadgeCheck, BarChart3, AlertTriangle,
+  PenLine, RefreshCw, FileText, FileBarChart, MessageCircle, MessagesSquare,
+  Calendar, ArrowLeftRight, Shuffle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -428,13 +431,13 @@ export default function CAEScreen() {
       {/* Quick stats */}
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
         {[
-          { label: 'Duration', value: '~4 hrs', icon: '⏱️' },
-          { label: 'Papers', value: '4', icon: '📋' },
-          { label: 'Pass Mark', value: '180', icon: '✅' },
-          { label: 'Certificate', value: 'Never expires', icon: '🏆' },
+          { label: 'Duration', value: '~4 hrs', icon: Clock },
+          { label: 'Papers', value: '4', icon: ClipboardList },
+          { label: 'Pass Mark', value: '180', icon: CheckCircle },
+          { label: 'Certificate', value: 'Never expires', icon: Trophy },
         ].map((s, i) => (
           <View key={i} style={{ flex: 1, backgroundColor: C.card, borderRadius: 12, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}>
-            <Text style={{ fontSize: 18 }}>{s.icon}</Text>
+            <s.icon size={18} color={C.text} />
             <Text style={{ fontSize: i === 3 ? scaledFont(10) : scaledFont(14), fontWeight: '800', color: C.text, marginTop: 4, textAlign: 'center' }}>{s.value}</Text>
             <Text style={{ fontSize: scaledFont(9), color: C.textMuted, textAlign: 'center', marginTop: 2 }}>{s.label}</Text>
           </View>
@@ -465,13 +468,13 @@ export default function CAEScreen() {
       {/* Test structure */}
       <Text style={[S.label, { marginBottom: 8 }]}>{t.testStructure}</Text>
       {[
-        { paper: 'Reading & Use of English', time: '90 min', parts: '8 parts, 56 questions', weight: '40%', colour: '#00E5A0', icon: '📖' },
-        { paper: 'Writing',                  time: '90 min', parts: '2 tasks',               weight: '20%', colour: '#FFBE0B', icon: '✍️' },
-        { paper: 'Listening',                time: '40 min (+5)', parts: '4 parts, 30 questions', weight: '20%', colour: '#00E5FF', icon: '🎧' },
-        { paper: 'Speaking',                 time: '15 min', parts: '4 parts (paired)',      weight: '20%', colour: '#B06CFF', icon: '🎙️' },
+        { paper: 'Reading & Use of English', time: '90 min', parts: '8 parts, 56 questions', weight: '40%', colour: '#00E5A0', icon: BookOpen },
+        { paper: 'Writing',                  time: '90 min', parts: '2 tasks',               weight: '20%', colour: '#FFBE0B', icon: PenTool },
+        { paper: 'Listening',                time: '40 min (+5)', parts: '4 parts, 30 questions', weight: '20%', colour: '#00E5FF', icon: Headphones },
+        { paper: 'Speaking',                 time: '15 min', parts: '4 parts (paired)',      weight: '20%', colour: '#B06CFF', icon: Mic },
       ].map((p, i) => (
         <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: C.border + '20' }}>
-          <Text style={{ fontSize: 22 }}>{p.icon}</Text>
+          <p.icon size={22} color={p.colour} />
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{p.paper}</Text>
             <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>{p.time} · {p.parts}</Text>
@@ -484,16 +487,19 @@ export default function CAEScreen() {
 
       {/* Unique features */}
       <View style={[S.card, { marginTop: 4, borderColor: '#B06CFF30' }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>⭐ What Makes CAE Unique</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <Star size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>What Makes CAE Unique</Text>
+        </View>
         {[
-          { icon: '🏆', title: 'Certificate Never Expires', desc: 'Unlike IELTS (2 years) and TOEFL (2 years), your C1 Advanced certificate is valid for life. It proves your level permanently.' },
-          { icon: '👥', title: 'Paired Speaking Test', desc: 'You speak with another candidate — not just an examiner. This is more natural and tests real conversational interaction.' },
-          { icon: '🎓', title: 'C2 Possible at C1 Level', desc: 'Score 200+ and your certificate acknowledges C2 (Proficiency) level — the highest CEFR level — even though you took the C1 exam.' },
-          { icon: '🔗', title: 'Combined Reading + Use of English', desc: 'Grammar and reading are combined in one 90-minute paper — testing integrated skills rather than separate components.' },
-          { icon: '🌐', title: 'UK NQF Level 2 Qualification', desc: 'CAE is an officially recognised qualification on the UK National Qualifications Framework — adds real weight to CVs and university applications.' },
+          { icon: Trophy, title: 'Certificate Never Expires', desc: 'Unlike IELTS (2 years) and TOEFL (2 years), your C1 Advanced certificate is valid for life. It proves your level permanently.' },
+          { icon: Users, title: 'Paired Speaking Test', desc: 'You speak with another candidate — not just an examiner. This is more natural and tests real conversational interaction.' },
+          { icon: GraduationCap, title: 'C2 Possible at C1 Level', desc: 'Score 200+ and your certificate acknowledges C2 (Proficiency) level — the highest CEFR level — even though you took the C1 exam.' },
+          { icon: Layers, title: 'Combined Reading + Use of English', desc: 'Grammar and reading are combined in one 90-minute paper — testing integrated skills rather than separate components.' },
+          { icon: BadgeCheck, title: 'UK NQF Level 2 Qualification', desc: 'CAE is an officially recognised qualification on the UK National Qualifications Framework — adds real weight to CVs and university applications.' },
         ].map((item, i) => (
           <View key={i} style={{ flexDirection: 'row', gap: 12, marginBottom: i < 4 ? 12 : 0, borderTopWidth: i > 0 ? 1 : 0, borderTopColor: C.border + '15', paddingTop: i > 0 ? 12 : 0 }}>
-            <Text style={{ fontSize: 22 }}>{item.icon}</Text>
+            <item.icon size={22} color={C.text} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text, marginBottom: 3 }}>{item.title}</Text>
               <Text style={S.bodyText}>{item.desc}</Text>
@@ -504,7 +510,10 @@ export default function CAEScreen() {
 
       {/* Scoring overview */}
       <View style={[S.card, { marginTop: 4 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>📊 How Scoring Works</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <BarChart3 size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>How Scoring Works</Text>
+        </View>
         <Text style={S.bodyText}>
           Each of the 5 components (Reading, Use of English, Writing, Listening, Speaking) is given a score on the Cambridge English Scale (160–210). These 5 scores are averaged to give your overall score. You need 180 overall to pass at C1 level.
         </Text>
@@ -527,7 +536,10 @@ export default function CAEScreen() {
             <Text style={{ fontSize: scaledFont(15), fontWeight: '900', color: '#FFBE0B' }}>180 — Grade C (Pass)</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 4 }}>(180 + 185 + 176 + 182 + 179) ÷ 5 = 180.4 → 180</Text>
-          <Text style={{ fontSize: scaledFont(11), color: '#FF8A65', marginTop: 4 }}>⚠️ Writing (176) is below pass level — individual component scores matter!</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 }}>
+            <AlertTriangle size={12} color="#FF8A65" style={{ marginTop: 1 }} />
+            <Text style={{ flex: 1, fontSize: scaledFont(11), color: '#FF8A65' }}>Writing (176) is below pass level — individual component scores matter!</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -717,10 +729,13 @@ export default function CAEScreen() {
       </View>
 
       {/* READING & USE OF ENGLISH */}
-      <Text style={[S.label, { marginBottom: 8, color: '#00E5A0' }]}>📖 Reading & Use of English</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <BookOpen size={13} color="#00E5A0" />
+        <Text style={[S.label, { color: '#00E5A0' }]}>Reading & Use of English</Text>
+      </View>
       {[
-        { id: 'reading_uoe_cloze',          label: 'Open Cloze (Part 2)',              desc: 'Fill in 8 gaps with ONE word each. Tests grammar, vocabulary, and collocations.', colour: '#00E5A0', icon: '📝', weight: 'Part 2 — Use of English' },
-        { id: 'reading_transformations',    label: 'Key Word Transformations (Part 4)',  desc: 'Complete a second sentence using a KEY WORD so it means the same as the first. 3–6 words only.', colour: '#00E5A0', icon: '🔄', weight: 'Part 4 — Use of English (hardest)' },
+        { id: 'reading_uoe_cloze',          label: 'Open Cloze (Part 2)',              desc: 'Fill in 8 gaps with ONE word each. Tests grammar, vocabulary, and collocations.', colour: '#00E5A0', icon: PenLine, weight: 'Part 2 — Use of English' },
+        { id: 'reading_transformations',    label: 'Key Word Transformations (Part 4)',  desc: 'Complete a second sentence using a KEY WORD so it means the same as the first. 3–6 words only.', colour: '#00E5A0', icon: RefreshCw, weight: 'Part 4 — Use of English (hardest)' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -731,7 +746,7 @@ export default function CAEScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 4 }]}>{p.desc}</Text>
@@ -743,10 +758,13 @@ export default function CAEScreen() {
       ))}
 
       {/* LISTENING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#00E5FF' }]}>🎧 Listening</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <Headphones size={13} color="#00E5FF" />
+        <Text style={[S.label, { color: '#00E5FF' }]}>Listening</Text>
+      </View>
       {[
-        { id: 'listening_extracts',     label: 'Multiple Choice — Short Extracts (Part 1)', desc: 'Three short recordings, two MCQ questions each. Tests attitude, gist, and main point.', colour: '#00E5FF', icon: '🎧', weight: 'Part 1 — 6 questions, 1 mark each' },
-        { id: 'listening_completion',   label: 'Sentence Completion (Part 2)',               desc: 'A longer monologue. Complete 8 sentences with exact words from the recording.', colour: '#00E5FF', icon: '📝', weight: 'Part 2 — 8 questions, 1 mark each' },
+        { id: 'listening_extracts',     label: 'Multiple Choice — Short Extracts (Part 1)', desc: 'Three short recordings, two MCQ questions each. Tests attitude, gist, and main point.', colour: '#00E5FF', icon: Headphones, weight: 'Part 1 — 6 questions, 1 mark each' },
+        { id: 'listening_completion',   label: 'Sentence Completion (Part 2)',               desc: 'A longer monologue. Complete 8 sentences with exact words from the recording.', colour: '#00E5FF', icon: PenLine, weight: 'Part 2 — 8 questions, 1 mark each' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -757,7 +775,7 @@ export default function CAEScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 4 }]}>{p.desc}</Text>
@@ -769,11 +787,14 @@ export default function CAEScreen() {
       ))}
 
       {/* WRITING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#FFBE0B' }]}>✍️ Writing</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <PenTool size={13} color="#FFBE0B" />
+        <Text style={[S.label, { color: '#FFBE0B' }]}>Writing</Text>
+      </View>
       {[
-        { id: 'essay',   label: 'Part 1 — Essay (Compulsory)', desc: 'Discuss two given prompt points + your own idea. Academic style. 220–260 words.', colour: '#FFBE0B', icon: '📄', weight: '20% of total — highest stakes' },
-        { id: 'report',  label: 'Part 2 — Report',             desc: 'Formal report with headings for a manager or committee. 220–260 words.', colour: '#FFBE0B', icon: '📊', weight: 'Part 2 choice' },
-        { id: 'review',  label: 'Part 2 — Review',             desc: 'Semi-formal review of a book, film, place, or experience. Include a recommendation. 220–260 words.', colour: '#FFBE0B', icon: '⭐', weight: 'Part 2 choice' },
+        { id: 'essay',   label: 'Part 1 — Essay (Compulsory)', desc: 'Discuss two given prompt points + your own idea. Academic style. 220–260 words.', colour: '#FFBE0B', icon: FileText, weight: '20% of total — highest stakes' },
+        { id: 'report',  label: 'Part 2 — Report',             desc: 'Formal report with headings for a manager or committee. 220–260 words.', colour: '#FFBE0B', icon: FileBarChart, weight: 'Part 2 choice' },
+        { id: 'review',  label: 'Part 2 — Review',             desc: 'Semi-formal review of a book, film, place, or experience. Include a recommendation. 220–260 words.', colour: '#FFBE0B', icon: Star, weight: 'Part 2 choice' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -784,7 +805,7 @@ export default function CAEScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 4 }]}>{p.desc}</Text>
@@ -796,11 +817,14 @@ export default function CAEScreen() {
       ))}
 
       {/* SPEAKING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#B06CFF' }]}>🎙️ Speaking</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <Mic size={13} color="#B06CFF" />
+        <Text style={[S.label, { color: '#B06CFF' }]}>Speaking</Text>
+      </View>
       {[
-        { id: 'speaking_interview',   label: 'Part 1 — Interview',         desc: 'Answer personal questions naturally. Aim for 2–4 sentences with reasons and examples.', colour: '#B06CFF', icon: '🗣️', weight: '~2 minutes' },
-        { id: 'speaking_longturn',    label: 'Part 2 — Long Turn',          desc: 'Compare photographs and answer the printed task question. Speak for 1 full minute.', colour: '#B06CFF', icon: '🎙️', weight: '~4 minutes (both candidates)' },
-        { id: 'speaking_discussion',  label: 'Parts 3 & 4 — Discussion',    desc: 'Discuss abstract questions with your examiner. Use sophisticated language and justify your views.', colour: '#B06CFF', icon: '💬', weight: '~9 minutes (both candidates)' },
+        { id: 'speaking_interview',   label: 'Part 1 — Interview',         desc: 'Answer personal questions naturally. Aim for 2–4 sentences with reasons and examples.', colour: '#B06CFF', icon: MessageCircle, weight: '~2 minutes' },
+        { id: 'speaking_longturn',    label: 'Part 2 — Long Turn',          desc: 'Compare photographs and answer the printed task question. Speak for 1 full minute.', colour: '#B06CFF', icon: Mic, weight: '~4 minutes (both candidates)' },
+        { id: 'speaking_discussion',  label: 'Parts 3 & 4 — Discussion',    desc: 'Discuss abstract questions with your examiner. Use sophisticated language and justify your views.', colour: '#B06CFF', icon: MessagesSquare, weight: '~9 minutes (both candidates)' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -811,7 +835,7 @@ export default function CAEScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 4 }]}>{p.desc}</Text>
@@ -824,7 +848,10 @@ export default function CAEScreen() {
 
       {/* Study plan */}
       <View style={[S.card, { marginTop: 8 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>📅 Study Plan</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <Calendar size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>Study Plan</Text>
+        </View>
         {[
           { period: '4+ months', tip: 'Build advanced vocabulary systematically (word formation families). Read quality English press daily. Do one full past paper every 2 weeks.' },
           { period: '2–4 months', tip: 'Rotate papers daily. Spend extra time on Reading & Use of English — it\'s 40% of your score. Do Part 4 transformations every day.' },
@@ -884,7 +911,10 @@ export default function CAEScreen() {
 
       {/* IELTS / TOEFL equivalence */}
       <View style={[S.card, { marginTop: 4 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>🔄 Equivalence with Other Tests</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <ArrowLeftRight size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>Equivalence with Other Tests</Text>
+        </View>
         {[
           { test: 'CAE Grade A (200–210)', ielts: '7.5–9.0', toefl: '5.5–6.0', cefr: 'C2' },
           { test: 'CAE Grade B (193–199)', ielts: '7.0–7.5', toefl: '5.0–5.5', cefr: 'C1' },
@@ -968,7 +998,10 @@ export default function CAEScreen() {
               accessibilityHint="Loads a different practice prompt and clears your response"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>🔀 New Prompt</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Shuffle size={13} color={C.cyan} />
+                <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>New Prompt</Text>
+              </View>
             </TouchableOpacity>
           </View>
 

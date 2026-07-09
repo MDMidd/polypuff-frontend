@@ -21,7 +21,7 @@ import {
   Volume2, Trash2, Info, ExternalLink, ChevronRight,
   Download, Shield, RotateCcw, Bell, Mail, Server,
   User, KeyRound, HelpCircle, MessageSquare, CreditCard, RefreshCw, LogOut,
-  Globe, Languages, BookOpen, CheckCircle, X, Sparkles, Trophy,
+  Globe, Languages, BookOpen, CheckCircle, X, Sparkles, Trophy, Pencil,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -1190,7 +1190,7 @@ export default function SettingsScreen() {
 
         {/* ── CUSTOMISE PRACTICE ──────────────────────────────────────── */}
         {CUSTOMISE_PRACTICE_LIST_VISIBLE && (
-        <Section title={t.practice} icon={<Text style={{ fontSize: 18 }}>✏️</Text>}>
+        <Section title={t.practice} icon={<Pencil size={18} color={C.pink || '#FF6EB4'} />}>
           <Row
             label={t.customisePracticeList}
             desc={t.customPracticeDesc}

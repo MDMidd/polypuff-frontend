@@ -40,7 +40,9 @@ import { pushVaults } from '../services/syncService';
 import {
   ArrowLeft, RefreshCw, Send, CheckCircle,
   Volume2, ChevronRight, Star, BookOpen, Zap,
-  Settings2,
+  Settings2, Puzzle, Shuffle, Link2, Handshake,
+  MessageCircle, Hand, Briefcase, Clock, ScrollText,
+  Lightbulb, Box,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -520,15 +522,15 @@ export default function WordChunksScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}
             accessibilityRole="tablist" accessibilityLabel={ui('selectChunkCategory', 'Select chunk category')}>
             {[
-              { id: null,          label: '🎲 Random' },
-              { id: 'Connector',   label: '🔗 Connectors' },
-              { id: 'Collocation', label: '🤝 Collocations' },
-              { id: 'Idiom',       label: '💬 Idioms' },
-              { id: 'Phrasal',     label: '🔄 Phrasal Verbs' },
-              { id: 'Greeting',    label: '👋 Greetings' },
-              { id: 'Business',    label: '💼 Business' },
-              { id: 'Time',        label: '⏰ Time' },
-              { id: 'Formal',      label: '🎩 Formal' },
+              { id: null,          label: 'Random',        Icon: Shuffle },
+              { id: 'Connector',   label: 'Connectors',    Icon: Link2 },
+              { id: 'Collocation', label: 'Collocations',  Icon: Handshake },
+              { id: 'Idiom',       label: 'Idioms',        Icon: MessageCircle },
+              { id: 'Phrasal',     label: 'Phrasal Verbs', Icon: RefreshCw },
+              { id: 'Greeting',    label: 'Greetings',     Icon: Hand },
+              { id: 'Business',    label: 'Business',      Icon: Briefcase },
+              { id: 'Time',        label: 'Time',          Icon: Clock },
+              { id: 'Formal',      label: 'Formal',        Icon: ScrollText },
             ].map(cat => (
               <TouchableOpacity
                 key={cat.id || 'random'}
@@ -537,13 +539,15 @@ export default function WordChunksScreen() {
                   if (sessionStarted) setTimeout(() => generateChunk(), 50);
                 }}
                 style={{
+                  flexDirection: 'row', alignItems: 'center', gap: 5,
                   paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8, minHeight: 44, justifyContent: 'center',
                   backgroundColor: selectedCategory === cat.id ? (C.cyan || '#00E5FF') + '20' : 'rgba(255,255,255,0.06)',
                   borderWidth: 1,
                   borderColor: selectedCategory === cat.id ? (C.cyan || '#00E5FF') + '50' : 'rgba(255,255,255,0.08)',
                 }}
-                {...a11yTab(cat.label.replace(/^[^\w]+/, '').trim() || 'Random', selectedCategory === cat.id)}
+                {...a11yTab(cat.label, selectedCategory === cat.id)}
               >
+                <cat.Icon size={12} color={selectedCategory === cat.id ? (C.cyan || '#00E5FF') : (C.textMuted || '#9CA3AF')} />
                 <Text style={{
                   fontSize: scaledFont(12), fontWeight: '600',
                   color: selectedCategory === cat.id ? (C.cyan || '#00E5FF') : (C.textMuted || '#9CA3AF'),
@@ -561,7 +565,7 @@ export default function WordChunksScreen() {
                 borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '30',
                 alignItems: 'center',
               }}>
-                <Text style={{ fontSize: 44, marginBottom: 12 }}>🧩</Text>
+                <Puzzle size={44} color={C.emerald || '#00E5A0'} style={{ marginBottom: 12 }} />
                 <Text style={{ fontSize: scaledFont(20), fontWeight: '800', color: C.text, marginBottom: 8, textAlign: 'center' }}>{wordChunksTitle}</Text>
                 <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center', lineHeight: 20, marginBottom: 20 }}>
                   {ui('wordChunksStartHint', 'Translate short phrases and expressions from your language into English. Select a category, then tap Start.').replace('your language', nativeLanguage)}
@@ -651,7 +655,7 @@ export default function WordChunksScreen() {
                     accessibilityLabel={ui('getHint', 'Get a hint')}
                     accessibilityHint={t.accHintRevealFirstPart}
                   >
-                    <Text style={{ fontSize: 13 }}>💡</Text>
+                    <Lightbulb size={13} color="#FFBE0B" />
                     <Text style={[ds.revealText, { color: '#FFBE0B' }]}>{wt('hint')} (-20)</Text>
                   </TouchableOpacity>
                 )}
@@ -660,7 +664,7 @@ export default function WordChunksScreen() {
                     backgroundColor: 'rgba(255,190,11,0.10)',
                     borderColor: 'rgba(255,190,11,0.25)', borderWidth: 1,
                   }]}>
-                    <Text style={{ fontSize: 12 }}>💡</Text>
+                    <Lightbulb size={12} color="#FFBE0B" />
                     <Text style={[ds.revealText, { color: '#FFBE0B', fontWeight: '700' }]}>{hintText}</Text>
                   </View>
                 ) : null}
@@ -741,7 +745,7 @@ export default function WordChunksScreen() {
                   accessibilityRole="button" accessibilityLabel={`${wt('vault-save-to-vault')} ${wt('word-chunks-vault')}`}
                   style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <Text style={{ fontSize: 18 }}>💾</Text>
+                  <Box size={18} color={C.amber || '#FFBE0B'} />
                 </TouchableOpacity>
               </View>
 
@@ -790,7 +794,10 @@ export default function WordChunksScreen() {
       <Modal visible={vaultModal} transparent animationType="fade" onRequestClose={() => setVaultModal(false)}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.65)', padding: 24 }}>
           <View style={{ backgroundColor: C.card || '#1F2937', borderRadius: 16, padding: 20, width: '100%', maxWidth: 380, borderWidth: 1, borderColor: (C.cyan || '#00E5FF') + '40' }}>
-            <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text, marginBottom: 4 }}>💾 {wt('word-chunks-vault')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <Box size={16} color={C.amber || '#FFBE0B'} />
+              <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.text }}>{wt('word-chunks-vault')}</Text>
+            </View>
             <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 14 }}>{wt('vault-save-to-vault')}: {wt('word-chunks-vault')}</Text>
             <TouchableOpacity
               onPress={() => { addToVault(vaultPhrase); setVaultModal(false); }}

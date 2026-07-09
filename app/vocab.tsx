@@ -35,7 +35,7 @@ import * as Speech from 'expo-speech';
 import {
   RotateCcw, Check, X, Award,
   Layers, Brain, Volume2, MessageSquarePlus, Landmark,
-  ArrowLeft,
+  ArrowLeft, Pointer,
 } from 'lucide-react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
@@ -403,7 +403,10 @@ export default function VocabScreen() {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}>
         <PolyPuffScene size={600} />
         <AIDisclosureBanner compact />
-        <Text style={s.header}>📚 {wt('vocabulary')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Layers size={22} color={C.emerald || '#00E5A0'} />
+          <Text style={s.header}>{wt('vocabulary')}</Text>
+        </View>
         <Text style={s.headerSub}>{wt('vocab-subtitle')}</Text>
 
         {/* ── VOCABULARY VAULT SHORTCUT ── */}
@@ -567,7 +570,10 @@ export default function VocabScreen() {
                   accessibilityLabel={`Reveal definition of ${currentCard.en}`}
                   accessibilityHint={t.accHintFlipFlashcard}
                 >
-                  <Text style={{ fontSize: scaledFont(14), fontWeight: '600', color: C.blueLight || '#60A5FA' }}>👆 {wt('vocab-tap-hint')}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                    <Pointer size={14} color={C.blueLight || '#60A5FA'} />
+                    <Text style={{ fontSize: scaledFont(14), fontWeight: '600', color: C.blueLight || '#60A5FA' }}>{wt('vocab-tap-hint')}</Text>
+                  </View>
                 </TouchableOpacity>
               </Animated.View>
             )}
@@ -691,7 +697,7 @@ export default function VocabScreen() {
                   accessibilityLabel={`Still learning ${currentCard.en}. Move to box 1.`}
                 >
                   <X size={18} color={C.red} />
-                  <Text style={[s.answerText, { color: C.red }]}>🔄 {wt('vocab-still-learning')}</Text>
+                  <Text style={[s.answerText, { color: C.red }]}>{wt('vocab-still-learning')}</Text>
                 </TouchableOpacity>
                 {/* ✅ A11Y: I Know It button */}
                 <TouchableOpacity

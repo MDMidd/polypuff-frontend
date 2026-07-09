@@ -35,7 +35,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 import {
   Headphones, Play, Volume2, Send, RotateCcw, Star, Award,
-  ChevronRight, ChevronDown, ArrowRight, ArrowLeft, Settings2, Eye, BookOpen,
+  ChevronRight, ChevronDown, ArrowRight, ArrowLeft, Settings2, Eye, BookOpen, Circle, Check,
 } from 'lucide-react-native';
 import { pushVaults } from '../services/syncService';
 import { useTheme } from '../contexts/ThemeContext';
@@ -57,9 +57,9 @@ import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import SkillLevelBadge from '../components/SkillLevelBadge';
 
 const DIFFICULTIES = [
-  { key: 'easy', label: '🟢 Easy', desc: 'Slow audio + see text', speed: 0.7, showText: true, showTime: 5000, level: 'A1-A2' },
-  { key: 'normal', label: '🟡 Normal', desc: 'Medium speed, audio only', speed: 0.85, showText: false, showTime: 0, level: 'B1-B2' },
-  { key: 'hard', label: '🔴 Hard', desc: 'Natural speed, longer', speed: 1.0, showText: false, showTime: 0, level: 'C1-C2' },
+  { key: 'easy', label: 'Easy', dotColor: 'emerald', desc: 'Slow audio + see text', speed: 0.7, showText: true, showTime: 5000, level: 'A1-A2' },
+  { key: 'normal', label: 'Normal', dotColor: 'amber', desc: 'Medium speed, audio only', speed: 0.85, showText: false, showTime: 0, level: 'B1-B2' },
+  { key: 'hard', label: 'Hard', dotColor: 'red', desc: 'Natural speed, longer', speed: 1.0, showText: false, showTime: 0, level: 'C1-C2' },
 ];
 
 const SPEED_OPTIONS = [
@@ -412,7 +412,10 @@ export default function ListeningScreen() {
                 // ✅ A11Y: Tab role + description
                 {...a11yTab(`${d.label}. ${d.desc}. Levels ${d.level}`, difficulty === d.key)}
               >
-                <Text style={s.diffLabel}>{d.label}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Circle size={10} color={C[d.dotColor as keyof typeof C]} fill={C[d.dotColor as keyof typeof C]} />
+                  <Text style={s.diffLabel}>{d.label}</Text>
+                </View>
                 <Text style={s.diffDesc}>{d.desc}</Text>
               </TouchableOpacity>
             ))}
@@ -560,12 +563,15 @@ export default function ListeningScreen() {
             </View>
 
             <Text style={s.label} accessibilityRole="header">{wt('correct-text').toUpperCase()}</Text>
-            <Text
-              style={s.correctText}
-              accessibilityLabel={`Correct sentence: ${currentSentence}`}
-            >
-              ✅ {currentSentence}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginBottom: 8 }}>
+              <Check size={16} color={C.emeraldLight} style={{ marginTop: 3 }} />
+              <Text
+                style={[s.correctText, { marginBottom: 0, flex: 1 }]}
+                accessibilityLabel={`Correct sentence: ${currentSentence}`}
+              >
+                {currentSentence}
+              </Text>
+            </View>
 
             <Text style={s.label} accessibilityRole="header">{wt('your-answer').toUpperCase()}</Text>
             <Text style={s.yourText}>

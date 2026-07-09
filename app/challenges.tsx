@@ -28,8 +28,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  Zap, Clock, Target, Award, Star, Trophy, ArrowRight,
-  Send, Flame, X, Lock, CheckCircle, ArrowLeft,
+  Clock, Target, Star, Trophy, ArrowRight,
+  Send, Flame, X, CheckCircle, ArrowLeft, Gem, XCircle,
 } from 'lucide-react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { generateExercise, checkTranslation } from '../services/api';
@@ -47,10 +47,10 @@ import { recordXP } from '../services/progressSyncService';
 import { scaledFont, announce, scoreAnnouncement } from '../utils/accessibility';
 
 const CHALLENGES = [
-  { id: 'speed', title: 'Speed Round', desc: 'Complete 5 sentences in 5 minutes', icon: '⚡', iconComponent: (c) => <Clock size={24} color={c} />, color: 'amber', target: 5, timeLimit: 300, minScore: 60, xpBonus: 50 },
-  { id: 'accuracy', title: 'Accuracy Streak', desc: 'Score 80+ on 5 sentences in a row', icon: '🎯', iconComponent: (c) => <Target size={24} color={c} />, color: 'blue', target: 5, timeLimit: null, minScore: 80, xpBonus: 75 },
-  { id: 'perfect', title: 'Perfect Run', desc: 'Score 100 on 3 sentences in a row', icon: '💎', iconComponent: (c) => <Star size={24} color={c} />, color: 'purple', target: 3, timeLimit: null, minScore: 100, xpBonus: 100 },
-  { id: 'marathon', title: 'Marathon', desc: 'Complete 10 sentences, any score', icon: '🏃', iconComponent: (c) => <Flame size={24} color={c} />, color: 'emerald', target: 10, timeLimit: null, minScore: 0, xpBonus: 60 },
+  { id: 'speed', title: 'Speed Round', desc: 'Complete 5 sentences in 5 minutes', iconComponent: (c) => <Clock size={24} color={c} />, color: 'amber', target: 5, timeLimit: 300, minScore: 60, xpBonus: 50 },
+  { id: 'accuracy', title: 'Accuracy Streak', desc: 'Score 80+ on 5 sentences in a row', iconComponent: (c) => <Target size={24} color={c} />, color: 'blue', target: 5, timeLimit: null, minScore: 80, xpBonus: 75 },
+  { id: 'perfect', title: 'Perfect Run', desc: 'Score 100 on 3 sentences in a row', iconComponent: (c) => <Gem size={24} color={c} />, color: 'purple', target: 3, timeLimit: null, minScore: 100, xpBonus: 100 },
+  { id: 'marathon', title: 'Marathon', desc: 'Complete 10 sentences, any score', iconComponent: (c) => <Flame size={24} color={c} />, color: 'emerald', target: 10, timeLimit: null, minScore: 0, xpBonus: 60 },
 ];
 
 export default function ChallengesScreen() {
@@ -217,7 +217,7 @@ export default function ChallengesScreen() {
       return (
         <ScreenBackground>
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-            <Text style={{ fontSize: 64, marginBottom: 16 }} accessibilityElementsHidden={true}>🏆</Text>
+            <Trophy size={64} color={accent} style={{ marginBottom: 16 }} />
             <Text style={{ fontSize: scaledFont(28), fontWeight: '800', color: C.text, textAlign: 'center' }} accessibilityRole="header">Challenge Complete!</Text>
             <Text style={{ fontSize: scaledFont(16), color: C.textSec, textAlign: 'center', marginTop: 8 }}>{activeChallenge.title}</Text>
             <View
@@ -246,7 +246,7 @@ export default function ChallengesScreen() {
       return (
         <ScreenBackground>
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-            <Text style={{ fontSize: 64, marginBottom: 16 }} accessibilityElementsHidden={true}>😔</Text>
+            <XCircle size={64} color={C.red} style={{ marginBottom: 16 }} />
             <Text style={{ fontSize: scaledFont(28), fontWeight: '800', color: C.text, textAlign: 'center' }} accessibilityRole="header">Challenge Failed</Text>
             <Text style={{ fontSize: scaledFont(16), color: C.textSec, textAlign: 'center', marginTop: 8 }}>
               {activeChallenge.timeLimit && timeLeft <= 0 ? 'Time ran out!' : `You needed ${activeChallenge.minScore}+ but scored ${lastScore}`}
@@ -446,7 +446,7 @@ export default function ChallengesScreen() {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                 <View style={{ width: 50, height: 50, borderRadius: 14, backgroundColor: accent + '15', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 24 }} accessibilityElementsHidden={true}>{challenge.icon}</Text>
+                  {challenge.iconComponent(accent)}
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: scaledFont(17), fontWeight: '700', color: C.text }}>{challenge.title}</Text>

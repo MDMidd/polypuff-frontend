@@ -32,6 +32,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CheckCircle, Users, Lock, Clipboard, PartyPopper } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from '../contexts/LanguageContext';
 import { isRtlLanguage } from '../utils/languages';
@@ -233,7 +234,11 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
 
           {/* ── Header icon ── */}
           <View style={s.iconWrap}>
-            <Text style={s.iconEmoji}>{verified ? '✅' : '👨‍👩‍👧'}</Text>
+            {verified ? (
+              <CheckCircle size={34} color={C.emerald} />
+            ) : (
+              <Users size={34} color={C.purple} />
+            )}
           </View>
 
           {/* ── Title ── */}
@@ -245,9 +250,12 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
             <>
               {/* ── Explanation ── */}
               <View style={s.messageCard}>
-                <Text style={[s.messageTitle, textDirectionStyle]}>
-                  🔒 {isChild ? copy.under13Title : copy.under16Title}
-                </Text>
+                <View style={[s.messageTitleRow, rowDirectionStyle]}>
+                  <Lock size={15} color={C.amber} />
+                  <Text style={[s.messageTitle, textDirectionStyle]}>
+                    {isChild ? copy.under13Title : copy.under16Title}
+                  </Text>
+                </View>
                 <Text style={[s.messageText, textDirectionStyle]}>
                   {isChild
                     ? copy.coppaMessage
@@ -258,9 +266,12 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
 
               {/* ── Parent instruction ── */}
               <View style={s.parentSection}>
-                <Text style={[s.parentTitle, textDirectionStyle]}>
-                  📋 {copy.parentTitle}
-                </Text>
+                <View style={[s.parentTitleRow, rowDirectionStyle]}>
+                  <Clipboard size={15} color={C.text} />
+                  <Text style={[s.parentTitle, textDirectionStyle]}>
+                    {copy.parentTitle}
+                  </Text>
+                </View>
                 <Text style={[s.parentText, textDirectionStyle]}>
                   {copy.parentIntro}
                 </Text>
@@ -351,7 +362,9 @@ export default function ParentalConsentScreen({ ageGroup, onComplete }) {
                 { transform: [{ scale: successScale }] },
               ]}
             >
-              <Text style={s.successEmoji}>🎉</Text>
+              <View style={s.successEmoji}>
+                <PartyPopper size={52} color={C.emerald} />
+              </View>
               <Text style={[s.successTitle, centerTextDirectionStyle]}>{copy.successTitle}</Text>
               <Text style={[s.successText, centerTextDirectionStyle]}>
                 {copy.successText}
@@ -444,11 +457,16 @@ const s = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
+  messageTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
   messageTitle: {
     fontSize: 15,
     fontWeight: '700',
     color: C.amber,
-    marginBottom: 8,
   },
   messageText: {
     fontSize: 14,
@@ -460,11 +478,16 @@ const s = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
   },
+  parentTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
   parentTitle: {
     fontSize: 15,
     fontWeight: '700',
     color: C.text,
-    marginBottom: 8,
   },
   parentText: {
     fontSize: 14,
@@ -590,7 +613,6 @@ const s = StyleSheet.create({
     paddingVertical: 30,
   },
   successEmoji: {
-    fontSize: 60,
     marginBottom: 16,
   },
   successTitle: {

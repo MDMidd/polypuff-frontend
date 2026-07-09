@@ -39,6 +39,7 @@ import {
   BookOpen, Plus, Search, Download, Trash2, PenTool,
   CheckCircle, XCircle, X, ArrowRight,
   Star, FileText, Table, File, Lightbulb, ArrowLeft, ChevronLeft, ChevronRight,
+  Landmark, BookText, MessageCircle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -915,9 +916,12 @@ export default function VaultScreen() {
 
         <PolyPuffScene size={600} />
 
-        <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text, marginBottom: 4 }}>
-          📒 {wt('vault-title')}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <Landmark size={22} color={C.cyan || '#00E5FF'} />
+          <Text style={{ fontSize: scaledFont(22), fontWeight: '800', color: C.text }}>
+            {wt('vault-title')}
+          </Text>
+        </View>
         <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 16 }}>
           {wt('vault-word-count', { n: vaultWords.length })}
         </Text>
@@ -964,7 +968,10 @@ export default function VaultScreen() {
             accessibilityRole="button"
             accessibilityLabel={wt('vault-enrich')}
           >
-            <Text style={{ fontSize: 15 }}>{enrichingAll ? '⏳' : '✨'}</Text>
+            {enrichingAll
+              ? <ActivityIndicator size="small" color={C.purple || '#B06CFF'} />
+              : <Lightbulb size={15} color={C.purple || '#B06CFF'} />
+            }
             <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.purple || '#B06CFF' }}>
               {enrichingAll
                 ? wt('vault-generating-def')
@@ -1516,9 +1523,12 @@ export default function VaultScreen() {
 
                   {/* ── Definition(s) ── */}
                   <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: C.border + '20' }}>
-                    <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.cyan || '#00E5FF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
-                      📖 {wt('vault-definition')}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                      <BookText size={14} color={C.cyan || '#00E5FF'} />
+                      <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.cyan || '#00E5FF', textTransform: 'uppercase', letterSpacing: 1 }}>
+                        {wt('vault-definition')}
+                      </Text>
+                    </View>
                     {w.meanings && w.meanings.length > 0 ? (
                       w.meanings.map((m, mi) => (
                         <View key={mi} style={{ marginBottom: mi < w.meanings.length - 1 ? 12 : 0 }}>
@@ -1532,9 +1542,12 @@ export default function VaultScreen() {
                       ))
                     ) : (
                       enrichingIds.has(w.word) ? (
-                        <Text style={{ fontSize: scaledFont(13), color: C.cyan || '#00E5FF', fontStyle: 'italic' }}>
-                          {`✨ ${wt('vault-generating-def')}`}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <Lightbulb size={13} color={C.cyan || '#00E5FF'} />
+                          <Text style={{ fontSize: scaledFont(13), color: C.cyan || '#00E5FF', fontStyle: 'italic' }}>
+                            {wt('vault-generating-def')}
+                          </Text>
+                        </View>
                       ) : (
                         <Text style={{ fontSize: scaledFont(15), color: w.definition ? C.text : C.textMuted, lineHeight: 22 }}>
                           {w.definition || wt('vault-no-def-study')}
@@ -1574,7 +1587,7 @@ export default function VaultScreen() {
                         backgroundColor: (C.cyan || '#00E5FF') + '18', borderRadius: 10, alignSelf: 'flex-start', marginBottom: 12 }}
                       accessibilityRole="button" accessibilityLabel={wt('vault-enrich')}
                     >
-                      <Text style={{ fontSize: 14 }}>✨</Text>
+                      <Lightbulb size={14} color={C.cyan || '#00E5FF'} />
                       <Text style={{ fontSize: scaledFont(13), color: C.cyan || '#00E5FF', fontWeight: '700' }}>{wt('vault-enrich')}</Text>
                     </TouchableOpacity>
                   )}
@@ -1582,9 +1595,12 @@ export default function VaultScreen() {
                   {/* ── Example sentences ── */}
                   {(builtInExamples.length > 0 || extraExamples.length > 0) && (
                     <View style={{ backgroundColor: C.card, borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: C.border + '20' }}>
-                      <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.emerald || '#00E5A0', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
-                        💬 {wt('vault-examples')}
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                        <MessageCircle size={14} color={C.emerald || '#00E5A0'} />
+                        <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.emerald || '#00E5A0', textTransform: 'uppercase', letterSpacing: 1 }}>
+                          {wt('vault-examples')}
+                        </Text>
+                      </View>
                       {builtInExamples.map((ex, ei) => (
                         <View key={`built-${ei}`} style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
                           <Text style={{ color: C.emerald || '#00E5A0', fontSize: scaledFont(16), fontWeight: '700', marginTop: 1 }}>•</Text>

@@ -44,6 +44,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Lock, Mail, KeyRound } from 'lucide-react-native';
 // Lazy-load the Google Sign-In native module. Importing it directly at the top
 // of the file makes the entire screen unable to load in Expo Go (no native
 // module). Wrapping in try/require means: works in EAS builds, no-op in Expo Go.
@@ -449,7 +450,9 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
           {/* ── Grey zone notice ── */}
           {isGreyZone && mode === 'options' && (
             <View style={s.greyZoneCard}>
-              <Text style={s.greyZoneIcon}>🔒</Text>
+              <View style={s.greyZoneIcon}>
+                <Lock size={16} color={C.amber} />
+              </View>
               <Text style={s.greyZoneText}>
                 Because you're under 18, data sharing and public profiles are disabled by default for your privacy. You can ask a parent to enable them in Settings.
               </Text>
@@ -797,7 +800,9 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
           {mode === 'check_email' && (
             <>
               <View style={s.infoCard}>
-                <Text style={s.infoIcon}>📧</Text>
+                <View style={s.infoIcon}>
+                  <Mail size={20} color={C.textSec} />
+                </View>
                 <Text style={s.infoText}>
                   Open the email from Poly-Puff and tap the verification link, then come back here to log in.
                 </Text>
@@ -845,7 +850,9 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
           {mode === 'reset_sent' && (
             <>
               <View style={s.infoCard}>
-                <Text style={s.infoIcon}>🔑</Text>
+                <View style={s.infoIcon}>
+                  <KeyRound size={20} color={C.textSec} />
+                </View>
                 <Text style={s.infoText}>
                   Open the reset link from your email to choose a new password, then come back here to log in.
                 </Text>
@@ -889,7 +896,7 @@ const s = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '700', color: C.text, marginBottom: 6, textAlign: 'center' },
   subtitle: { fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 21, marginBottom: 20 },
   greyZoneCard: { flexDirection: 'row', backgroundColor: C.amber + '10', borderRadius: 12, borderWidth: 1, borderColor: C.amber + '25', padding: 12, marginBottom: 20, alignItems: 'flex-start' },
-  greyZoneIcon: { fontSize: 16, marginRight: 10, marginTop: 1 },
+  greyZoneIcon: { marginRight: 10, marginTop: 1 },
   greyZoneText: { flex: 1, fontSize: 12, color: C.amber, lineHeight: 18, opacity: 0.9 },
   socialBtn: { width: '100%', flexDirection: 'row', alignItems: 'center', backgroundColor: C.bg, borderRadius: 14, borderWidth: 1.5, paddingVertical: 14, paddingHorizontal: 18, marginBottom: 10, gap: 14 },
   socialIcon: { fontSize: 18, fontWeight: '800', color: C.google, width: 24, textAlign: 'center' },
@@ -908,7 +915,7 @@ const s = StyleSheet.create({
   backLink: { marginTop: 14 },
   backLinkText: { fontSize: 14, color: C.cyan, fontWeight: '500', textAlign: 'center' },
   infoCard: { width: '100%', flexDirection: 'row', backgroundColor: C.cardAlt, borderRadius: 12, padding: 14, marginBottom: 16, alignItems: 'flex-start' },
-  infoIcon: { fontSize: 20, marginRight: 10 },
+  infoIcon: { marginRight: 10 },
   infoText: { flex: 1, fontSize: 13, color: C.textSec, lineHeight: 19 },
   clauseCard: { width: '100%', backgroundColor: C.cardAlt, borderRadius: 12, padding: 14, marginTop: 20 },
   clauseText: { fontSize: 12, color: C.textMuted, lineHeight: 18, textAlign: 'center' },

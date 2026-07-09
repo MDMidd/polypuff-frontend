@@ -21,7 +21,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CheckCircle, Tag, Lock, Unlock, ArrowLeft } from 'lucide-react-native';
+import { CheckCircle, Tag, Lock, Unlock, ArrowLeft, Gift, Smartphone, Key } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { redeemVoucher, isPremiumUnlocked, getRedeemedCode } from '../services/voucherService';
 import { scaledFont } from '../utils/accessibility';
@@ -258,15 +258,24 @@ export default function VoucherScreen() {
           {/* ── Info box ── */}
           <View style={[s.infoBox, { backgroundColor: C.card || '#121829', borderColor: C.border || '#2A3352' }]}>
             <Text style={[s.infoTitle, { color: C.textSec || '#8B95B0' }]}>How it works</Text>
-            <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
-              🎁  Each code unlocks full access to Poly-Puff.
-            </Text>
-            <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
-              📱  Codes are tied to one device — share wisely!
-            </Text>
-            <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
-              🔑  Got a code from your teacher? Enter it above.
-            </Text>
+            <View style={s.infoLineRow}>
+              <Gift size={15} color={C.textMuted || '#5A6380'} />
+              <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
+                Each code unlocks full access to Poly-Puff.
+              </Text>
+            </View>
+            <View style={s.infoLineRow}>
+              <Smartphone size={15} color={C.textMuted || '#5A6380'} />
+              <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
+                Codes are tied to one device — share wisely!
+              </Text>
+            </View>
+            <View style={s.infoLineRow}>
+              <Key size={15} color={C.textMuted || '#5A6380'} />
+              <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
+                Got a code from your teacher? Enter it above.
+              </Text>
+            </View>
           </View>
 
         </ScrollView>
@@ -400,7 +409,13 @@ const s = StyleSheet.create({
     letterSpacing: 0.8,
     marginBottom: 4,
   },
+  infoLineRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
   infoLine: {
+    flex: 1,
     fontSize: scaledFont(13),
     lineHeight: 19,
   },

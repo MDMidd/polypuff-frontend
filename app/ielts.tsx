@@ -25,6 +25,8 @@ import {
   BookOpen, Headphones, PenTool, Mic, ChevronDown, ChevronUp,
   Star, Clock, Target, CheckCircle, AlertCircle, Send, X, Zap,
   GraduationCap, Globe, FileText, Award, ArrowLeft,
+  Plane, ClipboardList, Calendar, BarChart3, PenLine, Search,
+  Link, Mail, MessageCircle, MessagesSquare, Shuffle,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -63,7 +65,7 @@ const BANDS = [
 const TEST_TYPES = {
   academic: {
     label: 'Academic',
-    icon: '🎓',
+    icon: GraduationCap,
     colour: '#B06CFF',
     purpose: 'University undergraduate/postgraduate entry, professional registration',
     whoFor: 'Students applying to universities; professionals seeking registration (nurses, doctors, engineers)',
@@ -74,7 +76,7 @@ const TEST_TYPES = {
   },
   general: {
     label: 'General Training',
-    icon: '✈️',
+    icon: Plane,
     colour: '#00E5FF',
     purpose: 'Secondary education, work experience, immigration to English-speaking countries',
     whoFor: 'People migrating to Australia, Canada, New Zealand, UK; work or training programmes',
@@ -463,13 +465,13 @@ export default function IELTSScreen() {
       {/* Quick stats */}
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
         {[
-          { label: 'Test Duration', value: '~2h 45m', icon: '⏱️' },
-          { label: 'Sections', value: '4', icon: '📋' },
-          { label: 'Score Range', value: '1–9', icon: '📊' },
-          { label: 'Valid For', value: '2 years', icon: '📅' },
+          { label: 'Test Duration', value: '~2h 45m', icon: Clock },
+          { label: 'Sections', value: '4', icon: ClipboardList },
+          { label: 'Score Range', value: '1–9', icon: Award },
+          { label: 'Valid For', value: '2 years', icon: Calendar },
         ].map((s, i) => (
           <View key={i} style={{ flex: 1, backgroundColor: C.card, borderRadius: 12, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}>
-            <Text style={{ fontSize: 18 }}>{s.icon}</Text>
+            <s.icon size={18} color={C.text} />
             <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: C.text, marginTop: 4 }}>{s.value}</Text>
             <Text style={{ fontSize: scaledFont(9), color: C.textMuted, textAlign: 'center', marginTop: 2 }}>{s.label}</Text>
           </View>
@@ -494,7 +496,7 @@ export default function IELTSScreen() {
             accessibilityHint={key === 'academic' ? 'Select Academic IELTS for university or professional registration' : 'Select General Training IELTS for immigration or work'}
             accessibilityState={{ selected: testType === key }}
           >
-            <Text style={{ fontSize: 22, textAlign: 'center', marginBottom: 4 }}>{t.icon}</Text>
+            <t.icon size={22} color={t.colour} style={{ alignSelf: 'center', marginBottom: 4 }} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: testType === key ? t.colour : C.text, textAlign: 'center' }}>{t.label}</Text>
             <Text style={{ fontSize: scaledFont(10), color: C.textMuted, textAlign: 'center', marginTop: 2 }}>{key === 'academic' ? 'University / Professional' : 'Immigration / Work'}</Text>
           </TouchableOpacity>
@@ -506,7 +508,10 @@ export default function IELTSScreen() {
         const t = TEST_TYPES[testType];
         return (
           <View style={[S.card, { borderColor: t.colour + '30' }]}>
-            <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: t.colour, marginBottom: 12 }}>{t.icon} {t.label} Training</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <t.icon size={18} color={t.colour} />
+              <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: t.colour }}>{t.label} Training</Text>
+            </View>
             {[
               { label: 'Purpose', value: t.purpose },
               { label: 'Who should take it', value: t.whoFor },
@@ -527,13 +532,13 @@ export default function IELTSScreen() {
       {/* Test structure */}
       <Text style={[S.label, { marginBottom: 8 }]}>{t.testStructure}</Text>
       {[
-        { section: 'Listening', time: '30 min + 10 min transfer', q: '40 questions', icon: '🎧', colour: '#00E5FF' },
-        { section: 'Reading', time: '60 minutes', q: '40 questions', icon: '📖', colour: '#00E5A0' },
-        { section: 'Writing', time: '60 minutes', q: '2 tasks', icon: '✍️', colour: '#FFBE0B' },
-        { section: 'Speaking', time: '11–14 minutes', q: '3 parts', icon: '🎙️', colour: '#B06CFF' },
+        { section: 'Listening', time: '30 min + 10 min transfer', q: '40 questions', icon: Headphones, colour: '#00E5FF' },
+        { section: 'Reading', time: '60 minutes', q: '40 questions', icon: BookOpen, colour: '#00E5A0' },
+        { section: 'Writing', time: '60 minutes', q: '2 tasks', icon: PenTool, colour: '#FFBE0B' },
+        { section: 'Speaking', time: '11–14 minutes', q: '3 parts', icon: Mic, colour: '#B06CFF' },
       ].map((s, i) => (
         <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: C.border + '20' }}>
-          <Text style={{ fontSize: 24 }}>{s.icon}</Text>
+          <s.icon size={24} color={s.colour} />
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{s.section}</Text>
             <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 2 }}>{s.time} · {s.q}</Text>
@@ -546,7 +551,10 @@ export default function IELTSScreen() {
 
       {/* How scores work */}
       <View style={[S.card, { marginTop: 4 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>📊 How Scores Work</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <BarChart3 size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>How Scores Work</Text>
+        </View>
         <Text style={S.bodyText}>{t.eachSectionScored}</Text>
         <View style={{ backgroundColor: C.bg, borderRadius: 10, padding: 12, marginTop: 10 }}>
           <Text style={[S.label, { marginBottom: 4 }]}>{t.exampleCalculation}</Text>
@@ -710,15 +718,21 @@ export default function IELTSScreen() {
   const renderPractice = () => (
     <View>
       <View style={{ backgroundColor: '#0d1f0d', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#00E5A040' }}>
-        <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#00E5A0', marginBottom: 6 }}>⚡ {wt('tour-ielts-s4-title')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <Zap size={16} color="#00E5A0" />
+          <Text style={{ fontSize: scaledFont(17), fontWeight: '800', color: '#00E5A0' }}>{wt('tour-ielts-s4-title')}</Text>
+        </View>
         <Text style={[S.bodyText, { color: '#aaa' }]}>{wt('tour-ielts-s4-body')}</Text>
       </View>
 
       {/* LISTENING */}
-      <Text style={[S.label, { marginBottom: 8, color: '#00E5FF' }]}>🎧 {t.listening}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <Headphones size={13} color="#00E5FF" />
+        <Text style={[S.label, { color: '#00E5FF' }]}>{t.listening}</Text>
+      </View>
       {[
-        { id: 'listening_completion', label: 'Form / Note Completion', desc: 'Listen to a conversation or talk and complete the missing information. Tests accuracy and spelling.', colour: '#00E5FF', icon: '📝' },
-        { id: 'listening_mcq',        label: 'Multiple Choice',         desc: 'Choose the correct answer (A, B or C) for short extracts or longer recordings.', colour: '#00E5FF', icon: '✅' },
+        { id: 'listening_completion', label: 'Form / Note Completion', desc: 'Listen to a conversation or talk and complete the missing information. Tests accuracy and spelling.', colour: '#00E5FF', icon: PenLine },
+        { id: 'listening_mcq',        label: 'Multiple Choice',         desc: 'Choose the correct answer (A, B or C) for short extracts or longer recordings.', colour: '#00E5FF', icon: CheckCircle },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -729,7 +743,7 @@ export default function IELTSScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
@@ -740,10 +754,13 @@ export default function IELTSScreen() {
       ))}
 
       {/* READING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#00E5A0' }]}>📖 {wt('reading')}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <BookOpen size={13} color="#00E5A0" />
+        <Text style={[S.label, { color: '#00E5A0' }]}>{wt('reading')}</Text>
+      </View>
       {[
-        { id: 'reading_tfng',     label: 'True / False / Not Given', desc: 'Read a passage and classify statements as True, False, or Not Given. Tests careful reading and inference.', colour: '#00E5A0', icon: '🔍' },
-        { id: 'reading_matching', label: 'Matching Information',      desc: 'Match statements to the correct section of a text or the correct author. Tests reading for detail.', colour: '#00E5A0', icon: '🔗' },
+        { id: 'reading_tfng',     label: 'True / False / Not Given', desc: 'Read a passage and classify statements as True, False, or Not Given. Tests careful reading and inference.', colour: '#00E5A0', icon: Search },
+        { id: 'reading_matching', label: 'Matching Information',      desc: 'Match statements to the correct section of a text or the correct author. Tests reading for detail.', colour: '#00E5A0', icon: Link },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -754,7 +771,7 @@ export default function IELTSScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
@@ -765,11 +782,14 @@ export default function IELTSScreen() {
       ))}
 
       {/* WRITING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#FFBE0B' }]}>✍️ {t.writing}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <PenTool size={13} color="#FFBE0B" />
+        <Text style={[S.label, { color: '#FFBE0B' }]}>{t.writing}</Text>
+      </View>
       {[
-        { id: 'writing_task2',            label: 'Task 2 — Essay',              desc: 'Opinion, discussion, problem-solution or advantages/disadvantages essay. 250+ words.', colour: '#FFBE0B', icon: '📄' },
-        { id: 'writing_task1_academic',   label: 'Task 1 — Academic (Graph/Chart)', desc: 'Describe and summarise visual data — bar chart, line graph, table, diagram or map. 150+ words.', colour: '#FFBE0B', icon: '📊', hidden: testType !== 'academic' },
-        { id: 'writing_task1_general',    label: 'Task 1 — General (Letter)',   desc: 'Write a formal, semi-formal or informal letter covering all three bullet points. 150+ words.', colour: '#FFBE0B', icon: '✉️', hidden: testType !== 'general' },
+        { id: 'writing_task2',            label: 'Task 2 — Essay',              desc: 'Opinion, discussion, problem-solution or advantages/disadvantages essay. 250+ words.', colour: '#FFBE0B', icon: FileText },
+        { id: 'writing_task1_academic',   label: 'Task 1 — Academic (Graph/Chart)', desc: 'Describe and summarise visual data — bar chart, line graph, table, diagram or map. 150+ words.', colour: '#FFBE0B', icon: BarChart3, hidden: testType !== 'academic' },
+        { id: 'writing_task1_general',    label: 'Task 1 — General (Letter)',   desc: 'Write a formal, semi-formal or informal letter covering all three bullet points. 150+ words.', colour: '#FFBE0B', icon: Mail, hidden: testType !== 'general' },
       ].filter(p => !p.hidden).map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -780,7 +800,7 @@ export default function IELTSScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
@@ -791,11 +811,14 @@ export default function IELTSScreen() {
       ))}
 
       {/* SPEAKING */}
-      <Text style={[S.label, { marginBottom: 8, marginTop: 8, color: '#B06CFF' }]}>🎙️ {wt('speaking')}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, marginTop: 8 }}>
+        <Mic size={13} color="#B06CFF" />
+        <Text style={[S.label, { color: '#B06CFF' }]}>{wt('speaking')}</Text>
+      </View>
       {[
-        { id: 'speaking_part1', label: 'Part 1 — Interview',    desc: 'Answer personal questions about familiar topics. 2–4 sentences per answer. Aim to be natural and fluent.', colour: '#B06CFF', icon: '🗣️' },
-        { id: 'speaking_part2', label: 'Part 2 — Long Turn',    desc: 'Speak for 1–2 minutes on a topic card with bullet points. Write what you would say.', colour: '#B06CFF', icon: '🎙️' },
-        { id: 'speaking_part3', label: 'Part 3 — Discussion',   desc: 'Answer abstract, opinion-based questions linked to Part 2. Use higher-level language and justify your views.', colour: '#B06CFF', icon: '💬' },
+        { id: 'speaking_part1', label: 'Part 1 — Interview',    desc: 'Answer personal questions about familiar topics. 2–4 sentences per answer. Aim to be natural and fluent.', colour: '#B06CFF', icon: MessageCircle },
+        { id: 'speaking_part2', label: 'Part 2 — Long Turn',    desc: 'Speak for 1–2 minutes on a topic card with bullet points. Write what you would say.', colour: '#B06CFF', icon: Mic },
+        { id: 'speaking_part3', label: 'Part 3 — Discussion',   desc: 'Answer abstract, opinion-based questions linked to Part 2. Use higher-level language and justify your views.', colour: '#B06CFF', icon: MessagesSquare },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -806,7 +829,7 @@ export default function IELTSScreen() {
           accessibilityHint={p.desc}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <Text style={{ fontSize: 18 }}>{p.icon}</Text>
+            <p.icon size={18} color={p.colour} />
             <Text style={{ fontSize: scaledFont(13), fontWeight: '800', color: p.colour, flex: 1 }}>{p.label}</Text>
           </View>
           <Text style={[S.bodyText, { marginBottom: 8 }]}>{p.desc}</Text>
@@ -818,7 +841,10 @@ export default function IELTSScreen() {
 
       {/* Study tips */}
       <View style={[S.card, { marginTop: 8 }]}>
-        <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text, marginBottom: 10 }}>📅 Study Schedule Tips</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+          <Calendar size={15} color={C.text} />
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>Study Schedule Tips</Text>
+        </View>
         {[
           { period: '3+ months', tip: 'Do full mock tests monthly. Focus on weakest sections daily. Build vocabulary systematically.' },
           { period: '1–3 months', tip: 'Alternate between sections. Do timed practice. Analyse errors carefully. Focus on band descriptors.' },
@@ -937,7 +963,10 @@ export default function IELTSScreen() {
               accessibilityHint="Loads a different practice prompt and clears your response"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>🔀 {wt('try-again')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Shuffle size={13} color={C.cyan} />
+                <Text style={{ fontSize: scaledFont(12), color: C.cyan, fontWeight: '700' }}>{wt('try-again')}</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -1128,6 +1157,7 @@ export default function IELTSScreen() {
   );
 
   // ── RENDER ────────────────────────────────────────────────────────────────
+  const TestTypeIcon = TEST_TYPES[testType].icon;
   return (
     <ScreenBackground style={null}>
             {/* ── HEADER ── */}
@@ -1187,9 +1217,12 @@ export default function IELTSScreen() {
 
       {/* Test type indicator strip */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 8, backgroundColor: TEST_TYPES[testType].colour + '10', borderBottomWidth: 1, borderBottomColor: TEST_TYPES[testType].colour + '20' }}>
-        <Text style={{ fontSize: scaledFont(12), color: TEST_TYPES[testType].colour, fontWeight: '700' }}>
-          {TEST_TYPES[testType].icon} {TEST_TYPES[testType].label} Test
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <TestTypeIcon size={13} color={TEST_TYPES[testType].colour} />
+          <Text style={{ fontSize: scaledFont(12), color: TEST_TYPES[testType].colour, fontWeight: '700' }}>
+            {TEST_TYPES[testType].label} Test
+          </Text>
+        </View>
         <TouchableOpacity
           onPress={() => setTestType(testType === 'academic' ? 'general' : 'academic')}
           accessibilityRole="button"

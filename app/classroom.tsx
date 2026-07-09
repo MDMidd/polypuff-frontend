@@ -26,7 +26,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Users, Plus, LogIn, ChevronRight, BookOpen,
-  Star, Clock, Award, X, RefreshCw,
+  Star, Clock, Award, X, RefreshCw, School, GraduationCap, Lightbulb,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -395,7 +395,7 @@ export default function ClassroomScreen() {
 
             {rooms.length === 0 && (
               <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                <Text style={{ fontSize: 40, marginBottom: 12 }}>🏫</Text>
+                <School size={40} color="#A78BFA" style={{ marginBottom: 12 }} />
                 <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('noClassesYet', 'No groups yet')}</Text>
                 <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
                   {ui('noClassesHelp', 'Create your first group and share the join code with your students.')}
@@ -436,7 +436,7 @@ export default function ClassroomScreen() {
                 </TouchableOpacity>
 
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
-                  <Text style={{ fontSize: 40, marginBottom: 12 }}>🎓</Text>
+                  <GraduationCap size={40} color="#34D399" style={{ marginBottom: 12 }} />
                   <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('notInClassYet', 'Not sharing with a teacher yet')}</Text>
                   <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
                     {ui('notInClassHelp', 'Ask your teacher for the 6-character group code, then join here.')}
@@ -492,9 +492,11 @@ export default function ClassroomScreen() {
                 <View style={{
                   backgroundColor: C.card || '#111827', borderRadius: 12, padding: 14,
                   borderWidth: 1, borderColor: (C.border || '#374151') + '20',
+                  flexDirection: 'row', alignItems: 'flex-start', gap: 8,
                 }}>
-                  <Text style={{ fontSize: scaledFont(12), color: C.textMuted, lineHeight: 18 }}>
-                    💡 {ui('classroomStudentTip', 'Your exercise progress can be shared with this teacher group. Keep practising so your teacher can see what to support next.')}
+                  <Lightbulb size={14} color={C.textMuted} style={{ marginTop: 1 }} />
+                  <Text style={{ flex: 1, fontSize: scaledFont(12), color: C.textMuted, lineHeight: 18 }}>
+                    {ui('classroomStudentTip', 'Your exercise progress can be shared with this teacher group. Keep practising so your teacher can see what to support next.')}
                   </Text>
                 </View>
               </>

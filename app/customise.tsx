@@ -18,10 +18,11 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
-  BookOpen, PenTool, Headphones, Mic, Brain, Layers, Pencil,
+  BookOpen, PenTool, Headphones, Brain, Layers, Pencil,
   Puzzle, Landmark, ClipboardCheck, GraduationCap, Briefcase,
   CheckCircle, ChevronRight, ChevronUp, ChevronDown,
-  Zap, Star, Users, Globe, Award, X, Info,
+  Star, Users, Globe, Award, X, Info,
+  Sprout, MessageCircle, ClipboardList, Library, BookMarked, Rocket, ListChecks,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -102,7 +103,7 @@ const PRESETS = [
   {
     id: 'beginner',
     label: 'Complete Beginner',
-    emoji: '🌱',
+    icon: Sprout,
     colour: '#00E5A0',
     desc: 'Start from scratch. Build vocabulary and basic grammar before anything else.',
     modules: ['placement', 'wordchunks', 'vocab', 'quiz'],
@@ -111,7 +112,7 @@ const PRESETS = [
   {
     id: 'everyday',
     label: 'Everyday English',
-    emoji: '💬',
+    icon: MessageCircle,
     colour: '#00E5FF',
     desc: 'Essential skills for daily communication — conversations, emails, and understanding spoken English.',
     modules: ['placement', 'translation', 'listening', 'vocab', 'wordchunks', 'quiz'],
@@ -120,7 +121,7 @@ const PRESETS = [
   {
     id: 'exam_general',
     label: 'Exam Preparation',
-    emoji: '📋',
+    icon: ClipboardList,
     colour: '#FFBE0B',
     desc: 'Focused on the four skills tested in major English exams — IELTS, TOEFL, and Cambridge.',
     modules: ['placement', 'translation', 'listening', 'writing', 'grammar', 'ielts', 'toefl', 'cae'],
@@ -129,7 +130,7 @@ const PRESETS = [
   {
     id: 'academic',
     label: 'Academic English',
-    emoji: '🎓',
+    icon: Library,
     colour: '#B06CFF',
     desc: 'University-level reading, writing, and critical thinking skills. Includes exam prep.',
     modules: ['translation', 'writing', 'grammar', 'listening', 'ielts', 'cae', 'vault'],
@@ -138,7 +139,7 @@ const PRESETS = [
   {
     id: 'professional',
     label: 'Professional / Business',
-    emoji: '💼',
+    icon: Briefcase,
     colour: '#FB923C',
     desc: 'Corporate communication, professional writing, and workplace English.',
     modules: ['business', 'writing', 'vocab', 'vault', 'grammar'],
@@ -147,7 +148,7 @@ const PRESETS = [
   {
     id: 'grammar_focus',
     label: 'Grammar Intensive',
-    emoji: '📚',
+    icon: BookMarked,
     colour: '#F472B6',
     desc: 'Deep focus on grammar rules, error correction, and sentence transformation.',
     modules: ['placement', 'grammar', 'quiz', 'translation', 'writing'],
@@ -156,7 +157,7 @@ const PRESETS = [
   {
     id: 'vocab_focus',
     label: 'Vocabulary Builder',
-    emoji: '📖',
+    icon: Layers,
     colour: '#FFBE0B',
     desc: 'Comprehensive vocabulary development through flashcards, chunks, and contextual learning.',
     modules: ['vocab', 'vault', 'wordchunks', 'translation', 'quiz'],
@@ -165,7 +166,7 @@ const PRESETS = [
   {
     id: 'all',
     label: 'Everything',
-    emoji: '🚀',
+    icon: Rocket,
     colour: '#00E5A0',
     desc: 'Access every feature Poly-Puff has to offer. Best for dedicated learners with clear goals.',
     modules: ALL_MODULES.map(m => m.id),
@@ -307,9 +308,12 @@ export default function CustomisePracticeScreen() {
 
         {/* Intro */}
         <View style={{ backgroundColor: '#0d1a0d', borderRadius: 18, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#00E5A040' }}>
-          <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: '#00E5A0', marginBottom: 6 }}>
-            ✏️ Your Practice List
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <ListChecks size={16} color="#00E5A0" />
+            <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: '#00E5A0' }}>
+              Your Practice List
+            </Text>
+          </View>
           <Text style={{ fontSize: scaledFont(13), color: '#ccc', lineHeight: 20 }}>
             Choose which exercises appear in your Practice section and arrange them in the order that suits you. Changes update both Practice and My Progress.
           </Text>
@@ -489,14 +493,17 @@ export default function CustomisePracticeScreen() {
                 >
                   {/* Header */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                    <Text style={{ fontSize: 26 }}>{preset.emoji}</Text>
+                    <preset.icon size={26} color={preset.colour} />
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: preset.colour }}>
                         {preset.label}
                       </Text>
-                      <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 1 }}>
-                        👤 {preset.forWho}
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                        <Users size={11} color={C.textMuted} />
+                        <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>
+                          {preset.forWho}
+                        </Text>
+                      </View>
                     </View>
                     <View style={{ backgroundColor: preset.colour + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
                       <Text style={{ fontSize: scaledFont(10), fontWeight: '800', color: preset.colour }}>
