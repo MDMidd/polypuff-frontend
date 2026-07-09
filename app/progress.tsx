@@ -157,7 +157,7 @@ function WeekHeatmap({ streak, C, p, isRTL }: { streak: number; C: any; p: Progr
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ProgressScreen() {
   const { colors: C } = useTheme();
-  const { wt, lang } = useLanguage();
+  const { wt, lang, t } = useLanguage();
   const p = getProgressT(lang);
   const isRTL = isRtlLanguage(lang);
   const router = useRouter();
@@ -173,6 +173,7 @@ export default function ProgressScreen() {
   const [bestStreak,      setBestStreak]      = useState(0);
   const [userName,        setUserName]        = useState('Student');
   const [cefrLevel,       setCefrLevel]       = useState('A1');
+  const [skillLevels,     setSkillLevels]     = useState<Record<string, string>>({});
   const [totalSeconds,    setTotalSeconds]    = useState(0);
   const [exerciseData,    setExerciseData]    = useState({});
   const [mistakeRanking,  setMistakeRanking]  = useState([]);
@@ -221,6 +222,7 @@ export default function ProgressScreen() {
       const levelsRaw = await AsyncStorage.getItem('skillLevels');
       const levels    = levelsRaw ? JSON.parse(levelsRaw) : {};
       setCefrLevel(levels.overall || profile.level || 'A1');
+      setSkillLevels(levels || {});
 
       const streakVal     = parseInt(await AsyncStorage.getItem('currentStreak') || '0', 10);
       const bestStreakVal = parseInt(await AsyncStorage.getItem('bestStreak') || '0', 10);
@@ -634,6 +636,26 @@ export default function ProgressScreen() {
             </>
           )}
         </View>
+
+        {/* ── Skill levels row — separate from the single overall CEFR
+             badge above and from the Placement Test score; reflects
+             ongoing exercise performance per skill. Only shows a chip
+             once that skill actually has a level. ── */}
+        {(['reading', 'writing', 'listening', 'speaking'] as const).some(s => skillLevels[s]) && (
+          <View style={{ flexDirection: rowDir, gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+            {([
+              { skill: 'reading' as const,   key: 'skillReading' as const,   fallback: 'Reading' },
+              { skill: 'writing' as const,   key: 'skillWriting' as const,   fallback: 'Writing' },
+              { skill: 'listening' as const, key: 'skillListening' as const, fallback: 'Listening' },
+              { skill: 'speaking' as const,  key: 'skillSpeaking' as const,  fallback: 'Speaking' },
+            ]).filter(s => skillLevels[s.skill]).map(s => (
+              <View key={s.skill} style={{ flex: 1, minWidth: 70, backgroundColor: C.card || '#111827', borderRadius: 12, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: C.border + '20' }}>
+                <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.cyan || '#00D9FF' }}>{skillLevels[s.skill]}</Text>
+                <Text style={{ fontSize: scaledFont(10), color: C.textMuted, marginTop: 2 }}>{(t[s.key] as string | undefined) ?? s.fallback}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* ── Stats row ───────────────────────────────────────────────── */}
         <View style={{ flexDirection: rowDir, gap: 8, marginBottom: 12 }}>
