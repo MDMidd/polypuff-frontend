@@ -96,9 +96,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 interface LoginScreenProps {
   ageGroup: 'child' | 'grey_zone' | 'adult';
   onComplete: (nextScreen: string, ageGroup?: string) => void;
+  onShowVoucher: () => void;
 }
 
-export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) {
+export default function LoginScreen({ ageGroup, onComplete, onShowVoucher }: LoginScreenProps) {
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<Mode>('options');
   const [email, setEmail] = useState('');
@@ -543,6 +544,20 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
               >
                 <Text style={s.loginLinkText}>
                   Already have an account? <Text style={{ color: C.cyan, fontWeight: '700' }}>Log In</Text>
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={s.loginLink}
+                onPress={onShowVoucher}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Have a voucher code? Redeem it"
+                accessibilityHint="Opens the voucher redemption screen"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={s.loginLinkText}>
+                  Have a voucher code? <Text style={{ color: C.cyan, fontWeight: '700' }}>Redeem it</Text>
                 </Text>
               </TouchableOpacity>
             </>

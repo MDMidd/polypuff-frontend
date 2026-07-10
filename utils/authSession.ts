@@ -172,6 +172,31 @@ export async function clearAuthSession(): Promise<void> {
 }
 
 /**
+ * Cached isPro/isAdmin flags for gating UI (e.g. locking Pro-only exercise
+ * modules on the Practice Hub). Reads the same 'accountSummary' blob
+ * settings.tsx keeps fresh via /api/auth/me, and that storeAuthSession()
+ * seeds immediately after login/signup - so this is available without a
+ * network round trip and stays in sync with whatever settings.tsx last saw.
+ * Defaults to { isPro: false, isAdmin: false } for logged-out/local-only
+ * users, which is the correct "free" gate state.
+ */
+export interface AccountFlags {
+  isPro: boolean;
+  isAdmin: boolean;
+}
+
+export async function getAccountFlags(): Promise<AccountFlags> {
+  try {
+    const raw = await AsyncStorage.getItem('accountSummary');
+    if (!raw) return { isPro: false, isAdmin: false };
+    const account = JSON.parse(raw);
+    return { isPro: !!account?.isPro, isAdmin: !!account?.isAdmin };
+  } catch {
+    return { isPro: false, isAdmin: false };
+  }
+}
+
+/**
  * Get the saved JWT (or empty string if not logged in).
  * Checks legacy keys too for safety.
  */

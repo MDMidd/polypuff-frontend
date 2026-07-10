@@ -26,9 +26,14 @@ import { useTheme } from '../contexts/ThemeContext';
 import { redeemVoucher, isPremiumUnlocked, getRedeemedCode } from '../services/voucherService';
 import { scaledFont } from '../utils/accessibility';
 
-export default function VoucherScreen() {
+interface VoucherScreenProps {
+  onBack?: () => void;
+}
+
+export default function VoucherScreen({ onBack }: VoucherScreenProps = {}) {
   const { colors: C } = useTheme();
   const router = useRouter();
+  const goBack = onBack || (() => router.back());
 
   const [code,        setCode]        = useState('');
   const [loading,     setLoading]     = useState(false);
@@ -129,7 +134,7 @@ export default function VoucherScreen() {
         {/* ── Header ── */}
         <View style={[s.header, { borderBottomColor: C.border, backgroundColor: C.card || '#121829' }]}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={goBack}
             style={s.backBtn}
             accessibilityRole="button"
             accessibilityLabel="Go back"

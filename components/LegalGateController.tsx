@@ -43,6 +43,7 @@ import AgeGateScreen from '../screens/AgeGateScreen';
 import ParentalConsentScreen from '../screens/ParentalConsentScreen';
 import TermsScreen from '../screens/TermsScreen';
 import LoginScreen from '../screens/LoginScreen';
+import VoucherScreen from '../app/voucher';
 
 const C = {
   bg: '#0A0E1A',
@@ -158,7 +159,16 @@ export default function LegalGateController({ onComplete }) {
       );
 
     case 'login':
-      return <LoginScreen ageGroup={ageGroup} onComplete={handleScreenComplete} />;
+      return (
+        <LoginScreen
+          ageGroup={ageGroup}
+          onComplete={handleScreenComplete}
+          onShowVoucher={() => setCurrentScreen('voucher')}
+        />
+      );
+
+    case 'voucher':
+      return <VoucherScreen onBack={() => setCurrentScreen('login')} />;
 
     default:
       return null;

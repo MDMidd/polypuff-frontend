@@ -14,7 +14,7 @@ import {
   ClipboardCheck, BookOpen, Headphones, PenTool,
   Brain, Layers, Puzzle, ChevronLeft, ChevronRight, Pencil,
   Box, BookMarked, Landmark, GraduationCap, Globe, Briefcase, Settings, Award, Zap,
-  ChevronDown, ChevronUp, Wrench, Target, School, Star,
+  ChevronDown, ChevronUp, Wrench, Target, School, Star, Lock,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -28,6 +28,15 @@ import { recordPracticeToday } from '../services/notifications';
 import { isRtlLanguage } from '../utils/languages';
 import { getPracticeTranslations } from '../utils/practiceTranslations';
 import { CUSTOMISE_PRACTICE_LIST_VISIBLE } from './customise';
+import { getAccountFlags } from '../utils/authSession';
+import UpgradeToProModal from '../components/UpgradeToProModal';
+
+// Modules that stay free for non-Pro users - mirrors the website's
+// site-demo-guard.js, which locks every module except Translation Trainer
+// behind Pro. Placement Test is an extra confirmed exception on mobile (a
+// one-time CEFR diagnostic, not a full exercise). "classroom" (Share with
+// Teacher) isn't an exercise at all, so it's never gated either.
+const FREE_MODULE_IDS = new Set(['translation', 'placement', 'classroom']);
 
 type MenuColor = 'cyan' | 'purple' | 'emerald' | 'amber' | 'pink';
 
@@ -91,6 +100,10 @@ export default function PracticeHub() {
   const [userName,        setUserName]        = useState('');
   const [additionalOpen,  setAdditionalOpen]  = useState(true);
   const [goalsOpen,       setGoalsOpen]       = useState(true);
+  const [isPro,           setIsPro]           = useState(false);
+  const [isAdmin,         setIsAdmin]         = useState(false);
+  const [upgradeModalVisible, setUpgradeModalVisible] = useState(false);
+  const [upgradeModuleLabel, setUpgradeModuleLabel]   = useState<string | undefined>(undefined);
 
   useFocusEffect(useCallback(() => {
     AsyncStorage.getItem('placementComplete').then(v => setPlacementDone(v === 'true')).catch(() => {});
@@ -99,7 +112,18 @@ export default function PracticeHub() {
       if (v) { try { setUserName(JSON.parse(v).name || ''); } catch {} }
     }).catch(() => {});
     recordPracticeToday().catch(() => {});
+    getAccountFlags().then(({ isPro, isAdmin }) => { setIsPro(isPro); setIsAdmin(isAdmin); }).catch(() => {});
   }, []));
+
+  // Free users only get Translation Trainer + Placement Test (see
+  // FREE_MODULE_IDS above); everything else needs Pro (or admin/classroom
+  // access, which the backend also treats as fully unlocked).
+  const isModuleLocked = (id: string) => !FREE_MODULE_IDS.has(id) && !isPro && !isAdmin;
+
+  const openUpgradePrompt = (label: string) => {
+    setUpgradeModuleLabel(label);
+    setUpgradeModalVisible(true);
+  };
 
   const getColor = (colorName: MenuColor) => {
     const map = {
@@ -124,6 +148,7 @@ export default function PracticeHub() {
     const color = getColor(item.color);
     const isPrimary = variant === 'primary';
     const label = practiceT.modules[item.id] || webText(item.labelKey, item.label);
+    const locked = isModuleLocked(item.id);
 
     return (
       <TouchableOpacity
@@ -140,11 +165,13 @@ export default function PracticeHub() {
           flexDirection: rowDirection,
           alignItems: 'center',
           gap: 12,
+          opacity: locked ? 0.55 : 1,
         }}
         activeOpacity={0.72}
         accessibilityRole="button"
-        accessibilityLabel={label}
-        onPress={() => router.push(item.route)}
+        accessibilityLabel={locked ? `${label}, Pro only` : label}
+        accessibilityHint={locked ? 'Shows the upgrade to Pro screen' : undefined}
+        onPress={() => (locked ? openUpgradePrompt(label) : router.push(item.route))}
       >
         <View style={{
           width: 22,
@@ -159,6 +186,7 @@ export default function PracticeHub() {
         <Text style={{ flex: 1, fontSize: scaledFont(isPrimary ? 14 : 13), fontWeight: '800', color: C.text, textAlign }} numberOfLines={2}>
           {label}
         </Text>
+        {locked && <Lock size={14} color={C.textMuted || '#8B94A8'} />}
       </TouchableOpacity>
     );
   };
@@ -306,6 +334,12 @@ export default function PracticeHub() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      <UpgradeToProModal
+        visible={upgradeModalVisible}
+        moduleLabel={upgradeModuleLabel}
+        onClose={() => setUpgradeModalVisible(false)}
+      />
     </ScreenBackground>
   );
 }

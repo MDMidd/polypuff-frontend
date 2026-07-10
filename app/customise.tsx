@@ -177,6 +177,14 @@ const PRESETS = [
 // Entry points to this screen (settings.tsx, index.tsx) are hidden while the
 // Practice-list sync issue is investigated. Flip to true to bring the
 // "Customise Practice List" button back once it's fixed.
+//
+// NOTE: while this is false the screen is unreachable, so it was left out of
+// the Pro-lock work done in app/index.tsx and app/practice.tsx (only
+// Translation Trainer + Placement Test are free there; everything else is
+// gated behind Pro, matching the website's site-demo-guard.js). If this flag
+// is ever flipped back to true, ALL_MODULES here will need the same lock
+// treatment - non-Pro/non-admin users shouldn't be able to toggle Pro-only
+// modules into their active practice list from this screen either.
 export const CUSTOMISE_PRACTICE_LIST_VISIBLE = false;
 
 // ── AsyncStorage key ──────────────────────────────────────────────────────────
