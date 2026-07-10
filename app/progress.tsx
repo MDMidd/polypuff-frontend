@@ -54,7 +54,7 @@ const ALL_EXERCISES = [
   { id: 'vocab_vault',         label: 'Vocabulary Vault',    labelKey: 'exVocabVault' as const,  icon: Landmark, color: '#FB923C', route: 'vault' },
   { id: 'ielts',               label: 'IELTS Preparation',   labelKey: 'exIelts' as const,       icon: Globe, color: '#00E5FF', route: 'ielts' },
   { id: 'toefl',               label: 'TOEFL iBT Prep',      labelKey: 'exToefl' as const,       icon: GraduationCap, color: '#B06CFF', route: 'toefl' },
-  { id: 'cae',                 label: 'CAE — C1 Advanced',   labelKey: 'exCae' as const,         icon: Medal, color: '#00E5A0', route: 'cae' },
+  { id: 'cae',                 label: 'CAE - C1 Advanced',   labelKey: 'exCae' as const,         icon: Medal, color: '#00E5A0', route: 'cae' },
   { id: 'business_english',    label: 'Business English',    labelKey: 'exBusiness' as const,    icon: Briefcase, color: '#FFBE0B', route: 'business' },
   { id: 'daily_challenge',     label: 'Daily Challenge',     labelKey: 'exDaily' as const,       icon: Star, color: '#F59E0B', route: 'daily' },
 ];
@@ -191,7 +191,7 @@ export default function ProgressScreen() {
   const loadAll = async () => {
     setLoading(true);
     try {
-      // Load practice order from customise config — mirrors the Practice list.
+      // Load practice order from customise config - mirrors the Practice list.
       // Skipped while Customise is hidden (see customise.tsx): its ids don't
       // all match ALL_EXERCISES below (e.g. 'vault' vs 'vocab_vault'), so
       // applying a saved config here permanently dims the mismatched ones
@@ -205,7 +205,7 @@ export default function ProgressScreen() {
             ? [...cfg.order.filter(id => activeIds.includes(id)),
                ...activeIds.filter(id => !cfg.order.includes(id))]
             : activeIds;
-          // Build ordered exercise list — include ALL exercises but active ones first
+          // Build ordered exercise list - include ALL exercises but active ones first
           const orderedActive   = orderedIds.map(id => ALL_EXERCISES.find(e => e.id === id)).filter(Boolean);
           const orderedInactive = ALL_EXERCISES.filter(e => !activeIds.includes(e.id));
           setExercises([...orderedActive, ...orderedInactive]);
@@ -300,7 +300,7 @@ export default function ProgressScreen() {
           </tr>`;
       }).join('');
 
-      // Per-skill CEFR breakdown — separate from the single overall figure
+      // Per-skill CEFR breakdown - separate from the single overall figure
       // below and from the Placement Test score, reflects ongoing exercise
       // performance via POST /api/me/grade.
       const skillLevelsRaw = await AsyncStorage.getItem('skillLevels');
@@ -326,18 +326,18 @@ export default function ProgressScreen() {
       if (overallAvg < 60) {
         recommendations = `
           <li>Focus on foundational grammar rules before advancing.</li>
-          <li>Practice daily — even 10 minutes makes a big difference.</li>
+          <li>Practice daily - even 10 minutes makes a big difference.</li>
           <li>Use the Vocabulary Vault to build word knowledge.</li>`;
       } else if (overallAvg < 80) {
         recommendations = `
           <li>Good progress! Target your weak areas specifically.</li>
           <li>Try the intensive placement test to refine your level.</li>
-          <li>Aim for consistency — maintain your daily streak.</li>`;
+          <li>Aim for consistency - maintain your daily streak.</li>`;
       } else {
         recommendations = `
           <li>Excellent performance! Challenge yourself with C1 content.</li>
           <li>Focus on fluency in the Speaking and Writing sections.</li>
-          <li>Help others — teaching reinforces your own knowledge.</li>`;
+          <li>Help others - teaching reinforces your own knowledge.</li>`;
       }
 
       const html = `
@@ -639,7 +639,7 @@ export default function ProgressScreen() {
           )}
         </View>
 
-        {/* ── Skill levels row — separate from the single overall CEFR
+        {/* ── Skill levels row - separate from the single overall CEFR
              badge above and from the Placement Test score; reflects
              ongoing exercise performance per skill. Only shows a chip
              once that skill actually has a level. ── */}
@@ -662,7 +662,7 @@ export default function ProgressScreen() {
         {/* ── Stats row ───────────────────────────────────────────────── */}
         <View style={{ flexDirection: rowDir, gap: 8, marginBottom: 12 }}>
           {[
-            { label: p.statAccuracy, value: overallAvg > 0 ? `${overallAvg}%` : '—', icon: Target, color: overallAvg > 0 ? scoreColor(overallAvg, C) : C.textMuted },
+            { label: p.statAccuracy, value: overallAvg > 0 ? `${overallAvg}%` : '-', icon: Target, color: overallAvg > 0 ? scoreColor(overallAvg, C) : C.textMuted },
             { label: p.statStreak,   value: `${streak}${p.daySuffix}`,             icon: Flame,  color: streak > 0 ? '#FB923C' : C.textMuted },
             { label: p.statBest,     value: `${bestStreak}${p.daySuffix}`,         icon: Award,  color: '#FBBF24' },
             { label: p.statTime,     value: formatDuration(totalSeconds), icon: Clock, color: C.purple || '#A78BFA' },

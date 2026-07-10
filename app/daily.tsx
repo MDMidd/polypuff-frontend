@@ -1,12 +1,12 @@
 /**
- * Daily Challenge Screen — Poly-Puff
+ * Daily Challenge Screen - Poly-Puff
  * =====================================
  * Mirrors daily.html on the website: three tasks per day
  * (Translation Sprint → Grammar Fix → Tiny Writing), streak tracking,
  * and a completion card with average score.
  *
  * Storage keys (same as web so vault sync carries them over):
- *   pp_daily_challenge   — { streak, best, completed, lastDate, lastStreak }
+ *   pp_daily_challenge   - { streak, best, completed, lastDate, lastStreak }
  *
  * FILE: app/daily.tsx
  */

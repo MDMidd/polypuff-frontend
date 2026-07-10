@@ -107,7 +107,7 @@ type PickerMode = 'nativeLanguage' | 'appLanguage' | 'cefrLevel' | null;
 
 const PASSWORD_RESET_PROVIDERS = new Set(['email', 'password']);
 
-// Free-tier monthly AI-request quota fallback — used only until the server's
+// Free-tier monthly AI-request quota fallback - used only until the server's
 // promptsLimit field is available (first render, or a cached pre-quota
 // account blob). Must match FREE_MONTHLY_PROMPT_LIMIT in the backend's
 // server.js; the server value always wins once a fresh account summary loads.
@@ -175,7 +175,7 @@ export default function SettingsScreen() {
   const canOpenExternalPaymentLinks = Platform.OS !== 'android';
   const canShowPlanUpgrade = canUpgradePlan && canOpenExternalPaymentLinks;
   // Android can't open the external Paddle checkout (Play Store policy), so
-  // it gets its own in-app Play Billing paywall instead — but only once
+  // it gets its own in-app Play Billing paywall instead - but only once
   // Play Billing is actually configured, so a build without the RevenueCat
   // API key set doesn't show an upgrade button that's guaranteed to fail.
   const canShowAndroidUpgrade = canUpgradePlan && isPlayBillingConfigured();
@@ -183,7 +183,7 @@ export default function SettingsScreen() {
   // purchase steered outside Play Billing), but Google's payments policy
   // explicitly permits linking to an account-management page for a
   // subscription that already exists, even one purchased outside Google
-  // Play — so an existing Paddle subscriber can still manage/cancel it from
+  // Play - so an existing Paddle subscriber can still manage/cancel it from
   // here. Gated on already being Pro via something other than RevenueCat, so
   // this can never appear as a way to buy Pro for the first time on Android.
   const canManagePaddleBillingOnAndroid = Platform.OS === 'android' && accountPlanTone === 'pro' && !isRevenueCatBilling;
@@ -463,12 +463,12 @@ export default function SettingsScreen() {
     const status = String(billing.paddleStatus || '').replace(/_/g, ' ');
     const periodEnd = formatBillingDate(billing.currentPeriodEnd);
     const cancelAt = formatBillingDate(billing.cancelAt);
-    // Which portal to point "Manage Billing" at — Play Store only applies
+    // Which portal to point "Manage Billing" at - Play Store only applies
     // when the active Pro entitlement actually came from RevenueCat.
     setIsRevenueCatBilling(billing.revenuecatActive === true);
 
     if (billing.revenuecatActive) {
-      // Play Billing-sourced Pro — no Paddle record exists, so use the
+      // Play Billing-sourced Pro - no Paddle record exists, so use the
       // RevenueCat expiry instead of the paddle_* fields above.
       const rcExpires = formatBillingDate(billing.revenuecatExpiresAt);
       setBillingStatus(t.activeBilling);
@@ -624,7 +624,7 @@ export default function SettingsScreen() {
 
   // After a purchase/restore, RevenueCat's own SDK reflects the entitlement
   // instantly (used for the immediate UI update), but web_users.revenuecat_*
-  // only updates once RevenueCat's webhook reaches the backend — usually a
+  // only updates once RevenueCat's webhook reaches the backend - usually a
   // few seconds, occasionally longer. Poll with backoff instead of a single
   // fixed-delay attempt, so a slow webhook doesn't leave stale billing status
   // on screen with no automatic follow-up.
@@ -658,11 +658,11 @@ export default function SettingsScreen() {
         Alert.alert(t.proPlan, t.subscriptionActive);
       } else {
         // Purchase completed and the user was charged, but the product isn't
-        // (yet) linked to the "pro" entitlement in the RevenueCat dashboard —
+        // (yet) linked to the "pro" entitlement in the RevenueCat dashboard -
         // don't leave them with zero feedback about a real transaction.
         Alert.alert(
           ui('purchaseProcessingTitle', 'Purchase Received'),
-          ui('purchaseProcessingDesc', "Your purchase went through. It can take a minute to activate — if Pro access doesn't appear shortly, contact support with your purchase receipt."),
+          ui('purchaseProcessingDesc', "Your purchase went through. It can take a minute to activate - if Pro access doesn't appear shortly, contact support with your purchase receipt."),
         );
       }
       syncAccountAfterEntitlementChange();
@@ -1205,13 +1205,13 @@ export default function SettingsScreen() {
                 <ChevronRight size={14} color={C.textMuted} style={chevronStyle} />
               </View>
             }
-            accessibilityLabel={ui('customisePracticeList', 'Customise your practice list — choose exercises and reorder them')}
+            accessibilityLabel={ui('customisePracticeList', 'Customise your practice list - choose exercises and reorder them')}
             accessibilityHint={t.customPracticeDesc}
           />
         </Section>
         )}
 
-        {/* Backend section — dev-only. Hidden in production builds so end users
+        {/* Backend section - dev-only. Hidden in production builds so end users
             can't accidentally repoint the app at a broken or hostile URL.
             Visible in Expo Go and development builds for debugging. */}
         {__DEV__ && (
@@ -1584,7 +1584,7 @@ export default function SettingsScreen() {
                         minHeight: 56,
                       }}
                       accessibilityRole="button"
-                      accessibilityLabel={`${pkg.product.title} — ${pkg.product.priceString}`}
+                      accessibilityLabel={`${pkg.product.title} - ${pkg.product.priceString}`}
                       accessibilityState={{ disabled, busy: isPurchasing }}
                     >
                       <View style={{ flex: 1, marginRight: 12 }}>

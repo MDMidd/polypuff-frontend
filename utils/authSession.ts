@@ -1,5 +1,5 @@
 /**
- * authSession.ts — Shared auth-session storage helper.
+ * authSession.ts - Shared auth-session storage helper.
  *
  * Mirrors the website's storeAuthSession() + PolyPuffAuth.storeAccess() so that
  * after a mobile login, all the AsyncStorage keys that settings.tsx, feedback.tsx
@@ -41,15 +41,15 @@ const AUTH_KEYS = [
   'authMethod',
   'authIdentifier',
   'authPhotoURL',
-  // Classroom membership — must clear so a new account on the same device
+  // Classroom membership - must clear so a new account on the same device
   // doesn't inherit the previous user's teacher group and submit progress there.
   'classroomJoined',
   'classroomMode',
   'classroomRooms',
-  // Optimistic-lock version — account-specific; a stale value from a previous
+  // Optimistic-lock version - account-specific; a stale value from a previous
   // user causes immediate 409 conflicts on the new user's first sync push.
   'pp_sync_version',
-  // Profile fetch cooldown — clear so the next account gets an immediate fetch
+  // Profile fetch cooldown - clear so the next account gets an immediate fetch
   // rather than waiting out the previous user's 5-minute cooldown window.
   'pp_profile_fetched_at',
 ];
@@ -155,8 +155,8 @@ export async function storeAuthSession(
   // Ties the RevenueCat customer (Android Play Billing) to the same email
   // identity as everything else. No-op on iOS/web or if not configured.
   // Awaited (with the SDK call itself still swallowing its own errors) so
-  // callers that navigate right after storeAuthSession() resolves — e.g. a
-  // sign-in screen — can't race ahead of RevenueCat's identity switch.
+  // callers that navigate right after storeAuthSession() resolves - e.g. a
+  // sign-in screen - can't race ahead of RevenueCat's identity switch.
   await identifyUser(email).catch(() => {});
 }
 
@@ -165,7 +165,7 @@ export async function storeAuthSession(
  */
 export async function clearAuthSession(): Promise<void> {
   await AsyncStorage.multiRemove(AUTH_KEYS);
-  // Awaited for the same reason as identifyUser() above — a caller that
+  // Awaited for the same reason as identifyUser() above - a caller that
   // signs back in right after clearAuthSession() resolves shouldn't race
   // RevenueCat's still-in-flight logout.
   await signOutUser().catch(() => {});
@@ -188,7 +188,7 @@ export async function getSavedToken(): Promise<string> {
   } catch {
     // A storage read failure here shouldn't break callers that used to work
     // fine with no token at all (e.g. anonymous API calls in services/api.js)
-    // — degrade to "not signed in" instead of throwing.
+    // - degrade to "not signed in" instead of throwing.
     return '';
   }
 }

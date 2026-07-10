@@ -81,7 +81,7 @@ const TEST_TYPES = {
     purpose: 'Secondary education, work experience, immigration to English-speaking countries',
     whoFor: 'People migrating to Australia, Canada, New Zealand, UK; work or training programmes',
     readingDiff: 'Texts from advertisements, workplace notices, official documents, books, newspapers',
-    writingTask1: 'Write a letter — formal, semi-formal or informal (150+ words)',
+    writingTask1: 'Write a letter - formal, semi-formal or informal (150+ words)',
     writingTask2: 'Essay on a point of view, argument or problem (250+ words)',
     requiredBand: 'Typically 5.0–6.0 for immigration; varies by visa type',
   },
@@ -98,20 +98,20 @@ const SECTIONS = {
     questions: 40,
     overview: 'You listen to four recordings of native English speakers and answer 40 questions. The test is the same for both Academic and General Training.',
     parts: [
-      { num: 1, title: 'Conversation — Everyday Social Context', desc: 'A conversation between two people (e.g. booking a holiday, discussing accommodation). Questions typically require short answers or form completion.', tip: 'Listen for numbers, names and spellings carefully. They often spell out names.' },
-      { num: 2, title: 'Monologue — Everyday Social Context', desc: 'A talk by one person (e.g. a speech about local facilities, a tour guide). Usually involves map/diagram labelling or multiple choice.', tip: 'Watch for distractors — the speaker may mention one option then change their mind.' },
-      { num: 3, title: 'Conversation — Educational/Training Context', desc: 'A conversation between up to four people (e.g. students discussing an assignment). More complex language and ideas.', tip: 'Focus on speakers\' attitudes and opinions, not just facts.' },
-      { num: 4, title: 'Monologue — Academic Context', desc: 'An academic lecture or talk (e.g. a university lecture on climate change). The most complex part with sophisticated vocabulary.', tip: 'Use the reading time before each part to predict what you\'ll hear.' },
+      { num: 1, title: 'Conversation - Everyday Social Context', desc: 'A conversation between two people (e.g. booking a holiday, discussing accommodation). Questions typically require short answers or form completion.', tip: 'Listen for numbers, names and spellings carefully. They often spell out names.' },
+      { num: 2, title: 'Monologue - Everyday Social Context', desc: 'A talk by one person (e.g. a speech about local facilities, a tour guide). Usually involves map/diagram labelling or multiple choice.', tip: 'Watch for distractors - the speaker may mention one option then change their mind.' },
+      { num: 3, title: 'Conversation - Educational/Training Context', desc: 'A conversation between up to four people (e.g. students discussing an assignment). More complex language and ideas.', tip: 'Focus on speakers\' attitudes and opinions, not just facts.' },
+      { num: 4, title: 'Monologue - Academic Context', desc: 'An academic lecture or talk (e.g. a university lecture on climate change). The most complex part with sophisticated vocabulary.', tip: 'Use the reading time before each part to predict what you\'ll hear.' },
     ],
     questionTypes: [
       'Multiple choice', 'Matching', 'Plan/map/diagram labelling',
       'Form/note/table/flow-chart completion', 'Sentence completion', 'Short answer',
     ],
     tips: [
-      'Read the questions before listening — you get time to preview each section',
+      'Read the questions before listening - you get time to preview each section',
       'Write your answers on the question paper while listening, then transfer during the 10 minutes',
-      'You hear the recording ONCE only — concentrate fully',
-      'Answers are in order — don\'t miss one and fall behind',
+      'You hear the recording ONCE only - concentrate fully',
+      'Answers are in order - don\'t miss one and fall behind',
       'British, Australian, American and other accents are all used',
       'Spelling and grammar must be correct in your answers',
       'Numbers: listen for "point" (decimal), "double" (repeated digit), "oh" (zero)',
@@ -133,7 +133,7 @@ const SECTIONS = {
     parts: [
       { num: 1, title: 'Academic: Long Argumentative Text / General: Short Factual Texts', desc: 'Academic: Usually a challenging argumentative or discursive text from an academic journal. General: 2-3 short factual texts (advertisements, notices, timetables).', tip: 'Skim the whole text for structure before reading the questions.' },
       { num: 2, title: 'Academic: Descriptive/Factual Text / General: Work-Related Texts', desc: 'Academic: A descriptive or factual text, often with diagrams or illustrations. General: Texts related to work (job ads, pay slips, training materials).', tip: 'For matching headings, read the first and last sentence of each paragraph.' },
-      { num: 3, title: 'Academic/General: Complex Text', desc: 'The most challenging text in both versions. Academic texts are more analytical. General Training texts are longer and more complex than Passage 2.', tip: 'Don\'t spend too long on one question — move on and come back.' },
+      { num: 3, title: 'Academic/General: Complex Text', desc: 'The most challenging text in both versions. Academic texts are more analytical. General Training texts are longer and more complex than Passage 2.', tip: 'Don\'t spend too long on one question - move on and come back.' },
     ],
     questionTypes: [
       'Multiple choice', 'Identifying information (True/False/Not Given)',
@@ -146,14 +146,14 @@ const SECTIONS = {
       'TRUE/FALSE/NOT GIVEN: "Not Given" means the text doesn\'t address the statement at all',
       'YES/NO/NOT GIVEN: "No" means the writer disagrees; "Not Given" means no opinion is expressed',
       'Scanning: look for key words from the question in the text',
-      'Don\'t rely on prior knowledge — only use information from the text',
+      'Don\'t rely on prior knowledge - only use information from the text',
       'Answers for most question types appear in text order',
       'Time management: approximately 20 minutes per passage',
-      'Transfer answers directly — no extra time like in Listening',
+      'Transfer answers directly - no extra time like in Listening',
     ],
     bandTips: {
       '5-6': 'Practice T/F/NG questions carefully. Many students confuse False and Not Given.',
-      '6-7': 'Work on matching headings — requires understanding of paragraph main ideas.',
+      '6-7': 'Work on matching headings - requires understanding of paragraph main ideas.',
       '7+':  'Focus on writer\'s attitude and implied meaning. Read widely (The Guardian, New Scientist).',
     },
   },
@@ -168,19 +168,19 @@ const SECTIONS = {
     parts: [
       {
         num: 1,
-        title: 'Task 1 — Academic: Graph/Chart/Diagram Description',
-        desc: 'Describe and summarise visual information — a bar chart, line graph, pie chart, table, diagram or map. You must select key features and make comparisons where relevant. Do NOT give your opinion.',
+        title: 'Task 1 - Academic: Graph/Chart/Diagram Description',
+        desc: 'Describe and summarise visual information - a bar chart, line graph, pie chart, table, diagram or map. You must select key features and make comparisons where relevant. Do NOT give your opinion.',
         tip: 'Cover the main trends, not every data point. Use language of change: "rose sharply", "declined gradually", "remained stable".',
       },
       {
         num: 1,
-        title: 'Task 1 — General: Letter Writing',
+        title: 'Task 1 - General: Letter Writing',
         desc: 'Write a letter in response to a situation. Can be formal (to a company), semi-formal (to a neighbour) or informal (to a friend). You must cover all three bullet points given.',
-        tip: 'Match your tone to the task — using informal language in a formal letter loses marks. Always start with the correct salutation.',
+        tip: 'Match your tone to the task - using informal language in a formal letter loses marks. Always start with the correct salutation.',
       },
       {
         num: 2,
-        title: 'Task 2 — Essay (Both Academic & General)',
+        title: 'Task 2 - Essay (Both Academic & General)',
         desc: 'Write an essay responding to a point of view, argument or problem. Common types: opinion essay, discussion essay, problem-solution essay, advantages-disadvantages essay.',
         tip: 'Spend 5 minutes planning. A clear 4-paragraph structure (intro, body 1, body 2, conclusion) scores better than long unfocused writing.',
       },
@@ -199,13 +199,13 @@ const SECTIONS = {
     ],
     tips: [
       'NEVER write less than 150 words (Task 1) or 250 words (Task 2)',
-      'Task 2 is worth double — spend 40 minutes on it',
-      'Do not use bullet points — write in full paragraphs',
+      'Task 2 is worth double - spend 40 minutes on it',
+      'Do not use bullet points - write in full paragraphs',
       'Avoid informal contractions (don\'t, can\'t) in Academic essays',
-      'Vary your sentence structures — don\'t only write simple sentences',
+      'Vary your sentence structures - don\'t only write simple sentences',
       'Link paragraphs with cohesive devices: Furthermore, However, In contrast, As a result',
       'In Task 1 (Academic), NEVER give your personal opinion',
-      'Paraphrase the question in your introduction — do not copy it word for word',
+      'Paraphrase the question in your introduction - do not copy it word for word',
     ],
     bandTips: {
       '5-6': 'Focus on clear paragraph structure and covering all task requirements.',
@@ -222,8 +222,8 @@ const SECTIONS = {
     questions: 3,
     overview: 'A face-to-face interview with a certified IELTS examiner. Three parts, recorded for quality control. Same test for both Academic and General Training.',
     parts: [
-      { num: 1, title: 'Introduction & Interview (4–5 min)', desc: 'The examiner asks about familiar topics: your home, family, work, studies, hobbies. Questions are straightforward and designed to put you at ease.', tip: 'Give more than one-word answers — extend with reasons and examples. Aim for 2-4 sentences per answer.' },
-      { num: 2, title: 'Long Turn / Individual Talk (3–4 min)', desc: 'You receive a task card with a topic and 3-4 bullet points. You have 1 minute to prepare (you can make notes), then speak for 1-2 minutes. The examiner may ask 1-2 follow-up questions.', tip: 'Use your preparation time to plan what you\'ll say for each bullet point. Keep talking for the full 2 minutes — examiners notice if you stop early.' },
+      { num: 1, title: 'Introduction & Interview (4–5 min)', desc: 'The examiner asks about familiar topics: your home, family, work, studies, hobbies. Questions are straightforward and designed to put you at ease.', tip: 'Give more than one-word answers - extend with reasons and examples. Aim for 2-4 sentences per answer.' },
+      { num: 2, title: 'Long Turn / Individual Talk (3–4 min)', desc: 'You receive a task card with a topic and 3-4 bullet points. You have 1 minute to prepare (you can make notes), then speak for 1-2 minutes. The examiner may ask 1-2 follow-up questions.', tip: 'Use your preparation time to plan what you\'ll say for each bullet point. Keep talking for the full 2 minutes - examiners notice if you stop early.' },
       { num: 3, title: 'Discussion (4–5 min)', desc: 'The examiner asks more abstract questions related to the Part 2 topic. You\'re expected to express and justify opinions, analyse, speculate and discuss.', tip: 'Use higher-level language here: "It could be argued that...", "From my perspective...", "The implications of this are..."' },
     ],
     criteria: [
@@ -234,23 +234,23 @@ const SECTIONS = {
     ],
     questionTypes: [
       'Part 1: Personal questions about familiar topics (home, work, studies, hobbies)',
-      'Part 2: Long turn — speak for 1–2 minutes on a topic card',
+      'Part 2: Long turn - speak for 1–2 minutes on a topic card',
       'Part 3: Abstract discussion questions linked to Part 2 topic',
       'Follow-up questions from the examiner after Part 2',
     ],
     tips: [
-      'Speak clearly and at a natural pace — don\'t rush or speak too slowly',
+      'Speak clearly and at a natural pace - don\'t rush or speak too slowly',
       'It\'s OK to use fillers naturally: "That\'s an interesting question...", "Let me think about that..."',
-      'DO correct yourself — self-correction shows language awareness',
-      'Do NOT memorise answers — examiners are trained to detect this',
+      'DO correct yourself - self-correction shows language awareness',
+      'Do NOT memorise answers - examiners are trained to detect this',
       'Extend answers in Part 1: give reasons, examples, contrasts',
       'In Part 3, express and justify opinions: "I believe... because..., although..."',
-      'Pronunciation counts — aim for clarity, not a specific accent',
-      'Your accent does NOT affect your score — only clarity matters',
+      'Pronunciation counts - aim for clarity, not a specific accent',
+      'Your accent does NOT affect your score - only clarity matters',
     ],
     bandTips: {
       '5-6': 'Practice speaking on common topics for 2 minutes without stopping. Record yourself.',
-      '6-7': 'Work on fluency — reduce hesitation. Learn linking phrases for Part 3 discussions.',
+      '6-7': 'Work on fluency - reduce hesitation. Learn linking phrases for Part 3 discussions.',
       '7+':  'Focus on pronunciation features: word stress, connected speech, intonation patterns.',
     },
   },
@@ -425,7 +425,7 @@ export default function IELTSScreen() {
       nudge.recordInteraction();
       if (data?.overallBand != null) {
         const pct = Math.round(Math.max(0, Math.min(100, (data.overallBand / 9) * 100)));
-        recordModuleProgress({ exerciseId: 'ielts', score: pct, detail: `Band ${data.overallBand}${data.grade ? ` — ${data.grade}` : ''}` }).catch(() => {});
+        recordModuleProgress({ exerciseId: 'ielts', score: pct, detail: `Band ${data.overallBand}${data.grade ? ` - ${data.grade}` : ''}` }).catch(() => {});
       }
     } catch (e) {
       Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
@@ -787,9 +787,9 @@ export default function IELTSScreen() {
         <Text style={[S.label, { color: '#FFBE0B' }]}>{t.writing}</Text>
       </View>
       {[
-        { id: 'writing_task2',            label: 'Task 2 — Essay',              desc: 'Opinion, discussion, problem-solution or advantages/disadvantages essay. 250+ words.', colour: '#FFBE0B', icon: FileText },
-        { id: 'writing_task1_academic',   label: 'Task 1 — Academic (Graph/Chart)', desc: 'Describe and summarise visual data — bar chart, line graph, table, diagram or map. 150+ words.', colour: '#FFBE0B', icon: BarChart3, hidden: testType !== 'academic' },
-        { id: 'writing_task1_general',    label: 'Task 1 — General (Letter)',   desc: 'Write a formal, semi-formal or informal letter covering all three bullet points. 150+ words.', colour: '#FFBE0B', icon: Mail, hidden: testType !== 'general' },
+        { id: 'writing_task2',            label: 'Task 2 - Essay',              desc: 'Opinion, discussion, problem-solution or advantages/disadvantages essay. 250+ words.', colour: '#FFBE0B', icon: FileText },
+        { id: 'writing_task1_academic',   label: 'Task 1 - Academic (Graph/Chart)', desc: 'Describe and summarise visual data - bar chart, line graph, table, diagram or map. 150+ words.', colour: '#FFBE0B', icon: BarChart3, hidden: testType !== 'academic' },
+        { id: 'writing_task1_general',    label: 'Task 1 - General (Letter)',   desc: 'Write a formal, semi-formal or informal letter covering all three bullet points. 150+ words.', colour: '#FFBE0B', icon: Mail, hidden: testType !== 'general' },
       ].filter(p => !p.hidden).map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -816,9 +816,9 @@ export default function IELTSScreen() {
         <Text style={[S.label, { color: '#B06CFF' }]}>{wt('speaking')}</Text>
       </View>
       {[
-        { id: 'speaking_part1', label: 'Part 1 — Interview',    desc: 'Answer personal questions about familiar topics. 2–4 sentences per answer. Aim to be natural and fluent.', colour: '#B06CFF', icon: MessageCircle },
-        { id: 'speaking_part2', label: 'Part 2 — Long Turn',    desc: 'Speak for 1–2 minutes on a topic card with bullet points. Write what you would say.', colour: '#B06CFF', icon: Mic },
-        { id: 'speaking_part3', label: 'Part 3 — Discussion',   desc: 'Answer abstract, opinion-based questions linked to Part 2. Use higher-level language and justify your views.', colour: '#B06CFF', icon: MessagesSquare },
+        { id: 'speaking_part1', label: 'Part 1 - Interview',    desc: 'Answer personal questions about familiar topics. 2–4 sentences per answer. Aim to be natural and fluent.', colour: '#B06CFF', icon: MessageCircle },
+        { id: 'speaking_part2', label: 'Part 2 - Long Turn',    desc: 'Speak for 1–2 minutes on a topic card with bullet points. Write what you would say.', colour: '#B06CFF', icon: Mic },
+        { id: 'speaking_part3', label: 'Part 3 - Discussion',   desc: 'Answer abstract, opinion-based questions linked to Part 2. Use higher-level language and justify your views.', colour: '#B06CFF', icon: MessagesSquare },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -905,7 +905,7 @@ export default function IELTSScreen() {
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: i < SCORE_REQUIREMENTS.length - 1 ? 10 : 0 }}>
             <Text style={{ fontSize: scaledFont(18), width: 32 }}>{r.country.split(' ')[0]}</Text>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} — {r.category}</Text>
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} - {r.category}</Text>
               <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{r.requirement}</Text>
             </View>
             <View style={{ backgroundColor: (BAND_COLOURS[r.band] || '#6b7280') + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>

@@ -1,5 +1,5 @@
 /**
- * POLY-PUFF — Language Context
+ * POLY-PUFF - Language Context
  * FILE: contexts/LanguageContext.tsx
  *
  * Provides the current app language and translation function to the entire app.

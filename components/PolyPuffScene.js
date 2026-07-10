@@ -30,7 +30,7 @@ const WORD_BANKS = {
   C2: ['ephemeral', 'sycophantic', 'obfuscate', 'sardonic', 'perspicacious', 'melancholy', 'soliloquy', 'magnanimous', 'equivocate', 'vicissitude', 'circumlocution', 'ineffable', 'propitious', 'recalcitrant', 'verisimilitude', 'loquacious', 'perfidious', 'inscrutable'],
 };
 
-// Colour per level — matches your app's accuracy heatmap palette
+// Colour per level - matches your app's accuracy heatmap palette
 const LEVEL_COLOURS = {
   A0: '#94a3b8',
   A1: '#94a3b8',
@@ -270,7 +270,7 @@ export default function PolyPuffScene({ size: _ignored }) {
 
         if (speed > 1.5)   triggerSpin();
         if (distMov < 12)  {
-          // It was a tap (not a drag) — trigger wobble AND word burst
+          // It was a tap (not a drag) - trigger wobble AND word burst
           triggerWobble();
           // Use a ref-forwarded version via a module-level getter
           _burstRef.current?.();

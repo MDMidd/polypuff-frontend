@@ -1,4 +1,4 @@
-/* One-off dump of hardcoded UI strings in app/ — for translation migration */
+/* One-off dump of hardcoded UI strings in app/ - for translation migration */
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
@@ -21,7 +21,7 @@ function findHardcoded() {
     if (!rel.startsWith('app/')) return;
     const lines = fs.readFileSync(file, 'utf8').split('\n');
     lines.forEach((line, i) => {
-      // <Text>...child...</Text> — capture text between > and < that has letters
+      // <Text>...child...</Text> - capture text between > and < that has letters
       const textMatch = line.match(/>([A-Za-z][^<>{]{2,})</);
       if (textMatch) {
         const val = textMatch[1].trim();

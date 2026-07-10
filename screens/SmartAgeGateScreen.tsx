@@ -1,7 +1,7 @@
 /**
  * SmartAgeGateScreen.tsx
  * ──────────────────────────────────────────────────────────────────
- * Poly-Puff — Global Smart Age Gate
+ * Poly-Puff - Global Smart Age Gate
  *
  * Implements region-aware age thresholds derived from:
  *   • COPPA (USA): 13+
@@ -63,7 +63,7 @@ const REGION_RULES: Record<string, RegionRule> = {
   // 15+ Regions
   EG:  { label: 'Egypt',           minAge: 15, parentalGateBelow: 15, regulation: 'PDPL No.151/2020 + Decree 816/2025 Regulations' },
 
-  // 16+ Regions  (GDPR default — individual EU countries may vary but 16 is safest)
+  // 16+ Regions  (GDPR default - individual EU countries may vary but 16 is safest)
   EU:  { label: 'European Union',  minAge: 16, parentalGateBelow: 16, regulation: 'GDPR Art.8(1)' },
   DE:  { label: 'Germany',         minAge: 16, parentalGateBelow: 16, regulation: 'GDPR Art.8 / BDSG' },
   FR:  { label: 'France',          minAge: 15, parentalGateBelow: 15, regulation: 'GDPR Art.8 / Loi Informatique' },

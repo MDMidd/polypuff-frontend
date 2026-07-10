@@ -1,5 +1,5 @@
 /**
- * voucher.tsx — Poly-Puff Voucher Redemption Screen
+ * voucher.tsx - Poly-Puff Voucher Redemption Screen
  * ===================================================
  * Students enter a voucher code here to unlock free premium access.
  * Accessible from the Menu.
@@ -267,7 +267,7 @@ export default function VoucherScreen() {
             <View style={s.infoLineRow}>
               <Smartphone size={15} color={C.textMuted || '#5A6380'} />
               <Text style={[s.infoLine, { color: C.textMuted || '#5A6380' }]}>
-                Codes are tied to one device — share wisely!
+                Codes are tied to one device - share wisely!
               </Text>
             </View>
             <View style={s.infoLineRow}>

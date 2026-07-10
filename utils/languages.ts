@@ -70,7 +70,7 @@ export const isRtlLanguage = (code: LangCode) => RTL_LANGUAGES.has(code);
 export const formatLanguageName = ({ nativeName, englishName }: LanguageOption) =>
   `${nativeName} (${englishName})`;
 
-// Lookup helpers — handy when you only have a code or an English name.
+// Lookup helpers - handy when you only have a code or an English name.
 export const flagForLangCode = (code: LangCode): string =>
   LANGUAGE_OPTIONS.find(l => l.code === code)?.flag ?? '';
 

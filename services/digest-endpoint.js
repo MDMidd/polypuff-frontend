@@ -10,7 +10,7 @@
 // Body:
 //   {
 //     studentName:   string,
-//     email:         string,          // student's email — required
+//     email:         string,          // student's email - required
 //     cefrLevel:     string,          // e.g. "B1"
 //     xp:            number,
 //     streak:        number,
@@ -93,9 +93,9 @@ app.post('/api/digest', digestLimiter, async (req, res) => {
         <tr>
           <td style="padding:10px 12px;border-bottom:1px solid #1F2937;color:#F9FAFB;font-size:14px;">${sanitize(ex.label, 60)}</td>
           <td style="padding:10px 12px;border-bottom:1px solid #1F2937;text-align:center;">
-            <span style="background:${scoreColour(ex.avg || 0)}20;color:${scoreColour(ex.avg || 0)};font-weight:700;font-size:14px;padding:3px 10px;border-radius:8px;">${ex.avg !== null ? ex.avg + '%' : '—'}</span>
+            <span style="background:${scoreColour(ex.avg || 0)}20;color:${scoreColour(ex.avg || 0)};font-weight:700;font-size:14px;padding:3px 10px;border-radius:8px;">${ex.avg !== null ? ex.avg + '%' : '-'}</span>
           </td>
-          <td style="padding:10px 12px;border-bottom:1px solid #1F2937;text-align:center;color:#9CA3AF;font-size:13px;">${ex.best !== null ? ex.best + '%' : '—'}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #1F2937;text-align:center;color:#9CA3AF;font-size:13px;">${ex.best !== null ? ex.best + '%' : '-'}</td>
           <td style="padding:10px 12px;border-bottom:1px solid #1F2937;text-align:center;color:#9CA3AF;font-size:13px;">${ex.sessions}</td>
         </tr>
       `).join('');
@@ -115,7 +115,7 @@ app.post('/api/digest', digestLimiter, async (req, res) => {
     // ── Study recommendation ──────────────────────────────────────────────────
     let recommendation = '';
     if (overallAvg < 60) {
-      recommendation = 'Focus on foundational grammar. Try the Grammar Practice section daily — even 10 minutes makes a big difference.';
+      recommendation = 'Focus on foundational grammar. Try the Grammar Practice section daily - even 10 minutes makes a big difference.';
     } else if (overallAvg < 80) {
       recommendation = `Good progress! Target your top weak area (${topMistakes[0]?.category || 'grammar'}) specifically this week. Consistency is key.`;
     } else {
@@ -339,7 +339,7 @@ app.post('/api/digest', digestLimiter, async (req, res) => {
         console.error(`📧 Digest email failed (logged to file): ${err.message}`);
       });
     } else {
-      console.log(`📧 DIGEST RECEIVED (no email configured) — ${cleanName} <${cleanEmail}>`);
+      console.log(`📧 DIGEST RECEIVED (no email configured) - ${cleanName} <${cleanEmail}>`);
     }
 
   } catch (error) {

@@ -1,5 +1,5 @@
 /**
- * Grammar Exercise Screen — Poly-Puff v7 (Accessibility Update)
+ * Grammar Exercise Screen - Poly-Puff v7 (Accessibility Update)
  * ===============================================================
  *
  * ACCESSIBILITY CHANGES:
@@ -84,7 +84,7 @@ function scoreLabel(score, labels) {
   return labels.practice;
 }
 
-// ─── WordTile — ✅ ACCESSIBILITY UPDATED ────────────────────────────────────
+// ─── WordTile - ✅ ACCESSIBILITY UPDATED ────────────────────────────────────
 function WordTile({ word, onPress, active, color, position, total, inSentence }) {
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -122,7 +122,7 @@ function WordTile({ word, onPress, active, color, position, total, inSentence })
   );
 }
 
-// ─── ResultCard — ✅ ACCESSIBILITY UPDATED ──────────────────────────────────
+// ─── ResultCard - ✅ ACCESSIBILITY UPDATED ──────────────────────────────────
 function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();

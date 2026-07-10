@@ -171,8 +171,8 @@ export default function ProgressDetailScreen() {
         }}>
           {[
             { label: 'Sessions', value: count,    icon: BookOpen,   color: color },
-            { label: 'Avg Score', value: avg !== null ? avg + '%' : '—', icon: Target, color: avg !== null ? scoreColor(avg, C) : C.textMuted },
-            { label: 'Best',      value: best !== null ? best + '%' : '—', icon: Star, color: best !== null ? scoreColor(best, C) : C.textMuted },
+            { label: 'Avg Score', value: avg !== null ? avg + '%' : '-', icon: Target, color: avg !== null ? scoreColor(avg, C) : C.textMuted },
+            { label: 'Best',      value: best !== null ? best + '%' : '-', icon: Star, color: best !== null ? scoreColor(best, C) : C.textMuted },
           ].map((stat, i) => (
             <View key={i} style={{
               flex: 1, backgroundColor: C.card || '#111827',
@@ -202,7 +202,7 @@ export default function ProgressDetailScreen() {
             <Text style={{
               fontSize: scaledFont(11), fontWeight: '700',
               color: C.textMuted, letterSpacing: 1, marginBottom: 12,
-            }}>SCORE TREND — LAST {recent15.length} SESSIONS</Text>
+            }}>SCORE TREND - LAST {recent15.length} SESSIONS</Text>
             <View style={{
               flexDirection: 'row', alignItems: 'flex-end',
               gap: 4, height: BAR_MAX,
@@ -328,7 +328,7 @@ export default function ProgressDetailScreen() {
                   <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                     <Text style={{
                       fontSize: scaledFont(11), color: C.textMuted,
-                    }}>{s.date ? new Date(s.date).toLocaleDateString() : "—"}</Text>
+                    }}>{s.date ? new Date(s.date).toLocaleDateString() : "-"}</Text>
                     <Text style={{
                       fontSize: scaledFont(13), fontWeight: '700',
                       color: scoreColor(s.score || 0, C),
@@ -351,7 +351,7 @@ export default function ProgressDetailScreen() {
           <View>
             {weak.length === 0 ? (
               <Text style={{ color: C.textMuted, textAlign: "center", marginTop: 20 }}>
-                No mistakes recorded yet — keep practising!
+                No mistakes recorded yet - keep practising!
               </Text>
             ) : weak.slice(0, 5).map((w, i) => {
               const rankColors = ['#EF4444','#FB923C','#FBBF24','#34D399','#60A5FA'];

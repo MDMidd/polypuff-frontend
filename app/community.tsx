@@ -1,11 +1,11 @@
 /**
- * community.tsx — Poly-Puff Community Leaderboard Screen (Stage 2).
+ * community.tsx - Poly-Puff Community Leaderboard Screen (Stage 2).
  *
  * Read-only ranked list of opted-in users, ordered by community_score
- * (see computeCommunityScore() in server.js — progress/XP dominant, streak
+ * (see computeCommunityScore() in server.js - progress/XP dominant, streak
  * and per-skill grade improvement as smaller bonuses). Nobody appears
  * unless they've explicitly opted in with a chosen handle; minors are
- * blocked from opting in entirely (enforced server-side too — see
+ * blocked from opting in entirely (enforced server-side too - see
  * PUT /api/me/community-settings).
  *
  * FILE LOCATION: app/community.tsx

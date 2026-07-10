@@ -1,7 +1,7 @@
 /**
  * ParentalConsentScreen.tsx
  * ==========================================
- * PARENTAL GATE — Math Problem Verification
+ * PARENTAL GATE - Math Problem Verification
  * 
  * Compliance: COPPA (under 13), GDPR Art. 8 (under 16 in EU)
  * Google Play 2026 Families Policy: neutral age gate + parental verification

@@ -6,8 +6,8 @@
  *
  * Usage:
  *   const recorder = useVoiceRecorder({ exercise: 'placement', label: 'Speaking Q1' });
- *   <recorder.RecordButton />   — shows a mic button + timer
- *   recorder.lastRecording     — the saved VoiceRecording object after stopping
+ *   <recorder.RecordButton />   - shows a mic button + timer
+ *   recorder.lastRecording     - the saved VoiceRecording object after stopping
  *
  * FILE: hooks/useVoiceRecorder.ts
  */

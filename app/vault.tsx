@@ -9,9 +9,9 @@
  *
  *   2. EXPORT: Replaced the single CSV Share button with a 3-option format picker
  *      modal. Users can choose:
- *        - Word (.docx) — plain-text .docx compatible file via expo-file-system + expo-sharing
- *        - Excel (.csv) — proper CSV that opens natively in Excel / Google Sheets
- *        - PDF (.pdf)   — plain-text PDF generated without external libraries
+ *        - Word (.docx) - plain-text .docx compatible file via expo-file-system + expo-sharing
+ *        - Excel (.csv) - proper CSV that opens natively in Excel / Google Sheets
+ *        - PDF (.pdf)   - plain-text PDF generated without external libraries
  *      All formats use expo-file-system to write a real file, then expo-sharing
  *      to let the user save/share it. No extra npm packages needed.
  *
@@ -331,7 +331,7 @@ export default function VaultScreen() {
   };
 
   // ── FIX 1: Delete word ────────────────────────────────────────────────────────
-  // Previously the Trash2 icon had no onPress — it was just a decorative icon.
+  // Previously the Trash2 icon had no onPress - it was just a decorative icon.
   // Now deleteWord is called from its own TouchableOpacity wrapping the Trash2 icon,
   // completely separate from the word-selection tap area.
   const deleteWord = async (wordToDelete) => {
@@ -467,7 +467,7 @@ export default function VaultScreen() {
               ? [{ definition: w.definition || '', example: w.example || '' }]
               : [];
 
-          // Build the meanings cell — all definitions + examples, numbered if multiple
+          // Build the meanings cell - all definitions + examples, numbered if multiple
           let meaningsCell = '';
           if (meanings.length === 0) {
             meaningsCell = '<td colspan="2" style="color:#9ca3af;font-style:italic">Definition not yet generated</td>';
@@ -478,10 +478,10 @@ export default function VaultScreen() {
             meaningsCell =
               '<td style="vertical-align:top">' +
                 (singlePos ? '<em style="color:#6b7280;font-size:9px;display:block;margin-bottom:2px">(' + singlePos + ')</em>' : '') +
-                (def || '—') + '</td>' +
-              '<td style="font-style:italic;color:#374151;vertical-align:top">' + (ex ? '"' + ex + '"' : '—') + '</td>';
+                (def || '-') + '</td>' +
+              '<td style="font-style:italic;color:#374151;vertical-align:top">' + (ex ? '"' + ex + '"' : '-') + '</td>';
           } else {
-            // Multiple meanings — each on its own numbered row with definition + example
+            // Multiple meanings - each on its own numbered row with definition + example
             let defsHtml = '';
             let exsHtml  = '';
             meanings.forEach((m, mi) => {
@@ -493,9 +493,9 @@ export default function VaultScreen() {
               defsHtml += '<div style="padding:3px 0;' + borderStyle + 'font-size:10px">' +
                 '<span style="color:#ADD8E6;font-weight:800;margin-right:4px">' + (mi + 1) + '.</span>' +
                 (pos ? '<em style="color:#6b7280;font-size:9px;margin-right:4px">(' + pos + ')</em>' : '') +
-                (def || '—') + '</div>';
+                (def || '-') + '</div>';
               exsHtml += '<div style="padding:3px 0;' + borderStyle + 'font-size:10px;font-style:italic;color:#374151">' +
-                (ex ? '"' + ex + '"' : '—') + '</div>';
+                (ex ? '"' + ex + '"' : '-') + '</div>';
             });
             meaningsCell =
               '<td style="vertical-align:top">' + defsHtml + '</td>' +
@@ -504,7 +504,7 @@ export default function VaultScreen() {
 
           return '<tr>' +
             '<td style="font-weight:700;color:#111;vertical-align:top">' + (i + 1) + '. ' + w.word + '</td>' +
-            '<td style="text-align:center;color:#6b7280;font-size:10px;vertical-align:top">' + (w.category || '—') + '</td>' +
+            '<td style="text-align:center;color:#6b7280;font-size:10px;vertical-align:top">' + (w.category || '-') + '</td>' +
             meaningsCell +
             '<td style="text-align:center;color:#6b7280;font-size:10px;vertical-align:top">' + (w.practiceCount || 0) + 'x</td>' +
           '</tr>';
@@ -948,7 +948,7 @@ export default function VaultScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Enrich All button — shown when any word is missing a definition ── */}
+        {/* ── Enrich All button - shown when any word is missing a definition ── */}
         {vaultWords.some(w => !w.definition || w.definition.trim() === '' || w.definition === w.example) && (
           <TouchableOpacity
             onPress={async () => {
@@ -1111,7 +1111,7 @@ export default function VaultScreen() {
                   )}
                 </TouchableOpacity>
 
-                {/* ── FIX 1: Delete button — its own TouchableOpacity ─────
+                {/* ── FIX 1: Delete button - its own TouchableOpacity ─────
                     Previously Trash2 was just a decorative icon with no onPress.
                     Now it's a proper button with hitSlop for easy tapping.      */}
                 <TouchableOpacity
@@ -1386,7 +1386,7 @@ export default function VaultScreen() {
                           </TouchableOpacity>
                         </>
                       ) : (
-                        /* No results — show manual entry */
+                        /* No results - show manual entry */
                         <View>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: (C.red || '#FF4D6A') + '10', borderRadius: 10, padding: 10, marginBottom: 14, borderWidth: 1, borderColor: (C.red || '#FF4D6A') + '20' }}>
                             <Text style={{ fontSize: scaledFont(12), color: C.red || '#FF4D6A' }}>
@@ -1536,7 +1536,7 @@ export default function VaultScreen() {
                             {wt('vault-meaning-n', { n: mi + 1 })}
                           </Text>
                           <Text style={{ fontSize: scaledFont(15), color: C.text, lineHeight: 22 }}>
-                            {m.definition || '—'}
+                            {m.definition || '-'}
                           </Text>
                         </View>
                       ))

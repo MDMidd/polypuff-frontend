@@ -134,14 +134,14 @@ export default function FeedbackNudgeModal({ visible, exerciseName, onDismiss, o
       onRequestClose={handleDismiss}
       accessibilityViewIsModal
     >
-      {/* Backdrop — tap outside closes */}
+      {/* Backdrop - tap outside closes */}
       <TouchableOpacity
         style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.72)', justifyContent: 'center', alignItems: 'center', padding: 20 }}
         activeOpacity={1}
         onPress={handleDismiss}
         accessible={false}
       >
-        {/* Dialog — stops tap propagation to backdrop */}
+        {/* Dialog - stops tap propagation to backdrop */}
         <TouchableWithoutFeedback>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'position' : undefined}

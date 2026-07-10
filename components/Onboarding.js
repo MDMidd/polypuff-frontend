@@ -3,8 +3,8 @@
  * ====================================================
  *
  * CHANGES:
- *   1. Grammar rules: 340 (was 340 — already correct in body text but subtitle said "22 languages")
- *   2. Languages: 14 (was 22 — corrected to match actual database: 14 languages with translations)
+ *   1. Grammar rules: 340 (was 340 - already correct in body text but subtitle said "22 languages")
+ *   2. Languages: 14 (was 22 - corrected to match actual database: 14 languages with translations)
  *   3. Added accessibilityRole + labels to slides, dots, buttons
  *   4. scaledFont() on key text sizes
  *   5. Minimum 44×44dp touch targets
@@ -28,7 +28,7 @@ import { LANGUAGE_OPTIONS } from '../utils/languages';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Slide definitions — subtitle/body for slide 2 are built dynamically in the component
+// Slide definitions - subtitle/body for slide 2 are built dynamically in the component
 const SLIDE_TEMPLATES = [
   {
     icon: (color) => <Globe size={64} color={color} />,
@@ -40,7 +40,7 @@ const SLIDE_TEMPLATES = [
   {
     icon: (color) => <BookOpen size={64} color={color} />,
     title: 'Smart Grammar\nChecking',
-    // subtitle and body are dynamic — filled in below
+    // subtitle and body are dynamic - filled in below
     subtitle: '',
     body: '',
     color: 'blue',
@@ -77,7 +77,7 @@ export default function Onboarding({ onComplete }) {
       return {
         ...slide,
         // languageCount from /api/stats is the grammar-rule translation count (14)
-        // but the UI itself supports many more — use the UI count for the public-facing claim.
+        // but the UI itself supports many more - use the UI count for the public-facing claim.
         subtitle: `${ruleStats.totalRules} rules • ${LANGUAGE_OPTIONS.length} languages • CEFR A0-C2`,
         body: `Our database of ${ruleStats.totalRules} grammar rules across ${ruleStats.categoryCount} categories catches errors before AI does. Tap any highlighted word to see the exact rule and examples in your language.`,
       };

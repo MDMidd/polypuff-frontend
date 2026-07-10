@@ -68,13 +68,13 @@ const DOMAINS = [
       { cat: 'Closing', items: ['Please do not hesitate to contact me.', 'I look forward to hearing from you.', 'Thank you for your time and consideration.', 'Kind regards / Yours sincerely / Best regards'] },
     ],
     tips: [
-      'Subject line: be specific — "Q3 Budget Review — Action Required" beats "Update"',
+      'Subject line: be specific - "Q3 Budget Review - Action Required" beats "Update"',
       'Match your tone to the relationship: formal for new contacts, warmer for established ones',
-      'Keep emails under 150 words when possible — busy professionals skim',
-      'One topic per email — multiple topics cause delays when only one part is answered',
+      'Keep emails under 150 words when possible - busy professionals skim',
+      'One topic per email - multiple topics cause delays when only one part is answered',
       'Always end with a clear call to action: what do you need, by when?',
-      'Avoid passive-aggressive phrases: "As per my last email..." — restate the point instead',
-      '2026 tip: Avoid AI-sounding openers like "I hope this finds you well" — start with the point',
+      'Avoid passive-aggressive phrases: "As per my last email..." - restate the point instead',
+      '2026 tip: Avoid AI-sounding openers like "I hope this finds you well" - start with the point',
     ],
     exerciseTypes: ['email_formal', 'email_complaint', 'email_followup', 'email_decline', 'email_request'],
   },
@@ -93,12 +93,12 @@ const DOMAINS = [
       { cat: 'Closing', items: ["Let's wrap up.", "To summarise the key decisions...", "The action points are...", "Our next meeting will be...", "I'll send out the minutes by..."] },
     ],
     tips: [
-      'Send an agenda at least 24 hours before — "Any Other Business" meetings waste time',
-      'Assign a timekeeper and stick to it — go over on one item and others suffer',
+      'Send an agenda at least 24 hours before - "Any Other Business" meetings waste time',
+      'Assign a timekeeper and stick to it - go over on one item and others suffer',
       'Remote meetings: camera on, mute when not speaking, use hand-raise features',
       'Summarise action points aloud at the end: who does what, by when',
       "As chair: draw out quieter participants: \"We haven't heard from [name] yet...\"",
-      "Disagreeing: cushion criticism — \"That's an interesting approach — have we considered...?\"",
+      "Disagreeing: cushion criticism - \"That's an interesting approach - have we considered...?\"",
     ],
     exerciseTypes: ['meeting_chair', 'meeting_participate', 'meeting_minutes', 'meeting_agenda', 'meeting_virtual'],
   },
@@ -113,17 +113,17 @@ const DOMAINS = [
       { cat: 'Opening', items: ["Good morning, I'm here today to...", "My presentation will cover three key areas...", "By the end of this, you'll understand...", "I'd like to start by asking you a question..."] },
       { cat: 'Signposting', items: ["Moving on to...", "Let me now turn to...", "As you can see from this chart...", "I'd like to draw your attention to...", "This brings me to my next point..."] },
       { cat: 'Data Language', items: ["The figures show a significant increase of...", "Sales rose sharply by 23% in Q2.", "There was a slight decline in...", "The data suggests a clear trend towards...", "This represents a year-on-year improvement of..."] },
-      { cat: 'Handling Questions', items: ["That's a great question.", "I'm glad you raised that.", "I'll come back to that — if that's OK?", "That's outside the scope of today, but I'm happy to discuss it afterwards.", "To be honest, I don't have that data to hand, but I'll find out."] },
+      { cat: 'Handling Questions', items: ["That's a great question.", "I'm glad you raised that.", "I'll come back to that - if that's OK?", "That's outside the scope of today, but I'm happy to discuss it afterwards.", "To be honest, I don't have that data to hand, but I'll find out."] },
       { cat: 'Closing', items: ["To summarise the three key takeaways...", "In conclusion...", "Thank you for your attention.", "I'd welcome any questions.", "I'll leave my contact details on the final slide."] },
     ],
     tips: [
       "Structure: Tell them what you\'ll say, say it, tell them what you said",
       'Open with a hook: a striking statistic, a question, or a short story',
-      "Slides support your words — they\'re not a script. Max 6 words per bullet",
-      'Pause after key points — silence gives your audience time to absorb ideas',
-      "Practice the first 90 seconds until it\'s automatic — confidence starts there",
-      "Handling tough questions: buy time — \"That\'s an important question. Let me think...\"",
-      '2026: Virtual presentations — check your background, lighting, and mic quality first',
+      "Slides support your words - they\'re not a script. Max 6 words per bullet",
+      'Pause after key points - silence gives your audience time to absorb ideas',
+      "Practice the first 90 seconds until it\'s automatic - confidence starts there",
+      "Handling tough questions: buy time - \"That\'s an important question. Let me think...\"",
+      '2026: Virtual presentations - check your background, lighting, and mic quality first',
     ],
     exerciseTypes: ['presentation_intro', 'presentation_data', 'presentation_qa', 'presentation_pitch', 'presentation_close'],
   },
@@ -143,11 +143,11 @@ const DOMAINS = [
     ],
     tips: [
       'Know your BATNA (Best Alternative To Negotiated Agreement) before you sit down',
-      'Anchor high — your first offer shapes the entire negotiation range',
-      "Never accept the first offer, even if it\'s good — it signals you\'re easy",
-      'Silence is powerful — after making an offer, stop talking',
+      'Anchor high - your first offer shapes the entire negotiation range',
+      "Never accept the first offer, even if it\'s good - it signals you\'re easy",
+      'Silence is powerful - after making an offer, stop talking',
       "Trade, don\'t just concede: \"I can do X if you can do Y\"",
-      'Separate the people from the problem — attack issues, not personalities',
+      'Separate the people from the problem - attack issues, not personalities',
       'Always summarise the deal aloud before leaving the room',
     ],
     exerciseTypes: ['negotiation_price', 'negotiation_deadline', 'negotiation_contract', 'negotiation_conflict', 'negotiation_close'],
@@ -166,8 +166,8 @@ const DOMAINS = [
       { cat: 'Formal Language', items: ["Furthermore / Moreover / In addition", "However / Nevertheless / On the other hand", "Consequently / As a result / Therefore", "With regard to / In relation to", "It should be noted that..."] },
     ],
     tips: [
-      'Executive summary first — decision-makers read this, not the full report',
-      'Use numbered sections and clear headings — reports are navigated, not read linearly',
+      'Executive summary first - decision-makers read this, not the full report',
+      'Use numbered sections and clear headings - reports are navigated, not read linearly',
       'Every recommendation must be supported by a finding in the report',
       'Passive voice is common in formal reports: "It was found that..." vs "We found that..."',
       'Be precise with data: "a 23% increase" beats "a significant rise"',
@@ -184,16 +184,16 @@ const DOMAINS = [
     skills: ['Opening calls', 'Taking messages', 'Clarifying on phone', 'Technical issues', 'Conference calls'],
     phrases: [
       { cat: 'Opening', items: ["[Name] speaking, how can I help?", "Good morning, is this a good time?", "I'm calling regarding...", "I wanted to follow up on...", "Is [name] available?"] },
-      { cat: 'Clarifying', items: ["I'm sorry, could you repeat that?", "I didn't quite catch that — could you say it again?", "Could you spell that for me?", "Just to confirm, you said...", "I'm having trouble hearing you — could you speak up?"] },
-      { cat: 'Technical Issues', items: ["Sorry, you broke up there.", "I think we lost someone — are you still there?", "Let me call you back — my connection is poor.", "Can everyone hear me clearly?", "I'll just share my screen — give me a moment."] },
-      { cat: 'Closing', items: ["I'll send you a follow-up email.", "Thanks for your time — I'll be in touch.", "Let me know if you need anything else.", "We'll speak again on Thursday.", "I'll action that right away."] },
+      { cat: 'Clarifying', items: ["I'm sorry, could you repeat that?", "I didn't quite catch that - could you say it again?", "Could you spell that for me?", "Just to confirm, you said...", "I'm having trouble hearing you - could you speak up?"] },
+      { cat: 'Technical Issues', items: ["Sorry, you broke up there.", "I think we lost someone - are you still there?", "Let me call you back - my connection is poor.", "Can everyone hear me clearly?", "I'll just share my screen - give me a moment."] },
+      { cat: 'Closing', items: ["I'll send you a follow-up email.", "Thanks for your time - I'll be in touch.", "Let me know if you need anything else.", "We'll speak again on Thursday.", "I'll action that right away."] },
     ],
     tips: [
-      'Answer professionally even if the number is unknown — it could be a client',
+      'Answer professionally even if the number is unknown - it could be a client',
       'Conference calls: state your name before speaking if not everyone knows you',
-      "Take notes during calls — don\'t rely on memory for action items",
-      "Video calls: look at the camera, not your own image — it\'s better eye contact",
-      'Use a wired connection for important calls — WiFi can drop at critical moments',
+      "Take notes during calls - don\'t rely on memory for action items",
+      "Video calls: look at the camera, not your own image - it\'s better eye contact",
+      'Use a wired connection for important calls - WiFi can drop at critical moments',
       'Always confirm action items verbally before hanging up',
     ],
     exerciseTypes: ['call_customer', 'call_complaint', 'call_conference', 'call_voicemail', 'call_appointment'],
@@ -206,17 +206,17 @@ const DOMAINS = [
     desc: 'First impressions, elevator pitches, small talk',
     skills: ['Elevator pitch', 'Conversation starters', 'Following up', 'LinkedIn', 'Business events'],
     phrases: [
-      { cat: 'Introductions', items: ["Hi, I'm [name] — I work in [role] at [company].", "Nice to meet you. What brings you to this event?", "I don't think we've met — I'm...", "Are you enjoying the conference?"] },
+      { cat: 'Introductions', items: ["Hi, I'm [name] - I work in [role] at [company].", "Nice to meet you. What brings you to this event?", "I don't think we've met - I'm...", "Are you enjoying the conference?"] },
       { cat: 'Small Talk Starters', items: ["How has your day been?", "Did you catch [name]\'s keynote?", "What's keeping you busy at the moment?", "Have you been to this event before?", "How did you get into your field?"] },
       { cat: 'Your Elevator Pitch', items: ["I help [type of people] to [achieve result] by [how].", "We're a [type of company] that specialises in [area].", "My background is in [field], and I'm currently focused on [current role]."] },
       { cat: 'Following Up', items: ["It was great meeting you today.", "I'd love to continue our conversation.", "Would you be open to a coffee chat?", "I'll connect with you on LinkedIn.", "Let me know if there's anything I can help with."] },
     ],
     tips: [
-      "Your elevator pitch should be 30–60 seconds — rehearse but don\'t recite",
-      'Ask questions — people like people who show genuine interest in them',
+      "Your elevator pitch should be 30–60 seconds - rehearse but don\'t recite",
+      'Ask questions - people like people who show genuine interest in them',
       'The best small talk trick: remember one detail from the conversation and reference it next time',
       'Follow up within 24 hours while the connection is fresh',
-      'LinkedIn message after meeting: personalise it — mention what you talked about',
+      'LinkedIn message after meeting: personalise it - mention what you talked about',
       'Business cards: receive them with two hands (East Asian etiquette) and glance at them before putting away',
     ],
     exerciseTypes: ['network_intro', 'network_smalltalk', 'network_pitch', 'network_followup', 'network_event'],
@@ -229,16 +229,16 @@ const DOMAINS = [
     desc: 'Working across cultures, global teams, sensitivities',
     skills: ['High/low context cultures', 'Directness scales', 'Meeting styles', 'Hierarchy', 'Relationship vs task focus'],
     phrases: [
-      { cat: 'Diplomatic Disagreement', items: ["That's an interesting perspective.", "I see it a little differently...", "Could we explore an alternative approach?", "I appreciate your view — here's another angle...", "Perhaps we could find a middle ground?"] },
+      { cat: 'Diplomatic Disagreement', items: ["That's an interesting perspective.", "I see it a little differently...", "Could we explore an alternative approach?", "I appreciate your view - here's another angle...", "Perhaps we could find a middle ground?"] },
       { cat: 'Checking Understanding', items: ["I want to make sure we're on the same page.", "How does that land with your team?", "I appreciate there may be cultural context I'm not aware of.", "Please feel free to push back if this doesn't work locally.", "What would be the preferred approach in your context?"] },
-      { cat: 'Time & Hierarchy', items: ["I'll check with my manager and come back to you.", "We tend to move quickly — let me know if you need more time.", "I understand this decision may need to go up the chain.", "We can be flexible on timeline if that helps.", "How are decisions typically made in your organisation?"] },
+      { cat: 'Time & Hierarchy', items: ["I'll check with my manager and come back to you.", "We tend to move quickly - let me know if you need more time.", "I understand this decision may need to go up the chain.", "We can be flexible on timeline if that helps.", "How are decisions typically made in your organisation?"] },
     ],
     tips: [
-      'High-context cultures (Japan, China, Arab world): meaning is implied — read between the lines',
+      'High-context cultures (Japan, China, Arab world): meaning is implied - read between the lines',
       'Low-context cultures (USA, Germany, Scandinavia): say exactly what you mean',
       "Direct cultures say \"no\" clearly; indirect cultures may say \"that\'s difficult\" meaning no",
-      'Never assume punctuality norms — in some cultures 30 minutes late is perfectly acceptable',
-      "Hierarchy: in some cultures only the senior person speaks in meetings — don\'t mistake silence for agreement",
+      'Never assume punctuality norms - in some cultures 30 minutes late is perfectly acceptable',
+      "Hierarchy: in some cultures only the senior person speaks in meetings - don\'t mistake silence for agreement",
       "When in doubt: ask. \"Is there a preferred way you\'d like me to approach this?\" shows respect",
       '2026: With global hybrid teams, overcommunicate and under-assume',
     ],
@@ -249,12 +249,12 @@ const DOMAINS = [
 // ── Vocabulary bank ───────────────────────────────────────────────────────────
 const VOCAB_BANK = [
   { word: 'Synergy',        def: 'Combined effort producing better results than working separately',    example: 'The merger created real synergy between the two R&D teams.' },
-  { word: 'KPI',            def: 'Key Performance Indicator — measurable target for success',           example: 'Our main KPI this quarter is a 15% increase in conversion rate.' },
+  { word: 'KPI',            def: 'Key Performance Indicator - measurable target for success',           example: 'Our main KPI this quarter is a 15% increase in conversion rate.' },
   { word: 'Stakeholder',    def: 'Anyone with an interest in or affected by a project/organisation',    example: 'We need to manage stakeholder expectations carefully.' },
   { word: 'Bandwidth',      def: 'Capacity to take on more work (informal)',                            example: "I don't have the bandwidth to take that on right now." },
   { word: 'Deliverable',    def: 'A specific output or result that must be completed',                  example: 'The main deliverable for this sprint is the prototype.' },
   { word: 'Pivot',          def: 'A significant change in strategy or direction',                       example: 'We may need to pivot our go-to-market strategy.' },
-  { word: 'ROI',            def: 'Return on Investment — profit relative to cost',                      example: 'This campaign delivered a 300% ROI.' },
+  { word: 'ROI',            def: 'Return on Investment - profit relative to cost',                      example: 'This campaign delivered a 300% ROI.' },
   { word: 'Scalable',       def: 'Able to grow efficiently without proportional cost increase',          example: 'We need a scalable solution that works for 10,000 users.' },
   { word: 'Onboarding',     def: 'The process of integrating a new employee or client',                 example: 'The client onboarding process takes about two weeks.' },
   { word: 'Pain point',     def: 'A specific problem or frustration a customer experiences',           example: 'Our product directly addresses the pain points of remote teams.' },
@@ -262,7 +262,7 @@ const VOCAB_BANK = [
   { word: 'Benchmark',      def: 'A reference point to measure performance against',                    example: 'We use industry benchmarks to evaluate our progress.' },
   { word: 'Bottom line',    def: 'The most important factor; or profit/loss figure',                   example: 'The bottom line is we need to cut costs by 20%.' },
   { word: 'Proactive',      def: 'Acting in advance rather than reacting to problems',                  example: 'We need to be proactive about customer retention.' },
-  { word: 'ESG',            def: 'Environmental, Social, and Governance — sustainability framework',   example: 'Our ESG report is published annually for shareholders.' },
+  { word: 'ESG',            def: 'Environmental, Social, and Governance - sustainability framework',   example: 'Our ESG report is published annually for shareholders.' },
   { word: 'Value proposition', def: 'The unique benefit your product/service offers customers',        example: 'Our core value proposition is 24/7 AI-assisted support.' },
   { word: 'Headcount',      def: 'The total number of employees in an organisation or team',           example: 'We plan to increase headcount by 12 in Q2.' },
   { word: 'Granular',       def: 'Detailed and specific (often about data or analysis)',               example: 'Can we get more granular data on the user drop-off points?' },
@@ -391,7 +391,7 @@ export default function BusinessScreen() {
         await AsyncStorage.setItem('bestStreak',    String(Math.max(best, streak)));
       }
     } catch (e) {
-      // Silent fail — don't disrupt user experience
+      // Silent fail - don't disrupt user experience
     }
   };
 
@@ -422,7 +422,7 @@ export default function BusinessScreen() {
     } catch (e) {
       setDailyPhrase({
         phrase: 'Let\'s align on the key deliverables before end of day.',
-        context: 'Project Management — Teams meeting',
+        context: 'Project Management - Teams meeting',
         breakdown: 'align on = agree about | deliverables = specific outputs that must be completed | end of day = by close of business',
         alternative: '"Let\'s agree on what needs to be done today." (more direct)',
       });
@@ -525,7 +525,7 @@ export default function BusinessScreen() {
           <Text style={{ fontSize: scaledFont(20), fontWeight: '900', color: '#fff' }}>{wt('business-english')}</Text>
         </View>
         <Text style={{ fontSize: scaledFont(13), color: '#00E5A0', fontWeight: '600', marginBottom: 10 }}>{wt('webapp-business-desc')}</Text>
-        <Text style={[S.bodyText, { color: '#ccc' }]}>AI-generated exercises across 8 real workplace domains. Emails, meetings, negotiations, presentations and more — all tailored to your level and refreshed on demand.</Text>
+        <Text style={[S.bodyText, { color: '#ccc' }]}>AI-generated exercises across 8 real workplace domains. Emails, meetings, negotiations, presentations and more - all tailored to your level and refreshed on demand.</Text>
       </View>
 
       {/* Daily Business Phrase */}
@@ -626,7 +626,7 @@ export default function BusinessScreen() {
           "Replace \"circle back\" with a specific time: \"Let\'s decide by Friday\"",
           'Use active verbs: "We will evaluate" not "A formal evaluation will be performed"',
           'Authenticity beats perfection: contractions and human tone build trust faster',
-          'For global teams: over-communicate and under-assume — clarity prevents costly misunderstandings',
+          'For global teams: over-communicate and under-assume - clarity prevents costly misunderstandings',
         ].map((tip, i) => (
           <View key={i} style={[S.tipRow]}>
             <Text style={{ color: C.cyan, fontWeight: '800', fontSize: scaledFont(14) }}>→</Text>
@@ -748,8 +748,8 @@ export default function BusinessScreen() {
               <View style={{ backgroundColor: '#00E5A015', borderRadius: 14, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: '#00E5A030', flexDirection: 'row', alignItems: 'center', gap: 0 }}>
                 {[
                   { label: 'Sessions', value: String(sessionStats.sessions), colour: '#00E5A0' },
-                  { label: 'Avg Score', value: sessionStats.avg !== null ? sessionStats.avg + '%' : '—', colour: sessionStats.avg >= 80 ? '#00E5A0' : sessionStats.avg >= 60 ? '#FFBE0B' : '#FF8A65' },
-                  { label: 'Best', value: sessionStats.best !== null ? sessionStats.best + '%' : '—', colour: '#00E5FF' },
+                  { label: 'Avg Score', value: sessionStats.avg !== null ? sessionStats.avg + '%' : '-', colour: sessionStats.avg >= 80 ? '#00E5A0' : sessionStats.avg >= 60 ? '#FFBE0B' : '#FF8A65' },
+                  { label: 'Best', value: sessionStats.best !== null ? sessionStats.best + '%' : '-', colour: '#00E5FF' },
                   { label: 'Total XP', value: sessionStats.xp + ' XP', colour: '#B06CFF' },
                 ].map((s, i) => (
                   <View key={i} style={{ flex: 1, alignItems: 'center' }}>
@@ -1033,7 +1033,7 @@ export default function BusinessScreen() {
                       ? <CheckCircle size={15} color="#00E5A0" />
                       : <X size={15} color="#FF8A65" />}
                     <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: quizResult.correct ? '#00E5A0' : '#FF8A65' }}>
-                      {quizResult.correct ? 'Great work!' : 'Not quite — here\'s the answer:'}
+                      {quizResult.correct ? 'Great work!' : 'Not quite - here\'s the answer:'}
                     </Text>
                   </View>
                   <Text style={S.bodyText}><Text style={{ fontWeight: '700', color: C.text }}>{vocabQuiz.word}:</Text> {vocabQuiz.def}</Text>

@@ -1,5 +1,5 @@
 /**
- * progressSyncService.ts — pushes earned XP / exercise counts to the server.
+ * progressSyncService.ts - pushes earned XP / exercise counts to the server.
  *
  * Mirrors the web's progress-sync.js. Exercise screens already track XP
  * locally (AsyncStorage 'totalXP') but never sent it to the server, so the

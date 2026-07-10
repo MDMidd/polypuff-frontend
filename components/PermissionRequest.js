@@ -54,7 +54,7 @@ export default function PermissionRequest({ type, visible, onAllow, onDeny }) {
             {perm.title}
           </Text>
 
-          {/* Description — prominent disclosure */}
+          {/* Description - prominent disclosure */}
           <Text style={{ fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 22, marginBottom: 24 }}>
             {perm.description}
           </Text>

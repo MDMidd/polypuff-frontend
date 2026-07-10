@@ -1,5 +1,5 @@
 /**
- * API Service — Poly-Puff
+ * API Service - Poly-Puff
  * ========================
  *
  * Central server URL config + shared API helpers.
@@ -34,7 +34,7 @@ export const getServerUrl = async () => {
   }
 };
 
-// Synchronous getter — settings.tsx calls getServerUrl() without await
+// Synchronous getter - settings.tsx calls getServerUrl() without await
 // This makes it work both ways
 getServerUrl.sync = () => _cachedUrl;
 

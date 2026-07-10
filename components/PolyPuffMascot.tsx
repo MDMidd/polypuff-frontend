@@ -68,12 +68,12 @@ function MascotScene({ lookTarget }: { lookTarget: React.MutableRefObject<[numbe
     clockRef.current += delta;
     const t = clockRef.current;
 
-    // 1. Idle bounce — body bobs gently up and down
+    // 1. Idle bounce - body bobs gently up and down
     if (bodyRef.current) {
       bodyRef.current.position.y = Math.sin(t * 1.8) * 0.06;
     }
 
-    // 2. Idle squash & stretch — very subtle scale pulse
+    // 2. Idle squash & stretch - very subtle scale pulse
     if (bodyRef.current) {
       const pulse = 1 + Math.sin(t * 1.8) * 0.015;
       bodyRef.current.scale.set(pulse, 1 / pulse, pulse);
@@ -100,14 +100,14 @@ function MascotScene({ lookTarget }: { lookTarget: React.MutableRefObject<[numbe
     <>
       {/* ── Lighting rig ──────────────────────────────────────────────────── */}
 
-      {/* Key light — soft warm fill from above-left */}
+      {/* Key light - soft warm fill from above-left */}
       <directionalLight
         position={[-2, 3, 2]}
         intensity={1.4}
         color="#FFF5E4"
       />
 
-      {/* Rim light — the glowing blue-white edge that gives the silicone look */}
+      {/* Rim light - the glowing blue-white edge that gives the silicone look */}
       <pointLight
         position={[2, 1, -2]}
         intensity={2.5}
@@ -116,10 +116,10 @@ function MascotScene({ lookTarget }: { lookTarget: React.MutableRefObject<[numbe
         decay={2}
       />
 
-      {/* Fill light — soft ambient so shadows aren't too dark */}
+      {/* Fill light - soft ambient so shadows aren't too dark */}
       <ambientLight intensity={0.5} color="#D4EEF7" />
 
-      {/* Bottom bounce light — slightly warm to mimic ground reflection */}
+      {/* Bottom bounce light - slightly warm to mimic ground reflection */}
       <pointLight
         position={[0, -2, 1]}
         intensity={0.4}
@@ -131,12 +131,12 @@ function MascotScene({ lookTarget }: { lookTarget: React.MutableRefObject<[numbe
       {/* ── Body group: this node bobs up/down ────────────────────────────── */}
       <group ref={bodyRef} position={[0, -0.2, 0]}>
 
-        {/* Body — rounded sphere, slightly squashed vertically */}
+        {/* Body - rounded sphere, slightly squashed vertically */}
         <mesh material={bodyMaterial} position={[0, 0, 0]}>
           <sphereGeometry args={[0.72, 32, 32]} />
         </mesh>
 
-        {/* Belly patch — slightly lighter circle on the front */}
+        {/* Belly patch - slightly lighter circle on the front */}
         <mesh
           material={
             new THREE.MeshStandardMaterial({
@@ -231,7 +231,7 @@ function MascotScene({ lookTarget }: { lookTarget: React.MutableRefObject<[numbe
             <sphereGeometry args={[0.13, 16, 16]} />
           </mesh>
 
-          {/* Smile — a torus arc rotated to look like a curved mouth */}
+          {/* Smile - a torus arc rotated to look like a curved mouth */}
           <mesh
             material={eyeMaterial}
             position={[0, -0.14, 0.54]}
@@ -264,7 +264,7 @@ function MascotScene({ lookTarget }: { lookTarget: React.MutableRefObject<[numbe
 
 export default function PolyPuffMascot({ size = 220 }: PolyPuffMascotProps) {
   // Stores the normalised look direction [-1..1, -1..1]
-  // Using a ref (not state) so updates don't trigger a re-render — useFrame
+  // Using a ref (not state) so updates don't trigger a re-render - useFrame
   // reads this every tick instead.
   const lookTarget = useRef<[number, number]>([0, 0]);
 
@@ -303,7 +303,7 @@ export default function PolyPuffMascot({ size = 220 }: PolyPuffMascotProps) {
         };
       }}
       // Attach gesture handlers directly to the View so the whole square
-      // area responds to touch — not just the visible mascot shape.
+      // area responds to touch - not just the visible mascot shape.
       onStartShouldSetResponder={() => true}
       onMoveShouldSetResponder={() => true}
       onResponderMove={handleTouch}
@@ -316,7 +316,7 @@ export default function PolyPuffMascot({ size = 220 }: PolyPuffMascotProps) {
         gl={{ antialias: true, alpha: true }}
         // Camera sits back enough to see the whole mascot
         camera={{ position: [0, 0.2, 3.8], fov: 42, near: 0.1, far: 100 }}
-        // Transparent background — inherits whatever is behind the View
+        // Transparent background - inherits whatever is behind the View
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);
         }}

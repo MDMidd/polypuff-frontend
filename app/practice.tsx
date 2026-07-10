@@ -80,7 +80,7 @@ const GOAL_EXERCISES: MenuItem[] = [
   { id: 'cae', label: 'CAE', labelKey: 'cae', route: '/cae', icon: Award, color: 'emerald' },
 ];
 
-// Ids the Customise Practice List screen lets users hide/reorder — anything
+// Ids the Customise Practice List screen lets users hide/reorder - anything
 // else here (challenges, wordchunks-vault, grammar-vault, classroom) isn't
 // offered as a toggle there, so it always stays visible.
 const CUSTOMIZABLE_IDS = ALL_MODULES.map(m => m.id);

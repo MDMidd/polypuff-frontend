@@ -123,7 +123,7 @@ function mergeSource(label, packsByLang) {
   console.log(`  ${label}: +${added} keys (${collisions} collisions skipped)`);
 }
 
-// settings-i18n.js — IIFE with `const packs = { en: {...}, ... }`. Inject a
+// settings-i18n.js - IIFE with `const packs = { en: {...}, ... }`. Inject a
 // trailing global assignment so we can read packs after the IIFE runs.
 function loadSettingsPacks() {
   try {
@@ -138,8 +138,8 @@ function loadSettingsPacks() {
   }
 }
 
-// classroom-i18n.js — sets window.POLYPUFF_CLASSROOM_TRANSLATIONS (no en pack).
-// classroom.js — has `const CLASSROOM_TEXT = { en: {...}, ... }` then later
+// classroom-i18n.js - sets window.POLYPUFF_CLASSROOM_TRANSLATIONS (no en pack).
+// classroom.js - has `const CLASSROOM_TEXT = { en: {...}, ... }` then later
 //   `Object.assign(CLASSROOM_TEXT.en, {...});` calls. We need both for the en
 //   baseline. We inject a global assignment so we can read CLASSROOM_TEXT after.
 function loadClassroomPacks() {

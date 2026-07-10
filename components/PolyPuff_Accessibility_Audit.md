@@ -18,11 +18,11 @@ After auditing all 16 files (≈21,000 lines), I found **6 critical** and **14 m
 
 ### 1. Zero `accessibilityLabel` Props Across the Entire App
 
-**Impact:** Screen readers (TalkBack on Android, VoiceOver on iOS) cannot announce what any button, card, or interactive element does. A blind student tapping the play button on the Listening screen hears nothing — or just "button."
+**Impact:** Screen readers (TalkBack on Android, VoiceOver on iOS) cannot announce what any button, card, or interactive element does. A blind student tapping the play button on the Listening screen hears nothing - or just "button."
 
 **Affected files:** All 9 practice screens, `_layout.tsx`, `settings.tsx`
 
-**Fix pattern — apply to every `TouchableOpacity` and interactive element:**
+**Fix pattern - apply to every `TouchableOpacity` and interactive element:**
 
 ```tsx
 // BEFORE (listening.tsx, line ~319)
@@ -48,7 +48,7 @@ After auditing all 16 files (≈21,000 lines), I found **6 critical** and **14 m
 
 **Affected components:** `scoreColor()` in 4 files, `getScoreColor()` in 2 files, word-match highlighting in `listening.tsx`
 
-**Fix — add text labels and patterns alongside color:**
+**Fix - add text labels and patterns alongside color:**
 
 ```tsx
 // BEFORE (wordchunks.tsx result card)
@@ -57,7 +57,7 @@ After auditing all 16 files (≈21,000 lines), I found **6 critical** and **14 m
   <Text style={[ds.scoreLabel, { color: C.textMuted }]}>/ 100</Text>
 </View>
 
-// AFTER — adds text grade + accessibilityLabel
+// AFTER - adds text grade + accessibilityLabel
 <View
   style={[ds.scoreRing, { borderColor: scoreColor(result.score, C) }]}
   accessibilityRole="text"
@@ -77,9 +77,9 @@ After auditing all 16 files (≈21,000 lines), I found **6 critical** and **14 m
 
 ### 3. No `accessibilityRole` on Any Interactive Element
 
-**Impact:** Screen readers cannot distinguish buttons from text from inputs. A blind student navigating by swipe hears "Poly-Puff" (text), then "Start Session" (text) — with no indication that the second is tappable.
+**Impact:** Screen readers cannot distinguish buttons from text from inputs. A blind student navigating by swipe hears "Poly-Puff" (text), then "Start Session" (text) - with no indication that the second is tappable.
 
-**Fix — add roles to all interactive elements across all files:**
+**Fix - add roles to all interactive elements across all files:**
 
 | Element Type | Required `accessibilityRole` |
 |---|---|
@@ -192,11 +192,11 @@ useEffect(() => {
 
 ## MAJOR Issues
 
-### 7. Text Sizes Are Hardcoded — Won't Scale with System Settings
+### 7. Text Sizes Are Hardcoded - Won't Scale with System Settings
 
 **Impact:** Students with low vision who set their phone to "Largest" text size see no change in Poly-Puff. Every font size across all files is hardcoded (e.g., `fontSize: 26`, `fontSize: 13`).
 
-**Fix — use `PixelRatio.getFontScale()` to respect system settings:**
+**Fix - use `PixelRatio.getFontScale()` to respect system settings:**
 
 Create a new utility file:
 
@@ -261,7 +261,7 @@ import { scaledFont } from '../utils/accessibility';
 | Score amber text | `C.amber` (~`#FFBE0B`) | `C.card` | ~7.2:1 | ✅ Passes |
 | Disabled button text | Various + `opacity: 0.4-0.5` | Various | Often <2:1 | 4.5:1 |
 
-**Fix — update `ThemeContext` colors:**
+**Fix - update `ThemeContext` colors:**
 
 ```tsx
 // In contexts/ThemeContext.tsx, update these values:
@@ -281,7 +281,7 @@ Change all to `opacity: 0.6` minimum and add `accessibilityState={{ disabled: tr
 
 **Impact:** After generating a sentence, checking an answer, or flipping a card, focus stays where it was. A screen reader user must manually search for the new content.
 
-**Fix — announce results with `AccessibilityInfo.announceForAccessibility()`:**
+**Fix - announce results with `AccessibilityInfo.announceForAccessibility()`:**
 
 ```tsx
 import { AccessibilityInfo } from 'react-native';
@@ -304,7 +304,7 @@ const checkAnswer = () => {
   );
 };
 
-// In quiz.tsx selectAnswer() — after showing the answer:
+// In quiz.tsx selectAnswer() - after showing the answer:
 AccessibilityInfo.announceForAccessibility(
   isCorrect ? 'Correct!' : `Incorrect. The correct answer is: ${q.opts[q.correct]}`
 );
@@ -380,7 +380,7 @@ function WordTile({ word, onPress, active, color, index, totalTiles }) {
 
 **Impact:** In `settings.tsx`, the Sound, Haptic, and Mascot `Switch` components are inside `Row` components but not linked to their labels.
 
-**Fix — add accessibility props to each Switch:**
+**Fix - add accessibility props to each Switch:**
 
 ```tsx
 <Switch
@@ -397,7 +397,7 @@ function WordTile({ word, onPress, active, color, index, totalTiles }) {
 
 **Impact:** The `PolyPuffScene` component is rendered on every screen but provides zero accessible information.
 
-**Fix — wrap it with an accessible description:**
+**Fix - wrap it with an accessible description:**
 
 ```tsx
 // In each screen where PolyPuffScene is used:
@@ -498,7 +498,7 @@ function WordTile({ word, onPress, active, color, index, totalTiles }) {
 
 **Impact:** In `grammar.tsx` Error Correction mode, errors are shown with colored underlines. Students who can't perceive color miss the errors entirely.
 
-**Fix — add icons or text markers alongside color:**
+**Fix - add icons or text markers alongside color:**
 
 ```tsx
 // Before each error word, add a small icon or prefix
@@ -535,38 +535,38 @@ To complete the accessibility implementation, I'll also need these component fil
 
 | File | Why Needed |
 |---|---|
-| `components/PolyPuffUI.tsx` | Contains `ScreenBackground`, `BackHeader`, `GlassCard`, `NeonButton`, `NeonInput`, `SectionTitle` — all need accessibility props |
-| `components/FeedbackDashboard.tsx` | The results card with error underlines and interactive corrections — critical for accessibility |
-| `components/DiscussWithPuff.tsx` | AI chat component used in every screen — needs AI badge, report button, accessible chat bubbles |
-| `components/VoiceInput.tsx` | Voice recording component — needs recording state announcements |
-| `components/AIDisclosureBanner.tsx` | AI transparency banner — needs screen reader support |
-| `components/PolyPuffScene.tsx` | The 3D mascot — needs to be wrapped or marked decorative |
-| `components/SettingsButton.tsx` | Appears on multiple screens — needs label |
-| `components/Onboarding.tsx` | First-time experience — must be accessible from the start |
-| `components/LegalGateController.tsx` | Age gate + terms — legally critical to be accessible |
-| `contexts/ThemeContext.tsx` | Color definitions — need contrast ratio fixes |
+| `components/PolyPuffUI.tsx` | Contains `ScreenBackground`, `BackHeader`, `GlassCard`, `NeonButton`, `NeonInput`, `SectionTitle` - all need accessibility props |
+| `components/FeedbackDashboard.tsx` | The results card with error underlines and interactive corrections - critical for accessibility |
+| `components/DiscussWithPuff.tsx` | AI chat component used in every screen - needs AI badge, report button, accessible chat bubbles |
+| `components/VoiceInput.tsx` | Voice recording component - needs recording state announcements |
+| `components/AIDisclosureBanner.tsx` | AI transparency banner - needs screen reader support |
+| `components/PolyPuffScene.tsx` | The 3D mascot - needs to be wrapped or marked decorative |
+| `components/SettingsButton.tsx` | Appears on multiple screens - needs label |
+| `components/Onboarding.tsx` | First-time experience - must be accessible from the start |
+| `components/LegalGateController.tsx` | Age gate + terms - legally critical to be accessible |
+| `contexts/ThemeContext.tsx` | Color definitions - need contrast ratio fixes |
 | `services/api.ts` | Needed for understanding server communication patterns |
-| `services/sounds.ts` | Haptic/sound service — needs accessibility alternatives |
-| `services/timerService.ts` | Timer — needs accessible time announcements |
+| `services/sounds.ts` | Haptic/sound service - needs accessibility alternatives |
+| `services/timerService.ts` | Timer - needs accessible time announcements |
 
 ---
 
 ## Implementation Priority Order
 
-**Phase 1 — Ship Blockers (Week 1)**
+**Phase 1 - Ship Blockers (Week 1)**
 1. Add `accessibilityLabel` and `accessibilityRole` to all buttons and inputs (all files)
 2. Fix contrast ratios in ThemeContext
 3. Add `accessibilityViewIsModal` to all modals
 4. Add `AccessibilityInfo.announceForAccessibility()` after all async results
 
-**Phase 2 — Meaningful Use (Week 2)**
+**Phase 2 - Meaningful Use (Week 2)**
 5. Create `utils/accessibility.ts` with `scaledFont()` and `useScreenReader()`
 6. Apply `scaledFont()` to all student-facing text
 7. Add text labels alongside color-only score indicators
 8. Fix Listening screen with persistent transcript toggle
 9. Fix Vocabulary flashcard flip announcements
 
-**Phase 3 — Polish (Week 3)**
+**Phase 3 - Polish (Week 3)**
 10. Add accessible states to all level/difficulty pill selectors
 11. Fix Sentence Builder word tile navigation
 12. Add timer announcements to Challenges

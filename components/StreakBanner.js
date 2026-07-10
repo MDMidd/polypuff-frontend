@@ -1,5 +1,5 @@
 /**
- * StreakBanner — In-App Streak Notification
+ * StreakBanner - In-App Streak Notification
  * ===========================================
  *
  * Shows a contextual banner when the student returns to the app.

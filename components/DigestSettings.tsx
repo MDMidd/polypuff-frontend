@@ -131,7 +131,7 @@ export default function DigestSettings() {
         </TouchableOpacity>
       </View>
 
-      {/* Email input — always shown, not just when enabled */}
+      {/* Email input - always shown, not just when enabled */}
       <Text style={{ fontSize: scaledFont(11), fontWeight: '600', color: C.textMuted, letterSpacing: 0.5, marginBottom: 6, textAlign }}>
         {t.emailAddressLabel}
       </Text>

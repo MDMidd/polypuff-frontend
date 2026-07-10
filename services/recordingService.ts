@@ -4,7 +4,7 @@
  * Handles all audio recording, storage, and playback across the app.
  *
  * Storage: FileSystem.documentDirectory + 'polypuff-recordings/'
- * Format:  M4A/AAC — works on both iOS and Android natively
+ * Format:  M4A/AAC - works on both iOS and Android natively
  * Index:   AsyncStorage key 'voiceRecordings' stores metadata array
  *
  * FILE: services/recordingService.ts
@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export interface VoiceRecording {
   id:          string;    // unique ID
   uri:         string;    // local file:// path on device
-  label:       string;    // human-readable label e.g. "Placement Test — Speaking Q1"
+  label:       string;    // human-readable label e.g. "Placement Test - Speaking Q1"
   exercise:    string;    // exercise id e.g. 'placement', 'translation', 'speaking'
   duration:    number;    // seconds
   date:        string;    // ISO date string

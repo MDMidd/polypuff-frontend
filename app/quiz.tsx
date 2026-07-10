@@ -4,7 +4,7 @@
  *
  * ACCESSIBILITY CHANGES:
  *   1.  Quiz options: accessibilityRole="radio" + selected/correct/incorrect state
- *   2.  announce() after each answer — "Correct!" or "Incorrect. The correct answer is..."
+ *   2.  announce() after each answer - "Correct!" or "Incorrect. The correct answer is..."
  *   3.  announce() on quiz completion with final score
  *   4.  Level pills: accessibilityRole="tab" + selected state
  *   5.  Progress bar: accessibilityLabel "Question 3 of 10, 2 correct"
@@ -60,9 +60,9 @@ const QUIZ_LENGTH = 10;
 const QUESTION_BANK = [
   // ARTICLES
   { q: "Choose the correct sentence:", opts: ["She is an honest person.", "She is a honest person.", "She is the honest person.", "She is honest person."], correct: 0, topic: "Articles", rule: "ART_001", explain: "'Honest' starts with a silent H, so we use 'an' (vowel sound)." },
-  { q: "Fill in: I need ___ hour to finish.", opts: ["a", "an", "the", "—"], correct: 1, topic: "Articles", rule: "ART_001", explain: "'Hour' starts with a vowel sound (silent H), so 'an' is correct." },
+  { q: "Fill in: I need ___ hour to finish.", opts: ["a", "an", "the", "-"], correct: 1, topic: "Articles", rule: "ART_001", explain: "'Hour' starts with a vowel sound (silent H), so 'an' is correct." },
   { q: "Which is correct?", opts: ["He goes to the university.", "He goes to a university.", "He goes to an university.", "He goes to university."], correct: 1, topic: "Articles", rule: "ART_001", explain: "'University' starts with a /j/ consonant sound, so use 'a' not 'an'." },
-  { q: "Choose: ___ sun rises in ___ east.", opts: ["The, the", "A, the", "The, a", "—, —"], correct: 0, topic: "Articles", rule: "ART_005", explain: "Use 'the' with unique things (the sun) and compass directions (the east)." },
+  { q: "Choose: ___ sun rises in ___ east.", opts: ["The, the", "A, the", "The, a", "-, -"], correct: 0, topic: "Articles", rule: "ART_005", explain: "Use 'the' with unique things (the sun) and compass directions (the east)." },
 
   // TENSES
   { q: "She ___ here since 2020.", opts: ["has lived", "lived", "is living", "lives"], correct: 0, topic: "Tenses", rule: "TENS_008", explain: "Present perfect ('has lived') with 'since' for actions starting in the past and continuing." },
@@ -564,7 +564,7 @@ export default function QuizScreen() {
           );
         })}
 
-        {/* Explanation — shown after answering */}
+        {/* Explanation - shown after answering */}
         {showAnswer && (
           <>
             {/* ✅ A11Y: Explanation live region so screen reader picks it up */}

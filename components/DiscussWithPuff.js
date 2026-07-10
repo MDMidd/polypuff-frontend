@@ -1,5 +1,5 @@
 /**
- * DiscussWithPuff — Post-Exercise Discussion (Accessibility Update)
+ * DiscussWithPuff - Post-Exercise Discussion (Accessibility Update)
  *
  * CHANGES:
  *   - Toggle button: accessibilityRole="button" + label

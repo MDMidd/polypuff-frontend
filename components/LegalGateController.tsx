@@ -1,10 +1,10 @@
 /**
- * LegalGateController.tsx — v2.1
+ * LegalGateController.tsx - v2.1
  * ==========================================
- * ORCHESTRATOR — Controls the full legal + auth flow:
+ * ORCHESTRATOR - Controls the full legal + auth flow:
  * 
  *   1. Check AsyncStorage for existing state
- *   2. AgeGateScreen (region + birth year — conditional thresholds)
+ *   2. AgeGateScreen (region + birth year - conditional thresholds)
  *   3. ParentalConsentScreen (if under regional threshold)
  *   4. TermsScreen (scroll-to-bottom acceptance)
  *   5. LoginScreen (Google/Facebook/Apple/Email)

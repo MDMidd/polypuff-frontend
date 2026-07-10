@@ -158,7 +158,7 @@ const LEVELS = [
 
 // Languages where Google SpeechRecognizer (used by expo-speech-recognition)
 // has no or very limited support. Voice input is hidden in the Translation
-// Trainer for these users — we show a notice when they select one of these.
+// Trainer for these users - we show a notice when they select one of these.
 const SPEECH_UNSUPPORTED_LANGUAGES = [
   'Igbo', 'Hausa', 'Zulu', 'Yoruba', 'Amharic', 'Swahili',
   'Urdu', 'Punjabi', 'Gujarati', 'Marathi', 'Tamil', 'Nepali',
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
   const [level, setLevel] = useState('B1');
   const [saved, setSaved] = useState(false);
 
-  // Snapshot of profile when edit mode is entered — used to detect changes
+  // Snapshot of profile when edit mode is entered - used to detect changes
   const [snapshot, setSnapshot] = useState(null);
 
   // Detect if anything changed since entering edit mode
@@ -292,7 +292,7 @@ export default function ProfileScreen() {
     try {
       const data = await AsyncStorage.getItem('userProfile');
       if (data) {
-        // Returning user — use their saved settings
+        // Returning user - use their saved settings
         const p = JSON.parse(data);
         if (p.name) { setName(p.name); setHasProfile(true); }
         if (p.profession) setProfession(p.profession);
@@ -304,7 +304,7 @@ export default function ProfileScreen() {
         if (p.appLanguage) setAppLanguage(p.appLanguage);
         if (p.level) setLevel(p.level);
       } else {
-        // First launch — auto-detect phone language and pre-fill
+        // First launch - auto-detect phone language and pre-fill
         const detected = detectLanguageFromLocale();
         if (detected) {
           setNativeLanguage(detected.native);
@@ -315,7 +315,7 @@ export default function ProfileScreen() {
       const pic = await AsyncStorage.getItem('profilePic');
       if (pic) {
         // Accept both Base64 data URIs (new format) and file URIs (legacy).
-        // File URIs starting with 'file://' may be stale after reinstall — keep
+        // File URIs starting with 'file://' may be stale after reinstall - keep
         // them for now so existing users don't lose their photo mid-session,
         // but they'll be replaced next time the user picks a new photo.
         setProfilePic(pic);
@@ -339,7 +339,7 @@ export default function ProfileScreen() {
     });
     if (!result.canceled && result.assets?.[0]) {
       const asset = result.assets[0];
-      // Build a data URI from the Base64 string — this is self-contained
+      // Build a data URI from the Base64 string - this is self-contained
       // and survives app updates, reinstalls and backups unlike a file URI.
       const base64Uri = asset.base64
         ? `data:image/jpeg;base64,${asset.base64}`
@@ -397,7 +397,7 @@ export default function ProfileScreen() {
 
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
               <View style={{ backgroundColor: C.emerald + '20', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: C.emerald + '40' }}>
-                <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.emerald }}>{level} — {lv.label}</Text>
+                <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.emerald }}>{level} - {lv.label}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.blue + '15', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: C.blue + '30' }}>
                 <Text style={{ fontSize: scaledFont(14) }}>{getFlag(nativeLanguage)}</Text>
@@ -540,7 +540,7 @@ export default function ProfileScreen() {
             <Text style={[sty.sectionTitle, { color: C.text }]}>{t.nativeLanguage}</Text>
           </View>
           <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('nativeLanguageHelp', 'Grammar tips and translations shown in this language')}</Text>
-          {/* Scrollable list — shows 5 rows at a time */}
+          {/* Scrollable list - shows 5 rows at a time */}
           <View style={{ height: 260, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '30' }}>
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -576,7 +576,7 @@ export default function ProfileScreen() {
             </ScrollView>
           </View>
 
-          {/* Speech recognition notice — shown when selected language is unsupported */}
+          {/* Speech recognition notice - shown when selected language is unsupported */}
           {SPEECH_UNSUPPORTED_LANGUAGES.includes(nativeLanguage) && (
             <View style={{
               flexDirection: 'row', alignItems: 'flex-start', gap: 10,
@@ -604,7 +604,7 @@ export default function ProfileScreen() {
             <Text style={[sty.sectionTitle, { color: C.text }]}>{t.appLanguage}</Text>
           </View>
           <Text style={{ fontSize: scaledFont(13), color: C.textMuted, marginBottom: 14, marginLeft: 26 }}>{ui('appLanguageHelp', 'Change the interface language')}</Text>
-          {/* Scrollable list — matches Native Language style */}
+          {/* Scrollable list - matches Native Language style */}
           <View style={{ height: 260, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: C.border + '30' }}>
             <ScrollView
               showsVerticalScrollIndicator={false}

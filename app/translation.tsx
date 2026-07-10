@@ -951,7 +951,7 @@ export default function PracticeScreen() {
             accessibilityHint={tt.customRequestHint}
           />
 
-          {/* GENERATE — NeonButton inherits a11y from updated PolyPuffUI */}
+          {/* GENERATE - NeonButton inherits a11y from updated PolyPuffUI */}
           <NeonButton
             onPress={sessionActive ? handleGenerate : startSession}
             disabled={loading}
@@ -1001,7 +1001,7 @@ export default function PracticeScreen() {
                 {originalSentence}
               </Text>
               <View style={{ flexDirection: rowDir, alignItems: 'flex-start', gap: 8 }}>
-                {/* ✅ A11Y: Translation input — note: typed text is English, no RTL flip */}
+                {/* ✅ A11Y: Translation input - note: typed text is English, no RTL flip */}
                 <TextInput
                   ref={inputRef}
                   style={[s.translationInput, { flex: 1, marginBottom: 0 }]}
@@ -1017,7 +1017,7 @@ export default function PracticeScreen() {
                   accessibilityLabel={wt('your-answer')}
                   accessibilityHint={tt.typeTranslationHint}
                 />
-                {/* Voice input — hidden for languages without Google speech recognition support */}
+                {/* Voice input - hidden for languages without Google speech recognition support */}
                 {!result && speechSupported && (
                   <View style={{ paddingTop: 6 }}>
                     <VoiceInput
@@ -1136,7 +1136,7 @@ export default function PracticeScreen() {
                       </Text>
                     </View>
                   )}
-                  {/* Show answer button — hidden once revealed */}
+                  {/* Show answer button - hidden once revealed */}
                   {!(revealed && visibleRevealAnswer) && <TouchableOpacity
                     onPress={handleReveal}
                     onPressIn={handleReveal}
@@ -1163,7 +1163,7 @@ export default function PracticeScreen() {
                   </TouchableOpacity>}
                 </View>
               )}
-              {/* Check button — NeonButton inherits a11y */}
+              {/* Check button - NeonButton inherits a11y */}
               {!result && (
                 <NeonButton
                   onPress={handleCheck}
@@ -1354,7 +1354,7 @@ export default function PracticeScreen() {
               onSubmitEditing={handleSendChat}
               accessibilityLabel={tt.askGrammarQuestion}
             />
-            {/* ✅ A11Y: Send button — arrow mirrors under RTL */}
+            {/* ✅ A11Y: Send button - arrow mirrors under RTL */}
             <TouchableOpacity
               style={s.chatSendBtn}
               onPress={handleSendChat}

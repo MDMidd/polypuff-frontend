@@ -1,16 +1,16 @@
 /**
- * Help & Tutorial Screen — Poly-Puff
+ * Help & Tutorial Screen - Poly-Puff
  * =====================================
  *
  * Sections:
- *   1. Getting Started — intro for new students
- *   2. Practice Hub & Navigation — where things live
- *   3. Exercises Guide — how each exercise works
- *   4. CEFR Levels — what A0-C2 mean
- *   5. Scoring & XP — how scores work + Discuss with Poly-Puff
- *   6. Progress, Data & Support — reports, settings, and feedback
- *   7. Tips & Tricks — study advice
- *   8. FAQ — common questions
+ *   1. Getting Started - intro for new students
+ *   2. Practice Hub & Navigation - where things live
+ *   3. Exercises Guide - how each exercise works
+ *   4. CEFR Levels - what A0-C2 mean
+ *   5. Scoring & XP - how scores work + Discuss with Poly-Puff
+ *   6. Progress, Data & Support - reports, settings, and feedback
+ *   7. Tips & Tricks - study advice
+ *   8. FAQ - common questions
  *
  * FILE: app/help.tsx
  */
@@ -186,7 +186,7 @@ export default function HelpScreen() {
           </Text>
           <View style={st.startSteps}>
             {[
-              { icon: User, color: '#60A5FA', text: 'Set up your profile — choose your native language and English level' },
+              { icon: User, color: '#60A5FA', text: 'Set up your profile - choose your native language and English level' },
               { icon: ClipboardCheck, color: '#00E5FF', text: 'Take the Placement Test to find your CEFR level (or choose it manually)' },
               { icon: LayoutGrid, color: '#FB923C', text: 'Pick any exercise from the Practice hub, including exam prep and Business English' },
               { icon: Settings, color: '#B06CFF', text: 'Use Customise Practice List to show, hide, or reorder your modules' },
@@ -232,12 +232,12 @@ export default function HelpScreen() {
             'Tap "Check" to get your score and detailed feedback',
             'Tap underlined errors to see the specific grammar rule',
             'Use "Listen to Native" to hear the correct pronunciation',
-          ]} tip="Don't worry about perfect word-for-word translations — natural English phrasing scores well!" />
+          ]} tip="Don't worry about perfect word-for-word translations - natural English phrasing scores well!" />
 
           <ExerciseGuide C={C} icon={Puzzle} name="Word Chunks" color="#34D399" steps={[
             'A short phrase appears in your native language (2-5 words)',
             'Type the natural English equivalent',
-            'These are fixed expressions — learn them as complete units',
+            'These are fixed expressions - learn them as complete units',
             'Choose a category (Idioms, Phrasal Verbs, etc.) or let it be random',
           ]} tip="Chunks are how native speakers actually talk. Learning them makes you sound more natural!" />
 
@@ -245,7 +245,7 @@ export default function HelpScreen() {
             'Choose your difficulty (Easy/Medium/Hard)',
             'Listen to the English audio carefully',
             'Type exactly what you heard',
-            'Your words are compared one-by-one — matching words show green, errors show red',
+            'Your words are compared one-by-one - matching words show green, errors show red',
           ]} tip="Start on Easy (slower speed + you can see the text). Work up to Hard for real challenge!" />
 
           <ExerciseGuide C={C} icon={PenTool} name="Writing" color="#34D399" steps={[
@@ -259,7 +259,7 @@ export default function HelpScreen() {
             'Multiple choice questions from a bank of grammar topics',
             'Select the correct answer from 4 options',
             'After the quiz, review your mistakes with explanations',
-          ]} tip="Read all options carefully before choosing — tricky questions test common ESL mistakes!" />
+          ]} tip="Read all options carefully before choosing - tricky questions test common ESL mistakes!" />
 
           <ExerciseGuide C={C} icon={Pencil} name="Grammar Practice" color="#F472B6" steps={[
             'Choose from 3 modes: Error Correction, Sentence Builder, or Fill in the Blank',
@@ -267,7 +267,7 @@ export default function HelpScreen() {
             'Sentence Builder: Tap words in the correct order',
             'Fill in the Blank: Type the missing word or phrase',
             'Each exercise gives detailed feedback with grammar rules',
-          ]} tip="Try all three modes — they train different skills. Sentence Builder is great for word order!" />
+          ]} tip="Try all three modes - they train different skills. Sentence Builder is great for word order!" />
 
           <ExerciseGuide C={C} icon={Layers} name="Vocabulary" color="#B06CFF" steps={[
             'Flashcards test you on word definitions',
@@ -297,7 +297,7 @@ export default function HelpScreen() {
             'Use the Scores section to understand band-style and legacy score ranges',
           ]} tip="TOEFL is especially useful for academic English and campus-style communication tasks." />
 
-          <ExerciseGuide C={C} icon={Award} name="CAE — C1 Advanced" color="#34D399" steps={[
+          <ExerciseGuide C={C} icon={Award} name="CAE - C1 Advanced" color="#34D399" steps={[
             'Study Cambridge C1 Advanced exam sections and task types',
             'Practise exam-style Reading, Use of English, Writing, Listening, and Speaking prompts',
             'Review model answers, strategies, and high-level language patterns',
@@ -357,7 +357,7 @@ export default function HelpScreen() {
               { range: '90-100', label: 'Excellent', color: '#34D399', desc: 'Perfect or near-perfect answer' },
               { range: '70-89', label: 'Good', color: '#00D9FF', desc: 'Minor errors, solid understanding' },
               { range: '50-69', label: 'OK', color: '#FFB347', desc: 'Some errors but core meaning is there' },
-              { range: '0-49', label: 'Needs Work', color: '#F87171', desc: 'Significant errors — keep practising!' },
+              { range: '0-49', label: 'Needs Work', color: '#F87171', desc: 'Significant errors - keep practising!' },
             ].map((s, i) => (
               <View key={i} style={[st.scoreRow, { borderLeftColor: s.color }]}>
                 <Text style={[st.scoreRange, { color: s.color }]}>{s.range}</Text>
@@ -375,7 +375,7 @@ export default function HelpScreen() {
               <Text style={[st.discussTitle, { color: '#A78BFA' }]}>Discuss with Poly-Puff</Text>
             </View>
             <Text style={[st.body, { color: C.textSec, marginBottom: 0 }]}>
-              After every exercise, you can tap "Discuss with Poly-Puff" to argue your score. If you used a valid synonym, correct alternative phrasing, or think the grading was too harsh — tell me! I'll consider your argument and may adjust your score. However, verified grammar rules from our database cannot be overridden.
+              After every exercise, you can tap "Discuss with Poly-Puff" to argue your score. If you used a valid synonym, correct alternative phrasing, or think the grading was too harsh - tell me! I'll consider your argument and may adjust your score. However, verified grammar rules from our database cannot be overridden.
             </Text>
           </View>
         </Section>
@@ -428,13 +428,13 @@ export default function HelpScreen() {
             a="There might be multiple valid translations! Tap 'Discuss with Poly-Puff' after any exercise to argue your case. If you used a valid synonym or alternative phrasing, your score may be adjusted." />
           <FAQ C={C}
             q="What does the Placement Test actually test?"
-            a="It tests grammar, vocabulary, and sentence structure across all CEFR levels. The test adapts as you answer — harder questions appear when you answer correctly. It takes about 5-10 minutes." />
+            a="It tests grammar, vocabulary, and sentence structure across all CEFR levels. The test adapts as you answer - harder questions appear when you answer correctly. It takes about 5-10 minutes." />
           <FAQ C={C}
             q="How do I change my native language?"
             a="Open Settings and use the 'My Native Language' selector under Language & Level. Changes take effect on your next exercise." />
           <FAQ C={C}
             q="What are 'Word Chunks'?"
-            a="Word chunks are short fixed phrases that native speakers use as single units — like 'by the way', 'make a decision', or 'looking forward to'. Learning them makes your English sound more natural than translating word-by-word." />
+            a="Word chunks are short fixed phrases that native speakers use as single units - like 'by the way', 'make a decision', or 'looking forward to'. Learning them makes your English sound more natural than translating word-by-word." />
           <FAQ C={C}
             q="How is my writing scored?"
             a="Writing is scored on four criteria: Grammar accuracy (40%), Vocabulary range (20%), Coherence and organization (20%), and Task completion (20%). You'll also see an improved version of your text." />

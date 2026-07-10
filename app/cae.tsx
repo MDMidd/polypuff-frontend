@@ -59,11 +59,11 @@ const gradeColour = (score) => {
 
 // ── Grade table ───────────────────────────────────────────────────────────────
 const GRADES = [
-  { grade: 'A',  range: '200–210', cefr: 'C2', label: 'Outstanding — Certificate states C2 level', colour: '#00E5A0', pass: true },
-  { grade: 'B',  range: '193–199', cefr: 'C1', label: 'Excellent — C1 Advanced Certificate',       colour: '#00E5FF', pass: true },
-  { grade: 'C',  range: '180–192', cefr: 'C1', label: 'Good Pass — C1 Advanced Certificate',       colour: '#FFBE0B', pass: true },
-  { grade: 'D/E', range: '160–179', cefr: 'B2', label: 'Narrow Fail — B2 level certificate issued', colour: '#FF8A65', pass: false },
-  { grade: 'U',  range: 'Below 160', cefr: '—', label: 'Ungraded — No certificate issued',         colour: '#FF4D6A', pass: false },
+  { grade: 'A',  range: '200–210', cefr: 'C2', label: 'Outstanding - Certificate states C2 level', colour: '#00E5A0', pass: true },
+  { grade: 'B',  range: '193–199', cefr: 'C1', label: 'Excellent - C1 Advanced Certificate',       colour: '#00E5FF', pass: true },
+  { grade: 'C',  range: '180–192', cefr: 'C1', label: 'Good Pass - C1 Advanced Certificate',       colour: '#FFBE0B', pass: true },
+  { grade: 'D/E', range: '160–179', cefr: 'B2', label: 'Narrow Fail - B2 level certificate issued', colour: '#FF8A65', pass: false },
+  { grade: 'U',  range: 'Below 160', cefr: '-', label: 'Ungraded - No certificate issued',         colour: '#FF4D6A', pass: false },
 ];
 
 // ── Cambridge suite context ───────────────────────────────────────────────────
@@ -88,9 +88,9 @@ const PAPERS = {
     weight: '40% (Reading 20% + Use of English 20%)',
     overview: 'The longest paper. Combines reading comprehension and grammar/vocabulary in one 90-minute session. Parts 1–4 test vocabulary and grammar (Use of English). Parts 5–8 test reading comprehension. All 8 parts are in one booklet but scored separately.',
     parts: [
-      { num: 1, title: 'Multiple-Choice Cloze',       marks: '8 × 1 = 8',  qs: 8,  desc: 'A text with 8 gaps. Choose A, B, C or D for each gap. Tests vocabulary: idioms, collocations, phrasal verbs, fixed expressions.', tip: 'Read the whole sentence before choosing. All four options may be grammatically possible — only one fits semantically. Eliminate wrong options first.' },
-      { num: 2, title: 'Open Cloze',                  marks: '8 × 1 = 8',  qs: 8,  desc: 'A text with 8 gaps. No options given — write your own word. Tests grammar and vocabulary. Usually one specific word fits.', tip: 'Read the text before and after each gap. Prepositions, articles, pronouns, auxiliary verbs, and conjunctions are common answers. Only one word allowed.' },
-      { num: 3, title: 'Word Formation',              marks: '8 × 1 = 8',  qs: 8,  desc: 'A text with 8 gaps. A ROOT WORD is given at the end of the line — change its form (prefix, suffix, negative) to fit the gap.', tip: 'Common transformations: adjective → noun, noun → verb, add un-/in-/dis-, add -tion/-ness/-ment. Check whether the answer needs to be negative.' },
+      { num: 1, title: 'Multiple-Choice Cloze',       marks: '8 × 1 = 8',  qs: 8,  desc: 'A text with 8 gaps. Choose A, B, C or D for each gap. Tests vocabulary: idioms, collocations, phrasal verbs, fixed expressions.', tip: 'Read the whole sentence before choosing. All four options may be grammatically possible - only one fits semantically. Eliminate wrong options first.' },
+      { num: 2, title: 'Open Cloze',                  marks: '8 × 1 = 8',  qs: 8,  desc: 'A text with 8 gaps. No options given - write your own word. Tests grammar and vocabulary. Usually one specific word fits.', tip: 'Read the text before and after each gap. Prepositions, articles, pronouns, auxiliary verbs, and conjunctions are common answers. Only one word allowed.' },
+      { num: 3, title: 'Word Formation',              marks: '8 × 1 = 8',  qs: 8,  desc: 'A text with 8 gaps. A ROOT WORD is given at the end of the line - change its form (prefix, suffix, negative) to fit the gap.', tip: 'Common transformations: adjective → noun, noun → verb, add un-/in-/dis-, add -tion/-ness/-ment. Check whether the answer needs to be negative.' },
       { num: 4, title: 'Key Word Transformations',    marks: '6 × 2 = 12', qs: 6,  desc: 'Two sentences with the same meaning. Complete the second using a KEY WORD (unchanged) in 3–6 words total. Tests grammar, vocabulary, and collocation.', tip: 'The key word must be used UNCHANGED. Count your words (contractions = 2 words). Common structures: passive, reported speech, conditionals, phrasal verbs, comparatives.' },
       { num: 5, title: 'Multiple Choice Reading',     marks: '6 × 2 = 12', qs: 6,  desc: 'A long text (500–600 words). 6 four-option multiple choice questions testing understanding of detail, opinion, tone, purpose, implication, and attitude.', tip: 'Questions follow text order. Underline the relevant section of text for each question. Wrong options often use words from the text but change the meaning subtly.' },
       { num: 6, title: 'Cross-Text Multiple Matching', marks: '4 × 2 = 8', qs: 4,  desc: 'Four short texts by different writers on the same topic. 4 questions ask you to identify which writer expresses a particular view, or which writers agree/disagree.', tip: 'Read all four texts before answering. Focus on the writers\' opinions and attitudes, not just facts. Writers may express similar ideas differently.' },
@@ -99,14 +99,14 @@ const PAPERS = {
     ],
     questionTypes: ['Multiple-choice cloze', 'Open cloze', 'Word formation', 'Key word transformations', 'Multiple choice', 'Cross-text multiple matching', 'Gapped text', 'Multiple matching'],
     tips: [
-      'This paper is 40% of your total score — spend the most preparation time here',
+      'This paper is 40% of your total score - spend the most preparation time here',
       'Parts 1–4 (Use of English): grammar and vocabulary are equally important',
       'Part 4 Key Word Transformations: practise passive voice, reported speech, conditionals, wish/regret, comparatives, phrasal verbs',
-      'Parts 5–8 (Reading): always read the text first, then questions — not the other way around',
+      'Parts 5–8 (Reading): always read the text first, then questions - not the other way around',
       'Part 6: read carefully for writers\' attitudes and opinions, not just factual content',
-      'Part 7: identify "lexical chains" — the same topic referred to with different words',
+      'Part 7: identify "lexical chains" - the same topic referred to with different words',
       'Time management: roughly 11 minutes per part on average',
-      'Spelling must be exactly correct — a misspelling loses the mark',
+      'Spelling must be exactly correct - a misspelling loses the mark',
     ],
     bandTips: {
       'B2': 'Master the 8 part types. Focus on word formation rules and collocations.',
@@ -125,8 +125,8 @@ const PAPERS = {
     weight: '20%',
     overview: 'Two writing tasks. Part 1 is compulsory (always an essay). Part 2 gives you a choice from 3–4 task types. Each task is marked by two examiners on 4 criteria, each out of 5 marks (total 20 marks per task, 40 total).',
     parts: [
-      { num: 1, title: 'Part 1 — Essay (Compulsory)',       marks: 'Up to 20', qs: 1, desc: 'Write an essay (220–260 words) based on two points from input text. Discuss both points, include your own idea, and reach a conclusion. Academic in style — formal and impersonal.', tip: 'Plan your essay: intro (paraphrase the question), 2 body paragraphs (one per prompt point + your own point), conclusion. Use discourse markers: Furthermore, Nevertheless, In contrast, Consequently.' },
-      { num: 2, title: 'Part 2 — Task Choice (pick one)',   marks: 'Up to 20', qs: 1, desc: 'Choose ONE from usually 3–4 options: letter/email, proposal, report, or review. Word count: 220–260 words. May be formal or semi-formal depending on the task.', tip: 'Choose the task type you\'re most confident with. Always identify who you\'re writing to and why — this shapes your register and structure.' },
+      { num: 1, title: 'Part 1 - Essay (Compulsory)',       marks: 'Up to 20', qs: 1, desc: 'Write an essay (220–260 words) based on two points from input text. Discuss both points, include your own idea, and reach a conclusion. Academic in style - formal and impersonal.', tip: 'Plan your essay: intro (paraphrase the question), 2 body paragraphs (one per prompt point + your own point), conclusion. Use discourse markers: Furthermore, Nevertheless, In contrast, Consequently.' },
+      { num: 2, title: 'Part 2 - Task Choice (pick one)',   marks: 'Up to 20', qs: 1, desc: 'Choose ONE from usually 3–4 options: letter/email, proposal, report, or review. Word count: 220–260 words. May be formal or semi-formal depending on the task.', tip: 'Choose the task type you\'re most confident with. Always identify who you\'re writing to and why - this shapes your register and structure.' },
     ],
     taskTypes: [
       { type: 'Essay', style: 'Formal/Academic', purpose: 'Discuss two given points + your own idea. Argue a position or discuss both sides.' },
@@ -136,23 +136,23 @@ const PAPERS = {
       { type: 'Review', style: 'Semi-formal/Neutral', purpose: 'Evaluate a book, film, restaurant, etc. Include recommendation. Written for a magazine/website.' },
     ],
     criteria: [
-      { name: 'Content', weight: '5 marks', desc: 'How well you fulfil the task — all main points addressed, appropriate development' },
+      { name: 'Content', weight: '5 marks', desc: 'How well you fulfil the task - all main points addressed, appropriate development' },
       { name: 'Communicative Achievement', weight: '5 marks', desc: 'Correct register, style and format for the audience and purpose' },
       { name: 'Organisation', weight: '5 marks', desc: 'Logical structure, coherent paragraphing, effective use of linking devices' },
-      { name: 'Language', weight: '5 marks', desc: 'Range and accuracy of vocabulary and grammar — C1/C2 level expected' },
+      { name: 'Language', weight: '5 marks', desc: 'Range and accuracy of vocabulary and grammar - C1/C2 level expected' },
     ],
     tips: [
-      'Part 1 essay: ALWAYS address BOTH prompt points — ignoring one costs heavily on Content',
+      'Part 1 essay: ALWAYS address BOTH prompt points - ignoring one costs heavily on Content',
       'Word count: 220–260 words. Under 200 = automatic penalty. Over 280 = examiner stops marking',
-      'Each task is worth exactly 20 marks — give equal time to both (about 45 minutes each)',
+      'Each task is worth exactly 20 marks - give equal time to both (about 45 minutes each)',
       'Use a wide range of vocabulary: avoid repeating the same words. Use synonyms and complex expressions',
-      'Reports and proposals need CLEAR HEADINGS — this is part of the format marks',
+      'Reports and proposals need CLEAR HEADINGS - this is part of the format marks',
       'Reviews need a clear recommendation at the end',
-      'Start every essay with a paraphrase of the question — never copy it word for word',
+      'Start every essay with a paraphrase of the question - never copy it word for word',
       'Leave 2–3 minutes to proofread each task for spelling and grammar errors',
     ],
     bandTips: {
-      'B2': 'Focus on task completion — answer ALL parts of the question. Use clear paragraph structure.',
+      'B2': 'Focus on task completion - answer ALL parts of the question. Use clear paragraph structure.',
       'C1': 'Widen vocabulary range. Practise all Part 2 task types so you can choose confidently.',
       'C2': 'Aim for sophistication: varied sentence structures, precise vocabulary, nuanced arguments.',
     },
@@ -168,25 +168,25 @@ const PAPERS = {
     weight: '20%',
     overview: 'Four parts testing different listening sub-skills. All recordings are played TWICE. Texts include monologues, interviews, discussions, and lectures from authentic English contexts. North American and other accents appear alongside British English.',
     parts: [
-      { num: 1, title: 'Multiple Choice — Short Extracts', marks: '6 × 1 = 6',  qs: 6, desc: 'Three short recordings (about 1 minute each) from different contexts. Two multiple-choice questions per extract (A, B, or C). Tests understanding of gist, attitude, purpose, and main ideas.', tip: 'Read the questions before listening. The questions follow audio order. Wrong options often contain words from the recording — focus on meaning, not just keywords.' },
-      { num: 2, title: 'Sentence Completion',              marks: '8 × 1 = 8',  qs: 8, desc: 'A monologue (about 3 minutes) — lecture, talk, or presentation. Complete 8 sentences with information from the recording. Usually 1–3 words per gap.', tip: 'The sentences follow the audio order. Write the exact words you hear — don\'t paraphrase. Spelling must be correct. Numbers and dates can appear.' },
-      { num: 3, title: 'Multiple Choice — Long Recording',  marks: '6 × 1 = 6',  qs: 6, desc: 'A conversation or interview with two or more speakers (about 4 minutes). 6 four-option multiple choice questions testing opinions, attitudes, and agreement between speakers.', tip: 'Focus on the speakers\' opinions and attitudes. Be careful — one speaker may agree with an idea early, then change their view. Both speakers\' views matter.' },
-      { num: 4, title: 'Multiple Matching',                marks: '10 × 1 = 10', qs: 10, desc: 'Five short monologues (about 30 seconds each) on the same theme. Two tasks with 8 options each — match each speaker to 5 of the 8 options in each task.', tip: 'This requires split attention — you\'re matching to TWO separate sets of options simultaneously. Focus on the main point of each speaker, not just surface words.' },
+      { num: 1, title: 'Multiple Choice - Short Extracts', marks: '6 × 1 = 6',  qs: 6, desc: 'Three short recordings (about 1 minute each) from different contexts. Two multiple-choice questions per extract (A, B, or C). Tests understanding of gist, attitude, purpose, and main ideas.', tip: 'Read the questions before listening. The questions follow audio order. Wrong options often contain words from the recording - focus on meaning, not just keywords.' },
+      { num: 2, title: 'Sentence Completion',              marks: '8 × 1 = 8',  qs: 8, desc: 'A monologue (about 3 minutes) - lecture, talk, or presentation. Complete 8 sentences with information from the recording. Usually 1–3 words per gap.', tip: 'The sentences follow the audio order. Write the exact words you hear - don\'t paraphrase. Spelling must be correct. Numbers and dates can appear.' },
+      { num: 3, title: 'Multiple Choice - Long Recording',  marks: '6 × 1 = 6',  qs: 6, desc: 'A conversation or interview with two or more speakers (about 4 minutes). 6 four-option multiple choice questions testing opinions, attitudes, and agreement between speakers.', tip: 'Focus on the speakers\' opinions and attitudes. Be careful - one speaker may agree with an idea early, then change their view. Both speakers\' views matter.' },
+      { num: 4, title: 'Multiple Matching',                marks: '10 × 1 = 10', qs: 10, desc: 'Five short monologues (about 30 seconds each) on the same theme. Two tasks with 8 options each - match each speaker to 5 of the 8 options in each task.', tip: 'This requires split attention - you\'re matching to TWO separate sets of options simultaneously. Focus on the main point of each speaker, not just surface words.' },
     ],
     questionTypes: ['Multiple choice (short extracts)', 'Sentence completion', 'Multiple choice (long recording)', 'Multiple matching'],
     tips: [
-      'All recordings are played TWICE — use the first listen for answers and second to check',
+      'All recordings are played TWICE - use the first listen for answers and second to check',
       'Use the reading time before each part to preview questions',
-      'Sentence completion: write EXACT words from the recording — paraphrases may not be accepted',
+      'Sentence completion: write EXACT words from the recording - paraphrases may not be accepted',
       'Part 4 multiple matching: start with Task 1 on first listen, Task 2 on second listen',
       'Wrong options in multiple choice often use the same words as the recording but twist the meaning',
-      'You have 5 minutes at the end to transfer answers — write neatly and accurately',
+      'You have 5 minutes at the end to transfer answers - write neatly and accurately',
       'Train your ear: listen to BBC Radio 4, podcasts, TED Talks daily',
-      'If you miss an answer, move on — don\'t lose the thread trying to recover',
+      'If you miss an answer, move on - don\'t lose the thread trying to recover',
     ],
     bandTips: {
-      'B2': 'Practice Part 1 short extracts — these test attitude and implication, not just facts.',
-      'C1': 'Work on Part 4 multiple matching — train yourself to follow multiple threads simultaneously.',
+      'B2': 'Practice Part 1 short extracts - these test attitude and implication, not just facts.',
+      'C1': 'Work on Part 4 multiple matching - train yourself to follow multiple threads simultaneously.',
       'C2': 'Focus on attitude and inference. Practise with complex, fast-paced authentic audio.',
     },
   },
@@ -199,12 +199,12 @@ const PAPERS = {
     time: '15 minutes (paired)',
     questions: '4 parts',
     weight: '20%',
-    overview: 'Conducted FACE-TO-FACE with a partner (another candidate) and TWO examiners — one interlocutor who runs the test, one assessor who observes. The only paper where you speak with another person, not just the examiner. This reflects real-world communication.',
+    overview: 'Conducted FACE-TO-FACE with a partner (another candidate) and TWO examiners - one interlocutor who runs the test, one assessor who observes. The only paper where you speak with another person, not just the examiner. This reflects real-world communication.',
     isUnique: true,
     parts: [
-      { num: 1, title: 'Interview (2 minutes)', marks: 'Holistic', qs: null, desc: 'The interlocutor asks both candidates questions about themselves — their lives, opinions, experiences, and interests. Questions are short and personal. Designed to warm you up and put you at ease.', tip: 'Speak naturally and at length — aim for 2–4 sentences per answer. Don\'t give one-word answers. Show you can converse, not just answer questions.' },
-      { num: 2, title: 'Individual Long Turn (4 minutes)', marks: 'Holistic', qs: null, desc: 'Each candidate speaks for 1 minute about a set of photographs (usually 3, from which you choose 2 to discuss). Then you answer a brief question about the other candidate\'s photos (30 seconds). Tests extended monologue.', tip: 'Compare the photos — don\'t just describe them. Use speculative language: "It looks as if...", "They might be...", "I\'d imagine that...". Answer the full question printed on the card.' },
-      { num: 3, title: 'Collaborative Task (4 minutes)', marks: 'Holistic', qs: null, desc: 'Both candidates discuss a task together (a prompt with 5 visual prompts and 2 questions). First discuss all visual options for about 2 minutes, then negotiate and decide together for about 1 minute.', tip: 'This is about interaction — invite your partner\'s opinion, agree and disagree politely, and reach a decision. Don\'t monologue. Use phrases: "What do you think?", "I see your point, but...", "Shall we say...?"' },
+      { num: 1, title: 'Interview (2 minutes)', marks: 'Holistic', qs: null, desc: 'The interlocutor asks both candidates questions about themselves - their lives, opinions, experiences, and interests. Questions are short and personal. Designed to warm you up and put you at ease.', tip: 'Speak naturally and at length - aim for 2–4 sentences per answer. Don\'t give one-word answers. Show you can converse, not just answer questions.' },
+      { num: 2, title: 'Individual Long Turn (4 minutes)', marks: 'Holistic', qs: null, desc: 'Each candidate speaks for 1 minute about a set of photographs (usually 3, from which you choose 2 to discuss). Then you answer a brief question about the other candidate\'s photos (30 seconds). Tests extended monologue.', tip: 'Compare the photos - don\'t just describe them. Use speculative language: "It looks as if...", "They might be...", "I\'d imagine that...". Answer the full question printed on the card.' },
+      { num: 3, title: 'Collaborative Task (4 minutes)', marks: 'Holistic', qs: null, desc: 'Both candidates discuss a task together (a prompt with 5 visual prompts and 2 questions). First discuss all visual options for about 2 minutes, then negotiate and decide together for about 1 minute.', tip: 'This is about interaction - invite your partner\'s opinion, agree and disagree politely, and reach a decision. Don\'t monologue. Use phrases: "What do you think?", "I see your point, but...", "Shall we say...?"' },
       { num: 4, title: 'Discussion (5 minutes)', marks: 'Holistic', qs: null, desc: 'The interlocutor asks both candidates more abstract questions related to Part 3\'s theme. You discuss together. Tests ability to express opinions, justify views, and engage in debate at C1 level.', tip: 'Express and justify your opinions. Agree or disagree with your partner. Use sophisticated language: "It could be argued that...", "I\'m inclined to think...", "There\'s a strong case for...".' },
     ],
     criteria: [
@@ -213,22 +213,22 @@ const PAPERS = {
       { name: 'Discourse Management', weight: 'Assessed throughout', desc: 'Ability to maintain coherent extended speech; logical organisation of ideas' },
       { name: 'Pronunciation', weight: 'Assessed throughout', desc: 'Clarity, natural stress and intonation; accent does NOT affect score' },
       { name: 'Interactive Communication', weight: 'Assessed throughout', desc: 'Initiating and responding naturally; maintaining conversation; negotiating' },
-      { name: 'Global Achievement', weight: 'Highest weighted criterion', desc: 'Overall effectiveness as a communicator — holistic impression of performance' },
+      { name: 'Global Achievement', weight: 'Highest weighted criterion', desc: 'Overall effectiveness as a communicator - holistic impression of performance' },
     ],
     tips: [
-      'You are assessed THROUGHOUT — not just when it\'s "your turn"',
-      'Part 2: COMPARE the photos — "In the first photo... whereas in the second..." Don\'t just describe',
-      'Part 3: always invite your partner: "What do you think about this one?" — interaction is marked',
-      'Don\'t panic if your partner dominates — politely interrupt: "That\'s a good point, and I\'d add..."',
-      'Your accent doesn\'t matter — only clarity and natural prosody count for Pronunciation',
-      'Global Achievement is the most heavily weighted criterion — be an effective communicator overall',
-      'Avoid memorised speeches — the assessor can detect them and will mark them down',
+      'You are assessed THROUGHOUT - not just when it\'s "your turn"',
+      'Part 2: COMPARE the photos - "In the first photo... whereas in the second..." Don\'t just describe',
+      'Part 3: always invite your partner: "What do you think about this one?" - interaction is marked',
+      'Don\'t panic if your partner dominates - politely interrupt: "That\'s a good point, and I\'d add..."',
+      'Your accent doesn\'t matter - only clarity and natural prosody count for Pronunciation',
+      'Global Achievement is the most heavily weighted criterion - be an effective communicator overall',
+      'Avoid memorised speeches - the assessor can detect them and will mark them down',
       'If you don\'t understand a question, ask politely: "Could you repeat that, please?"',
     ],
     bandTips: {
-      'B2': 'Practice Part 2 long turns — record yourself speaking for 1 full minute about photos.',
+      'B2': 'Practice Part 2 long turns - record yourself speaking for 1 full minute about photos.',
       'C1': 'Work on Part 3 interaction strategies. Practise with a partner using real CAE task cards.',
-      'C2': 'Focus on lexical sophistication and discourse management — use hedging, stance phrases.',
+      'C2': 'Focus on lexical sophistication and discourse management - use hedging, stance phrases.',
     },
   },
 };
@@ -247,7 +247,7 @@ const PRACTICE_PROMPTS = {
   // ── Listening ──────────────────────────────────────────────────────────────
   listening_extracts: [
     'You will hear three short extracts. For each extract, answer the two questions. Extract 1 (Two friends discussing a film): 1) Why did the woman enjoy the film? A) The storyline B) The acting C) The cinematography. 2) What does the man suggest doing? A) Watch it again B) Read the book C) Look up the director. Extract 2 (A radio interview): 3) What is the main point the expert makes? A) Technology reduces productivity B) Work-life balance has worsened C) Remote work benefits outweigh costs. 4) What does she recommend? A) Fixed working hours B) Regular breaks C) Digital detox. Extract 3 (A conversation about travel): 5) Why did the trip not go as planned? A) Weather B) Transport delays C) Illness. 6) What does the man plan to do differently? A) Travel in a group B) Book in advance C) Choose a different destination.',
-    'Three short extracts — answer both questions for each. Extract 1 (Job interview discussion): 1) What does the woman say about her greatest weakness? A) She works too slowly B) She takes on too much C) She struggles with technology. 2) What advice does the career coach give? A) Be more specific B) Focus on strengths C) Use examples. Extract 2 (Lecture on urban planning): 3) According to the lecturer, what is the primary challenge? A) Funding B) Community resistance C) Environmental regulations. 4) What solution does she propose? A) Mixed-use zoning B) Underground transport C) Green corridors. Extract 3 (Friends discussing health): 5) Why has the man started exercising? A) Doctor\'s advice B) His partner encouraged him C) A health scare. 6) What exercise does he do most? A) Swimming B) Cycling C) Running.',
+    'Three short extracts - answer both questions for each. Extract 1 (Job interview discussion): 1) What does the woman say about her greatest weakness? A) She works too slowly B) She takes on too much C) She struggles with technology. 2) What advice does the career coach give? A) Be more specific B) Focus on strengths C) Use examples. Extract 2 (Lecture on urban planning): 3) According to the lecturer, what is the primary challenge? A) Funding B) Community resistance C) Environmental regulations. 4) What solution does she propose? A) Mixed-use zoning B) Underground transport C) Green corridors. Extract 3 (Friends discussing health): 5) Why has the man started exercising? A) Doctor\'s advice B) His partner encouraged him C) A health scare. 6) What exercise does he do most? A) Swimming B) Cycling C) Running.',
   ],
   listening_completion: [
     'You will hear a talk about the history of documentary filmmaking. Complete the notes. First documentary: title ___ year ___. Early style known as: ___. Turning point in the 1960s: development of ___ equipment. Modern documentaries now often feature: ___ (two points). Most successful documentary of all time (box office): ___.',
@@ -387,7 +387,7 @@ export default function CAEScreen() {
       nudge.recordInteraction();
       if (data?.cambridgeScore) {
         const pct = Math.round(Math.max(0, Math.min(100, ((data.cambridgeScore - 160) / 50) * 100)));
-        recordModuleProgress({ exerciseId: 'cae', score: pct, detail: `Grade ${data.grade || '?'} — ${data.cambridgeScore} Cambridge Scale` }).catch(() => {});
+        recordModuleProgress({ exerciseId: 'cae', score: pct, detail: `Grade ${data.grade || '?'} - ${data.cambridgeScore} Cambridge Scale` }).catch(() => {});
       }
     } catch (e) {
       Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
@@ -493,10 +493,10 @@ export default function CAEScreen() {
         </View>
         {[
           { icon: Trophy, title: 'Certificate Never Expires', desc: 'Unlike IELTS (2 years) and TOEFL (2 years), your C1 Advanced certificate is valid for life. It proves your level permanently.' },
-          { icon: Users, title: 'Paired Speaking Test', desc: 'You speak with another candidate — not just an examiner. This is more natural and tests real conversational interaction.' },
-          { icon: GraduationCap, title: 'C2 Possible at C1 Level', desc: 'Score 200+ and your certificate acknowledges C2 (Proficiency) level — the highest CEFR level — even though you took the C1 exam.' },
-          { icon: Layers, title: 'Combined Reading + Use of English', desc: 'Grammar and reading are combined in one 90-minute paper — testing integrated skills rather than separate components.' },
-          { icon: BadgeCheck, title: 'UK NQF Level 2 Qualification', desc: 'CAE is an officially recognised qualification on the UK National Qualifications Framework — adds real weight to CVs and university applications.' },
+          { icon: Users, title: 'Paired Speaking Test', desc: 'You speak with another candidate - not just an examiner. This is more natural and tests real conversational interaction.' },
+          { icon: GraduationCap, title: 'C2 Possible at C1 Level', desc: 'Score 200+ and your certificate acknowledges C2 (Proficiency) level - the highest CEFR level - even though you took the C1 exam.' },
+          { icon: Layers, title: 'Combined Reading + Use of English', desc: 'Grammar and reading are combined in one 90-minute paper - testing integrated skills rather than separate components.' },
+          { icon: BadgeCheck, title: 'UK NQF Level 2 Qualification', desc: 'CAE is an officially recognised qualification on the UK National Qualifications Framework - adds real weight to CVs and university applications.' },
         ].map((item, i) => (
           <View key={i} style={{ flexDirection: 'row', gap: 12, marginBottom: i < 4 ? 12 : 0, borderTopWidth: i > 0 ? 1 : 0, borderTopColor: C.border + '15', paddingTop: i > 0 ? 12 : 0 }}>
             <item.icon size={22} color={C.text} />
@@ -533,12 +533,12 @@ export default function CAEScreen() {
           <View style={{ height: 1, backgroundColor: C.border + '40', marginVertical: 8 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{t.overallScore}</Text>
-            <Text style={{ fontSize: scaledFont(15), fontWeight: '900', color: '#FFBE0B' }}>180 — Grade C (Pass)</Text>
+            <Text style={{ fontSize: scaledFont(15), fontWeight: '900', color: '#FFBE0B' }}>180 - Grade C (Pass)</Text>
           </View>
           <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 4 }}>(180 + 185 + 176 + 182 + 179) ÷ 5 = 180.4 → 180</Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 }}>
             <AlertTriangle size={12} color="#FF8A65" style={{ marginTop: 1 }} />
-            <Text style={{ flex: 1, fontSize: scaledFont(11), color: '#FF8A65' }}>Writing (176) is below pass level — individual component scores matter!</Text>
+            <Text style={{ flex: 1, fontSize: scaledFont(11), color: '#FF8A65' }}>Writing (176) is below pass level - individual component scores matter!</Text>
           </View>
         </View>
       </View>
@@ -626,7 +626,7 @@ export default function CAEScreen() {
                 style={S.card}
                 onPress={() => toggle(i, expandedTask, setExpandedTask)}
                 accessibilityRole="button"
-                accessibilityLabel={`${t.type} — ${t.style}`}
+                accessibilityLabel={`${t.type} - ${t.style}`}
                 accessibilityHint={expandedTask === i ? 'Collapses task purpose' : 'Expands task purpose'}
                 accessibilityState={{ expanded: expandedTask === i }}
               >
@@ -734,8 +734,8 @@ export default function CAEScreen() {
         <Text style={[S.label, { color: '#00E5A0' }]}>Reading & Use of English</Text>
       </View>
       {[
-        { id: 'reading_uoe_cloze',          label: 'Open Cloze (Part 2)',              desc: 'Fill in 8 gaps with ONE word each. Tests grammar, vocabulary, and collocations.', colour: '#00E5A0', icon: PenLine, weight: 'Part 2 — Use of English' },
-        { id: 'reading_transformations',    label: 'Key Word Transformations (Part 4)',  desc: 'Complete a second sentence using a KEY WORD so it means the same as the first. 3–6 words only.', colour: '#00E5A0', icon: RefreshCw, weight: 'Part 4 — Use of English (hardest)' },
+        { id: 'reading_uoe_cloze',          label: 'Open Cloze (Part 2)',              desc: 'Fill in 8 gaps with ONE word each. Tests grammar, vocabulary, and collocations.', colour: '#00E5A0', icon: PenLine, weight: 'Part 2 - Use of English' },
+        { id: 'reading_transformations',    label: 'Key Word Transformations (Part 4)',  desc: 'Complete a second sentence using a KEY WORD so it means the same as the first. 3–6 words only.', colour: '#00E5A0', icon: RefreshCw, weight: 'Part 4 - Use of English (hardest)' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -763,8 +763,8 @@ export default function CAEScreen() {
         <Text style={[S.label, { color: '#00E5FF' }]}>Listening</Text>
       </View>
       {[
-        { id: 'listening_extracts',     label: 'Multiple Choice — Short Extracts (Part 1)', desc: 'Three short recordings, two MCQ questions each. Tests attitude, gist, and main point.', colour: '#00E5FF', icon: Headphones, weight: 'Part 1 — 6 questions, 1 mark each' },
-        { id: 'listening_completion',   label: 'Sentence Completion (Part 2)',               desc: 'A longer monologue. Complete 8 sentences with exact words from the recording.', colour: '#00E5FF', icon: PenLine, weight: 'Part 2 — 8 questions, 1 mark each' },
+        { id: 'listening_extracts',     label: 'Multiple Choice - Short Extracts (Part 1)', desc: 'Three short recordings, two MCQ questions each. Tests attitude, gist, and main point.', colour: '#00E5FF', icon: Headphones, weight: 'Part 1 - 6 questions, 1 mark each' },
+        { id: 'listening_completion',   label: 'Sentence Completion (Part 2)',               desc: 'A longer monologue. Complete 8 sentences with exact words from the recording.', colour: '#00E5FF', icon: PenLine, weight: 'Part 2 - 8 questions, 1 mark each' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -792,9 +792,9 @@ export default function CAEScreen() {
         <Text style={[S.label, { color: '#FFBE0B' }]}>Writing</Text>
       </View>
       {[
-        { id: 'essay',   label: 'Part 1 — Essay (Compulsory)', desc: 'Discuss two given prompt points + your own idea. Academic style. 220–260 words.', colour: '#FFBE0B', icon: FileText, weight: '20% of total — highest stakes' },
-        { id: 'report',  label: 'Part 2 — Report',             desc: 'Formal report with headings for a manager or committee. 220–260 words.', colour: '#FFBE0B', icon: FileBarChart, weight: 'Part 2 choice' },
-        { id: 'review',  label: 'Part 2 — Review',             desc: 'Semi-formal review of a book, film, place, or experience. Include a recommendation. 220–260 words.', colour: '#FFBE0B', icon: Star, weight: 'Part 2 choice' },
+        { id: 'essay',   label: 'Part 1 - Essay (Compulsory)', desc: 'Discuss two given prompt points + your own idea. Academic style. 220–260 words.', colour: '#FFBE0B', icon: FileText, weight: '20% of total - highest stakes' },
+        { id: 'report',  label: 'Part 2 - Report',             desc: 'Formal report with headings for a manager or committee. 220–260 words.', colour: '#FFBE0B', icon: FileBarChart, weight: 'Part 2 choice' },
+        { id: 'review',  label: 'Part 2 - Review',             desc: 'Semi-formal review of a book, film, place, or experience. Include a recommendation. 220–260 words.', colour: '#FFBE0B', icon: Star, weight: 'Part 2 choice' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -822,9 +822,9 @@ export default function CAEScreen() {
         <Text style={[S.label, { color: '#B06CFF' }]}>Speaking</Text>
       </View>
       {[
-        { id: 'speaking_interview',   label: 'Part 1 — Interview',         desc: 'Answer personal questions naturally. Aim for 2–4 sentences with reasons and examples.', colour: '#B06CFF', icon: MessageCircle, weight: '~2 minutes' },
-        { id: 'speaking_longturn',    label: 'Part 2 — Long Turn',          desc: 'Compare photographs and answer the printed task question. Speak for 1 full minute.', colour: '#B06CFF', icon: Mic, weight: '~4 minutes (both candidates)' },
-        { id: 'speaking_discussion',  label: 'Parts 3 & 4 — Discussion',    desc: 'Discuss abstract questions with your examiner. Use sophisticated language and justify your views.', colour: '#B06CFF', icon: MessagesSquare, weight: '~9 minutes (both candidates)' },
+        { id: 'speaking_interview',   label: 'Part 1 - Interview',         desc: 'Answer personal questions naturally. Aim for 2–4 sentences with reasons and examples.', colour: '#B06CFF', icon: MessageCircle, weight: '~2 minutes' },
+        { id: 'speaking_longturn',    label: 'Part 2 - Long Turn',          desc: 'Compare photographs and answer the printed task question. Speak for 1 full minute.', colour: '#B06CFF', icon: Mic, weight: '~4 minutes (both candidates)' },
+        { id: 'speaking_discussion',  label: 'Parts 3 & 4 - Discussion',    desc: 'Discuss abstract questions with your examiner. Use sophisticated language and justify your views.', colour: '#B06CFF', icon: MessagesSquare, weight: '~9 minutes (both candidates)' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -854,8 +854,8 @@ export default function CAEScreen() {
         </View>
         {[
           { period: '4+ months', tip: 'Build advanced vocabulary systematically (word formation families). Read quality English press daily. Do one full past paper every 2 weeks.' },
-          { period: '2–4 months', tip: 'Rotate papers daily. Spend extra time on Reading & Use of English — it\'s 40% of your score. Do Part 4 transformations every day.' },
-          { period: '4–8 weeks', tip: 'Full timed past papers under exam conditions. Analyse every error — identify your weakest question types. Practise writing with word count discipline.' },
+          { period: '2–4 months', tip: 'Rotate papers daily. Spend extra time on Reading & Use of English - it\'s 40% of your score. Do Part 4 transformations every day.' },
+          { period: '4–8 weeks', tip: 'Full timed past papers under exam conditions. Analyse every error - identify your weakest question types. Practise writing with word count discipline.' },
           { period: '1–2 weeks', tip: 'Light review and confidence building. Review your transformation log. Practise Speaking Part 2 and Part 3 with a partner. Rest well.' },
         ].map((s, i) => (
           <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: i < 3 ? 10 : 0 }}>
@@ -943,7 +943,7 @@ export default function CAEScreen() {
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: i < SCORE_REQUIREMENTS.length - 1 ? 10 : 0 }}>
             <Text style={{ fontSize: 18 }}>{r.country.split(' ')[0]}</Text>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} — {r.purpose}</Text>
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} - {r.purpose}</Text>
               <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{t.typicallyGradeScoreTpl.replace('{grade}', r.grade).replace('{score}', r.score)}</Text>
             </View>
             <View style={{ backgroundColor: '#003865', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
@@ -957,7 +957,7 @@ export default function CAEScreen() {
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <AlertCircle size={14} color={C.amber} style={{ marginTop: 1 }} />
           <Text style={{ flex: 1, fontSize: scaledFont(11), color: C.textMuted, lineHeight: 17 }}>
-            CAE certificates do not expire. Always verify current requirements directly with the institution — minimum scores vary by course and year of entry.
+            CAE certificates do not expire. Always verify current requirements directly with the institution - minimum scores vary by course and year of entry.
           </Text>
         </View>
       </View>
@@ -1079,7 +1079,7 @@ export default function CAEScreen() {
           {practiceResult && (
             <View>
               <View style={{ backgroundColor: gradeColour(practiceResult.cambridgeScore || 180) + '15', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16, borderWidth: 1.5, borderColor: gradeColour(practiceResult.cambridgeScore || 180) + '40' }}>
-                <Text style={{ fontSize: scaledFont(52), fontWeight: '900', color: gradeColour(practiceResult.cambridgeScore || 180) }}>{practiceResult.cambridgeScore || '—'}</Text>
+                <Text style={{ fontSize: scaledFont(52), fontWeight: '900', color: gradeColour(practiceResult.cambridgeScore || 180) }}>{practiceResult.cambridgeScore || '-'}</Text>
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>{t.score}</Text>
                 {practiceResult.grade && (
                   <View style={{ marginTop: 6, backgroundColor: gradeColour(practiceResult.cambridgeScore || 180) + '20', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10 }}>

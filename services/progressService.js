@@ -28,7 +28,7 @@ const TOPIC_LABELS = {
 };
 
 // Maps each exercise to the one of the 4 CEFR skills (reading/writing/
-// listening/speaking) its score counts toward — mirrors the mapping used in
+// listening/speaking) its score counts toward - mirrors the mapping used in
 // sync-client.js on the web so the two platforms feed the same skill.
 // placement_test is deliberately excluded: it *seeds* skillLevels once at
 // completion (see placement.tsx), it doesn't grade into them on a rolling
@@ -49,7 +49,7 @@ export const SKILL_FOR_EXERCISE = {
 };
 
 // Reports a score toward the mapped CEFR skill so ongoing exercise
-// performance — not just the one-time placement test — can level a skill up.
+// performance - not just the one-time placement test - can level a skill up.
 // Fire-and-forget: a failed grade call shouldn't block the exercise's own
 // local progress recording above.
 async function gradeSkill(exerciseId, score) {

@@ -3,7 +3,7 @@
  * =====================================================================
  *
  * ACCESSIBILITY CHANGES:
- *   1.  Added useScreenReader() hook — auto-shows transcript when TalkBack/VoiceOver active
+ *   1.  Added useScreenReader() hook - auto-shows transcript when TalkBack/VoiceOver active
  *   2.  Added "Always Show Text" Switch toggle for manual accessibility control
  *   3.  Play button: accessibilityRole="button" + dynamic label + state
  *   4.  Level pills: accessibilityRole="tab" + selected state
@@ -116,7 +116,7 @@ export default function ListeningScreen() {
   const router = useRouter();
   const nudge = useFeedbackNudge('listening');
 
-  // ✅ NEW: Screen reader detection — auto-shows transcript
+  // ✅ NEW: Screen reader detection - auto-shows transcript
   const isScreenReaderOn = useScreenReader();
   const [alwaysShowText, setAlwaysShowText] = useState(false);
 
@@ -381,7 +381,7 @@ export default function ListeningScreen() {
           </View>
         )}
 
-        {/* ═══ SETUP — No current sentence ═══ */}
+        {/* ═══ SETUP - No current sentence ═══ */}
         {!currentSentence && (<>
           {/* Level */}
           <Text style={s.label} accessibilityRole="header">{t.level.toUpperCase()}</Text>

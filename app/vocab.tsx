@@ -3,7 +3,7 @@
  * =============================================================
  *
  * ACCESSIBILITY CHANGES:
- *   1.  Card shell: accessibilityLiveRegion="polite" — announces content changes
+ *   1.  Card shell: accessibilityLiveRegion="polite" - announces content changes
  *   2.  Card front: accessibilityLabel with word + category + box
  *   3.  "Tap to reveal" button: accessibilityRole="button" + label + hint
  *   4.  Card flip: announce() fires with word + definition
@@ -547,7 +547,7 @@ export default function VocabScreen() {
           {/* ✅ A11Y: Live region so screen reader picks up card changes */}
           <View style={s.cardShell} accessibilityLiveRegion="polite">
 
-            {/* FRONT — before flip */}
+            {/* FRONT - before flip */}
             {!isFlipped && (
               <Animated.View
                 style={[s.cardFront, { opacity: frontOpacity, transform: [{ scale: frontScale }] }]}
@@ -578,7 +578,7 @@ export default function VocabScreen() {
               </Animated.View>
             )}
 
-            {/* BACK — after flip */}
+            {/* BACK - after flip */}
             {isFlipped && (
               <Animated.View
                 style={[s.cardBack, { opacity: backOpacity, transform: [{ scale: backScale }] }]}
@@ -643,7 +643,7 @@ export default function VocabScreen() {
           </View>
           {/* ── END CARD SHELL ── */}
 
-          {/* ── Buttons — only shown after flip ── */}
+          {/* ── Buttons - only shown after flip ── */}
           {isFlipped && (
             <>
               {/* ✅ A11Y: More Examples button with toggle state */}

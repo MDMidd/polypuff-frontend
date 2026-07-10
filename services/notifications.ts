@@ -1,5 +1,5 @@
 /**
- * Notification Service — Poly-Puff
+ * Notification Service - Poly-Puff
  * ==================================
  *
  * Handles daily streak reminder push notifications and in-app banners.
@@ -21,7 +21,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Try to load expo-notifications — may not be available in Expo Go
+// Try to load expo-notifications - may not be available in Expo Go
 let Notifications: any = null;
 try {
   Notifications = require('expo-notifications');
@@ -43,12 +43,12 @@ const MOTIVATIONAL_MESSAGES = [
   "Champions practice every day! 💪",
   "Your future self will thank you! 🌟",
   "Just 5 minutes keeps the streak alive! ⚡",
-  "You've got this — keep going! 🎯",
+  "You've got this - keep going! 🎯",
   "One more day closer to fluency! 📚",
   "Small steps, big progress! 🚀",
   "Your streak is calling! 🔔",
   "English mastery is a daily habit! 🧠",
-  "Time to shine — let's practice! ✨",
+  "Time to shine - let's practice! ✨",
   "Consistency beats intensity! 🏆",
   "Every session counts! Keep it up! 💎",
 ];
@@ -297,7 +297,7 @@ export async function scheduleStreakReminder(hour: number = 18, minute: number =
       },
     });
   } catch (e) {
-    // Silently fail — notifications not available
+    // Silently fail - notifications not available
   }
 }
 

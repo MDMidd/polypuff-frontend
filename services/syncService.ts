@@ -1,5 +1,5 @@
 /**
- * syncService.ts — Poly-Puff mobile vault + progress sync
+ * syncService.ts - Poly-Puff mobile vault + progress sync
  *
  * Mobile counterpart to sync-client.js (website).
  * Pulls vault + progress data from /api/sync, merges with AsyncStorage,
@@ -15,7 +15,7 @@
  *   progress_feedback_<id> → progress[id].feedback
  *
  * Canonical exercise IDs are defined here and must match
- * sync-client.js (web) — the web side translates its short-form keys
+ * sync-client.js (web) - the web side translates its short-form keys
  * (daily, quiz, vocab) to canonical (daily_challenge, grammar_quiz,
  * vocabulary). Mobile uses canonical natively.
  */
@@ -422,7 +422,7 @@ async function pushNow(): Promise<void> {
 
 // A finished exercise calls pushVaults(), which waits PUSH_DEBOUNCE_MS before
 // actually sending anything. If the app backgrounds inside that window (very
-// common — finishing an exercise and immediately switching away is the
+// common - finishing an exercise and immediately switching away is the
 // normal flow), the timer never fires and that progress is silently lost.
 // Flush immediately the moment the app stops being active.
 AppState.addEventListener('change', (state) => {

@@ -433,7 +433,7 @@ export default function WordChunksScreen() {
     if (!chunk) return;
     queueRetryChunk(chunk);
     setRevealed(true);
-    setResult({ score: 0, feedback: 'Answer revealed — try to remember it next time!', correct: chunk.english });
+    setResult({ score: 0, feedback: 'Answer revealed - try to remember it next time!', correct: chunk.english });
     resultAnim.setValue(0);
     Animated.spring(resultAnim, { toValue: 1, useNativeDriver: true, friction: 6 }).start();
     // ✅ NEW: Announce revealed answer
@@ -729,7 +729,7 @@ export default function WordChunksScreen() {
                   onLongPress={() => { setVaultPhrase(result.correct); setVaultModal(true); }}
                   style={{ flex: 1 }}
                   accessibilityRole="button"
-                  accessibilityLabel={`${result.correct} — tap to hear, long-press to save to vault`}
+                  accessibilityLabel={`${result.correct} - tap to hear, long-press to save to vault`}
                 >
                   <Text style={ds.correctText}>{result.correct}</Text>
                 </TouchableOpacity>
@@ -762,7 +762,7 @@ export default function WordChunksScreen() {
                 <Text style={ds.feedbackText} accessibilityLabel={`Feedback: ${result.feedback}`}>{result.feedback}</Text>
               ) : null}
 
-              {/* DiscussWithPuff — already accessible from updated component */}
+              {/* DiscussWithPuff - already accessible from updated component */}
               <DiscussWithPuff
                 exerciseType="wordchunk"
                 exerciseData={{ native: chunk.native, correct: chunk.english, studentAnswer: input }}

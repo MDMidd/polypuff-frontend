@@ -49,9 +49,9 @@ import {
 import { Bot, X } from 'lucide-react-native';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// English fallbacks — used when the current language pack hasn't translated
+// English fallbacks - used when the current language pack hasn't translated
 // the disclosure strings yet. Keep these in sync with translations.ts `en`.
-const FALLBACK_COMPACT  = 'Powered by AI — responses may contain errors';
+const FALLBACK_COMPACT  = 'Powered by AI - responses may contain errors';
 const FALLBACK_FULL     = 'This feature is powered by AI (OpenAI). Responses are generated automatically and may contain errors. Your grammar rules database is always the final authority.';
 const FALLBACK_EXPAND   = 'AI-powered feature. Tap to see details.';
 const FALLBACK_MINIMIZE = 'Minimize AI disclosure banner';

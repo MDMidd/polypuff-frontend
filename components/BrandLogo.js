@@ -1,5 +1,5 @@
 /**
- * BrandLogo — Poly-Puff Brand Assets
+ * BrandLogo - Poly-Puff Brand Assets
  * ====================================
  *
  * Reusable components for the Poly-Puff logo throughout the app.
@@ -7,9 +7,9 @@
  * Usage:
  *   import { BrandLogo, BrandText, LogoHeader } from '../components/BrandLogo';
  *
- *   <BrandLogo height={40} />               — 3D logo image
- *   <BrandText size={20} />                 — Styled "Poly-Puff" text
- *   <LogoHeader />                          — Full header with logo
+ *   <BrandLogo height={40} />               - 3D logo image
+ *   <BrandText size={20} />                 - Styled "Poly-Puff" text
+ *   <LogoHeader />                          - Full header with logo
  *
  * BRAND COLOR: #ADD8E6 (baby blue from the claymorphic letters)
  *

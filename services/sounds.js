@@ -11,12 +11,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Dynamic import — won't crash if expo-haptics isn't installed
+// Dynamic import - won't crash if expo-haptics isn't installed
 let Haptics = null;
 try {
   Haptics = require('expo-haptics');
 } catch (e) {
-  console.log('expo-haptics not available — haptic feedback disabled');
+  console.log('expo-haptics not available - haptic feedback disabled');
 }
 
 let soundEnabled = true;
@@ -62,7 +62,7 @@ export const hapticSelection = () => safeHaptic(() => Haptics.selectionAsync());
 
 // ── COMPOSITE FEEDBACK ──
 
-// Delegate entirely to playSound() — it plays the real sound file when
+// Delegate entirely to playSound() - it plays the real sound file when
 // available and falls back to the matching haptic (see playHapticFallback)
 // when sound is off/unavailable, so there's exactly one feedback signal per
 // call instead of a haptic firing here AND another one from the fallback.
@@ -109,7 +109,7 @@ export const feedbackForScore = (score) => {
 let Audio = null;
 try { Audio = require('expo-av').Audio; } catch (e) {}
 
-// Add an entry here as each new sound file arrives — the key is the `type`
+// Add an entry here as each new sound file arrives - the key is the `type`
 // passed to playSound(). Loaded lazily and cached so repeat plays (e.g. every
 // correct quiz answer) don't re-read the asset from disk each time.
 const SOUND_FILES = {
@@ -141,7 +141,7 @@ const playSound = async (type) => {
   }
 };
 
-// Used when a type has no sound file yet, or playback fails for any reason —
+// Used when a type has no sound file yet, or playback fails for any reason -
 // keeps the pre-existing haptic-only behavior as a safety net.
 const playHapticFallback = (type) => {
   if (type === 'victory') {

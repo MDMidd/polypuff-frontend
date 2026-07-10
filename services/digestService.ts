@@ -20,9 +20,9 @@
  * SETTINGS:
  *   The user can enable/disable the digest and set their email in Settings.
  *   Keys used:
- *     'digestEnabled'       — 'true' | 'false' (default: 'false' until user opts in)
- *     'digestEmail'         — string (user's email for digest)
- *     'digestLastSent'      — ISO date string of last successful send
+ *     'digestEnabled'       - 'true' | 'false' (default: 'false' until user opts in)
+ *     'digestEmail'         - string (user's email for digest)
+ *     'digestLastSent'      - ISO date string of last successful send
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -171,7 +171,7 @@ export async function checkAndSendWeeklyDigest(): Promise<void> {
       console.log('📧 Weekly digest sent successfully');
     }
   } catch (e) {
-    // Silent fail — digest is a background feature, never crash the app
+    // Silent fail - digest is a background feature, never crash the app
     console.log('📧 Weekly digest skipped (offline or error)');
   }
 }

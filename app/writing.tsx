@@ -580,7 +580,7 @@ export default function WritingScreen() {
                 )}
               </View>
 
-              {/* DiscussWithPuff — already accessible */}
+              {/* DiscussWithPuff - already accessible */}
               <DiscussWithPuff
                 exerciseType="writing"
                 exerciseData={{ prompt: prompt.desc, studentText: text }}

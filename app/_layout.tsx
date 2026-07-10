@@ -177,7 +177,7 @@ function DrawerMenu({ visible, onClose }: { visible: boolean; onClose: () => voi
 // Sends the user to the profile screen on first entry so they can fill it out
 // before hitting the practice hub. Two triggers:
 //   1. No 'userProfile' key at all (truly never set up).
-//   2. 'needsProfileSetup' flag — set by handleOnboardingComplete and cleared
+//   2. 'needsProfileSetup' flag - set by handleOnboardingComplete and cleared
 //      here, so the redirect fires exactly once after the onboarding slideshow.
 function FirstTimeCheck() {
   const router = useRouter();
@@ -248,12 +248,12 @@ function TabsLayout() {
           },
         }}
       >
-        {/* VISIBLE TABS — Expo Router rejects Fragment-wrapped children; RTL is handled via tabBarStyle.flexDirection */}
+        {/* VISIBLE TABS - Expo Router rejects Fragment-wrapped children; RTL is handled via tabBarStyle.flexDirection */}
         <Tabs.Screen name="index"    options={{ title: t.practice || 'Practice', tabBarIcon: ({ color, size }) => <BookOpen  size={size - 4} color={color} /> }} />
         <Tabs.Screen name="daily"    options={{ title: t.dailyChallenges || 'Daily', tabBarIcon: ({ color, size }) => <Flame     size={size - 4} color={color} /> }} />
         <Tabs.Screen name="progress" options={{ title: t.progress || 'Progress', tabBarIcon: ({ color, size }) => <BarChart3 size={size - 4} color={color} /> }} />
 
-        {/* HIDDEN — accessible via navigation */}
+        {/* HIDDEN - accessible via navigation */}
         <Tabs.Screen name="profile"          options={{ href: null }} />
         <Tabs.Screen name="practice"         options={{ href: null }} />
         <Tabs.Screen name="listening"        options={{ href: null }} />
@@ -307,7 +307,7 @@ function AppWithOnboarding() {
       setLegalCleared(termsAccepted === 'true' && termsVersion === '3.0' && loginComplete === 'true');
       setShowOnboarding(onboardingDone !== 'true');
       if (mascotVal === 'false') setMascotEnabled(false);
-      // Re-identify on every cold start — the RevenueCat SDK itself has no
+      // Re-identify on every cold start - the RevenueCat SDK itself has no
       // memory of who was logged in last session; only AsyncStorage does.
       if (email) identifyUser(email).catch(() => {});
     }).catch(() => { setLegalCleared(false); setShowOnboarding(true); });

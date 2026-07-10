@@ -1,5 +1,5 @@
 /**
- * Accessibility Utilities — Poly-Puff
+ * Accessibility Utilities - Poly-Puff
  * =====================================
  * WCAG 2.2 Level AA compliance utilities.
  *

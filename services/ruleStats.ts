@@ -1,5 +1,5 @@
 /**
- * Rule Stats Service — Poly-Puff
+ * Rule Stats Service - Poly-Puff
  * ================================
  * 
  * Fetches grammar database statistics from /api/stats once,
@@ -22,7 +22,7 @@ import { getServerUrl } from './api';
 const CACHE_KEY = 'ruleStatsCache';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // refresh once per day
 
-// Hardcoded fallback — update these when you know the DB has changed
+// Hardcoded fallback - update these when you know the DB has changed
 const DEFAULTS = {
   totalRules: 340,
   categoryCount: 35,
@@ -84,7 +84,7 @@ export async function getRuleStats(): Promise<RuleStats> {
       return stats;
     }
   } catch (e) {
-    // Server unreachable — fall through to defaults
+    // Server unreachable - fall through to defaults
   }
 
   // 4. Defaults

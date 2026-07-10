@@ -3,17 +3,17 @@
  * =====================================================
  *
  * Two modes in one file:
- *   TEACHER MODE — Create a class, view all classes, enter a class dashboard
- *   STUDENT MODE — Join a class with a 6-character code, see their class
+ *   TEACHER MODE - Create a class, view all classes, enter a class dashboard
+ *   STUDENT MODE - Join a class with a 6-character code, see their class
  *
  * FILE: app/classroom.tsx
  * LOCATION: D:\Project\MyProject\translation-trainer-frontend\app\classroom.tsx
  *
  * Backend endpoints used (all live on Railway):
- *   POST /api/classroom/create     — teacher creates class
- *   POST /api/classroom/join       — student joins class
- *   GET  /api/classrooms           — list all classes (teacher view)
- *   GET  /api/classroom/:code      — full class data (tap to open detail)
+ *   POST /api/classroom/create     - teacher creates class
+ *   POST /api/classroom/join       - student joins class
+ *   GET  /api/classrooms           - list all classes (teacher view)
+ *   GET  /api/classroom/:code      - full class data (tap to open detail)
  */
 
 import React, { useState, useCallback } from 'react';

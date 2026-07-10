@@ -1,20 +1,20 @@
 /**
- * profileService.ts — Cross-device profile sync for Poly-Puff mobile.
+ * profileService.ts - Cross-device profile sync for Poly-Puff mobile.
  *
  * Talks to the email-keyed /api/me endpoints so the website and the app
- * share the same app_users row — the user_id is derived server-side from
+ * share the same app_users row - the user_id is derived server-side from
  * the JWT, not from a client-supplied path param.
  *
- * pullProfile() — fetch remote profile and merge into local 'userProfile' key.
+ * pullProfile() - fetch remote profile and merge into local 'userProfile' key.
  *   Called from syncService.pullAndMerge() on login and app focus.
  *   Rate-limited to once per PROFILE_COOLDOWN_MS to avoid hammering the API
  *   on every app focus. The cooldown key is cleared on sign-out (AUTH_KEYS)
  *   so a new account always gets a fresh fetch on first login.
  *
- * pushProfile() — push local profile to the server.
+ * pushProfile() - push local profile to the server.
  *   Called from profile.tsx and settings.tsx after any profile write.
  *
- * Photo (Base64) is kept local-only — never uploaded to or downloaded from
+ * Photo (Base64) is kept local-only - never uploaded to or downloaded from
  * the profile endpoint since the payload would be enormous.
  */
 
@@ -28,7 +28,7 @@ const FETCHED_AT_KEY = 'pp_profile_fetched_at';
 
 const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
-// Highest of the two CEFR levels — never lets a merge downgrade a skill.
+// Highest of the two CEFR levels - never lets a merge downgrade a skill.
 function higherLevel(a: unknown, b: unknown): string | undefined {
   const as = typeof a === 'string' ? a.toUpperCase() : '';
   const bs = typeof b === 'string' ? b.toUpperCase() : '';
@@ -102,13 +102,13 @@ export async function pullProfile(): Promise<void> {
       nativeLanguage: (remote.nativeLanguage as string) || (remote.native_language as string) || (local.nativeLanguage as string) || 'English',
       appLanguage:    (remote.appLanguage    as string) || (remote.app_language    as string) || (local.appLanguage    as string) || 'en',
       level:          (remote.level          as string) || (remote.cefrLevel       as string) || (remote.englishLevel  as string) || (local.level as string) || 'B1',
-      // photo stays local — Base64 is too large for the profile endpoint.
+      // photo stays local - Base64 is too large for the profile endpoint.
       photo: local.photo || null,
     };
 
     await AsyncStorage.setItem('userProfile', JSON.stringify(merged));
 
-    // Aggregate stats (totalXP / streak / skill levels) — separate flat
+    // Aggregate stats (totalXP / streak / skill levels) - separate flat
     // AsyncStorage keys, read directly by progress.tsx, index.tsx, and the
     // exercise screens. progressSyncService.recordXP() only ever pushes these
     // up; this is the only place that pulls them back down, so a fresh

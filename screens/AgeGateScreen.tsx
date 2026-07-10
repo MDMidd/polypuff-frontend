@@ -1,13 +1,13 @@
 /**
- * AgeGateScreen.tsx — v2.0 (Conditional Age Gate)
+ * AgeGateScreen.tsx - v2.0 (Conditional Age Gate)
  * ==========================================
- * FIRST LAUNCH ONLY — Neutral Age Verification with Regional Thresholds
+ * FIRST LAUNCH ONLY - Neutral Age Verification with Regional Thresholds
  * 
  * Compliance: COPPA, GDPR Art.8, POPIA, Egypt PDPL, Saudi PDPL, Brazil LGPD
  * Google Play 2026 Families Policy: neutral age screen
  * 
  * CONDITIONAL AGE GATE LOGIC:
- *  1. Ask Birth Year first (neutral — no "I am over 13" shortcuts)
+ *  1. Ask Birth Year first (neutral - no "I am over 13" shortcuts)
  *  2. Ask Region (to apply correct threshold)
  *  3. Under hard-stop threshold → Parental Consent required
  *  4. 13-18 "Grey Zone" → Register but auto-disable data sharing/public profiles
@@ -123,9 +123,9 @@ export default function AgeGateScreen({ onComplete }) {
     const age = CURRENT_YEAR - year;
     const threshold = region?.hardStop || 13;
 
-    if (age < threshold) return 'child';         // Hard stop — parental consent required
-    if (age < 18) return 'grey_zone';            // 13-17 — register but restrict data sharing
-    return 'adult';                               // 18+ — full access
+    if (age < threshold) return 'child';         // Hard stop - parental consent required
+    if (age < 18) return 'grey_zone';            // 13-17 - register but restrict data sharing
+    return 'adult';                               // 18+ - full access
   };
 
   // ─── Handle region selection ───
@@ -146,7 +146,7 @@ export default function AgeGateScreen({ onComplete }) {
   // ─── Returning user shortcut ───
   // Region/birth year are only ever stored locally (never sent to the
   // backend), so a device that already holds an account has no way to know
-  // its real age group here. Default to 'adult' — the actual minor-safety
+  // its real age group here. Default to 'adult' - the actual minor-safety
   // enforcement (is_minor) lives server-side regardless of this guess.
   // Terms is intentionally NOT skipped: it's the only place that records
   // consent for this install, and the backend keeps no record of its own.

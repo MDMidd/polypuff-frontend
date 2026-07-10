@@ -18,9 +18,9 @@
  * LOCATION: D:\Project\MyProject\translation-trainer-frontend\app\classroom-detail.tsx
  *
  * Backend endpoints used:
- *   GET  /api/classroom/:code              — full class data
- *   GET  /api/classroom/:code/assignments  — assignment list
- *   POST /api/classroom/assign             — create assignment
+ *   GET  /api/classroom/:code              - full class data
+ *   GET  /api/classroom/:code/assignments  - assignment list
+ *   POST /api/classroom/assign             - create assignment
  */
 
 import React, { useState, useCallback } from 'react';
@@ -93,7 +93,7 @@ function LeaderRow({ student, rank, C, isCurrentUser }) {
           </Text>
           {isCurrentUser && (
             <View style={{ backgroundColor: (C.cyan || '#00D9FF') + '20', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
-              <Text style={{ fontSize: 9, fontWeight: '700', color: C.cyan || '#00D9FF' }}>YOU</Text>{/* mobile-only badge — no website key */}
+              <Text style={{ fontSize: 9, fontWeight: '700', color: C.cyan || '#00D9FF' }}>YOU</Text>{/* mobile-only badge - no website key */}
             </View>
           )}
         </View>
@@ -320,7 +320,7 @@ export default function ClassroomDetailScreen() {
           {[
             { label: 'Students',    value: String(studentCount),                     color: C.cyan || '#00D9FF',  icon: Users    },
             { label: 'Submissions', value: String(totalSubs),                         color: '#A78BFA',            icon: ClipboardList },
-            { label: 'Average score', value: classAvg !== null ? `${classAvg}%` : '—', color: classAvg !== null ? scoreColor(classAvg, C) : C.textMuted, icon: Target },
+            { label: 'Average score', value: classAvg !== null ? `${classAvg}%` : '-', color: classAvg !== null ? scoreColor(classAvg, C) : C.textMuted, icon: Target },
             { label: 'Assignments', value: String(assignments.length),                color: '#FBBF24',            icon: BookOpen },
           ].map((stat, i) => (
             <View key={i} style={{
@@ -426,7 +426,7 @@ export default function ClassroomDetailScreen() {
         {/* ── ASSIGNMENTS TAB ────────────────────────────────────────── */}
         {activeTab === 'assignments' && (
           <>
-            {/* Create assignment button — teachers only */}
+            {/* Create assignment button - teachers only */}
             {!isStudent && (
               <TouchableOpacity
                 style={{

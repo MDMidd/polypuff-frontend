@@ -9,7 +9,7 @@
  *      - Intensive: 5 questions per skill (A1→C1)  = 20 questions, ~15 min
  *      Progress bar and Q counter update to reflect chosen mode.
  *
- *   2. SPEAKING SECTION — real speech recognition added
+ *   2. SPEAKING SECTION - real speech recognition added
  *      - Uses ExpoSpeechRecognitionModule from expo-speech-recognition
  *      - Requests microphone permission on first use
  *      - Shows a Record / Stop button
@@ -61,7 +61,7 @@ import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 // ── Safe import of expo-speech-recognition (not available in Expo Go) ─────────
 let ExpoSpeechRecognitionModule: any = null;
 let useSpeechRecognitionEvent: any = (_event: string, cb: any) => {
-  // Safe no-op hook fallback — must be called like a hook (React rules)
+  // Safe no-op hook fallback - must be called like a hook (React rules)
   // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {}, []);
 };
@@ -70,7 +70,7 @@ try {
   ExpoSpeechRecognitionModule = mod.ExpoSpeechRecognitionModule;
   useSpeechRecognitionEvent   = mod.useSpeechRecognitionEvent;
 } catch (_e) {
-  // Running in Expo Go or device without native speech recognition — graceful fallback
+  // Running in Expo Go or device without native speech recognition - graceful fallback
 }
 
 // ── Question banks ────────────────────────────────────────────────────────────
@@ -181,7 +181,7 @@ function SpeakingQuestion({ question, onDone, C }) {
   useSpeechRecognitionEvent('error', (event) => {
     setIsRecording(false);
     const msg = event.error || 'Recognition error';
-    // 'no-speech' is normal (user didn't speak) — show rating anyway
+    // 'no-speech' is normal (user didn't speak) - show rating anyway
     if (msg === 'no-speech' || msg === 'audio-capture') {
       setShowRating(true);
       announce('No speech detected. Please rate your performance.');
@@ -239,7 +239,7 @@ function SpeakingQuestion({ question, onDone, C }) {
         avRecordingRef.current = null;
         if (tempUri) {
           const qNum    = question?.id !== undefined ? 'Q' + (question.id + 1) : 'Q1';
-          const label   = 'Placement Test — Speaking ' + qNum;
+          const label   = 'Placement Test - Speaking ' + qNum;
           const filename = generateFilename('placement', label);
           const destUri  = FileSystem.documentDirectory + 'polypuff-recordings/' + filename;
           await FileSystem.moveAsync({ from: tempUri, to: destUri });
@@ -288,7 +288,7 @@ function SpeakingQuestion({ question, onDone, C }) {
         {question.prompt}
       </Text>
 
-      {/* Permission denied / no recognition — fallback to text */}
+      {/* Permission denied / no recognition - fallback to text */}
       {useFallback && (
         <>
           {recognitionError && (
@@ -312,7 +312,7 @@ function SpeakingQuestion({ question, onDone, C }) {
           />
           {!showRating && (
             <NeonButton
-              title="Done — Rate Yourself"
+              title="Done - Rate Yourself"
               onPress={() => setShowRating(true)}
               size="medium"
               icon={<ArrowRight size={16} color="#000" />}
@@ -394,14 +394,14 @@ function SpeakingQuestion({ question, onDone, C }) {
               accessibilityLabel="Skip recording and rate yourself"
             >
               <Text style={{ fontSize: scaledFont(12), color: C.textMuted, textDecorationLine: 'underline' }}>
-                Skip — rate without recording
+                Skip - rate without recording
               </Text>
             </TouchableOpacity>
           )}
         </>
       )}
 
-      {/* Self-assessment rating — shown after recording or in fallback mode */}
+      {/* Self-assessment rating - shown after recording or in fallback mode */}
       {showRating && (
         <>
           {/* ── Saved recording indicator ─────────────────────────────── */}
@@ -591,7 +591,7 @@ export default function PlacementScreen() {
   const SkillIcon = SKILL_ICONS[skill] || BookOpen;
 
   // ══════════════════════════════════════════════════════════════════════════
-  // INTRO — mode selector
+  // INTRO - mode selector
   // ══════════════════════════════════════════════════════════════════════════
   if (phase === 'intro') {
     return (
@@ -997,7 +997,7 @@ export default function PlacementScreen() {
           </GlassCard>
         )}
 
-        {/* SPEAKING — uses the extracted SpeakingQuestion component */}
+        {/* SPEAKING - uses the extracted SpeakingQuestion component */}
         {skill === 'speaking' && question && (
           <SpeakingQuestion
             key={`speaking-${currentQ}`}

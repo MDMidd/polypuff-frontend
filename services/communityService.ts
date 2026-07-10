@@ -1,11 +1,11 @@
 /**
- * communityService.ts — Community leaderboard client.
+ * communityService.ts - Community leaderboard client.
  *
  * Talks to GET /api/community/leaderboard, GET /api/me (for current settings),
  * and PUT /api/me/community-settings.
  *
  * isMinorAccount() reads the same 'userAgeGroup' AsyncStorage value the age
- * gate (screens/AgeGateScreen.tsx) already computes — sent along on every
+ * gate (screens/AgeGateScreen.tsx) already computes - sent along on every
  * settings update so the server enforces exclusion independent of whatever
  * opt-in value is requested. This file never touches the age thresholds
  * themselves, only consumes their already-computed output.
@@ -135,7 +135,7 @@ export async function getLeaderboard(
  * Reads each exercise's locally-tracked scores (progress_recent_<id>, the
  * same AsyncStorage keys app/progress.tsx already aggregates for its own
  * stats screen) and pushes an avg/session-count snapshot to the server.
- * Best-effort and silent — call this opportunistically (e.g. when the
+ * Best-effort and silent - call this opportunistically (e.g. when the
  * Community screen loads) rather than on a tight loop.
  */
 export async function syncExerciseAccuracy(): Promise<void> {

@@ -76,7 +76,7 @@ export function useFeedbackNudge(exerciseName: string) {
     [statsKey],
   );
 
-  // Called after a successful send — snooze twice as long
+  // Called after a successful send - snooze twice as long
   const onSent = useCallback(
     async (dontShowAgain: boolean) => {
       setShowModal(false);

@@ -33,7 +33,7 @@ import {
 
 // ── Exercise display names & colours ─────────────────────────────────────────
 const EXERCISE_INFO: Record<string, { label: string; colour: string; icon: any }> = {
-  placement:    { label: 'Placement Test — Speaking',    colour: '#C084FC', icon: ClipboardCheck },
+  placement:    { label: 'Placement Test - Speaking',    colour: '#C084FC', icon: ClipboardCheck },
   translation:  { label: 'Translation Trainer',          colour: '#00D9FF', icon: BookOpen },
   listening:    { label: 'Listening',                    colour: '#A78BFA', icon: Headphones },
   speaking:     { label: 'Speaking Practice',            colour: '#B06CFF', icon: Mic },
@@ -249,7 +249,7 @@ export default function RecordingsScreen() {
               <View>
                 <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text }}>Voice Recording</Text>
                 <Text style={{ fontSize: scaledFont(11), color: C.textMuted, marginTop: 1 }}>
-                  {enabled ? 'Active — recordings saved to this device' : 'Disabled — no recordings being made'}
+                  {enabled ? 'Active - recordings saved to this device' : 'Disabled - no recordings being made'}
                 </Text>
               </View>
             </View>
@@ -287,7 +287,7 @@ export default function RecordingsScreen() {
         <View style={{ backgroundColor: C.card, borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: C.border + '20', flexDirection: 'row', gap: 8 }}>
           <AlertCircle size={14} color={C.amber} style={{ marginTop: 1 }} />
           <Text style={{ flex: 1, fontSize: scaledFont(11), color: C.textMuted, lineHeight: 17 }}>
-            Recordings are saved privately on your device only — never uploaded to any server.
+            Recordings are saved privately on your device only - never uploaded to any server.
             {Platform.OS === 'ios'
               ? ' On iOS, files are stored in the app\'s private Documents folder.'
               : ' On Android, files are stored in the app\'s private internal storage.'}

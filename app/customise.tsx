@@ -87,7 +87,7 @@ export const ALL_MODULES = [
     tags: ['exam', 'advanced', 'academic'],
   },
   {
-    id: 'cae',         label: 'CAE — C1 Advanced',     desc: 'Cambridge exam guide + AI practice',
+    id: 'cae',         label: 'CAE - C1 Advanced',     desc: 'Cambridge exam guide + AI practice',
     icon: Award,          color: 'emerald', route: '/cae',
     tags: ['exam', 'advanced', 'academic'],
   },
@@ -114,7 +114,7 @@ const PRESETS = [
     label: 'Everyday English',
     icon: MessageCircle,
     colour: '#00E5FF',
-    desc: 'Essential skills for daily communication — conversations, emails, and understanding spoken English.',
+    desc: 'Essential skills for daily communication - conversations, emails, and understanding spoken English.',
     modules: ['placement', 'translation', 'listening', 'vocab', 'wordchunks', 'quiz'],
     forWho: 'B1–B2 learners who want practical, real-world English',
   },
@@ -123,7 +123,7 @@ const PRESETS = [
     label: 'Exam Preparation',
     icon: ClipboardList,
     colour: '#FFBE0B',
-    desc: 'Focused on the four skills tested in major English exams — IELTS, TOEFL, and Cambridge.',
+    desc: 'Focused on the four skills tested in major English exams - IELTS, TOEFL, and Cambridge.',
     modules: ['placement', 'translation', 'listening', 'writing', 'grammar', 'ielts', 'toefl', 'cae'],
     forWho: 'B2–C1 learners preparing for an international exam',
   },
@@ -241,8 +241,8 @@ export default function CustomisePracticeScreen() {
   // Swaps happen within the active-only sequence, then that sequence is
   // written back followed by the inactive ids. Swapping adjacent entries in
   // the raw `order` array (as before) could silently swap an active id with
-  // an *inactive* neighbor — a no-op from the user's point of view, since
-  // orderedModules only ever shows active-first — making the up/down
+  // an *inactive* neighbor - a no-op from the user's point of view, since
+  // orderedModules only ever shows active-first - making the up/down
   // buttons appear to do nothing whenever at least one module was toggled off.
   const moveUp = (id: string) => {
     const activeIds = order.filter(i => active.includes(i));
@@ -347,7 +347,7 @@ export default function CustomisePracticeScreen() {
 
         {/* Module list */}
         <Text style={{ fontSize: scaledFont(10), fontWeight: '700', color: C.textMuted, letterSpacing: 1, marginBottom: 10 }}>
-          YOUR EXERCISES — ACTIVE FIRST
+          YOUR EXERCISES - ACTIVE FIRST
         </Text>
 
         {orderedModules.map((mod, i) => {

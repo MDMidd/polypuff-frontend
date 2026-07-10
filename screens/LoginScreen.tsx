@@ -1,7 +1,7 @@
 /**
  * LoginScreen.tsx
  * ==========================================
- * Registration / Login — shown AFTER Terms acceptance
+ * Registration / Login - shown AFTER Terms acceptance
  *
  * Modes:
  *  - 'options'       Social buttons + "Sign Up with Email" + "Log In"
@@ -17,7 +17,7 @@
  * mobile app sees the same backend account as the web app.
  *
  * Social sign-in (Google/Facebook/Apple) is not yet wired to the backend on
- * mobile — those buttons show a "coming soon" notice instead of fake-logging in.
+ * mobile - those buttons show a "coming soon" notice instead of fake-logging in.
  *
  * Includes age representation clause at the bottom.
  *
@@ -56,7 +56,7 @@ try {
   GoogleSignin = gsi.GoogleSignin;
   statusCodes = gsi.statusCodes || {};
 } catch (e) {
-  // Running in Expo Go — Google Sign-In is unavailable. The handler shows
+  // Running in Expo Go - Google Sign-In is unavailable. The handler shows
   // a friendly message instead of crashing.
 }
 import { getServerUrl } from '../services/api';
@@ -123,10 +123,10 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
     ]).start();
 
     // Configure Google Sign-In once on mount. webClientId is the same
-    // Web OAuth client ID used by the existing website Google flow — the
+    // Web OAuth client ID used by the existing website Google flow - the
     // mobile native client requests its ID token with this as the audience,
     // and the backend verifies it against this client ID.
-    // GoogleSignin is null in Expo Go (no native module) — skip silently.
+    // GoogleSignin is null in Expo Go (no native module) - skip silently.
     if (GoogleSignin) {
       try {
         const clientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
@@ -137,7 +137,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
           });
         }
       } catch (e) {
-        // Configure failed for some other reason — Google button will surface it.
+        // Configure failed for some other reason - Google button will surface it.
       }
     }
   }, []);
@@ -176,7 +176,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
       return;
     }
 
-    // Upfront config check — fail fast with a clear message instead of a
+    // Upfront config check - fail fast with a clear message instead of a
     // cryptic native error if the env var isn't set or still has its
     // placeholder value. This catches the most common misconfiguration.
     const clientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
@@ -191,7 +191,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
       // Force fresh sign-in: clear any cached Credential Manager session.
       // Without this, an expired-but-cached token can get silently returned
       // and rejected by the backend as "Invalid Google token".
-      try { await GoogleSignin.signOut(); } catch { /* no cached session — fine */ }
+      try { await GoogleSignin.signOut(); } catch { /* no cached session - fine */ }
       const result: any = await GoogleSignin.signIn();
       // Library returns different shapes depending on version. Cover both.
       const idToken: string | null = result?.idToken || result?.data?.idToken || null;
@@ -205,7 +205,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
       });
-      // Safer parse — non-JSON 500 responses would otherwise throw here.
+      // Safer parse - non-JSON 500 responses would otherwise throw here.
       const data: any = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data?.error || `Server error ${res.status}.`);
@@ -228,7 +228,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
       onComplete('done', ageGroup);
     } catch (e: any) {
       if (e?.code === statusCodes.SIGN_IN_CANCELLED) {
-        // User dismissed the picker — no error message needed.
+        // User dismissed the picker - no error message needed.
       } else if (e?.code === statusCodes.IN_PROGRESS) {
         setError('Sign-in already in progress.');
       } else if (e?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
@@ -246,11 +246,11 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
     }
   };
 
-  // ─── Social auth handlers — Facebook + Apple not yet wired on mobile ──
+  // ─── Social auth handlers - Facebook + Apple not yet wired on mobile ──
   const socialNotYet = (provider: string) => {
     Alert.alert(
       `${provider} sign-in coming soon`,
-      `Mobile ${provider} sign-in isn't wired up yet. Please sign up or log in with your email — it uses the same account as the Poly-Puff website, so your progress will sync across devices.`,
+      `Mobile ${provider} sign-in isn't wired up yet. Please sign up or log in with your email - it uses the same account as the Poly-Puff website, so your progress will sync across devices.`,
       [{ text: 'Use email instead', onPress: () => resetForm('signup') }, { text: 'OK' }],
     );
   };
@@ -278,7 +278,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
         return;
       }
 
-      // Optional voucher redemption — runs after signup, doesn't block it.
+      // Optional voucher redemption - runs after signup, doesn't block it.
       // The voucher binds to the device (same /api/vouchers/redeem endpoint
       // the website uses), so the same code works on web and mobile.
       let voucherMessage = '';
@@ -286,7 +286,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
         const result = await redeemVoucher(voucherCode);
         voucherMessage = result.success
           ? `\n\n✅ Voucher redeemed: ${result.message}`
-          : `\n\n⚠️ Voucher couldn't be redeemed (${result.message}). Your account was still created — you can try the code again later in Settings → Voucher.`;
+          : `\n\n⚠️ Voucher couldn't be redeemed (${result.message}). Your account was still created - you can try the code again later in Settings → Voucher.`;
       }
 
       // Remember the email so the verification screen can show it & resend.
@@ -321,7 +321,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (res.status === 403) {
-          // Not verified — offer to resend.
+          // Not verified - offer to resend.
           setError(data.error || 'Please verify your email before logging in.');
           setEmail(trimmed);
           setMode('check_email');
@@ -479,7 +479,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
               </TouchableOpacity>
 
               {/*
-                Facebook + Apple sign-in hidden for v1 launch — not yet wired
+                Facebook + Apple sign-in hidden for v1 launch - not yet wired
                 to the backend. To re-enable later, restore their blocks here
                 and set the {false && ...} wrapper to {true && ...}.
               */}
@@ -583,11 +583,11 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 accessibilityLabel="Confirm password"
               />
 
-              {/* Optional voucher — same backend endpoint as the website, so a
+              {/* Optional voucher - same backend endpoint as the website, so a
                   code redeemed in either place works in both. */}
               <TextInput
                 style={[s.input, { letterSpacing: 1 }]}
-                placeholder="Voucher code (optional) — POLY-XXXX-XXXX"
+                placeholder="Voucher code (optional) - POLY-XXXX-XXXX"
                 placeholderTextColor={C.textMuted}
                 value={voucher}
                 onChangeText={(t) => { setVoucher(formatVoucher(t)); setError(''); }}
@@ -816,7 +816,7 @@ export default function LoginScreen({ ageGroup, onComplete }: LoginScreenProps) 
                 accessibilityRole="button"
                 accessibilityLabel="I have verified my email, log in"
               >
-                <Text style={s.primaryBtnText}>I've Verified — Log In</Text>
+                <Text style={s.primaryBtnText}>I've Verified - Log In</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

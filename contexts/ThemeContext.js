@@ -18,10 +18,10 @@ import React, { createContext, useContext } from 'react';
 // WCAG 2.5.8: minimum 44×44dp touch targets
 export const A11Y = {
   minTouchSize: 44,
-  minDisabledOpacity: 0.6, // was 0.4-0.5 — now passes contrast
+  minDisabledOpacity: 0.6, // was 0.4-0.5 - now passes contrast
 };
 
-// ═══ POLY-PUFF DARK — Primary brand theme ═══
+// ═══ POLY-PUFF DARK - Primary brand theme ═══
 const DARK = {
   // Backgrounds (Deep Midnight Blue from image)
   bg: '#0A0E1A',
@@ -29,19 +29,19 @@ const DARK = {
   cardAlt: '#1A2137',
   cardGlass: 'rgba(18, 24, 41, 0.75)',
 
-  // Text — CONTRAST FIXED for WCAG AA
+  // Text - CONTRAST FIXED for WCAG AA
   text: '#F0F4FF',             // 15.5:1 against bg ✅
   textSec: '#A0AECB',          // was #8B95B0 (4.1:1 ❌) → now 5.2:1 ✅
   textMuted: '#9CA3AF',         // was #5A6380 (3.2:1 ❌) → now 4.6:1 ✅
   border: '#2A3352',
 
-  // Cyan/Electric Blue — Primary
+  // Cyan/Electric Blue - Primary
   cyan: '#00E5FF',
   cyanLight: '#67EFFF',
   cyanDark: '#003D47',
   cyanGlow: 'rgba(0, 229, 255, 0.15)',
 
-  // Purple/Pink — Accent
+  // Purple/Pink - Accent
   purple: '#B06CFF',
   purpleLight: '#D4A5FF',
   purpleDark: '#2D1854',
@@ -83,7 +83,7 @@ const DARK = {
   glowPink: '#FF6EB4',
 };
 
-// ═══ POLY-PUFF LIGHT — Secondary theme (unchanged) ═══
+// ═══ POLY-PUFF LIGHT - Secondary theme (unchanged) ═══
 const LIGHT = {
   bg: '#F0F2FA',
   card: '#FFFFFF',

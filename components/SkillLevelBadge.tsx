@@ -18,7 +18,7 @@ type Props = {
 
 /**
  * Small pill showing the user's current CEFR level for the skill this
- * exercise feeds (reading/writing/listening/speaking) — separate from the
+ * exercise feeds (reading/writing/listening/speaking) - separate from the
  * Placement Test score. Renders nothing until a level exists for that skill.
  */
 export default function SkillLevelBadge({ exerciseId, color = '#00E5FF' }: Props) {

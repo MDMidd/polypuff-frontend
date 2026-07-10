@@ -75,20 +75,20 @@ const SECTIONS = {
     items: '50 items',
     badge: 'Adaptive',
     badgeIcon: RefreshCw,
-    overview: 'The Reading section tests your ability to understand academic and real-world texts. Since January 2026, it uses a multistage adaptive format — questions adjust in difficulty based on your performance. You read passages and complete tasks across three types.',
+    overview: 'The Reading section tests your ability to understand academic and real-world texts. Since January 2026, it uses a multistage adaptive format - questions adjust in difficulty based on your performance. You read passages and complete tasks across three types.',
     isNew2026: true,
     parts: [
       {
         num: 1,
         title: 'Complete the Words (Fill in Letters)',
         desc: 'Fill in missing letters in words within a paragraph. Tests vocabulary and spelling in context.',
-        tip: 'Focus on context — the surrounding words tell you what the missing word should be. Read the whole sentence before filling in.',
+        tip: 'Focus on context - the surrounding words tell you what the missing word should be. Read the whole sentence before filling in.',
         isNew: true,
       },
       {
         num: 2,
         title: 'Read Words in Daily Life',
-        desc: 'Short, functional texts similar to those you encounter on campus or in daily academic life — website excerpts, notices, short articles.',
+        desc: 'Short, functional texts similar to those you encounter on campus or in daily academic life - website excerpts, notices, short articles.',
         tip: 'Skim for the main point first, then read questions. These texts are shorter than traditional TOEFL passages.',
         isNew: true,
       },
@@ -96,7 +96,7 @@ const SECTIONS = {
         num: 3,
         title: 'Read an Academic Passage',
         desc: 'Longer academic texts on a wide range of topics (science, history, social science, arts). Multiple choice and other question types follow each passage.',
-        tip: 'Answer questions in order — passages are long, so losing your place is costly. Note paragraph topics as you read.',
+        tip: 'Answer questions in order - passages are long, so losing your place is costly. Note paragraph topics as you read.',
         isNew: false,
       },
     ],
@@ -113,13 +113,13 @@ const SECTIONS = {
       'Rhetorical purpose',
     ],
     tips: [
-      'The section is adaptive — harder questions mean you\'re doing well! Don\'t panic if difficulty increases',
-      'Read the passage first, then questions — trying to read questions first on adaptive tests wastes time',
+      'The section is adaptive - harder questions mean you\'re doing well! Don\'t panic if difficulty increases',
+      'Read the passage first, then questions - trying to read questions first on adaptive tests wastes time',
       'For "Not in the passage" questions: if you can\'t find it after scanning twice, it\'s probably not there',
-      'Prose summary questions are worth 2 points — spend more time on them',
+      'Prose summary questions are worth 2 points - spend more time on them',
       'Vocabulary questions: use context, not memorised definitions',
-      'Pace yourself — you won\'t have time to re-read passages',
-      'Academic passages cover topics from many fields — broad general knowledge helps',
+      'Pace yourself - you won\'t have time to re-read passages',
+      'Academic passages cover topics from many fields - broad general knowledge helps',
     ],
     bandTips: {
       '3–4': 'Focus on vocabulary. Read short academic articles daily (BBC Learning English, VOA News).',
@@ -142,22 +142,22 @@ const SECTIONS = {
       {
         num: 1,
         title: 'Listen and Choose a Response',
-        desc: 'Hear a short statement or question — no text on screen. Choose the most appropriate response from multiple options. Tests natural spoken English comprehension.',
-        tip: 'There is no text — you must listen carefully. Short, conversational English. Focus on function (is it a question? a request? a complaint?)',
+        desc: 'Hear a short statement or question - no text on screen. Choose the most appropriate response from multiple options. Tests natural spoken English comprehension.',
+        tip: 'There is no text - you must listen carefully. Short, conversational English. Focus on function (is it a question? a request? a complaint?)',
         isNew: true,
       },
       {
         num: 2,
         title: 'Listen to a Conversation',
         desc: 'Short everyday or campus-life conversations (student-to-student, student-to-professor). Each conversation is followed by 2 multiple-choice questions.',
-        tip: 'Listen for the problem or purpose of the conversation — questions usually ask about the main point or what someone will do.',
+        tip: 'Listen for the problem or purpose of the conversation - questions usually ask about the main point or what someone will do.',
         isNew: true,
       },
       {
         num: 3,
         title: 'Listen to an Announcement',
         desc: 'Campus or classroom announcements (40–85 words). Official notices about schedule changes, events, or procedures. Followed by several multiple-choice questions.',
-        tip: 'Announcements are short — listen for key details: who, what, when, where. Take quick notes on specifics.',
+        tip: 'Announcements are short - listen for key details: who, what, when, where. Take quick notes on specifics.',
         isNew: true,
       },
       {
@@ -178,11 +178,11 @@ const SECTIONS = {
       'Connecting content (making inferences)',
     ],
     tips: [
-      'Take notes throughout — you can\'t replay audio',
+      'Take notes throughout - you can\'t replay audio',
       'North American English accents are most common, but other accents appear',
       'The adaptive format means harder questions = better performance',
-      'For "Choose a Response" tasks: no text appears on screen — pure listening',
-      'Announcements are short but detail-heavy — be ready to focus immediately',
+      'For "Choose a Response" tasks: no text appears on screen - pure listening',
+      'Announcements are short but detail-heavy - be ready to focus immediately',
       'In academic talks, listen for the lecture\'s organisation: definition → example → implication',
       'Questions about attitude require you to notice tone and word choice, not just content',
     ],
@@ -208,21 +208,21 @@ const SECTIONS = {
         num: 1,
         title: 'Build a Sentence (New)',
         desc: 'Form a grammatically correct and meaningful sentence from a set of words. The sentence responds to a statement or question shown on screen. Tests grammar, word order, and sentence construction.',
-        tip: 'Read the prompt carefully — the sentence must respond to it logically, not just be grammatically correct.',
+        tip: 'Read the prompt carefully - the sentence must respond to it logically, not just be grammatically correct.',
         isNew: true,
       },
       {
         num: 2,
         title: 'Write an Email (New)',
         desc: 'Write a short functional email in response to a specific situation (e.g., contacting a professor, responding to a campus notice). Time limit: 7 minutes. Must address all content points in the prompt.',
-        tip: 'Use appropriate email format: greeting, body paragraphs addressing each requirement, closing. Match the tone to the situation — formal if writing to a professor.',
+        tip: 'Use appropriate email format: greeting, body paragraphs addressing each requirement, closing. Match the tone to the situation - formal if writing to a professor.',
         isNew: true,
       },
       {
         num: 3,
         title: 'Writing for an Academic Discussion',
         desc: 'Write a post on a class discussion board supporting an opinion on a given topic. A professor\'s question and two student responses are shown. You add your own contribution (~150 words).',
-        tip: 'Read both student posts carefully — your post should add something new or build on what\'s been said. Don\'t just repeat their points.',
+        tip: 'Read both student posts carefully - your post should add something new or build on what\'s been said. Don\'t just repeat their points.',
         isNew: false,
       },
     ],
@@ -236,8 +236,8 @@ const SECTIONS = {
       'Email task: always include a greeting (Dear Professor Smith,) and closing (Best regards,)',
       'Discussion post: your opinion must be supported with a reason and example',
       'Build a Sentence: check subject-verb agreement and tense carefully',
-      'Do NOT use overly complex vocabulary just to impress — accuracy matters more than range',
-      'Stay on topic — irrelevant content doesn\'t earn marks',
+      'Do NOT use overly complex vocabulary just to impress - accuracy matters more than range',
+      'Stay on topic - irrelevant content doesn\'t earn marks',
       'Check your work for basic errors in the final minute',
       'Academic discussion: reference what other students said to show engagement',
     ],
@@ -280,18 +280,18 @@ const SECTIONS = {
       { name: 'Topic Development', weight: 'High', desc: 'Relevant, well-structured responses with supporting details' },
     ],
     tips: [
-      'Speak clearly and at a natural pace — don\'t rush',
-      'Your accent does NOT affect your score — only clarity does',
+      'Speak clearly and at a natural pace - don\'t rush',
+      'Your accent does NOT affect your score - only clarity does',
       'Use transition phrases: "First of all...", "Another point is...", "For example..."',
-      'Record yourself speaking and listen back — identify hesitation patterns',
+      'Record yourself speaking and listen back - identify hesitation patterns',
       'Practice speaking about everyday campus topics: classes, study habits, preferences',
-      'Do NOT memorise scripted answers — evaluators are trained to detect this',
-      'Brief pauses to think are natural — a moment of silence is better than "ummm...ummm...umm"',
+      'Do NOT memorise scripted answers - evaluators are trained to detect this',
+      'Brief pauses to think are natural - a moment of silence is better than "ummm...ummm...umm"',
       'For repeat tasks: focus on stress and natural rhythm, not just individual sounds',
     ],
     bandTips: {
       '3–4': 'Practice speaking on common topics for 1 minute without stopping. Record yourself daily.',
-      '4–5': 'Work on fluency — reduce filler words. Practice interview-style Q&A with a partner.',
+      '4–5': 'Work on fluency - reduce filler words. Practice interview-style Q&A with a partner.',
       '5+':  'Focus on natural connected speech, contractions, and rhythm patterns of spoken English.',
     },
   },
@@ -304,7 +304,7 @@ const PRACTICE_PROMPTS = {
     'Read the passage on the history of antibiotics and complete the summary. Penicillin was discovered by ___ in ___. It was first used clinically during ___. Antibiotic resistance occurs when bacteria ___. The WHO classifies antibiotic resistance as a ___ health threat.',
   ],
   reading_prose: [
-    'Read this academic passage and choose the correct answers. A professor\'s lecture on cognitive load theory states: "Working memory is limited in capacity. When the amount of information presented exceeds this capacity, learning is impaired. Instructional designers must therefore ensure that extraneous cognitive load — load caused by poor instructional design — is minimised." Questions: 1) What limits learning according to the text? A) lack of motivation B) working memory capacity C) poor concentration. 2) What is "extraneous cognitive load"? A) load from the difficulty of content B) load from poor instructional design C) load from student distraction. 3) Who does the professor primarily address? A) students B) researchers C) instructional designers.',
+    'Read this academic passage and choose the correct answers. A professor\'s lecture on cognitive load theory states: "Working memory is limited in capacity. When the amount of information presented exceeds this capacity, learning is impaired. Instructional designers must therefore ensure that extraneous cognitive load - load caused by poor instructional design - is minimised." Questions: 1) What limits learning according to the text? A) lack of motivation B) working memory capacity C) poor concentration. 2) What is "extraneous cognitive load"? A) load from the difficulty of content B) load from poor instructional design C) load from student distraction. 3) Who does the professor primarily address? A) students B) researchers C) instructional designers.',
     'Read the passage on urban heat islands and answer: 1) Urban heat islands form primarily because: A) cities have more people B) dark surfaces absorb more heat C) cars produce exhaust. 2) The effect is strongest: A) during the day B) at night C) in winter. 3) Which solution does the author recommend most strongly? A) air conditioning B) green roofs C) restricting traffic.',
   ],
   listening_campus: [
@@ -326,7 +326,7 @@ const PRACTICE_PROMPTS = {
     'Professor Chen asks: "Should universities prioritise research or teaching? Which is more important for a university\'s mission?" Student A argues research drives innovation. Student B says effective teaching directly helps students. Write your response.',
   ],
   speaking_repeat: [
-    'Practice these Listen and Repeat phrases — say each one aloud clearly, focusing on stress and intonation: 1) "The hypothesis was not supported by the data." 2) "I would appreciate your feedback on my proposal." 3) "Environmental sustainability is a shared responsibility." 4) "Could you elaborate on that point?" 5) "The findings suggest a correlation, not causation."',
+    'Practice these Listen and Repeat phrases - say each one aloud clearly, focusing on stress and intonation: 1) "The hypothesis was not supported by the data." 2) "I would appreciate your feedback on my proposal." 3) "Environmental sustainability is a shared responsibility." 4) "Could you elaborate on that point?" 5) "The findings suggest a correlation, not causation."',
     'Repeat these academic expressions: 1) "In contrast to previous research..." 2) "The implications of this are significant." 3) "I am not entirely convinced by that argument." 4) "Let me rephrase what I just said." 5) "That is a fascinating perspective."',
   ],
   speaking_interview: [
@@ -440,7 +440,7 @@ export default function TOEFLScreen() {
       nudge.recordInteraction();
       if (data?.overallBand != null) {
         const pct = Math.round(Math.max(0, Math.min(100, (data.overallBand / 120) * 100)));
-        recordModuleProgress({ exerciseId: 'toefl', score: pct, detail: `Score ${data.overallBand}/120${data.grade ? ` — ${data.grade}` : ''}` }).catch(() => {});
+        recordModuleProgress({ exerciseId: 'toefl', score: pct, detail: `Score ${data.overallBand}/120${data.grade ? ` - ${data.grade}` : ''}` }).catch(() => {});
       }
     } catch (e) {
       Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
@@ -502,7 +502,7 @@ export default function TOEFLScreen() {
       <View style={[S.card, { marginBottom: 16 }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
           <ArrowLeftRight size={15} color={C.text} />
-          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>TOEFL vs IELTS — Which should you take?</Text>
+          <Text style={{ fontSize: scaledFont(15), fontWeight: '800', color: C.text }}>TOEFL vs IELTS - Which should you take?</Text>
         </View>
         {[
           { aspect: 'Format', toefl: 'All computer-based', ielts: 'Computer or paper; Speaking is face-to-face' },
@@ -739,7 +739,7 @@ export default function TOEFLScreen() {
       </View>
       {[
         { id: 'reading_completion', label: 'Fill in the Blanks',       desc: 'Complete sentences using words from an academic passage. Tests vocabulary and reading comprehension.', colour: '#00E5A0', icon: PenLine, badge: 'NEW 2026' },
-        { id: 'reading_prose',     label: 'Academic Passage — MCQ',   desc: 'Read an academic text and answer multiple-choice questions on detail, inference, and purpose.', colour: '#00E5A0', icon: Search, badge: '' },
+        { id: 'reading_prose',     label: 'Academic Passage - MCQ',   desc: 'Read an academic text and answer multiple-choice questions on detail, inference, and purpose.', colour: '#00E5A0', icon: Search, badge: '' },
       ].map((p, i) => (
         <TouchableOpacity
           key={i}
@@ -857,7 +857,7 @@ export default function TOEFLScreen() {
         {[
           { period: '3+ months', tip: 'Build broad academic vocabulary. Read English-language university websites and academic journals. Do full adaptive practice tests monthly.' },
           { period: '1–3 months', tip: 'Alternate sections daily. Focus on new 2026 task types (email writing, repeat & respond). Time every practice session strictly.' },
-          { period: '2–4 weeks', tip: 'Full practice tests under real conditions (no breaks, no distractions). Analyse errors — categorise by question type.' },
+          { period: '2–4 weeks', tip: 'Full practice tests under real conditions (no breaks, no distractions). Analyse errors - categorise by question type.' },
           { period: '1 week', tip: 'Light review only. Revise your personalised tip list. Know your test centre or home setup. Rest well.' },
         ].map((s, i) => (
           <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: i < 3 ? 10 : 0 }}>
@@ -923,7 +923,7 @@ export default function TOEFLScreen() {
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: i < SCORE_REQUIREMENTS.length - 1 ? 10 : 0 }}>
             <Text style={{ fontSize: 18 }}>{r.country.split(' ')[0]}</Text>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} — {r.category}</Text>
+              <Text style={{ fontSize: scaledFont(13), fontWeight: '700', color: C.text }}>{r.country.split(' ').slice(1).join(' ')} - {r.category}</Text>
               <Text style={{ fontSize: scaledFont(11), color: C.textMuted }}>{t.oldScaleLabel}: {r.oldScore}</Text>
             </View>
             <View style={{ backgroundColor: BAND_COLOUR(parseFloat(r.band)) + '20', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
@@ -1214,7 +1214,7 @@ export default function TOEFLScreen() {
       {/* 2026 notice strip */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 6, backgroundColor: '#FFBE0B10', borderBottomWidth: 1, borderBottomColor: '#FFBE0B20', gap: 6 }}>
         <Zap size={12} color="#FFBE0B" />
-        <Text style={{ fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '700' }}>Updated January 2026 — New 1–6 score scale · Adaptive format</Text>
+        <Text style={{ fontSize: scaledFont(11), color: '#FFBE0B', fontWeight: '700' }}>Updated January 2026 - New 1–6 score scale · Adaptive format</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>

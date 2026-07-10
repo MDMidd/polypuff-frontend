@@ -439,7 +439,7 @@ export default function FeedbackScreen() {
         {/* End ScrollView */}
 
         {/*
-          Pinned footer — lives OUTSIDE ScrollView but INSIDE KeyboardAvoidingView.
+          Pinned footer - lives OUTSIDE ScrollView but INSIDE KeyboardAvoidingView.
           This means it always floats just above the keyboard, no matter how far
           the user has scrolled or how tall the keyboard is.
         */}

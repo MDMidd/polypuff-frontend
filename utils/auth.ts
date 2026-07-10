@@ -1,5 +1,5 @@
 /**
- * auth.ts — Frontend Auth Helper
+ * auth.ts - Frontend Auth Helper
  * ──────────────────────────────────────────────────────────────────
  * Returns the Bearer header backed by the server-issued JWT that
  * /api/auth/login stores in AsyncStorage as `pp_token`.
@@ -8,7 +8,7 @@
  * Play Store launch: shipping the secret inside the APK meant
  * anyone who decompiled the bundle could mint a valid token for
  * any userId. The JWT path was already wired by LoginScreen and
- * used by sync/profile/settings — this just unifies on it.
+ * used by sync/profile/settings - this just unifies on it.
  *
  * USAGE:
  *   import { getAuthHeaders } from '../utils/auth';
@@ -41,7 +41,7 @@ export async function getAuthHeaders(): Promise<Record<string, string> | null> {
 
 /**
  * Local device user id (UUID generated on first launch).
- * Not a backend identity — for backend identity use the JWT's email claim.
+ * Not a backend identity - for backend identity use the JWT's email claim.
  */
 export async function getCurrentUserId(): Promise<string | null> {
   return AsyncStorage.getItem('userId');

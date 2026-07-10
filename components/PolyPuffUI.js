@@ -1,5 +1,5 @@
 /**
- * Poly-Puff UI Kit — Futuristic Command Center (Accessibility Update)
+ * Poly-Puff UI Kit - Futuristic Command Center (Accessibility Update)
  * =====================================================================
  *
  * CHANGES FROM ORIGINAL:
@@ -29,7 +29,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { scaledFont } from '../utils/accessibility';
 
 // ═══════════════════════════════════════════════════════════════════════
-// SCREEN BACKGROUND (unchanged — decorative, not interactive)
+// SCREEN BACKGROUND (unchanged - decorative, not interactive)
 // ═══════════════════════════════════════════════════════════════════════
 const BG_IMAGE = require('../assets/bg-grid.png');
 
@@ -81,7 +81,7 @@ export function ScreenBackground({ children, style, safe = true, noBottomPad = f
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// GLASS CARD (unchanged — container, not interactive)
+// GLASS CARD (unchanged - container, not interactive)
 // ═══════════════════════════════════════════════════════════════════════
 export function GlassCard({ children, style, borderColor, glowColor, intensity = 'medium' }) {
   const { colors: C } = useTheme();
@@ -105,7 +105,7 @@ export function GlassCard({ children, style, borderColor, glowColor, intensity =
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// NEON BUTTON — ✅ ACCESSIBILITY UPDATED
+// NEON BUTTON - ✅ ACCESSIBILITY UPDATED
 // ═══════════════════════════════════════════════════════════════════════
 export function NeonButton({
   onPress, title, icon, disabled, loading,
@@ -181,7 +181,7 @@ export function NeonButton({
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// NEON INPUT — ✅ ACCESSIBILITY UPDATED
+// NEON INPUT - ✅ ACCESSIBILITY UPDATED
 // ═══════════════════════════════════════════════════════════════════════
 export function NeonInput({
   value, onChangeText, placeholder, multiline, style,
@@ -245,7 +245,7 @@ export function NeonInput({
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// PULSE GLOW (unchanged — decorative animation wrapper)
+// PULSE GLOW (unchanged - decorative animation wrapper)
 // ═══════════════════════════════════════════════════════════════════════
 export function PulseGlow({ children, color, active = true, style }) {
   const { colors: C } = useTheme();
@@ -278,7 +278,7 @@ export function PulseGlow({ children, color, active = true, style }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// MASCOT HEADER — ✅ ACCESSIBILITY UPDATED
+// MASCOT HEADER - ✅ ACCESSIBILITY UPDATED
 // ═══════════════════════════════════════════════════════════════════════
 export function MascotHeader({ message, size = 150, style, onMessagePress }) {
   const { colors: C } = useTheme();
@@ -376,7 +376,7 @@ export function MascotHeader({ message, size = 150, style, onMessagePress }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// BACK HEADER — ✅ ACCESSIBILITY UPDATED
+// BACK HEADER - ✅ ACCESSIBILITY UPDATED
 // ═══════════════════════════════════════════════════════════════════════
 export function BackHeader({ title, subtitle, onPress, rightElement, style }) {
   const { colors: C } = useTheme();
