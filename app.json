@@ -37,7 +37,7 @@
         "android.permission.POST_NOTIFICATIONS"
       ],
       "allowBackup": false,
-      "versionCode": 6
+      "versionCode": 9
     },
     "androidStatusBar": {
       "barStyle": "light-content",
