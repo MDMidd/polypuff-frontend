@@ -891,7 +891,7 @@ export default function GrammarScreen() {
               studentAnswer: activeMode?.id === 'sentence_builder' ? builtWords.join(' ') : textInput,
             }}
             onScoreUpdate={(newScore, newFeedback) => setResult(prev => ({ ...prev, score: newScore, feedback: newFeedback || prev.feedback }))}
-            onNext={() => { setScreen('menu'); setResult(null); setExercise(null); setActiveMode(null); }}
+            onNext={() => { if (activeMode) generateExerciseAction(activeMode); else setScreen('menu'); }}
           />
         </ScrollView>
         <FeedbackNudgeModal
