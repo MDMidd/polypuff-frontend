@@ -625,6 +625,7 @@ export default function ListeningScreen() {
                     placeholderTextColor={C.textMuted}
                     value={saveWord}
                     onChangeText={setSaveWord}
+                    onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                     returnKeyType="done"
                     onSubmitEditing={() => saveWordToVault(saveWord)}
                     accessibilityLabel="Word to save to Vocabulary Vault"

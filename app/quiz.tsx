@@ -28,6 +28,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert, TextInput,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -148,6 +149,8 @@ export default function QuizScreen() {
   const { colors: C } = useTheme();
   const { wt } = useLanguage();
   const router = useRouter();
+
+  const resultScrollRef = useRef<ScrollView>(null);
 
   // ── Hidden Background Timer ─────────────────────────────────────────────
   const bgTimerStartRef = useRef(null);
@@ -632,7 +635,8 @@ export default function QuizScreen() {
         </View>
         <View style={{ width: 52 }} />
       </View>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView ref={resultScrollRef} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }} keyboardShouldPersistTaps="handled">
         <View style={s.resultCard}>
           {/* ✅ A11Y: Score circle with spoken label + text grade */}
           <View
@@ -686,6 +690,7 @@ export default function QuizScreen() {
                   placeholderTextColor={C.textMuted}
                   value={saveWord}
                   onChangeText={setSaveWord}
+                  onFocus={() => setTimeout(() => resultScrollRef.current?.scrollToEnd({ animated: true }), 300)}
                   returnKeyType="done"
                   onSubmitEditing={() => saveWordToVault(saveWord)}
                   accessibilityLabel="Word to save to Vocabulary Vault"
@@ -770,6 +775,7 @@ export default function QuizScreen() {
           </View>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
       <FeedbackNudgeModal
         visible={nudge.showModal}
         exerciseName="quiz"

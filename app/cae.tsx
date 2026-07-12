@@ -1159,6 +1159,7 @@ export default function CAEScreen() {
                     placeholderTextColor={C.textMuted}
                     value={saveWord}
                     onChangeText={setSaveWord}
+                    onFocus={() => setTimeout(() => practiceScrollRef.current?.scrollToEnd({ animated: true }), 300)}
                     returnKeyType="done"
                     onSubmitEditing={() => saveWordToVault(saveWord)}
                     accessibilityLabel={t.wordToSaveVocabAria}

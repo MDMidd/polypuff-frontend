@@ -123,7 +123,7 @@ function WordTile({ word, onPress, active, color, position, total, inSentence })
 }
 
 // ─── ResultCard - ✅ ACCESSIBILITY UPDATED ──────────────────────────────────
-function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
+function ResultCard({ result, onNext, exerciseData, onScoreUpdate, onInputFocus }) {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
@@ -309,6 +309,7 @@ function ResultCard({ result, onNext, exerciseData, onScoreUpdate }) {
             placeholderTextColor={C.textMuted || '#5A6380'}
             value={saveWord}
             onChangeText={setSaveWord}
+            onFocus={onInputFocus}
             returnKeyType="done"
             onSubmitEditing={() => saveWordToVault(saveWord)}
             accessibilityLabel={t.wordToSaveVocabAria}
@@ -383,6 +384,7 @@ export default function GrammarScreen() {
 
   const timerRef = useRef<number | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+  const resultScrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(useCallback(() => {
     timerRef.current = Date.now();
@@ -884,19 +886,22 @@ export default function GrammarScreen() {
         </View>
         <View style={{ width: 52 }} />
       </View>
-        <ScrollView contentContainerStyle={styles.exContent} showsVerticalScrollIndicator={false}>
-          <ResultCard
-            result={result}
-            exerciseData={{
-              mode: activeMode?.id,
-              prompt: exercise?.prompt || exercise?.sentence || exercise?.question || exercise?.native_sentence || exercise?.incorrect_sentence || exercise?.topic || '',
-              correctAnswer: exercise?.correct_sentence || exercise?.correct_answer || '',
-              studentAnswer: activeMode?.id === 'sentence_builder' ? builtWords.join(' ') : textInput,
-            }}
-            onScoreUpdate={(newScore, newFeedback) => setResult(prev => ({ ...prev, score: newScore, feedback: newFeedback || prev.feedback }))}
-            onNext={() => { if (activeMode) generateExerciseAction(activeMode); else setScreen('menu'); }}
-          />
-        </ScrollView>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView ref={resultScrollRef} contentContainerStyle={styles.exContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <ResultCard
+              result={result}
+              exerciseData={{
+                mode: activeMode?.id,
+                prompt: exercise?.prompt || exercise?.sentence || exercise?.question || exercise?.native_sentence || exercise?.incorrect_sentence || exercise?.topic || '',
+                correctAnswer: exercise?.correct_sentence || exercise?.correct_answer || '',
+                studentAnswer: activeMode?.id === 'sentence_builder' ? builtWords.join(' ') : textInput,
+              }}
+              onScoreUpdate={(newScore, newFeedback) => setResult(prev => ({ ...prev, score: newScore, feedback: newFeedback || prev.feedback }))}
+              onNext={() => { if (activeMode) generateExerciseAction(activeMode); else setScreen('menu'); }}
+              onInputFocus={() => setTimeout(() => resultScrollRef.current?.scrollToEnd({ animated: true }), 300)}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
         <FeedbackNudgeModal
           visible={nudge.showModal}
           exerciseName="grammar"

@@ -544,6 +544,7 @@ export default function WritingScreen() {
                         placeholderTextColor={C.textMuted}
                         value={saveWord}
                         onChangeText={setSaveWord}
+                        onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                         returnKeyType="done"
                         onSubmitEditing={() => saveWordToVault(saveWord)}
                         accessibilityLabel={t.accLabelWordOrExpressionToSave}
@@ -565,6 +566,7 @@ export default function WritingScreen() {
                         placeholderTextColor={C.textMuted}
                         value={savePhrase}
                         onChangeText={setSavePhrase}
+                        onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                         returnKeyType="done"
                         onSubmitEditing={() => savePhraseToVault(savePhrase)}
                         accessibilityLabel="Phrase to save to Word Chunks Vault"
