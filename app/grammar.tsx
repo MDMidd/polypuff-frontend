@@ -382,6 +382,7 @@ export default function GrammarScreen() {
   const [wordBank,       setWordBank]       = useState<string[]>([]);
 
   const timerRef = useRef<number | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(useCallback(() => {
     timerRef.current = Date.now();
@@ -676,7 +677,7 @@ export default function GrammarScreen() {
           <View style={{ width: 52 }} />
         </View>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={60}>
-          <ScrollView contentContainerStyle={styles.exContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <ScrollView ref={scrollRef} contentContainerStyle={styles.exContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
             {/* ✅ A11Y: Badges */}
             <View style={styles.badgeRow}>
@@ -704,6 +705,7 @@ export default function GrammarScreen() {
                   style={[styles.multiInput, { color: C.text, borderColor: modeColor + '55', backgroundColor: '#080F1E' }]}
                   value={textInput}
                   onChangeText={setTextInput}
+                  onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                   placeholder={ui('correctedSentencePlaceholder', 'Type the corrected sentence...')}
                   placeholderTextColor="#334155"
                   multiline
@@ -783,6 +785,7 @@ export default function GrammarScreen() {
                   style={[styles.singleInput, { color: C.text, borderColor: modeColor + '55', backgroundColor: '#080F1E' }]}
                   value={textInput}
                   onChangeText={setTextInput}
+                  onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                   placeholder={ui('missingWordPlaceholder', 'Type the missing word(s)...')}
                   placeholderTextColor="#334155"
                   autoCapitalize="none"

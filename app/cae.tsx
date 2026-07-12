@@ -17,7 +17,7 @@
  * FILE: app/cae.tsx
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, Image, TouchableOpacity, ScrollView, TextInput,
   Alert, ActivityIndicator, Modal, Platform, KeyboardAvoidingView,
@@ -317,6 +317,7 @@ export default function CAEScreen() {
   const [userBand,         setUserBand]         = useState(null);
   const [showVocabSave,    setShowVocabSave]    = useState(false);
   const [saveWord,         setSaveWord]         = useState('');
+  const practiceScrollRef = useRef<ScrollView>(null);
 
   const saveWordToVault = async (word: string) => {
     const clean = word.trim();
@@ -981,7 +982,7 @@ export default function CAEScreen() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={practiceScrollRef} contentContainerStyle={{ padding: 20, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
           {/* Prompt */}
           <View style={{ backgroundColor: C.card, borderRadius: 14, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: C.border + '30' }}>
             <Text style={[S.label, { marginBottom: 6, color: '#7BB7E0' }]}>{t.yourTask}</Text>
@@ -1054,6 +1055,7 @@ export default function CAEScreen() {
                 placeholderTextColor={C.textMuted}
                 value={practiceInput}
                 onChangeText={setPracticeInput}
+                onFocus={() => setTimeout(() => practiceScrollRef.current?.scrollToEnd({ animated: true }), 300)}
                 multiline
                 autoCapitalize="sentences"
               />

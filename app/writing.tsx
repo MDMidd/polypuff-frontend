@@ -116,6 +116,7 @@ export default function WritingScreen() {
   const [savePhrase, setSavePhrase] = useState('');
 
   const resultAnim = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(useCallback(() => { loadProfile(); }, []));
 
@@ -318,7 +319,7 @@ export default function WritingScreen() {
           <SkillLevelBadge exerciseId="writing" />
         </View>
 
-        <ScrollView contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">
 
           <PolyPuffScene size={600} />
 
@@ -417,6 +418,7 @@ export default function WritingScreen() {
                 placeholderTextColor={C.textMuted}
                 value={text}
                 onChangeText={setText}
+                onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                 multiline
                 textAlignVertical="top"
                 autoCapitalize="sentences"

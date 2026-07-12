@@ -125,6 +125,11 @@ export default function ListeningScreen() {
     if (isScreenReaderOn) setAlwaysShowText(true);
   }, [isScreenReaderOn]);
 
+  // Scrolls the focused answer input above the keyboard - KeyboardAvoidingView's
+  // 'height' behavior on Android only shrinks the container, it doesn't bring a
+  // focused field further down the ScrollView into view on its own.
+  const scrollRef = useRef<ScrollView>(null);
+
   // ── Hidden Background Timer ─────────────────────────────────────────────
   const bgTimerStartRef = useRef(null);
   useFocusEffect(useCallback(() => {
@@ -363,7 +368,7 @@ export default function ListeningScreen() {
         <SkillLevelBadge exerciseId="listening" />
       </View>
       <PolyPuffScene size={600} />
-      <ScrollView style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
+      <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
 
         {/* EU AI Act Article 50 Disclosure */}
         <AIDisclosureBanner compact />
@@ -518,6 +523,7 @@ export default function ListeningScreen() {
               style={s.input}
               value={userInput}
               onChangeText={setUserInput}
+              onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
               placeholder="Type the sentence here..."
               placeholderTextColor={C.textMuted}
               multiline

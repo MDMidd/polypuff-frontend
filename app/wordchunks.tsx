@@ -136,6 +136,7 @@ export default function WordChunksScreen() {
 
   const cardAnim   = useRef(new Animated.Value(0)).current;
   const resultAnim = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(useCallback(() => { loadProfile(); }, []));
   useEffect(() => { loadMasteredChunks(); }, [nativeLanguage, level]);
@@ -479,7 +480,7 @@ export default function WordChunksScreen() {
             <SkillLevelBadge exerciseId="word_chunks" />
           </View>
 
-        <ScrollView contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} contentContainerStyle={ds.scroll} keyboardShouldPersistTaps="handled">
 
           <PolyPuffScene size={600} />
 
@@ -628,6 +629,7 @@ export default function WordChunksScreen() {
                 placeholderTextColor={C.textMuted}
                 value={input}
                 onChangeText={setInput}
+                onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                 autoCapitalize="none"
                 returnKeyType="done"
                 onSubmitEditing={checkAnswer}

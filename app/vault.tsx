@@ -104,6 +104,7 @@ export default function VaultScreen() {
 
   // Background timer
   const bgTimerRef = useRef(null);
+  const scrollRef = useRef<ScrollView>(null);
   useFocusEffect(useCallback(() => {
     bgTimerRef.current = Date.now();
     return () => {
@@ -842,7 +843,7 @@ export default function VaultScreen() {
         <View style={{ width: 52 }} />
       </View>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+          <ScrollView ref={scrollRef} contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
             <Text style={{ fontSize: scaledFont(16), fontWeight: '600', color: C.textSec, marginBottom: 12 }}>
               {wt('vault-write-sentence', { words: selectedWords.join(', ') })}
             </Text>
@@ -859,6 +860,7 @@ export default function VaultScreen() {
               placeholderTextColor={C.textMuted}
               value={practiceInput}
               onChangeText={setPracticeInput}
+              onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
               multiline
               autoCapitalize="sentences"
               accessibilityLabel={wt('vault-write-sentence', { words: selectedWords.join(', ') })}

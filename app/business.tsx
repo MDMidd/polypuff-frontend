@@ -348,6 +348,7 @@ export default function BusinessScreen() {
 
   // ── Session timer ─────────────────────────────────────────────────────────
   const sessionStartRef = useRef(Date.now());
+  const scrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(useCallback(() => {
     sessionStartRef.current = Date.now();
@@ -847,6 +848,7 @@ export default function BusinessScreen() {
                       placeholderTextColor={C.textMuted}
                       value={userResponse}
                       onChangeText={setUserResponse}
+                      onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                       multiline
                       autoCapitalize="sentences"
                     />
@@ -1012,6 +1014,7 @@ export default function BusinessScreen() {
                   placeholderTextColor={C.textMuted}
                   value={quizAnswer}
                   onChangeText={setQuizAnswer}
+                  onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
                   returnKeyType="done"
                   onSubmitEditing={checkVocabAnswer}
                 />
@@ -1158,7 +1161,7 @@ export default function BusinessScreen() {
         })}
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView ref={scrollRef} contentContainerStyle={{ padding: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <AIDisclosureBanner compact />
         {activeTab === 'home'   && renderHome()}
         {activeTab === 'domain' && (domain ? renderDomain() : renderHome())}
