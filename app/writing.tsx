@@ -48,7 +48,8 @@ import PolyPuffScene from '../components/PolyPuffScene';
 import DiscussWithPuff from '../components/DiscussWithPuff';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import { recordExerciseTime } from '../services/timerService';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
@@ -96,6 +97,7 @@ export default function WritingScreen() {
   const { t, wt } = useLanguage();
   const router = useRouter();
   const nudge = useFeedbackNudge('writing');
+  const handleAuthFailure = useAuthFailureHandler();
   const ds = dynamicStyles(C);
 
   const [level, setLevel]               = useState('B1');
@@ -171,7 +173,7 @@ export default function WritingScreen() {
         }),
       });
 
-      if (!res.ok) throw new Error('Server error');
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
       setResult(data);
       nudge.recordInteraction();
@@ -183,6 +185,7 @@ export default function WritingScreen() {
       // ✅ NEW: Announce score
       announce(scoreAnnouncement(data.score ?? 0));
     } catch (e) {
+      if (await handleAuthFailure(e)) { setLoading(false); return; }
       const lengthScore = wordCount >= target.min ? (wordCount <= target.max ? 100 : 85) : Math.round((wordCount / target.min) * 70);
       const sentenceCount = text.trim().split(/[.!?]+/).filter(s => s.trim().length > 0).length;
       const varietyBonus = sentenceCount >= 3 ? 10 : 0;

@@ -33,6 +33,7 @@ import {
 } from 'lucide-react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { generateExercise, checkTranslation } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SettingsButton from '../components/SettingsButton';
@@ -57,6 +58,7 @@ export default function ChallengesScreen() {
   const { colors: C } = useTheme();
   const { wt } = useLanguage();
   const router = useRouter();
+  const handleAuthFailure = useAuthFailureHandler();
   const [nativeLanguage, setNativeLanguage] = useState('Spanish');
   const [level, setLevel] = useState('B1');
   const [profile, setProfile] = useState(null);
@@ -144,7 +146,7 @@ export default function ChallengesScreen() {
       setOriginalSentence(data.original || data.originalSentence || '');
       setCorrectTranslation(data.translation || data.correctTranslation || '');
       announce('New sentence ready.');
-    } catch (e) { Alert.alert('Error', 'Could not generate sentence.'); }
+    } catch (e) { if (!(await handleAuthFailure(e))) Alert.alert('Error', 'Could not generate sentence.'); }
     setLoading(false);
   };
 
@@ -196,7 +198,7 @@ export default function ChallengesScreen() {
         setChallengeProgress(newProgress);
         setTimeout(() => generateNext(newPrev), 800);
       }
-    } catch (e) { Alert.alert('Error', 'Could not check translation.'); }
+    } catch (e) { if (!(await handleAuthFailure(e))) Alert.alert('Error', 'Could not check translation.'); }
     setChecking(false);
   };
 

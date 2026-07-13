@@ -81,8 +81,7 @@ import {
   uniqueRecentTexts,
   type MasteredPracticeItem,
 } from '../utils/progressivePractice';
-import { isSavedTokenValid, clearAuthSession } from '../utils/authSession';
-import { useAuth } from './_layout';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const LENGTHS = [
@@ -211,24 +210,8 @@ export default function PracticeScreen() {
   const brandName = 'Poly-Puff';
   const aiIntroMessage = tt.aiIntroMessage;
   const router = useRouter();
-  const { resetAuth } = useAuth();
+  const handleAuthFailure = useAuthFailureHandler();
   const nudge = useFeedbackNudge('translation');
-
-  // A signed-in user always gets the 300/month quota, never the anonymous
-  // 5-per-15-min limiter. So an auth/rate failure whose saved token is missing
-  // or expired means the session lapsed - clear it and route back to login
-  // rather than showing a confusing "rate limit" error. Returns true if it
-  // handled the error (caller should stop). Genuine quota hits (valid token)
-  // fall through so the real server message is shown instead.
-  const handleAuthFailure = async (error: any): Promise<boolean> => {
-    const status = error?.status;
-    if (status !== 401 && status !== 403 && status !== 429) return false;
-    if (await isSavedTokenValid()) return false;
-    await clearAuthSession();
-    Alert.alert('Session expired', 'Your session has expired. Please sign in again to continue.');
-    resetAuth();
-    return true;
-  };
   const [nativeLanguage, setNativeLanguage] = useState('Spanish');
 
   // Derive whether speech recognition is supported for this user's language

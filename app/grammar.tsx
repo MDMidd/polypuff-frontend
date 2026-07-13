@@ -54,7 +54,8 @@ import DiscussWithPuff from '../components/DiscussWithPuff';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import SkillLevelBadge from '../components/SkillLevelBadge';
 import { recordExerciseTime } from '../services/timerService';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { getAuthHeaders } from '../utils/auth';
 // ✅ NEW
@@ -358,6 +359,7 @@ export default function GrammarScreen() {
   const { t, wt } = useLanguage();
   const router = useRouter();
   const nudge = useFeedbackNudge('grammar');
+  const handleAuthFailure = useAuthFailureHandler();
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
   const brandName = 'Poly-Puff';
   const modes = MODE_DEFS.map(mode => ({
@@ -414,14 +416,6 @@ export default function GrammarScreen() {
     return { 'Content-Type': 'application/json', ...(authHeaders || {}) };
   }
 
-  async function readApiError(res: Response) {
-    try {
-      const data = await res.json();
-      return data?.error || data?.message || `HTTP ${res.status}`;
-    } catch {
-      return `HTTP ${res.status}`;
-    }
-  }
 
   async function generateExerciseAction(mode: any) {
     setLoading(true);
@@ -441,7 +435,7 @@ export default function GrammarScreen() {
         headers,
         body: JSON.stringify({ mode: mode.id, level, nativeLanguage: nativeLang }),
       });
-      if (!res.ok) throw new Error(await readApiError(res));
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
 
       setExercise(data);
@@ -454,7 +448,9 @@ export default function GrammarScreen() {
       // ✅ NEW: Announce exercise type
       announce(`${mode.label} exercise. ${mode.desc}. Topic: ${data.topic || 'Grammar'}.`);
     } catch (e) {
-      Alert.alert(t.alertConnectionError, e instanceof Error ? e.message : t.alertCouldNotReachServer);
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert(t.alertConnectionError, e instanceof Error ? e.message : t.alertCouldNotReachServer);
+      }
     }
     setLoading(false);
     setLoadingMode(null);
@@ -482,7 +478,7 @@ export default function GrammarScreen() {
         headers,
         body: JSON.stringify({ mode: modeId, exercise, studentAnswer: answer, nativeLanguage: nativeLang, level }),
       });
-      if (!res.ok) throw new Error(await readApiError(res));
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
 
       setResult(data);
@@ -493,7 +489,9 @@ export default function GrammarScreen() {
       await saveProgress(data);
       // announce happens in ResultCard useEffect
     } catch (e) {
-      Alert.alert(t.alertError, e instanceof Error ? e.message : t.alertCouldNotCheckAnswer);
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert(t.alertError, e instanceof Error ? e.message : t.alertCouldNotCheckAnswer);
+      }
     }
     setChecking(false);
   }

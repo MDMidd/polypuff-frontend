@@ -52,7 +52,8 @@ import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import DiscussWithPuff from '../components/DiscussWithPuff';
 import * as Speech from 'expo-speech';
 import { recordExerciseTime } from '../services/timerService';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 // ✅ NEW: Accessibility utilities
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
@@ -97,6 +98,7 @@ export default function WordChunksScreen() {
   const { t, wt } = useLanguage();
   const router = useRouter();
   const nudge = useFeedbackNudge('wordchunks');
+  const handleAuthFailure = useAuthFailureHandler();
   const ds = dynamicStyles(C);
   const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
   const brandName = 'Poly-Puff';
@@ -309,7 +311,7 @@ export default function WordChunksScreen() {
             category: selectedCategory,
           }),
         });
-        if (!res.ok) throw new Error('Server error');
+        if (!res.ok) throw await errorFromResponse(res);
         data = await res.json();
         if (!isDuplicatePracticeItem(data?.native || '', previousChunks, masteredChunks)) break;
       }
@@ -322,7 +324,9 @@ export default function WordChunksScreen() {
       // ✅ NEW: Announce new chunk
       announce(`New chunk ready. Translate: ${data.native}`);
     } catch (e) {
-      Alert.alert(t.alertConnectionError, t.alertCouldNotReachServerShort);
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert(t.alertConnectionError, t.alertCouldNotReachServerShort);
+      }
     }
     setLoading(false);
   };
@@ -370,7 +374,7 @@ export default function WordChunksScreen() {
           level,
         }),
       });
-      if (!res.ok) throw new Error('Server error');
+      if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
       const rawScore = data.score ?? 0;
       const finalScore = hintUsed ? Math.max(0, Math.min(rawScore, 80)) : rawScore;
@@ -395,6 +399,7 @@ export default function WordChunksScreen() {
       // ✅ NEW: Announce score
       announce(scoreAnnouncement(finalScore));
     } catch (e) {
+      if (await handleAuthFailure(e)) { setChecking(false); return; }
       const clean = (s) => s.toLowerCase().trim().replace(/[.,!?'"]/g, '');
       const ok = clean(input) === clean(chunk.english);
       const fallbackRaw = ok ? 100 : 40;

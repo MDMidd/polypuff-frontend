@@ -36,7 +36,8 @@ import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import SkillLevelBadge from '../components/SkillLevelBadge';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
 import { getAuthHeaders } from '../utils/auth';
@@ -334,6 +335,7 @@ export default function IELTSScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const handleAuthFailure = useAuthFailureHandler();
   const nudge = useFeedbackNudge('ielts');
 
   const [testType, setTestType]           = useState('academic'); // 'academic' | 'general'
@@ -421,6 +423,7 @@ export default function IELTSScreen() {
           testType,
         }),
       });
+      if (!resp.ok) throw await errorFromResponse(resp);
       const data = await resp.json();
       setPracticeResult(data);
       nudge.recordInteraction();
@@ -429,7 +432,9 @@ export default function IELTSScreen() {
         recordModuleProgress({ exerciseId: 'ielts', score: pct, detail: `Band ${data.overallBand}${data.grade ? ` - ${data.grade}` : ''}` }).catch(() => {});
       }
     } catch (e) {
-      Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert(t.alertError, (e as any)?.serverMessage || t.alertCouldNotSubmitCheckConn);
+      }
     }
     setPracticeLoading(false);
   };

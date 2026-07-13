@@ -44,7 +44,8 @@ import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import SkillLevelBadge from '../components/SkillLevelBadge';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { hapticSuccess, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
@@ -320,6 +321,7 @@ export default function BusinessScreen() {
   const { t, wt } = useLanguage();
   const router = useRouter();
   const nudge = useFeedbackNudge('business');
+  const handleAuthFailure = useAuthFailureHandler();
 
   const [activeTab,       setActiveTab]       = useState('home');
   const [activeDomain,    setActiveDomain]    = useState(null);
@@ -444,10 +446,13 @@ export default function BusinessScreen() {
         headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ domain: domain.id, exerciseType: exType }),
       });
+      if (!resp.ok) throw await errorFromResponse(resp);
       const data = await resp.json();
       setExercise(data);
     } catch (e) {
-      Alert.alert('Error', 'Could not generate exercise. Check your connection.');
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert('Error', (e as any)?.serverMessage || 'Could not generate exercise. Check your connection.');
+      }
     }
     setExerciseLoading(false);
   };
@@ -471,6 +476,7 @@ export default function BusinessScreen() {
           response: userResponse.trim(),
         }),
       });
+      if (!resp.ok) throw await errorFromResponse(resp);
       const data = await resp.json();
       setFeedback(data);
       nudge.recordInteraction();
@@ -486,7 +492,9 @@ export default function BusinessScreen() {
         loadSessionStats(); // refresh the stats banner
       }
     } catch (e) {
-      Alert.alert('Error', 'Could not get feedback. Check your connection.');
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert('Error', (e as any)?.serverMessage || 'Could not get feedback. Check your connection.');
+      }
     }
     setFeedbackLoading(false);
   };

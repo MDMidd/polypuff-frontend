@@ -25,7 +25,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground } from '../components/PolyPuffUI';
 import { scaledFont, announce } from '../utils/accessibility';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
 import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
@@ -117,6 +118,7 @@ export default function DailyChallenge() {
   const { lang } = useLanguage();
   const router = useRouter();
   const nudge = useFeedbackNudge('daily');
+  const handleAuthFailure = useAuthFailureHandler();
   const dailyT = getDailyTranslations(lang);
   const isRTL = isRtlLanguage(lang);
   const rowDirection = isRTL ? 'row-reverse' : 'row';
@@ -192,6 +194,7 @@ export default function DailyChallenge() {
           const d = await res.json();
           return { type: 'translation', id: d.id, original: d.original, correctAnswer: d.correctAnswer, topic: d.topic || '' };
         }
+        await handleAuthFailure(await errorFromResponse(res));
       } catch {}
       return FALLBACK_TRANSLATION;
     }
@@ -207,6 +210,7 @@ export default function DailyChallenge() {
           const d = await res.json();
           return { type: 'grammar', mode: 'fill_blank', sentence_with_blank: d.sentence_with_blank, correct_answer: d.correct_answer, full_sentence: d.full_sentence, topic: d.topic || '', hint: d.hint };
         }
+        await handleAuthFailure(await errorFromResponse(res));
       } catch {}
       return FALLBACK_GRAMMAR;
     }
@@ -236,6 +240,7 @@ export default function DailyChallenge() {
             const d = await res.json();
             return { score: Math.round(d.score || 0), feedback: d.feedback || '' };
           }
+          await handleAuthFailure(await errorFromResponse(res));
         }
         return { score: localScore(ans, task.correctAnswer), feedback: `${dailyT.suggestedPrefix}: ${task.correctAnswer}` };
       }
@@ -250,6 +255,7 @@ export default function DailyChallenge() {
           const d = await res.json();
           return { score: Math.round(d.score || 0), feedback: d.feedback || `${dailyT.answerPrefix}: ${task.correct_answer}. ${task.full_sentence}` };
         }
+        await handleAuthFailure(await errorFromResponse(res));
         return { score: localScore(ans, task.correct_answer), feedback: `${dailyT.answerPrefix}: ${task.correct_answer}. ${task.full_sentence}` };
       }
 
@@ -264,6 +270,7 @@ export default function DailyChallenge() {
           const d = await res.json();
           return { score: Math.round(d.score || 0), feedback: d.feedback || '' };
         }
+        await handleAuthFailure(await errorFromResponse(res));
         return { score: Math.min(90, Math.max(45, words * 4)), feedback: dailyT.savedLocalAttempt };
       }
     } catch {}

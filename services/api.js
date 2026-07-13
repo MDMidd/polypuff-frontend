@@ -83,7 +83,7 @@ export const checkHealth = async () => {
  * "Server error" and the UI shows a fixed message - so a 429 rate-limit /
  * monthly-quota message or a 401 auth failure never reaches the user.
  */
-const errorFromResponse = async (res) => {
+export const errorFromResponse = async (res) => {
   let message = '';
   try {
     const data = await res.json();

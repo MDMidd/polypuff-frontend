@@ -45,7 +45,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ScreenBackground, BackHeader, GlassCard } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { pushVaults } from '../services/syncService';
@@ -63,6 +64,7 @@ export default function VaultScreen() {
   const { wt } = useLanguage();
   const router = useRouter();
   const nudge = useFeedbackNudge('vault');
+  const handleAuthFailure = useAuthFailureHandler();
 
   // ── State ────────────────────────────────────────────────────────────────────
   const [vaultWords,      setVaultWords]      = useState([]);
@@ -651,8 +653,13 @@ export default function VaultScreen() {
         headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body:    JSON.stringify({ sentence, targetWords: selectedWords, wordsUsed, wordsMissing }),
       });
-      if (res.ok) aiResult = await res.json();
-    } catch (e) {}
+      if (!res.ok) throw await errorFromResponse(res);
+      aiResult = await res.json();
+    } catch (e) {
+      // Lapsed session -> back to login. Any other error (network/server)
+      // falls through to the offline score below, preserving offline practice.
+      if (await handleAuthFailure(e)) { setChecking(false); return; }
+    }
 
     const finalResult = aiResult || {
       score:       offlineScore,

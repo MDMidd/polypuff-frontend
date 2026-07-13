@@ -40,7 +40,8 @@ import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import SkillLevelBadge from '../components/SkillLevelBadge';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, errorFromResponse } from '../services/api';
+import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
 import { getAuthHeaders } from '../utils/auth';
@@ -302,6 +303,7 @@ export default function CAEScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
+  const handleAuthFailure = useAuthFailureHandler();
   const nudge = useFeedbackNudge('cae');
 
   const [activeTab,        setActiveTab]        = useState('overview');
@@ -383,6 +385,7 @@ export default function CAEScreen() {
         headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
         body: JSON.stringify({ type: practiceType, prompt: practicePrompt, response: practiceInput.trim() }),
       });
+      if (!resp.ok) throw await errorFromResponse(resp);
       const data = await resp.json();
       setPracticeResult(data);
       nudge.recordInteraction();
@@ -391,7 +394,9 @@ export default function CAEScreen() {
         recordModuleProgress({ exerciseId: 'cae', score: pct, detail: `Grade ${data.grade || '?'} - ${data.cambridgeScore} Cambridge Scale` }).catch(() => {});
       }
     } catch (e) {
-      Alert.alert(t.alertError, t.alertCouldNotSubmitCheckConn);
+      if (!(await handleAuthFailure(e))) {
+        Alert.alert(t.alertError, (e as any)?.serverMessage || t.alertCouldNotSubmitCheckConn);
+      }
     }
     setPracticeLoading(false);
   };
