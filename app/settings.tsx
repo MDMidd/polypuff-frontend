@@ -111,7 +111,7 @@ const PASSWORD_RESET_PROVIDERS = new Set(['email', 'password']);
 // promptsLimit field is available (first render, or a cached pre-quota
 // account blob). Must match FREE_MONTHLY_PROMPT_LIMIT in the backend's
 // server.js; the server value always wins once a fresh account summary loads.
-const FREE_MONTHLY_PROMPT_LIMIT_FALLBACK = 300;
+const FREE_MONTHLY_PROMPT_LIMIT_FALLBACK = 100;
 
 export default function SettingsScreen() {
   const router = useRouter();
