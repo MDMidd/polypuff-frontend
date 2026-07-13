@@ -166,11 +166,6 @@ export default function PolyPuffScene({ size: _ignored }) {
   const glowAnim   = useRef(new Animated.Value(0.6)).current;
   const glowScaleX = useRef(new Animated.Value(0.85)).current;
 
-  const leftPupilX  = useRef(new Animated.Value(0)).current;
-  const leftPupilY  = useRef(new Animated.Value(0)).current;
-  const rightPupilX = useRef(new Animated.Value(0)).current;
-  const rightPupilY = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
     Animated.loop(Animated.sequence([
       Animated.timing(floatAnim, { toValue: -14, duration: 2000, useNativeDriver: false }),
@@ -185,27 +180,6 @@ export default function PolyPuffScene({ size: _ignored }) {
       Animated.timing(glowScaleX, { toValue: 0.75, duration: 2000, useNativeDriver: false }),
     ])).start();
   }, []);
-
-  const moveEyes = (touchX, touchY) => {
-    const nx = (touchX / size) * 2 - 1;
-    const ny = (touchY / size) * 2 - 1;
-    const MAX = 4;
-    Animated.parallel([
-      Animated.spring(leftPupilX,  { toValue: nx * MAX, useNativeDriver: false, speed: 30, bounciness: 2 }),
-      Animated.spring(leftPupilY,  { toValue: ny * MAX, useNativeDriver: false, speed: 30, bounciness: 2 }),
-      Animated.spring(rightPupilX, { toValue: nx * MAX, useNativeDriver: false, speed: 30, bounciness: 2 }),
-      Animated.spring(rightPupilY, { toValue: ny * MAX, useNativeDriver: false, speed: 30, bounciness: 2 }),
-    ]).start();
-  };
-
-  const resetEyes = () => {
-    Animated.parallel([
-      Animated.spring(leftPupilX,  { toValue: 0, useNativeDriver: false, speed: 10, bounciness: 6 }),
-      Animated.spring(leftPupilY,  { toValue: 0, useNativeDriver: false, speed: 10, bounciness: 6 }),
-      Animated.spring(rightPupilX, { toValue: 0, useNativeDriver: false, speed: 10, bounciness: 6 }),
-      Animated.spring(rightPupilY, { toValue: 0, useNativeDriver: false, speed: 10, bounciness: 6 }),
-    ]).start();
-  };
 
   const triggerWobble = () => {
     wobble.setValue(0);
@@ -255,14 +229,12 @@ export default function PolyPuffScene({ size: _ignored }) {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder:  () => true,
-      onPanResponderGrant: (e) => {
+      onPanResponderGrant: () => {
         triggerSquish();
-        moveEyes(e.nativeEvent.locationX, e.nativeEvent.locationY);
       },
       onPanResponderMove: (e, gs) => {
         posX.setValue(Math.max(-80, Math.min(80, gs.dx)));
         posY.setValue(Math.max(-80, Math.min(80, gs.dy)));
-        moveEyes(e.nativeEvent.locationX, e.nativeEvent.locationY);
       },
       onPanResponderRelease: (e, gs) => {
         const speed   = Math.sqrt(gs.vx ** 2 + gs.vy ** 2);
@@ -276,7 +248,6 @@ export default function PolyPuffScene({ size: _ignored }) {
           _burstRef.current?.();
         }
         returnToCenter();
-        resetEyes();
       },
     })
   ).current;
@@ -289,11 +260,6 @@ export default function PolyPuffScene({ size: _ignored }) {
 
   const rotateDeg = rotate.interpolate({ inputRange: [0, 360], outputRange: ['0deg', '360deg'] });
   const wobbleDeg = wobble.interpolate({ inputRange: [-18, 18], outputRange: ['-18deg', '18deg'] });
-
-  const eyeSize    = size * 0.13;
-  const pupilSize  = eyeSize * 0.55;
-  const eyeTop     = size * 0.27;
-  const eyeSpacing = size * 0.17;
 
   return (
     <View
@@ -334,18 +300,7 @@ export default function PolyPuffScene({ size: _ignored }) {
             style={{ width: size, height: size, position: 'absolute' }}
             resizeMode="contain"
           />
-          <Animated.View style={[styles.pupil, {
-            width: pupilSize, height: pupilSize, borderRadius: pupilSize / 2,
-            top: eyeTop + (eyeSize - pupilSize) / 2,
-            left: size / 2 - eyeSpacing - eyeSize / 2 + (eyeSize - pupilSize) / 2,
-            transform: [{ translateX: leftPupilX }, { translateY: leftPupilY }],
-          }]} />
-          <Animated.View style={[styles.pupil, {
-            width: pupilSize, height: pupilSize, borderRadius: pupilSize / 2,
-            top: eyeTop + (eyeSize - pupilSize) / 2,
-            left: size / 2 + eyeSpacing - eyeSize / 2 + (eyeSize - pupilSize) / 2,
-            transform: [{ translateX: rightPupilX }, { translateY: rightPupilY }],
-          }]} />
+          {/* Eyes are drawn into the mascot artwork itself - no overlay pupils. */}
         </View>
       </Animated.View>
 
@@ -364,7 +319,6 @@ export default function PolyPuffScene({ size: _ignored }) {
 
 const styles = StyleSheet.create({
   container: { alignSelf: 'center', alignItems: 'center', justifyContent: 'flex-end' },
-  pupil: { position: 'absolute', backgroundColor: 'rgba(0, 20, 60, 0.45)' },
   glow: {
     height: 18, borderRadius: 999, backgroundColor: '#00d4ff',
     shadowColor: '#00d4ff', shadowOffset: { width: 0, height: 0 },
