@@ -75,6 +75,26 @@ export const checkHealth = async () => {
   return res.json();
 };
 
+// ═══ SHARED ═══
+
+/**
+ * Build an Error from a failed fetch Response, preserving the server's own
+ * error message and HTTP status. Without this, callers throw a generic
+ * "Server error" and the UI shows a fixed message - so a 429 rate-limit /
+ * monthly-quota message or a 401 auth failure never reaches the user.
+ */
+const errorFromResponse = async (res) => {
+  let message = '';
+  try {
+    const data = await res.json();
+    message = data?.error || data?.message || '';
+  } catch {}
+  const err = new Error(message || `Server error (${res.status})`);
+  err.status = res.status;
+  err.serverMessage = message;
+  return err;
+};
+
 // ═══ TRANSLATION ═══
 
 /**
@@ -87,7 +107,7 @@ export const generateExercise = async ({ level, nativeLanguage, sentenceLength, 
     headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ level, nativeLanguage, sentenceLength, customRequest, previousSentences, masteredSentences, profile, weakAreas }),
   });
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -102,7 +122,7 @@ export const checkTranslation = async ({ originalSentence, studentAnswer, correc
     headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ originalSentence, studentAnswer, correctAnswer, level, nativeLanguage }),
   });
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -123,7 +143,7 @@ export const revealTranslationAnswer = async ({ originalSentence, correctAnswer 
       level,
     }),
   });
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -140,7 +160,7 @@ export const getNextExercise = async ({ level, nativeLanguage, sentenceLength, p
     headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ level, nativeLanguage, sentenceLength, previousIds }),
   });
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -155,7 +175,7 @@ export const checkExercise = async ({ exerciseId, studentAnswer, level, nativeLa
     headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ exerciseId, studentAnswer, level, nativeLanguage }),
   });
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -171,7 +191,7 @@ export const chatWithTutor = async ({ message, context, history = [] }) => {
     headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders() || {}) },
     body: JSON.stringify({ message, context, history }),
   });
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -184,7 +204,7 @@ export const getRules = async (category) => {
   const BASE = await getServerUrl();
   const url = category ? `${BASE}/api/rules?category=${category}` : `${BASE}/api/rules`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -194,7 +214,7 @@ export const getRules = async (category) => {
 export const getRule = async (ruleId) => {
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/rules/${ruleId}`);
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 
@@ -204,7 +224,7 @@ export const getRule = async (ruleId) => {
 export const getStats = async () => {
   const BASE = await getServerUrl();
   const res = await fetch(`${BASE}/api/stats`);
-  if (!res.ok) throw new Error('Server error');
+  if (!res.ok) throw await errorFromResponse(res);
   return res.json();
 };
 

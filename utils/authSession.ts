@@ -217,3 +217,46 @@ export async function getSavedToken(): Promise<string> {
     return '';
   }
 }
+
+/** Decode a base64url segment without relying on atob (Hermes-safe). */
+function b64urlDecode(input: string): string {
+  const b64 = input.replace(/-/g, '+').replace(/_/g, '/');
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let out = '';
+  let buffer = 0;
+  let bits = 0;
+  for (const ch of b64) {
+    if (ch === '=') break;
+    const idx = chars.indexOf(ch);
+    if (idx === -1) continue;
+    buffer = (buffer << 6) | idx;
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      out += String.fromCharCode((buffer >> bits) & 0xff);
+    }
+  }
+  return out;
+}
+
+/**
+ * True if a saved JWT exists AND has not expired (reads the `exp` claim only -
+ * does NOT verify the signature). Lets callers tell an expired/absent session
+ * (route the user back to login) apart from a genuine quota / rate-limit
+ * response on a still-valid session (just surface the message). Fails closed
+ * (returns false) on any parse problem, and treats a token with no `exp` as
+ * valid so a non-expiring token isn't wrongly logged out.
+ */
+export async function isSavedTokenValid(): Promise<boolean> {
+  try {
+    const token = await getSavedToken();
+    if (!token) return false;
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(b64urlDecode(parts[1]));
+    if (!payload || typeof payload.exp !== 'number') return true;
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}

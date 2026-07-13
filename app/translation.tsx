@@ -81,6 +81,8 @@ import {
   uniqueRecentTexts,
   type MasteredPracticeItem,
 } from '../utils/progressivePractice';
+import { isSavedTokenValid, clearAuthSession } from '../utils/authSession';
+import { useAuth } from './_layout';
 
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const LENGTHS = [
@@ -209,7 +211,24 @@ export default function PracticeScreen() {
   const brandName = 'Poly-Puff';
   const aiIntroMessage = tt.aiIntroMessage;
   const router = useRouter();
+  const { resetAuth } = useAuth();
   const nudge = useFeedbackNudge('translation');
+
+  // A signed-in user always gets the 300/month quota, never the anonymous
+  // 5-per-15-min limiter. So an auth/rate failure whose saved token is missing
+  // or expired means the session lapsed - clear it and route back to login
+  // rather than showing a confusing "rate limit" error. Returns true if it
+  // handled the error (caller should stop). Genuine quota hits (valid token)
+  // fall through so the real server message is shown instead.
+  const handleAuthFailure = async (error: any): Promise<boolean> => {
+    const status = error?.status;
+    if (status !== 401 && status !== 403 && status !== 429) return false;
+    if (await isSavedTokenValid()) return false;
+    await clearAuthSession();
+    Alert.alert('Session expired', 'Your session has expired. Please sign in again to continue.');
+    resetAuth();
+    return true;
+  };
   const [nativeLanguage, setNativeLanguage] = useState('Spanish');
 
   // Derive whether speech recognition is supported for this user's language
@@ -599,7 +618,12 @@ export default function PracticeScreen() {
       setNewSentenceCount(prev => prev + 1);
       setTimeout(() => inputRef.current?.focus(), 300);
       announce(tt.announceNewSentence);
-    } catch (error) { Alert.alert(tt.errorTitle, tt.errorGenerate); }
+    } catch (error) {
+      if (!(await handleAuthFailure(error))) {
+        const serverMsg = (error as any)?.serverMessage || '';
+        Alert.alert(tt.errorTitle, serverMsg || tt.errorGenerate);
+      }
+    }
     setLoading(false);
   };
 
@@ -658,7 +682,15 @@ export default function PracticeScreen() {
       await saveRichMistakeData(data, xp);
       await saveProgressData('translation_trainer', finalScore, data.feedback || data.explanation || '', data.mistakes || []);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300);
-    } catch (error) { Alert.alert(tt.errorTitle, tt.errorCheck); }
+    } catch (error) {
+      // Surface the server's own message (e.g. rate-limit / monthly-quota /
+      // auth) instead of a generic failure, so the user knows what to do.
+      // If instead the session has simply lapsed, route back to login.
+      if (!(await handleAuthFailure(error))) {
+        const serverMsg = (error as any)?.serverMessage || '';
+        Alert.alert(tt.errorTitle, serverMsg || tt.errorCheck);
+      }
+    }
     setChecking(false);
   };
 
