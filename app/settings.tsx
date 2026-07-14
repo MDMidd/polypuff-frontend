@@ -1589,6 +1589,18 @@ export default function SettingsScreen() {
                   const teacherPkgs = paywallPackages.filter((pkg) => pkg.identifier.startsWith('teacher_'));
                   const proPkgs = paywallPackages.filter((pkg) => !pkg.identifier.startsWith('teacher_'));
 
+                  // Play Console only lets us name the subscription itself, not each
+                  // base plan - so "Pro Plan"/"Teacher Plan" is identical on both the
+                  // monthly and annual row and only the price differs. Derive a period
+                  // label from the package identifier (all four end in _monthly/_annual,
+                  // whether reserved like $rc_monthly or custom like teacher_monthly) so
+                  // testers/users can actually tell the two apart.
+                  const periodSuffix = (id: string) => {
+                    if (id.includes('annual')) return ui('perYear', '/yr');
+                    if (id.includes('monthly')) return ui('perMonth', '/mo');
+                    return '';
+                  };
+
                   const renderPackage = (pkg: PurchasesPackage) => {
                     const isPurchasing = purchasingId === pkg.identifier;
                     const disabled = !!purchasingId;
@@ -1606,7 +1618,7 @@ export default function SettingsScreen() {
                           minHeight: 56,
                         }}
                         accessibilityRole="button"
-                        accessibilityLabel={`${pkg.product.title} - ${pkg.product.priceString}`}
+                        accessibilityLabel={`${pkg.product.title} - ${pkg.product.priceString}${periodSuffix(pkg.identifier)}`}
                         accessibilityState={{ disabled, busy: isPurchasing }}
                       >
                         <View style={{ flex: 1, marginRight: 12 }}>
@@ -1622,6 +1634,9 @@ export default function SettingsScreen() {
                         ) : (
                           <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.purple || '#B06CFF' }}>
                             {pkg.product.priceString}
+                            <Text style={{ fontSize: scaledFont(12), fontWeight: '600', color: C.textMuted }}>
+                              {periodSuffix(pkg.identifier)}
+                            </Text>
                           </Text>
                         )}
                       </TouchableOpacity>
