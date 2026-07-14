@@ -33,6 +33,7 @@ import { useFocusEffect } from 'expo-router';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { pushSkillLevels } from '../services/profileService';
+import { gradePlacementResponse } from '../services/api';
 import {
   View, Text, Image, TouchableOpacity, ScrollView, TextInput, Alert,
   ActivityIndicator, Platform,
@@ -219,6 +220,7 @@ function SpeakingQuestion({ question, onDone, C }) {
   const [fallbackText,     setFallbackText]      = useState('');
   const [showRating,       setShowRating]        = useState(false);
   const [recognitionError, setRecognitionError]  = useState(null);
+  const [gradingSpeech,    setGradingSpeech]     = useState(false);
 
   // ── Voice recording state ─────────────────────────────────────────────────
   const avRecordingRef     = useRef(null);
@@ -365,14 +367,23 @@ function SpeakingQuestion({ question, onDone, C }) {
   };
 
   // ── Score calculation ───────────────────────────────────────────────────────
-  // Combines self-assessment rating with a small bonus for transcript length.
-  // This rewards users who actually spoke vs just tapping a button.
-  const handleRating = (selfRating) => {
-    const spokenText  = transcript || fallbackText;
-    const wordCount   = spokenText.trim().split(/\s+/).filter(Boolean).length;
-    // Small bonus: up to 0.2 extra for saying 10+ words
-    const lengthBonus = Math.min(wordCount / 50, 0.2);
-    const finalScore  = Math.min(1, selfRating + lengthBonus);
+  // AI-graded for level-appropriateness (POST /api/placement/grade-response)
+  // using the transcript, rather than self-rating being the score itself -
+  // tapping a rating button now just triggers grading and drives the UI
+  // forward. Falls back to the old self-rating + transcript-length-bonus
+  // formula if the AI call fails, so a network hiccup can't strand the user.
+  const handleRating = async (selfRating) => {
+    const spokenText = transcript || fallbackText;
+    setGradingSpeech(true);
+    let finalScore;
+    try {
+      finalScore = await gradePlacementResponse({ skill: 'speaking', level: question.level, prompt: question.prompt, response: spokenText });
+    } catch (e) {
+      const wordCount = spokenText.trim().split(/\s+/).filter(Boolean).length;
+      const lengthBonus = Math.min(wordCount / 50, 0.2);
+      finalScore = Math.min(1, selfRating + lengthBonus);
+    }
+    setGradingSpeech(false);
     onDone(finalScore);
   };
 
@@ -527,32 +538,38 @@ function SpeakingQuestion({ question, onDone, C }) {
             </View>
           )}
           <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center', marginBottom: 14, marginTop: 4 }}>
-            How well could you express this?
+            {gradingSpeech ? 'Grading...' : 'How well could you express this?'}
           </Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity
               onPress={() => handleRating(0.2)}
-              style={{ flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: (C.red || '#FF4D6A') + '15', borderWidth: 1, borderColor: (C.red || '#FF4D6A') + '30', alignItems: 'center', minHeight: 44 }}
+              disabled={gradingSpeech}
+              style={{ flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: (C.red || '#FF4D6A') + '15', borderWidth: 1, borderColor: (C.red || '#FF4D6A') + '30', alignItems: 'center', minHeight: 44, opacity: gradingSpeech ? 0.5 : 1 }}
               accessibilityRole="button"
               accessibilityLabel="I struggled with this"
+              accessibilityState={{ disabled: gradingSpeech }}
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.red || '#FF4D6A' }}>{wt('struggled')}</Text>
+              {gradingSpeech ? <ActivityIndicator size="small" color={C.red || '#FF4D6A'} /> : <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.red || '#FF4D6A' }}>{wt('struggled')}</Text>}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleRating(0.6)}
-              style={{ flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: (C.amber || '#FFBE0B') + '15', borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '30', alignItems: 'center', minHeight: 44 }}
+              disabled={gradingSpeech}
+              style={{ flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: (C.amber || '#FFBE0B') + '15', borderWidth: 1, borderColor: (C.amber || '#FFBE0B') + '30', alignItems: 'center', minHeight: 44, opacity: gradingSpeech ? 0.5 : 1 }}
               accessibilityRole="button"
               accessibilityLabel="I did okay with this"
+              accessibilityState={{ disabled: gradingSpeech }}
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.amber || '#FFBE0B' }}>{wt('okay')}</Text>
+              {gradingSpeech ? <ActivityIndicator size="small" color={C.amber || '#FFBE0B'} /> : <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.amber || '#FFBE0B' }}>{wt('okay')}</Text>}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleRating(1)}
-              style={{ flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: (C.emerald || '#00E5A0') + '15', borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '30', alignItems: 'center', minHeight: 44 }}
+              disabled={gradingSpeech}
+              style={{ flex: 1, paddingVertical: 12, borderRadius: 10, backgroundColor: (C.emerald || '#00E5A0') + '15', borderWidth: 1, borderColor: (C.emerald || '#00E5A0') + '30', alignItems: 'center', minHeight: 44, opacity: gradingSpeech ? 0.5 : 1 }}
               accessibilityRole="button"
               accessibilityLabel="I felt confident with this"
+              accessibilityState={{ disabled: gradingSpeech }}
             >
-              <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.emerald || '#00E5A0' }}>{wt('confident')}</Text>
+              {gradingSpeech ? <ActivityIndicator size="small" color={C.emerald || '#00E5A0'} /> : <Text style={{ fontSize: scaledFont(13), fontWeight: '600', color: C.emerald || '#00E5A0' }}>{wt('confident')}</Text>}
             </TouchableOpacity>
           </View>
         </>
@@ -591,6 +608,7 @@ export default function PlacementScreen() {
   const [currentQ,       setCurrentQ]       = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [writingInput,   setWritingInput]   = useState('');
+  const [gradingWriting, setGradingWriting] = useState(false);
   const [scores,         setScores]         = useState({ reading: 0, writing: 0, listening: 0, speaking: 0 });
   const [totals,         setTotals]         = useState({ reading: 0, writing: 0, listening: 0, speaking: 0 });
   const [mistakes,       setMistakes]       = useState<any[]>([]); // wrong MC answers (reading/listening), for the results-screen review section
@@ -642,13 +660,27 @@ export default function PlacementScreen() {
     }, 600);
   };
 
-  const handleWritingSubmit = () => {
-    const words    = writingInput.trim().split(/\s+/).filter(Boolean).length;
-    const meetsMin = words >= (question.minWords || 3);
-    const hasGrammar = writingInput.includes('.') || writingInput.includes('!');
-    const score    = meetsMin ? (hasGrammar ? 1 : 0.5) : 0;
+  // AI-graded for level-appropriateness (POST /api/placement/grade-response)
+  // rather than the old word-count + punctuation-presence heuristic, which
+  // couldn't tell a coherent response from a wall of repeated words. Falls
+  // back to that heuristic if the AI call fails, so a network hiccup can't
+  // strand the user mid-test.
+  const handleWritingSubmit = async () => {
+    const text = writingInput;
+    setGradingWriting(true);
+    let score;
+    try {
+      score = await gradePlacementResponse({ skill: 'writing', level: question.level, prompt: question.prompt, response: text });
+    } catch (e) {
+      const words    = text.trim().split(/\s+/).filter(Boolean).length;
+      const meetsMin = words >= (question.minWords || 3);
+      const hasGrammar = text.includes('.') || text.includes('!');
+      score = meetsMin ? (hasGrammar ? 1 : 0.5) : 0;
+    }
+    setGradingWriting(false);
+
     if (onCeilingProbe) {
-      setCeilingProbe(prev => ({ ...prev, [skill]: score >= 1 ? 'passed' : 'failed' }));
+      setCeilingProbe(prev => ({ ...prev, [skill]: score >= 0.85 ? 'passed' : 'failed' }));
     } else {
       setScores(prev => ({ ...prev, [skill]: prev[skill] + score }));
       setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
@@ -660,7 +692,9 @@ export default function PlacementScreen() {
 
   const handleSpeakingDone = (finalScore) => {
     if (onCeilingProbe) {
-      setCeilingProbe(prev => ({ ...prev, [skill]: finalScore >= 1 ? 'passed' : 'failed' }));
+      // 0.85 not 1.0 - finalScore now usually comes from the AI grader,
+      // which rarely outputs an exact 1.0 even for an excellent response.
+      setCeilingProbe(prev => ({ ...prev, [skill]: finalScore >= 0.85 ? 'passed' : 'failed' }));
     } else {
       setScores(prev => ({ ...prev, [skill]: prev[skill] + finalScore }));
       setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
@@ -1140,9 +1174,10 @@ export default function PlacementScreen() {
               {writingInput.trim().split(/\s+/).filter(Boolean).length} words
             </Text>
             <NeonButton
-              title="Submit"
+              title={gradingWriting ? 'Grading...' : 'Submit'}
               onPress={handleWritingSubmit}
-              disabled={writingInput.trim().split(/\s+/).filter(Boolean).length < 2}
+              disabled={gradingWriting || writingInput.trim().split(/\s+/).filter(Boolean).length < 2}
+              loading={gradingWriting}
               icon={<ArrowRight size={16} color="#000" />}
               size="medium"
             />

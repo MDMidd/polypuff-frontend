@@ -264,3 +264,26 @@ export const stopSpeaking = async () => {
     await Speech.stop();
   } catch (e) {}
 };
+
+// ═══ PLACEMENT TEST ═══
+
+/**
+ * AI-grade a Placement Test writing/speaking response for how well it
+ * demonstrates the target CEFR level (not absolute quality - see
+ * POST /api/placement/grade-response on the backend for the exact rubric).
+ * Deliberately doesn't send auth headers or use getServerUrl()'s Pro-gated
+ * paths - guests can take the Placement Test before signing in.
+ * Returns a 0-1 score, or throws on network/server failure so callers can
+ * fall back to the lightweight heuristic.
+ */
+export const gradePlacementResponse = async ({ skill, level, prompt, response }) => {
+  const BASE = await getServerUrl();
+  const res = await fetch(`${BASE}/api/placement/grade-response`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ skill, level, prompt, response }),
+  });
+  if (!res.ok) throw await errorFromResponse(res);
+  const data = await res.json();
+  return typeof data.score === 'number' ? data.score : 0;
+};
