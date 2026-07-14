@@ -130,6 +130,13 @@ export default function ListeningScreen() {
   // focused field further down the ScrollView into view on its own.
   const scrollRef = useRef<ScrollView>(null);
 
+  // The header + mascot sit above the ScrollView, so they never scroll away -
+  // they just eat a large fixed chunk of the screen. Combined with the
+  // keyboard, that can leave almost no room to see the exercise/answer field.
+  // Hide the mascot (purely decorative) while the answer input is focused to
+  // free up that space; scrollToEnd alone isn't enough on its own.
+  const [answerFocused, setAnswerFocused] = useState(false);
+
   // ── Hidden Background Timer ─────────────────────────────────────────────
   const bgTimerStartRef = useRef(null);
   useFocusEffect(useCallback(() => {
@@ -367,7 +374,7 @@ export default function ListeningScreen() {
       <View style={{ alignItems: 'center', paddingTop: 8 }}>
         <SkillLevelBadge exerciseId="listening" />
       </View>
-      <PolyPuffScene size={600} />
+      {!answerFocused && <PolyPuffScene size={600} />}
       <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
 
         {/* EU AI Act Article 50 Disclosure */}
@@ -523,7 +530,8 @@ export default function ListeningScreen() {
               style={s.input}
               value={userInput}
               onChangeText={setUserInput}
-              onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
+              onFocus={() => { setAnswerFocused(true); setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+              onBlur={() => setAnswerFocused(false)}
               placeholder="Type the sentence here..."
               placeholderTextColor={C.textMuted}
               multiline
@@ -625,7 +633,8 @@ export default function ListeningScreen() {
                     placeholderTextColor={C.textMuted}
                     value={saveWord}
                     onChangeText={setSaveWord}
-                    onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
+                    onFocus={() => { setAnswerFocused(true); setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300); }}
+                    onBlur={() => setAnswerFocused(false)}
                     returnKeyType="done"
                     onSubmitEditing={() => saveWordToVault(saveWord)}
                     accessibilityLabel="Word to save to Vocabulary Vault"
