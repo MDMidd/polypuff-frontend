@@ -39,6 +39,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import { scaledFont } from '../utils/accessibility';
 import { getPdfBrandingImages } from '../utils/pdfBranding';
 import { CUSTOMISE_PRACTICE_LIST_VISIBLE } from './customise';
+import { pullAndMerge } from '../services/syncService';
 
 // ── Master exercise registry (all 13 modules) ─────────────────────────────────
 // IDs must match the ids used in customise.tsx / practiceModuleConfig
@@ -191,6 +192,15 @@ export default function ProgressScreen() {
   const loadAll = async () => {
     setLoading(true);
     try {
+      // Pull + merge from the server first (mirrors the website's progress.html,
+      // which re-syncs on every page load via bootSync()). Without this, the
+      // screen only ever showed whatever was cached from the last time the tab
+      // group (not this screen) happened to regain focus, so progress made on
+      // another device could lag behind here until some unrelated navigation
+      // triggered a background sync. pullAndMerge() never throws (it swallows
+      // its own errors) and no-ops if signed out, so this is always safe to await.
+      await pullAndMerge();
+
       // Load practice order from customise config - mirrors the Practice list.
       // Skipped while Customise is hidden (see customise.tsx): its ids don't
       // all match ALL_EXERCISES below (e.g. 'vault' vs 'vocab_vault'), so

@@ -385,10 +385,16 @@ async function syncNow(): Promise<{ ok: boolean; version?: number; error?: strin
  * Pull from server, merge with local vault + progress, write merged back to
  * AsyncStorage, then push to server. Call after login and on app focus
  * (via useFocusEffect).
+ *
+ * Awaits pullProfile() (XP/streak/CEFR reconciliation) too, not just
+ * syncNow() (vault/exercise-history) - it used to be fire-and-forget here,
+ * so a caller that awaits pullAndMerge() and then immediately reads
+ * AsyncStorage (e.g. progress.tsx) could still read the pre-merge XP/streak
+ * value if that background promise hadn't settled yet.
  */
 export async function pullAndMerge(): Promise<void> {
   try { await syncNow(); } catch {}
-  pullProfile().catch(() => {});
+  try { await pullProfile(); } catch {}
 }
 
 /**
