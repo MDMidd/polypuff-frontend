@@ -35,6 +35,7 @@ import { scaledFont } from '../utils/accessibility';
 import { getServerUrl } from '../services/api';
 import { getAuthHeaders } from '../utils/auth';
 import { ensureUserId } from '../utils/userId';
+import { getAccountFlags } from '../utils/authSession';
 
 // ── Score colour helper ───────────────────────────────────────────────────────
 function scoreColor(score, C) {
@@ -107,7 +108,7 @@ export default function ClassroomScreen() {
   const { colors: C } = useTheme();
   const { t, wt } = useLanguage();
   const router = useRouter();
-  const ui = (key: keyof typeof t, fallback: string) => (t[key] as string | undefined) ?? fallback;
+  const ui = (key: string, fallback: string) => (t as unknown as Record<string, string | undefined>)[key] ?? fallback;
 
   const [mode,         setMode]         = useState(null); // null | 'teacher' | 'student'
   const [loading,      setLoading]      = useState(false);
@@ -115,6 +116,7 @@ export default function ClassroomScreen() {
   const [joinedRoom,   setJoinedRoom]   = useState(null);
   const [showCreate,   setShowCreate]   = useState(false);
   const [showJoin,     setShowJoin]     = useState(false);
+  const [isTeacher,    setIsTeacher]    = useState(false);
 
   // Create form state
   const [teacherName,  setTeacherName]  = useState('');
@@ -133,6 +135,8 @@ export default function ClassroomScreen() {
       const savedMode  = await AsyncStorage.getItem('classroomMode');
       const savedRooms = await AsyncStorage.getItem('classroomRooms');
       const savedJoined = await AsyncStorage.getItem('classroomJoined');
+      const flags = await getAccountFlags();
+      setIsTeacher(flags.isTeacher);
 
       // Pre-fill teacher name from profile
       const profileRaw = await AsyncStorage.getItem('userProfile');
@@ -146,14 +150,14 @@ export default function ClassroomScreen() {
       if (savedRooms) setRooms(JSON.parse(savedRooms));
       if (savedJoined) setJoinedRoom(JSON.parse(savedJoined));
 
-      if (savedMode === 'teacher') refreshRooms(true);
+      if (savedMode === 'teacher' && flags.isTeacher) refreshRooms(true);
     } catch (e) {}
   };
 
   const selectMode = async (m) => {
     setMode(m);
     await AsyncStorage.setItem('classroomMode', m);
-    if (m === 'teacher') refreshRooms(true);
+    if (m === 'teacher' && isTeacher) refreshRooms(true);
   };
 
   // ── CREATE TEACHER GROUP ────────────────────────────────────────────────
@@ -352,55 +356,97 @@ export default function ClassroomScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Create group button */}
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                gap: 8, backgroundColor: '#A78BFA18', borderRadius: 14,
-                paddingVertical: 14, marginBottom: 16, borderWidth: 1,
-                borderColor: '#A78BFA40', minHeight: 52,
-              }}
-              onPress={() => setShowCreate(true)}
-              accessibilityRole="button" accessibilityLabel={ui('createNewClass', 'Create New Group')}
-            >
-              <Plus size={18} color="#A78BFA" />
-              <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>{ui('createNewClass', 'Create New Group')}</Text>
-            </TouchableOpacity>
-
-            {/* Group list */}
-            {rooms.length > 0 && (
-              <>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                  <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5 }}>
-                    {ui('myClasses', 'My groups').toUpperCase()} ({rooms.length})
-                  </Text>
-                  <TouchableOpacity onPress={() => refreshRooms(false)} style={{ minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
-                    accessibilityRole="button" accessibilityLabel={t.retry}>
-                    {loading ? <ActivityIndicator size="small" color={C.textMuted} /> : <RefreshCw size={14} color={C.textMuted} />}
-                  </TouchableOpacity>
-                </View>
-                {rooms.map(room => (
-                  <ClassCard
-                    key={room.code}
-                    room={room}
-                    C={C}
-                    onPress={() => router.push({
-                      pathname: '/classroom-detail',
-                      params: { code: room.code, className: room.className, teacherName: room.teacherName },
-                    })}
-                  />
-                ))}
-              </>
-            )}
-
-            {rooms.length === 0 && (
-              <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                <School size={40} color="#A78BFA" style={{ marginBottom: 12 }} />
-                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('noClassesYet', 'No groups yet')}</Text>
-                <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
-                  {ui('noClassesHelp', 'Create your first group and share the join code with your students.')}
+            {!isTeacher ? (
+              // Creating/managing groups requires the Teacher plan (matches
+              // the website's gate) - joining as a student stays free for
+              // everyone, so that path isn't touched here.
+              <View style={{
+                backgroundColor: C.card || '#111827', borderRadius: 16, padding: 20,
+                borderWidth: 1, borderColor: '#A78BFA30', alignItems: 'center',
+              }}>
+                <Award size={32} color="#A78BFA" style={{ marginBottom: 10 }} />
+                <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6, textAlign: 'center' }}>
+                  {ui('teacherPlanRequiredTitle', 'Teacher plan required')}
                 </Text>
+                <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center', marginBottom: 16 }}>
+                  {ui('teacherPlanRequiredDesc', 'Creating groups and viewing student progress require the Teacher plan. Students can still join a group with a code for free.')}
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                    gap: 8, backgroundColor: '#A78BFA', borderRadius: 12,
+                    paddingVertical: 12, paddingHorizontal: 20, minHeight: 48,
+                  }}
+                  onPress={() => router.push('/settings')}
+                  accessibilityRole="button" accessibilityLabel={ui('upgradeToTeacher', 'Upgrade to Teacher')}
+                >
+                  <Text style={{ fontSize: scaledFont(14), fontWeight: '800', color: '#fff' }}>{ui('upgradeToTeacher', 'Upgrade to Teacher')}</Text>
+                </TouchableOpacity>
               </View>
+            ) : (
+              <>
+                <View style={{
+                  backgroundColor: C.card || '#111827', borderRadius: 12, padding: 14,
+                  borderWidth: 1, borderColor: (C.border || '#374151') + '20',
+                  flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 16,
+                }}>
+                  <Lightbulb size={14} color={C.textMuted} style={{ marginTop: 1 }} />
+                  <Text style={{ flex: 1, fontSize: scaledFont(12), color: C.textMuted, lineHeight: 18 }}>
+                    {ui('teacherModeMobileWebTip', "Use this app to check your students' progress. Assigning and creating lessons is done from the Poly-Puff website.")}
+                  </Text>
+                </View>
+
+                {/* Create group button */}
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                    gap: 8, backgroundColor: '#A78BFA18', borderRadius: 14,
+                    paddingVertical: 14, marginBottom: 16, borderWidth: 1,
+                    borderColor: '#A78BFA40', minHeight: 52,
+                  }}
+                  onPress={() => setShowCreate(true)}
+                  accessibilityRole="button" accessibilityLabel={ui('createNewClass', 'Create New Group')}
+                >
+                  <Plus size={18} color="#A78BFA" />
+                  <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: '#A78BFA' }}>{ui('createNewClass', 'Create New Group')}</Text>
+                </TouchableOpacity>
+
+                {/* Group list */}
+                {rooms.length > 0 && (
+                  <>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                      <Text style={{ flex: 1, fontSize: scaledFont(13), fontWeight: '700', color: C.textMuted, letterSpacing: 0.5 }}>
+                        {ui('myClasses', 'My groups').toUpperCase()} ({rooms.length})
+                      </Text>
+                      <TouchableOpacity onPress={() => refreshRooms(false)} style={{ minWidth: 44, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}
+                        accessibilityRole="button" accessibilityLabel={t.retry}>
+                        {loading ? <ActivityIndicator size="small" color={C.textMuted} /> : <RefreshCw size={14} color={C.textMuted} />}
+                      </TouchableOpacity>
+                    </View>
+                    {rooms.map(room => (
+                      <ClassCard
+                        key={room.code}
+                        room={room}
+                        C={C}
+                        onPress={() => router.push({
+                          pathname: '/classroom-detail',
+                          params: { code: room.code, className: room.className, teacherName: room.teacherName },
+                        })}
+                      />
+                    ))}
+                  </>
+                )}
+
+                {rooms.length === 0 && (
+                  <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+                    <School size={40} color="#A78BFA" style={{ marginBottom: 12 }} />
+                    <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text, marginBottom: 6 }}>{ui('noClassesYet', 'No groups yet')}</Text>
+                    <Text style={{ fontSize: scaledFont(13), color: C.textMuted, textAlign: 'center' }}>
+                      {ui('noClassesHelp', 'Create your first group and share the join code with your students.')}
+                    </Text>
+                  </View>
+                )}
+              </>
             )}
           </>
         )}

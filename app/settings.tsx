@@ -443,6 +443,11 @@ export default function SettingsScreen() {
     if (account?.isAdmin) {
       setAccountPlan(t.adminPlan);
       setAccountPlanTone('admin');
+    } else if (account?.isTeacher) {
+      // No dedicated 'teacher' badge tone exists yet - reuse pro's styling,
+      // the label text is what tells the two apart.
+      setAccountPlan(ui('teacherPlanBadge', 'Teacher'));
+      setAccountPlanTone('pro');
     } else if (account?.isPro) {
       setAccountPlan(t.proPlan);
       setAccountPlanTone('pro');
@@ -652,7 +657,14 @@ export default function SettingsScreen() {
         return;
       }
       setPaywallVisible(false);
-      if (result.isPro) {
+      if (result.isTeacher) {
+        setAccountPlan(ui('teacherPlanBadge', 'Teacher'));
+        setAccountPlanTone('pro');
+        Alert.alert(
+          ui('teacherPlanBadge', 'Teacher'),
+          ui('teacherPlanWelcome', 'Your Teacher plan is active. Use this app to check on your students\' progress, and the Poly-Puff website to create and assign lessons.'),
+        );
+      } else if (result.isPro) {
         setAccountPlan(t.proPlan);
         setAccountPlanTone('pro');
         Alert.alert(t.proPlan, t.subscriptionActive);
@@ -675,7 +687,13 @@ export default function SettingsScreen() {
     setPaywallLoading(true);
     try {
       const result = await restorePurchases();
-      if (result.isPro) {
+      if (result.isTeacher) {
+        setPaywallVisible(false);
+        setAccountPlan(ui('teacherPlanBadge', 'Teacher'));
+        setAccountPlanTone('pro');
+        Alert.alert(ui('teacherPlanBadge', 'Teacher'), t.subscriptionActive);
+        syncAccountAfterEntitlementChange();
+      } else if (result.isPro) {
         setPaywallVisible(false);
         setAccountPlan(t.proPlan);
         setAccountPlanTone('pro');
@@ -1542,7 +1560,7 @@ export default function SettingsScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Sparkles size={20} color={C.purple || '#B06CFF'} />
                 <Text style={{ fontSize: scaledFont(18), fontWeight: '800', color: C.text }} accessibilityRole="header">
-                  {t.proPlan}
+                  {ui('upgradeYourPlan', 'Upgrade Your Plan')}
                 </Text>
               </View>
               <TouchableOpacity
@@ -1567,44 +1585,73 @@ export default function SettingsScreen() {
               </View>
             ) : (
               <ScrollView showsVerticalScrollIndicator={false}>
-                {paywallPackages.map((pkg) => {
-                  const isPurchasing = purchasingId === pkg.identifier;
-                  const disabled = !!purchasingId;
-                  return (
-                    <TouchableOpacity
-                      key={pkg.identifier}
-                      disabled={disabled}
-                      onPress={() => handlePurchase(pkg)}
-                      style={{
-                        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-                        paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, marginBottom: 8,
-                        backgroundColor: (C.purple || '#B06CFF') + '14',
-                        borderWidth: 1, borderColor: (C.purple || '#B06CFF') + '30',
-                        opacity: disabled && !isPurchasing ? 0.5 : 1,
-                        minHeight: 56,
-                      }}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${pkg.product.title} - ${pkg.product.priceString}`}
-                      accessibilityState={{ disabled, busy: isPurchasing }}
-                    >
-                      <View style={{ flex: 1, marginRight: 12 }}>
-                        <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text }}>{pkg.product.title}</Text>
-                        {!!pkg.product.description && (
-                          <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }} numberOfLines={2}>
-                            {pkg.product.description}
+                {(() => {
+                  const teacherPkgs = paywallPackages.filter((pkg) => pkg.identifier.startsWith('teacher_'));
+                  const proPkgs = paywallPackages.filter((pkg) => !pkg.identifier.startsWith('teacher_'));
+
+                  const renderPackage = (pkg: PurchasesPackage) => {
+                    const isPurchasing = purchasingId === pkg.identifier;
+                    const disabled = !!purchasingId;
+                    return (
+                      <TouchableOpacity
+                        key={pkg.identifier}
+                        disabled={disabled}
+                        onPress={() => handlePurchase(pkg)}
+                        style={{
+                          flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                          paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, marginBottom: 8,
+                          backgroundColor: (C.purple || '#B06CFF') + '14',
+                          borderWidth: 1, borderColor: (C.purple || '#B06CFF') + '30',
+                          opacity: disabled && !isPurchasing ? 0.5 : 1,
+                          minHeight: 56,
+                        }}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${pkg.product.title} - ${pkg.product.priceString}`}
+                        accessibilityState={{ disabled, busy: isPurchasing }}
+                      >
+                        <View style={{ flex: 1, marginRight: 12 }}>
+                          <Text style={{ fontSize: scaledFont(15), fontWeight: '700', color: C.text }}>{pkg.product.title}</Text>
+                          {!!pkg.product.description && (
+                            <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginTop: 2 }} numberOfLines={2}>
+                              {pkg.product.description}
+                            </Text>
+                          )}
+                        </View>
+                        {isPurchasing ? (
+                          <ActivityIndicator size="small" color={C.purple || '#B06CFF'} />
+                        ) : (
+                          <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.purple || '#B06CFF' }}>
+                            {pkg.product.priceString}
                           </Text>
                         )}
-                      </View>
-                      {isPurchasing ? (
-                        <ActivityIndicator size="small" color={C.purple || '#B06CFF'} />
-                      ) : (
-                        <Text style={{ fontSize: scaledFont(16), fontWeight: '800', color: C.purple || '#B06CFF' }}>
-                          {pkg.product.priceString}
-                        </Text>
+                      </TouchableOpacity>
+                    );
+                  };
+
+                  return (
+                    <>
+                      {proPkgs.length > 0 && (
+                        <>
+                          <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+                            {t.proPlan}
+                          </Text>
+                          {proPkgs.map(renderPackage)}
+                        </>
                       )}
-                    </TouchableOpacity>
+                      {teacherPkgs.length > 0 && (
+                        <>
+                          <Text style={{ fontSize: scaledFont(12), fontWeight: '700', color: C.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: proPkgs.length > 0 ? 16 : 0, marginBottom: 8 }}>
+                            {ui('teacherPlanBadge', 'Teacher')}
+                          </Text>
+                          <Text style={{ fontSize: scaledFont(12), color: C.textMuted, marginBottom: 10 }}>
+                            {ui('teacherPlanDesc', 'Everything in Pro, plus classroom tools: create student groups, track class progress, and assign lessons from the website.')}
+                          </Text>
+                          {teacherPkgs.map(renderPackage)}
+                        </>
+                      )}
+                    </>
                   );
-                })}
+                })()}
               </ScrollView>
             )}
 

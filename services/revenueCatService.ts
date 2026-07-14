@@ -29,6 +29,16 @@ import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-nativ
 
 export const ENTITLEMENT_ID = 'pro';
 
+/**
+ * Teacher plan entitlement. Its RevenueCat products (teacher_plan:monthly/
+ * :annual) are deliberately NOT attached to the "pro" entitlement in the
+ * dashboard - same as the web app's Paddle-based teacher plan doesn't
+ * carry a separate "pro" purchase either. The backend's accessForUser()
+ * treats isTeacher as implying isPro; getEntitlementStatus() below does
+ * the same OR client-side so the UI doesn't have to know the distinction.
+ */
+export const TEACHER_ENTITLEMENT_ID = 'teacher';
+
 let configured = false;
 
 function isSupported(): boolean {
@@ -85,6 +95,26 @@ export async function hasActiveEntitlement(): Promise<boolean> {
   }
 }
 
+export type EntitlementStatus = { isPro: boolean; isTeacher: boolean };
+
+function statusFromInfo(info: CustomerInfo): EntitlementStatus {
+  const isTeacher = !!info.entitlements.active[TEACHER_ENTITLEMENT_ID];
+  const isPro = isTeacher || !!info.entitlements.active[ENTITLEMENT_ID];
+  return { isPro, isTeacher };
+}
+
+/** Pro + teacher entitlement state, right now. See TEACHER_ENTITLEMENT_ID above for why isTeacher implies isPro. */
+export async function getEntitlementStatus(): Promise<EntitlementStatus> {
+  if (!isSupported() || !configured) return { isPro: false, isTeacher: false };
+  try {
+    const info = await Purchases.getCustomerInfo();
+    return statusFromInfo(info);
+  } catch (e) {
+    console.warn('RevenueCat getCustomerInfo failed:', e);
+    return { isPro: false, isTeacher: false };
+  }
+}
+
 /**
  * Fetch the current offering's packages for the paywall screen.
  * Returns [] if Play Billing isn't available or nothing is configured yet
@@ -101,34 +131,34 @@ export async function getPackages(): Promise<PurchasesPackage[]> {
   }
 }
 
-export type PurchaseResult = { success: boolean; isPro: boolean; cancelled?: boolean; error?: string };
+export type PurchaseResult = { success: boolean; isPro: boolean; isTeacher: boolean; cancelled?: boolean; error?: string };
 
 /** Trigger the native Play Billing purchase sheet for a package. */
 export async function purchasePackage(pkg: PurchasesPackage): Promise<PurchaseResult> {
   if (!isSupported() || !configured) {
-    return { success: false, isPro: false, error: 'Play Billing is not available.' };
+    return { success: false, isPro: false, isTeacher: false, error: 'Play Billing is not available.' };
   }
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
-    return { success: true, isPro: !!customerInfo.entitlements.active[ENTITLEMENT_ID] };
+    return { success: true, ...statusFromInfo(customerInfo) };
   } catch (e: any) {
-    if (e?.userCancelled) return { success: false, isPro: false, cancelled: true };
+    if (e?.userCancelled) return { success: false, isPro: false, isTeacher: false, cancelled: true };
     console.warn('RevenueCat purchasePackage failed:', e);
-    return { success: false, isPro: false, error: e?.message || 'Purchase failed.' };
+    return { success: false, isPro: false, isTeacher: false, error: e?.message || 'Purchase failed.' };
   }
 }
 
 /** "Restore Purchases" - required by Play Store review guidelines. */
 export async function restorePurchases(): Promise<PurchaseResult> {
   if (!isSupported() || !configured) {
-    return { success: false, isPro: false, error: 'Play Billing is not available.' };
+    return { success: false, isPro: false, isTeacher: false, error: 'Play Billing is not available.' };
   }
   try {
     const customerInfo: CustomerInfo = await Purchases.restorePurchases();
-    return { success: true, isPro: !!customerInfo.entitlements.active[ENTITLEMENT_ID] };
+    return { success: true, ...statusFromInfo(customerInfo) };
   } catch (e: any) {
     console.warn('RevenueCat restorePurchases failed:', e);
-    return { success: false, isPro: false, error: e?.message || 'Restore failed.' };
+    return { success: false, isPro: false, isTeacher: false, error: e?.message || 'Restore failed.' };
   }
 }
 

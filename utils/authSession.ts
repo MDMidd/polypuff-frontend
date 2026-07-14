@@ -183,16 +183,17 @@ export async function clearAuthSession(): Promise<void> {
 export interface AccountFlags {
   isPro: boolean;
   isAdmin: boolean;
+  isTeacher: boolean;
 }
 
 export async function getAccountFlags(): Promise<AccountFlags> {
   try {
     const raw = await AsyncStorage.getItem('accountSummary');
-    if (!raw) return { isPro: false, isAdmin: false };
+    if (!raw) return { isPro: false, isAdmin: false, isTeacher: false };
     const account = JSON.parse(raw);
-    return { isPro: !!account?.isPro, isAdmin: !!account?.isAdmin };
+    return { isPro: !!account?.isPro, isAdmin: !!account?.isAdmin, isTeacher: !!account?.isTeacher };
   } catch {
-    return { isPro: false, isAdmin: false };
+    return { isPro: false, isAdmin: false, isTeacher: false };
   }
 }
 
