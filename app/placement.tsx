@@ -141,6 +141,12 @@ function SpeakingQuestion({ question, onDone, C }) {
   const recTimerRef        = useRef(null);
   const [savedRec,         setSavedRec]          = useState(null); // VoiceRecording
 
+  // Accumulates finalized segments across a continuous recording session -
+  // in continuous mode each pause produces its own isFinal result covering
+  // only that segment, not the whole answer (see expo-speech-recognition's
+  // docs), so we have to concatenate them ourselves.
+  const finalTranscriptRef = useRef('');
+
   // ── Check/request permission on mount ──────────────────────────────────────
   useEffect(() => {
     checkPermission();
@@ -167,9 +173,17 @@ function SpeakingQuestion({ question, onDone, C }) {
   // These hooks listen for events fired by the native recognition engine.
 
   useSpeechRecognitionEvent('result', (event) => {
-    // event.results is an array; we take the most confident transcript
-    const text = event.results?.[0]?.transcript || '';
-    setTranscript(text);
+    // event.results only covers the current segment (the phrase since the
+    // last pause), not the whole session - fold finalized segments into
+    // finalTranscriptRef and layer the latest interim segment on top for
+    // live display, so a pause mid-answer doesn't drop earlier speech.
+    const segment = event.results?.[0]?.transcript || '';
+    if (event.isFinal) {
+      finalTranscriptRef.current = [finalTranscriptRef.current, segment].filter(Boolean).join(' ');
+      setTranscript(finalTranscriptRef.current);
+    } else {
+      setTranscript([finalTranscriptRef.current, segment].filter(Boolean).join(' '));
+    }
   });
 
   useSpeechRecognitionEvent('end', () => {
@@ -195,12 +209,15 @@ function SpeakingQuestion({ question, onDone, C }) {
   const startRecording = async () => {
     try {
       setTranscript('');
+      finalTranscriptRef.current = '';
       setRecognitionError(null);
       await ExpoSpeechRecognitionModule.start({
         lang: 'en-US',
         interimResults: true,
         maxAlternatives: 1,
-        continuous: false,
+        // continuous: true so a mid-answer pause (thinking, breathing) doesn't
+        // auto-stop the recognizer - the user taps "Stop Recording" when done.
+        continuous: true,
       });
       setIsRecording(true);
       announce('Recording started. Speak now.');
