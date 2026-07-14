@@ -113,13 +113,31 @@ const SKILLS       = ['reading', 'writing', 'listening', 'speaking'];
 const SKILL_ICONS  = { reading: BookOpen, writing: PenTool, listening: Headphones, speaking: Mic };
 const LEVELS_ORDER = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
-function determineLevelFromScore(correctCount, total) {
+// TEST_BANK's per-skill question order, index-for-index (0=A1 ... 4=C1).
+const BANK_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
+
+// The highest CEFR level actually tested for a given set of active bank
+// indices - e.g. short mode's [0, 2] only shows A1/B1 content, so the
+// highest level it can honestly report is B1.
+function maxTestedLevel(activeIndices: number[]) {
+  return BANK_LEVELS[Math.max(...activeIndices)];
+}
+
+function determineLevelFromScore(correctCount, total, capLevel?: string) {
   const ratio = correctCount / total;
-  if (ratio >= 0.9) return 'C1';
-  if (ratio >= 0.7) return 'B2';
-  if (ratio >= 0.5) return 'B1';
-  if (ratio >= 0.3) return 'A2';
-  return 'A1';
+  let level;
+  if (ratio >= 0.9) level = 'C1';
+  else if (ratio >= 0.7) level = 'B2';
+  else if (ratio >= 0.5) level = 'B1';
+  else if (ratio >= 0.3) level = 'A2';
+  else level = 'A1';
+  // Never report a level higher than the hardest content the user was
+  // actually shown - a short-mode user who nails the two easy questions
+  // they were given shouldn't come out graded C1.
+  if (capLevel && LEVELS_ORDER.indexOf(level) > LEVELS_ORDER.indexOf(capLevel)) {
+    return capLevel;
+  }
+  return level;
 }
 
 // ── Speaking section component ────────────────────────────────────────────────
@@ -581,7 +599,7 @@ export default function PlacementScreen() {
 
   const saveResults = async () => {
     const levels = {};
-    for (const s of SKILLS) { levels[s] = determineLevelFromScore(scores[s], totals[s] || 1); }
+    for (const s of SKILLS) { levels[s] = determineLevelFromScore(scores[s], totals[s] || 1, maxTestedLevel(activeIndices)); }
     const avgIdx  = Math.round(SKILLS.reduce((sum, s) => sum + LEVELS_ORDER.indexOf(levels[s]), 0) / SKILLS.length);
     levels.overall = LEVELS_ORDER[Math.min(avgIdx, LEVELS_ORDER.length - 1)];
     await AsyncStorage.setItem('skillLevels', JSON.stringify(levels));
@@ -758,7 +776,7 @@ export default function PlacementScreen() {
   // ══════════════════════════════════════════════════════════════════════════
   if (phase === 'results') {
     const levels = {};
-    for (const s of SKILLS) { levels[s] = determineLevelFromScore(scores[s], totals[s] || 1); }
+    for (const s of SKILLS) { levels[s] = determineLevelFromScore(scores[s], totals[s] || 1, maxTestedLevel(activeIndices)); }
     const avgIdx   = Math.round(SKILLS.reduce((sum, s) => sum + LEVELS_ORDER.indexOf(levels[s]), 0) / SKILLS.length);
     levels.overall = LEVELS_ORDER[Math.min(avgIdx, LEVELS_ORDER.length - 1)];
 
