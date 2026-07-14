@@ -43,6 +43,7 @@ import { isRtlLanguage } from '../utils/languages';
 import { checkAndSendWeeklyDigest } from '../services/digestService';
 import { pullAndMerge } from '../services/syncService';
 import { initRevenueCat, identifyUser } from '../services/revenueCatService';
+import { clearAuthSession } from '../utils/authSession';
 
 // ═══ CONTEXTS ═══
 export const ExerciseContext = createContext({ inExercise: false, setInExercise: () => {} });
@@ -103,18 +104,32 @@ function ProfileMenuButton({ onPress, colors: C, isRTL }: { onPress: () => void;
 // ═══ DRAWER MENU ═══
 function DrawerMenu({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { colors: C } = useTheme();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
+  const { resetAuth } = useAuth();
   const router = useRouter();
   const drawerT = getDrawerTranslations(lang);
   const isRTL = isRtlLanguage(lang);
   if (!visible) return null;
+
+  const tt = (key: string, fallback: string) => (t as unknown as Record<string, string | undefined>)[key] ?? fallback;
+
+  const signOut = () => {
+    Alert.alert(tt('signOut', 'Sign Out'), tt('signOutConfirmMsg', 'Are you sure you want to sign out?'), [
+      { text: tt('cancel', 'Cancel'), style: 'cancel' },
+      { text: tt('signOut', 'Sign Out'), style: 'destructive', onPress: async () => {
+        await clearAuthSession();
+        await AsyncStorage.multiRemove(['webAuthToken', 'authToken', 'jwt', 'polyPuffToken']);
+        resetAuth();
+      }},
+    ]);
+  };
 
   const items = [
     { icon: Edit3,         label: drawerT.editProfile,    action: () => { onClose(); router.push('/profile');  } },
     { icon: HelpCircle,    label: drawerT.helpTutorial,   action: () => { onClose(); router.push('/help');     } },
     { icon: MessageSquare, label: drawerT.feedback,       action: () => { onClose(); router.push('/feedback'); } },
     { icon: Settings,      label: drawerT.settings,       action: () => { onClose(); router.push('/settings'); } },
-    { icon: LogOut,        label: drawerT.logOut, mirrorIcon: true, action: () => { onClose(); Alert.alert(drawerT.logOut, drawerT.loginComingSoon); } },
+    { icon: LogOut,        label: drawerT.logOut, mirrorIcon: true, action: () => { onClose(); signOut(); } },
   ];
 
   return (
