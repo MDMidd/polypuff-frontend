@@ -5,8 +5,11 @@
  * CHANGES IN v3.0:
  *
  *   1. MODE SELECTOR on intro screen
- *      - Short:     2 questions per skill (A1 + B1) = 8 questions, ~5 min
- *      - Intensive: 5 questions per skill (A1→C1)  = 20 questions, ~15 min
+ *      - Short:     A1+B1 cross-section - reading/listening 3 Q/level,
+ *                   writing/speaking 1 Q/level = 16 questions, ~7 min
+ *      - Intensive: full A1-C1 spread, same per-skill ratio = 40 questions,
+ *                   ~20 min, plus an optional C2 "ceiling probe" question
+ *                   per skill for anyone who aces every core question in it
  *      Progress bar and Q counter update to reflect chosen mode.
  *
  *   2. SPEAKING SECTION - real speech recognition added
@@ -74,66 +77,131 @@ try {
 }
 
 // ── Question banks ────────────────────────────────────────────────────────────
-// SHORT mode uses indices 0 and 2 (A1 + B1)
-// INTENSIVE mode uses all 5 (A1 → C1)
-const SHORT_INDICES = [0, 2]; // A1, B1
+// Each skill's bank is keyed by CEFR level. reading/listening carry 3 questions
+// per core level (A1-C1) so a single guess or slip can't swing a whole grade
+// band; writing/speaking stay at 1 prompt per level since each response takes
+// real time/effort to produce - their accuracy instead comes from AI grading
+// (see gradeOpenResponse in services/api.js) rather than from asking for more
+// of them. Every skill also carries one C2 "ceiling probe" question, only
+// shown in Intensive mode to someone who aced every core-level question for
+// that skill - see the ceilingProbe logic below for how it's scored.
+const CORE_LEVELS  = ['A1', 'A2', 'B1', 'B2', 'C1'];
+const SHORT_LEVELS = ['A1', 'B1'];
 
 const TEST_BANK = {
-  reading: [
-    { level: 'A1', q: 'Choose the correct word: "She ___ a teacher."', opts: ['is','are','am','be'], answer: 0 },
-    { level: 'A2', q: 'Choose the correct sentence:', opts: ['He goed to school','He went to school','He go to school','He going to school'], answer: 1 },
-    { level: 'B1', q: '"Despite the rain, they decided to go hiking." What does "despite" mean?', opts: ['Because of','Even though','After','Before'], answer: 1 },
-    { level: 'B2', q: '"The committee unanimously endorsed the proposal." "Unanimously" means:', opts: ['Partially','Reluctantly','With full agreement','Secretly'], answer: 2 },
-    { level: 'C1', q: '"Her sardonic remark belied her apparent indifference." "Belied" means:', opts: ['Confirmed','Disguised/contradicted','Emphasized','Revealed'], answer: 1 },
-  ],
-  writing: [
-    { level: 'A1', prompt: 'Write a sentence about your family.', minWords: 3 },
-    { level: 'A2', prompt: 'Describe what you did yesterday in 2 sentences.', minWords: 8 },
-    { level: 'B1', prompt: 'Write a short paragraph about your favorite hobby and why you enjoy it.', minWords: 20 },
-    { level: 'B2', prompt: "In 2-3 sentences, explain why learning a second language is important in today's world.", minWords: 25 },
-    { level: 'C1', prompt: 'Write a brief argument for or against remote work, using at least one concession ("although", "however").', minWords: 30 },
-  ],
-  listening: [
-    { level: 'A1', text: 'The cat is on the table.', q: 'Where is the cat?', opts: ['Under the chair','On the table','In the box','By the door'], answer: 1 },
-    { level: 'A2', text: 'I usually wake up at seven and have breakfast with my family.', q: 'When does the speaker wake up?', opts: ['At six','At seven','At eight','At nine'], answer: 1 },
-    { level: 'B1', text: 'Although the weather forecast predicted sunshine, we decided to bring umbrellas just in case.', q: 'Why did they bring umbrellas?', opts: ['It was raining','To be prepared','They forgot sunscreen','Someone told them to'], answer: 1 },
-    { level: 'B2', text: 'The research indicates that bilingual individuals tend to outperform monolingual peers in tasks requiring cognitive flexibility.', q: 'What advantage do bilingual people have?', opts: ['Better memory','More creativity','Greater cognitive flexibility','Higher IQ'], answer: 2 },
-    { level: 'C1', text: 'Notwithstanding the considerable investment, the returns have been negligible, prompting stakeholders to reconsider the initiative.', q: 'What are stakeholders doing?', opts: ['Celebrating success','Reconsidering the project','Investing more','Ignoring the results'], answer: 1 },
-  ],
-  speaking: [
-    { level: 'A1', prompt: 'Say this sentence out loud: "My name is ___ and I am learning English."' },
-    { level: 'A2', prompt: 'Describe your daily routine in 2-3 sentences.' },
-    { level: 'B1', prompt: 'Talk about a place you visited recently and what you liked about it.' },
-    { level: 'B2', prompt: 'Explain a current event or news story you know about.' },
-    { level: 'C1', prompt: 'Argue for or against this statement: "AI will replace teachers in the future."' },
-  ],
+  reading: {
+    A1: [
+      { q: 'Choose the correct word: "She ___ a teacher."', opts: ['is','are','am','be'], answer: 0 },
+      { q: 'Choose the correct word: "They ___ students."', opts: ['are','is','am','be'], answer: 0 },
+      { q: 'Choose the correct sentence:', opts: ['I has a dog.','I haves a dog.','I have a dog.','I having a dog.'], answer: 2 },
+    ],
+    A2: [
+      { q: 'Choose the correct sentence:', opts: ['He goed to school','He went to school','He go to school','He going to school'], answer: 1 },
+      { q: 'Choose the correct word: "Yesterday, we ___ to the market."', opts: ['goed','go','going','went'], answer: 3 },
+      { q: 'Choose the correct word: "My sister ___ tennis every weekend."', opts: ['play','playing','plays','played'], answer: 2 },
+    ],
+    B1: [
+      { q: '"Despite the rain, they decided to go hiking." What does "despite" mean?', opts: ['Because of','Even though','After','Before'], answer: 1 },
+      { q: '"He apologized, however he still seemed upset." What does "however" show?', opts: ['A reason','A result','A contrast','Agreement'], answer: 2 },
+      { q: '"If it rains tomorrow, we will cancel the trip." What kind of sentence is this?', opts: ['An order','A possible future condition','A fact about the past','A question'], answer: 1 },
+    ],
+    B2: [
+      { q: '"The committee unanimously endorsed the proposal." "Unanimously" means:', opts: ['Partially','Reluctantly','With full agreement','Secretly'], answer: 2 },
+      { q: '"The new policy has been met with considerable skepticism." "Skepticism" means:', opts: ['Approval','Doubt','Enthusiasm','Confusion'], answer: 1 },
+      { q: '"She reluctantly agreed to postpone the meeting." "Reluctantly" means:', opts: ['Quickly','Immediately','Happily','Unwillingly'], answer: 3 },
+    ],
+    C1: [
+      { q: '"Her sardonic remark belied her apparent indifference." "Belied" means:', opts: ['Confirmed','Disguised/contradicted','Emphasized','Revealed'], answer: 1 },
+      { q: '"The negotiations were fraught with tension from the outset." "Fraught with" means:', opts: ['Resolved by','Filled with','Free from','Delayed by'], answer: 1 },
+      { q: '"His terse reply left little room for further discussion." "Terse" means:', opts: ['Detailed','Friendly','Confused','Brief and curt'], answer: 3 },
+    ],
+    C2: [
+      { q: '"Her prose, though ostensibly straightforward, was riddled with subtle equivocation." What does this suggest about her writing?', opts: ['It was poorly written','It appeared simple but was intentionally vague/evasive','It was overly emotional','It was clear and direct'], answer: 1 },
+    ],
+  },
+  writing: {
+    A1: [{ prompt: 'Write a sentence about your family.', minWords: 3 }],
+    A2: [{ prompt: 'Describe what you did yesterday in 2 sentences.', minWords: 8 }],
+    B1: [{ prompt: 'Write a short paragraph about your favorite hobby and why you enjoy it.', minWords: 20 }],
+    B2: [{ prompt: "In 2-3 sentences, explain why learning a second language is important in today's world.", minWords: 25 }],
+    C1: [{ prompt: 'Write a brief argument for or against remote work, using at least one concession ("although", "however").', minWords: 30 }],
+    C2: [{ prompt: 'Write a nuanced paragraph analyzing both the benefits and drawbacks of social media, addressing a counterargument to your main point.', minWords: 40 }],
+  },
+  listening: {
+    A1: [
+      { text: 'The cat is on the table.', q: 'Where is the cat?', opts: ['Under the chair','On the table','In the box','By the door'], answer: 1 },
+      { text: 'The book is on the shelf.', q: 'Where is the book?', opts: ['On the floor','On the shelf','In the bag','On the table'], answer: 1 },
+      { text: 'I have two brothers and one sister.', q: 'How many brothers does the speaker have?', opts: ['Three','One','Two','None'], answer: 2 },
+    ],
+    A2: [
+      { text: 'I usually wake up at seven and have breakfast with my family.', q: 'When does the speaker wake up?', opts: ['At six','At seven','At eight','At nine'], answer: 1 },
+      { text: 'We went to the beach last weekend and it was sunny.', q: 'What was the weather like?', opts: ['Windy','Cold','Sunny','Rainy'], answer: 2 },
+      { text: 'She works at a hospital as a nurse.', q: 'What is her job?', opts: ['Cashier','Doctor','Nurse','Teacher'], answer: 2 },
+    ],
+    B1: [
+      { text: 'Although the weather forecast predicted sunshine, we decided to bring umbrellas just in case.', q: 'Why did they bring umbrellas?', opts: ['It was raining','To be prepared','They forgot sunscreen','Someone told them to'], answer: 1 },
+      { text: 'He missed the bus, so he had to walk to work.', q: 'Why did he walk to work?', opts: ['His car broke down','He missed the bus','He likes exercise','It was a short distance'], answer: 1 },
+      { text: 'Even though she was tired, she finished the report before the deadline.', q: 'What did she do despite being tired?', opts: ['She asked for help','She went to sleep','She finished the report','She missed the deadline'], answer: 2 },
+    ],
+    B2: [
+      { text: 'The research indicates that bilingual individuals tend to outperform monolingual peers in tasks requiring cognitive flexibility.', q: 'What advantage do bilingual people have?', opts: ['Better memory','More creativity','Greater cognitive flexibility','Higher IQ'], answer: 2 },
+      { text: "The company's profits declined sharply, prompting a major restructuring.", q: 'Why did the company restructure?', opts: ['They hired more staff','Profits increased','Profits declined sharply','They opened a new office'], answer: 2 },
+      { text: 'Critics argue that the proposal overlooks key environmental concerns.', q: 'What is the criticism about?', opts: ['A lack of public support','Environmental concerns being ignored','The cost of the proposal','The proposal being too slow'], answer: 1 },
+    ],
+    C1: [
+      { text: 'Notwithstanding the considerable investment, the returns have been negligible, prompting stakeholders to reconsider the initiative.', q: 'What are stakeholders doing?', opts: ['Celebrating success','Reconsidering the project','Investing more','Ignoring the results'], answer: 1 },
+      { text: 'The panel conceded that the initial findings were, at best, inconclusive.', q: 'What did the panel admit about the findings?', opts: ['They were fabricated','They were definitive','They were inconclusive','They were widely accepted'], answer: 2 },
+      { text: 'Her ambivalence toward the offer stemmed from conflicting professional priorities.', q: 'Why did she feel ambivalent?', opts: ['She had already accepted','She disliked the offer','She misunderstood the offer','She had conflicting priorities'], answer: 3 },
+    ],
+    C2: [
+      { text: "The report's veneer of objectivity scarcely concealed its underlying bias.", q: 'What does this imply about the report?', opts: ['It was rejected by reviewers','It was completely objective','It appeared objective but was actually biased','It contained no analysis'], answer: 2 },
+    ],
+  },
+  speaking: {
+    A1: [{ prompt: 'Say this sentence out loud: "My name is ___ and I am learning English."' }],
+    A2: [{ prompt: 'Describe your daily routine in 2-3 sentences.' }],
+    B1: [{ prompt: 'Talk about a place you visited recently and what you liked about it.' }],
+    B2: [{ prompt: 'Explain a current event or news story you know about.' }],
+    C1: [{ prompt: 'Argue for or against this statement: "AI will replace teachers in the future."' }],
+    C2: [{ prompt: 'Discuss a complex ethical dilemma of your choice, presenting multiple perspectives and your own reasoned conclusion.' }],
+  },
 };
 
 const SKILLS       = ['reading', 'writing', 'listening', 'speaking'];
 const SKILL_ICONS  = { reading: BookOpen, writing: PenTool, listening: Headphones, speaking: Mic };
 const LEVELS_ORDER = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
-// TEST_BANK's per-skill question order, index-for-index (0=A1 ... 4=C1).
-const BANK_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
+// The set of core-level questions (level tag attached) a test mode shows for
+// a given skill - short mode is a 2-level cross-section (A1, B1), intensive
+// covers the full A1-C1 spread. C2 is never part of this list; it's only
+// reachable via the ceiling-probe path below.
+function activeCoreQuestions(skillName: string, testMode: string) {
+  const levels = testMode === 'short' ? SHORT_LEVELS : CORE_LEVELS;
+  return levels.flatMap(lvl => (TEST_BANK[skillName][lvl] || []).map((item: any) => ({ ...item, level: lvl })));
+}
 
-// The highest CEFR level actually tested for a given set of active bank
-// indices - e.g. short mode's [0, 2] only shows A1/B1 content, so the
-// highest level it can honestly report is B1.
-function maxTestedLevel(activeIndices: number[]) {
-  return BANK_LEVELS[Math.max(...activeIndices)];
+function questionsForSkill(skillName: string, testMode: string) {
+  return activeCoreQuestions(skillName, testMode).length;
+}
+
+// The highest CEFR level a test mode's core question set can honestly
+// support - short mode never shows B2/C1 content, so it can't conclude B2/C1.
+function maxCoreLevel(testMode: string) {
+  return testMode === 'short' ? 'B1' : 'C1';
 }
 
 function determineLevelFromScore(correctCount, total, capLevel?: string) {
   const ratio = correctCount / total;
   let level;
-  if (ratio >= 0.9) level = 'C1';
-  else if (ratio >= 0.7) level = 'B2';
-  else if (ratio >= 0.5) level = 'B1';
-  else if (ratio >= 0.3) level = 'A2';
-  else level = 'A1';
+  if (ratio >= 0.85) level = 'C1';
+  else if (ratio >= 0.65) level = 'B2';
+  else if (ratio >= 0.45) level = 'B1';
+  else if (ratio >= 0.25) level = 'A2';
+  else if (ratio >= 0.10) level = 'A1';
+  else level = 'A0';
   // Never report a level higher than the hardest content the user was
-  // actually shown - a short-mode user who nails the two easy questions
-  // they were given shouldn't come out graded C1.
+  // actually shown - a short-mode user who nails the easy questions they
+  // were given shouldn't come out graded above what short mode can support.
   if (capLevel && LEVELS_ORDER.indexOf(level) > LEVELS_ORDER.indexOf(capLevel)) {
     return capLevel;
   }
@@ -514,8 +582,9 @@ export default function PlacementScreen() {
   const nudge = useFeedbackNudge('placement');
 
   // ── Mode ──────────────────────────────────────────────────────────────────
-  // 'short'     = 2 questions per skill = 8 total
-  // 'intensive' = 5 questions per skill = 20 total
+  // 'short'     = A1+B1 cross-section per skill
+  // 'intensive' = full A1-C1 spread per skill, plus a C2 ceiling probe for
+  //               any skill where every core question was answered correctly
   const [testMode,       setTestMode]       = useState(null); // null = not chosen yet
   const [phase,          setPhase]          = useState('intro');
   const [currentSkill,   setCurrentSkill]   = useState(0);
@@ -525,17 +594,21 @@ export default function PlacementScreen() {
   const [scores,         setScores]         = useState({ reading: 0, writing: 0, listening: 0, speaking: 0 });
   const [totals,         setTotals]         = useState({ reading: 0, writing: 0, listening: 0, speaking: 0 });
   const [mistakes,       setMistakes]       = useState<any[]>([]); // wrong MC answers (reading/listening), for the results-screen review section
+  // Per-skill C2 ceiling-probe outcome: undefined (not shown/not applicable),
+  // 'passed', or 'failed'. Kept separate from scores/totals rather than
+  // folded into the ratio, so a wrong probe answer can't drag someone who
+  // aced every core question back down below C1.
+  const [ceilingProbe,   setCeilingProbe]   = useState<Record<string, 'passed' | 'failed'>>({});
 
   // ── Derived values based on mode ──────────────────────────────────────────
-  const activeIndices  = testMode === 'short' ? SHORT_INDICES : [0, 1, 2, 3, 4];
-  const totalQuestions = activeIndices.length * SKILLS.length;
-  const questionsPerSkill = activeIndices.length;
-
-  const skill     = SKILLS[currentSkill];
-  const allQ      = TEST_BANK[skill] || [];
-  // Map the current question index to the actual bank index
-  const bankIndex = activeIndices[currentQ] ?? currentQ;
-  const question  = allQ[bankIndex];
+  const skill  = SKILLS[currentSkill];
+  const coreQ  = activeCoreQuestions(skill, testMode || 'intensive');
+  const questionsPerSkill = coreQ.length;
+  const totalQuestions    = SKILLS.reduce((sum, s) => sum + questionsForSkill(s, testMode || 'intensive'), 0);
+  const onCeilingProbe    = currentQ >= coreQ.length;
+  const question = onCeilingProbe
+    ? (TEST_BANK[skill].C2?.[0] ? { ...TEST_BANK[skill].C2[0], level: 'C2' } : undefined)
+    : coreQ[currentQ];
 
   const playListening = useCallback(() => {
     if (skill === 'listening' && question?.text) {
@@ -551,41 +624,71 @@ export default function PlacementScreen() {
     if (correct) { hapticLight(); playCorrectSound(); announce('Correct!'); }
     else {
       hapticError(); playWrongSound(); announce(`Incorrect. The answer was: ${question.opts[question.answer]}`);
-      setMistakes(prev => [...prev, {
-        skill, q: question.q, opts: question.opts, selected: idx, correct: question.answer,
-      }]);
+      if (!onCeilingProbe) {
+        setMistakes(prev => [...prev, {
+          skill, q: question.q, opts: question.opts, selected: idx, correct: question.answer,
+        }]);
+      }
     }
 
     setTimeout(() => {
-      setScores(prev => ({ ...prev, [skill]: prev[skill] + (correct ? 1 : 0) }));
-      setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
+      if (onCeilingProbe) {
+        setCeilingProbe(prev => ({ ...prev, [skill]: correct ? 'passed' : 'failed' }));
+      } else {
+        setScores(prev => ({ ...prev, [skill]: prev[skill] + (correct ? 1 : 0) }));
+        setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
+      }
       advance();
     }, 600);
   };
 
   const handleWritingSubmit = () => {
-    const words    = writingInput.trim().split(/\s+/).length;
+    const words    = writingInput.trim().split(/\s+/).filter(Boolean).length;
     const meetsMin = words >= (question.minWords || 3);
     const hasGrammar = writingInput.includes('.') || writingInput.includes('!');
     const score    = meetsMin ? (hasGrammar ? 1 : 0.5) : 0;
-    setScores(prev => ({ ...prev, [skill]: prev[skill] + score }));
-    setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
+    if (onCeilingProbe) {
+      setCeilingProbe(prev => ({ ...prev, [skill]: score >= 1 ? 'passed' : 'failed' }));
+    } else {
+      setScores(prev => ({ ...prev, [skill]: prev[skill] + score }));
+      setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
+    }
     setWritingInput('');
     if (score > 0) { hapticLight(); playCorrectSound(); announce('Good writing!'); } else { hapticError(); playWrongSound(); announce('Try to write more next time.'); }
     advance();
   };
 
   const handleSpeakingDone = (finalScore) => {
-    setScores(prev => ({ ...prev, [skill]: prev[skill] + finalScore }));
-    setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
+    if (onCeilingProbe) {
+      setCeilingProbe(prev => ({ ...prev, [skill]: finalScore >= 1 ? 'passed' : 'failed' }));
+    } else {
+      setScores(prev => ({ ...prev, [skill]: prev[skill] + finalScore }));
+      setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
+    }
     advance();
   };
 
   const advance = () => {
     setSelectedAnswer(null);
-    if (currentQ + 1 < questionsPerSkill) {
+
+    if (!onCeilingProbe && currentQ + 1 < questionsPerSkill) {
       setCurrentQ(currentQ + 1);
-    } else if (currentSkill + 1 < SKILLS.length) {
+      return;
+    }
+
+    // Finished every core question for this skill - offer the C2 ceiling
+    // probe if they got a perfect score (intensive mode only; short mode
+    // never reaches C1 content, so a ceiling probe wouldn't be meaningful).
+    const acedCore = !onCeilingProbe && testMode === 'intensive'
+      && totals[skill] > 0 && scores[skill] === totals[skill]
+      && (TEST_BANK[skill].C2?.length ?? 0) > 0;
+    if (acedCore) {
+      setCurrentQ(currentQ + 1); // one past coreQ.length -> onCeilingProbe becomes true
+      announce('Bonus question! You answered everything correctly so far.');
+      return;
+    }
+
+    if (currentSkill + 1 < SKILLS.length) {
       const nextSkill = SKILLS[currentSkill + 1];
       setCurrentSkill(currentSkill + 1);
       setCurrentQ(0);
@@ -599,7 +702,11 @@ export default function PlacementScreen() {
 
   const saveResults = async () => {
     const levels = {};
-    for (const s of SKILLS) { levels[s] = determineLevelFromScore(scores[s], totals[s] || 1, maxTestedLevel(activeIndices)); }
+    for (const s of SKILLS) {
+      levels[s] = ceilingProbe[s] === 'passed'
+        ? 'C2'
+        : determineLevelFromScore(scores[s], totals[s] || 1, maxCoreLevel(testMode));
+    }
     const avgIdx  = Math.round(SKILLS.reduce((sum, s) => sum + LEVELS_ORDER.indexOf(levels[s]), 0) / SKILLS.length);
     levels.overall = LEVELS_ORDER[Math.min(avgIdx, LEVELS_ORDER.length - 1)];
     await AsyncStorage.setItem('skillLevels', JSON.stringify(levels));
@@ -685,7 +792,7 @@ export default function PlacementScreen() {
                 }}
                 onPress={() => setTestMode('short')}
                 accessibilityRole="radio"
-                accessibilityLabel="Short test: 8 questions, about 5 minutes"
+                accessibilityLabel={`Short test: ${SKILLS.reduce((sum, s) => sum + questionsForSkill(s, 'short'), 0)} questions, about 7 minutes`}
                 accessibilityState={{ selected: testMode === 'short' }}
               >
                 <Zap size={24} color={testMode === 'short' ? (C.cyan || '#00E5FF') : C.textMuted} style={{ marginBottom: 8 }} />
@@ -693,11 +800,11 @@ export default function PlacementScreen() {
                   Short
                 </Text>
                 <Text style={{ fontSize: scaledFont(11), color: C.textMuted, textAlign: 'center' }}>
-                  8 questions
+                  {SKILLS.reduce((sum, s) => sum + questionsForSkill(s, 'short'), 0)} questions
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 4 }}>
                   <Clock size={11} color={C.textMuted} />
-                  <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>~5 min</Text>
+                  <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>~7 min</Text>
                 </View>
               </TouchableOpacity>
 
@@ -712,7 +819,7 @@ export default function PlacementScreen() {
                 }}
                 onPress={() => setTestMode('intensive')}
                 accessibilityRole="radio"
-                accessibilityLabel="Intensive test: 20 questions, about 15 minutes"
+                accessibilityLabel={`Intensive test: ${SKILLS.reduce((sum, s) => sum + questionsForSkill(s, 'intensive'), 0)} questions, about 20 minutes`}
                 accessibilityState={{ selected: testMode === 'intensive' }}
               >
                 <BarChart3 size={24} color={testMode === 'intensive' ? (C.purple || '#B06CFF') : C.textMuted} style={{ marginBottom: 8 }} />
@@ -720,11 +827,11 @@ export default function PlacementScreen() {
                   Intensive
                 </Text>
                 <Text style={{ fontSize: scaledFont(11), color: C.textMuted, textAlign: 'center' }}>
-                  20 questions
+                  {SKILLS.reduce((sum, s) => sum + questionsForSkill(s, 'intensive'), 0)} questions
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 4 }}>
                   <Clock size={11} color={C.textMuted} />
-                  <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>~15 min</Text>
+                  <Text style={{ fontSize: scaledFont(10), color: C.textMuted }}>~20 min</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -732,7 +839,7 @@ export default function PlacementScreen() {
             {/* What's covered */}
             {SKILLS.map((s, i) => {
               const Icon = SKILL_ICONS[s];
-              const qCount = testMode === 'short' ? 2 : 5;
+              const qCount = questionsForSkill(s, testMode || 'intensive');
               return (
                 <View key={s}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: i < 3 ? 1 : 0, borderBottomColor: C.border + '20' }}
@@ -744,7 +851,7 @@ export default function PlacementScreen() {
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: scaledFont(15), fontWeight: '600', color: C.text, textTransform: 'capitalize' }}>{s}</Text>
                     <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>
-                      {testMode ? `${qCount} question${qCount > 1 ? 's' : ''}` : '2 or 5 questions'}
+                      {testMode ? `${qCount} question${qCount > 1 ? 's' : ''}` : `${questionsForSkill(s, 'short')} or ${questionsForSkill(s, 'intensive')} questions`}
                     </Text>
                   </View>
                 </View>
@@ -776,7 +883,11 @@ export default function PlacementScreen() {
   // ══════════════════════════════════════════════════════════════════════════
   if (phase === 'results') {
     const levels = {};
-    for (const s of SKILLS) { levels[s] = determineLevelFromScore(scores[s], totals[s] || 1, maxTestedLevel(activeIndices)); }
+    for (const s of SKILLS) {
+      levels[s] = ceilingProbe[s] === 'passed'
+        ? 'C2'
+        : determineLevelFromScore(scores[s], totals[s] || 1, maxCoreLevel(testMode));
+    }
     const avgIdx   = Math.round(SKILLS.reduce((sum, s) => sum + LEVELS_ORDER.indexOf(levels[s]), 0) / SKILLS.length);
     levels.overall = LEVELS_ORDER[Math.min(avgIdx, LEVELS_ORDER.length - 1)];
 
@@ -908,7 +1019,11 @@ export default function PlacementScreen() {
   // ══════════════════════════════════════════════════════════════════════════
   // TESTING
   // ══════════════════════════════════════════════════════════════════════════
-  const overallProgress = ((currentSkill * questionsPerSkill + currentQ) / totalQuestions) * 100;
+  // Skills no longer all have the same question count (reading/listening
+  // carry 3x more than writing/speaking), so "questions completed before
+  // this skill" has to sum each prior skill's real count, not multiply.
+  const completedBeforeSkill = SKILLS.slice(0, currentSkill).reduce((sum, s) => sum + questionsForSkill(s, testMode || 'intensive'), 0);
+  const overallProgress = ((completedBeforeSkill + currentQ) / totalQuestions) * 100;
 
   return (
     <ScreenBackground>
@@ -945,16 +1060,18 @@ export default function PlacementScreen() {
               <Text style={{ fontSize: scaledFont(14), fontWeight: '700', color: C.text, textTransform: 'capitalize' }}>{skill}</Text>
             </View>
             <Text style={{ fontSize: scaledFont(12), color: C.textMuted }}>
-              Q{currentQ + 1}/{questionsPerSkill} · {Math.round(overallProgress)}%
+              {onCeilingProbe ? 'Bonus question' : `Q${currentQ + 1}/${questionsPerSkill}`} · {Math.round(Math.min(overallProgress, 100))}%
             </Text>
           </View>
           <View
             style={{ height: 4, backgroundColor: C.border + '30', borderRadius: 2 }}
             accessibilityRole="progressbar"
-            accessibilityLabel={`${skill} section, question ${currentQ + 1} of ${questionsPerSkill}, ${Math.round(overallProgress)} percent complete`}
-            accessibilityValue={{ min: 0, max: 100, now: Math.round(overallProgress) }}
+            accessibilityLabel={onCeilingProbe
+              ? `${skill} section, bonus question, ${Math.round(Math.min(overallProgress, 100))} percent complete`
+              : `${skill} section, question ${currentQ + 1} of ${questionsPerSkill}, ${Math.round(Math.min(overallProgress, 100))} percent complete`}
+            accessibilityValue={{ min: 0, max: 100, now: Math.round(Math.min(overallProgress, 100)) }}
           >
-            <View style={{ height: 4, backgroundColor: C.cyan || '#00E5FF', borderRadius: 2, width: `${overallProgress}%` }} />
+            <View style={{ height: 4, backgroundColor: C.cyan || '#00E5FF', borderRadius: 2, width: `${Math.min(overallProgress, 100)}%` }} />
           </View>
         </View>
 
