@@ -46,7 +46,7 @@ import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getServerUrl, errorFromResponse } from '../services/api';
 import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
-import { hapticSuccess, hapticLight } from '../services/sounds';
+import { hapticSuccess, hapticLight, feedbackForScore } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { recordXP } from '../services/progressSyncService';
@@ -480,7 +480,7 @@ export default function BusinessScreen() {
       const data = await resp.json();
       setFeedback(data);
       nudge.recordInteraction();
-      hapticSuccess();
+      if (data.score !== undefined) feedbackForScore(data.score); else hapticSuccess();
       // ── Record to My Progress ──────────────────────────────────────────
       if (data.score !== undefined && activeDomain) {
         const dom = DOMAINS.find(d => d.id === activeDomain);

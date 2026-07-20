@@ -41,6 +41,7 @@ import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
 import { getAuthHeaders } from '../utils/auth';
+import { feedbackForScore } from '../services/sounds';
 
 // ── Colour palette ────────────────────────────────────────────────────────────
 const BAND_COLOURS = {
@@ -429,6 +430,7 @@ export default function IELTSScreen() {
       nudge.recordInteraction();
       if (data?.overallBand != null) {
         const pct = Math.round(Math.max(0, Math.min(100, (data.overallBand / 9) * 100)));
+        feedbackForScore(pct);
         recordModuleProgress({ exerciseId: 'ielts', score: pct, detail: `Band ${data.overallBand}${data.grade ? ` - ${data.grade}` : ''}` }).catch(() => {});
       }
     } catch (e) {

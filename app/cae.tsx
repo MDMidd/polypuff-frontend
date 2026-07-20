@@ -45,6 +45,7 @@ import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
 import { getAuthHeaders } from '../utils/auth';
+import { feedbackForScore } from '../services/sounds';
 
 // ── Colour helpers ────────────────────────────────────────────────────────────
 const CAMBRIDGE_BLUE = '#003865';
@@ -391,6 +392,7 @@ export default function CAEScreen() {
       nudge.recordInteraction();
       if (data?.cambridgeScore) {
         const pct = Math.round(Math.max(0, Math.min(100, ((data.cambridgeScore - 160) / 50) * 100)));
+        feedbackForScore(pct);
         recordModuleProgress({ exerciseId: 'cae', score: pct, detail: `Grade ${data.grade || '?'} - ${data.cambridgeScore} Cambridge Scale` }).catch(() => {});
       }
     } catch (e) {

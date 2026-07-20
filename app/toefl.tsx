@@ -41,6 +41,7 @@ import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
 import { getAuthHeaders } from '../utils/auth';
+import { feedbackForScore } from '../services/sounds';
 
 // ── Band colours (1–6 scale) ─────────────────────────────────────────────────
 const BAND_COLOUR = (band) => {
@@ -444,6 +445,7 @@ export default function TOEFLScreen() {
       nudge.recordInteraction();
       if (data?.overallBand != null) {
         const pct = Math.round(Math.max(0, Math.min(100, (data.overallBand / 120) * 100)));
+        feedbackForScore(pct);
         recordModuleProgress({ exerciseId: 'toefl', score: pct, detail: `Score ${data.overallBand}/120${data.grade ? ` - ${data.grade}` : ''}` }).catch(() => {});
       }
     } catch (e) {

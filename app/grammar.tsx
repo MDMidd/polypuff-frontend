@@ -58,6 +58,7 @@ import { getServerUrl, errorFromResponse } from '../services/api';
 import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { getAuthHeaders } from '../utils/auth';
+import { feedbackForScore } from '../services/sounds';
 // ✅ NEW
 import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/accessibility';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
@@ -482,6 +483,7 @@ export default function GrammarScreen() {
       const data = await res.json();
 
       setResult(data);
+      feedbackForScore(data.score || 0);
       nudge.recordInteraction();
       setScreen('result');
       setSessCount(n => n + 1);

@@ -57,6 +57,7 @@ import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import SkillLevelBadge from '../components/SkillLevelBadge';
 import { getAuthHeaders } from '../utils/auth';
+import { feedbackForScore } from '../services/sounds';
 
 // ── Prompt options ──────────────────────────────────────────────────────────
 const PROMPTS = [
@@ -176,6 +177,7 @@ export default function WritingScreen() {
       if (!res.ok) throw await errorFromResponse(res);
       const data = await res.json();
       setResult(data);
+      feedbackForScore(data.score ?? 0);
       nudge.recordInteraction();
       setSessionCount(prev => prev + 1);
       setSessionScore(prev => prev + (data.score ?? 0));
@@ -204,6 +206,7 @@ export default function WritingScreen() {
 
       const fallbackResult = { score, feedback, corrections: corrections.length > 0 ? corrections : null, improved: null };
       setResult(fallbackResult);
+      feedbackForScore(score);
       setSessionCount(prev => prev + 1);
       setSessionScore(prev => prev + score);
       Animated.spring(resultAnim, { toValue: 1, useNativeDriver: true, friction: 6 }).start();

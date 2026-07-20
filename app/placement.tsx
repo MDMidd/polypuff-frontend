@@ -686,7 +686,8 @@ export default function PlacementScreen() {
       setTotals(prev => ({ ...prev, [skill]: prev[skill] + 1 }));
     }
     setWritingInput('');
-    if (score > 0) { hapticLight(); playCorrectSound(); announce('Good writing!'); } else { hapticError(); playWrongSound(); announce('Try to write more next time.'); }
+    feedbackForScore(Math.round(score * 100));
+    announce(score >= 0.6 ? 'Good writing!' : 'Try to write more next time.');
     advance();
   };
 
@@ -729,7 +730,8 @@ export default function PlacementScreen() {
       announce(`Moving to ${nextSkill} section.`);
     } else {
       setPhase('results');
-      feedbackForScore(90);
+      const overallPct = Math.round((SKILLS.reduce((sum, s) => sum + (scores[s] / (totals[s] || 1)), 0) / SKILLS.length) * 100);
+      feedbackForScore(overallPct);
       announce('Test complete! Calculating your results.');
     }
   };

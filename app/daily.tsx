@@ -29,7 +29,7 @@ import { getServerUrl, errorFromResponse } from '../services/api';
 import { useAuthFailureHandler } from '../hooks/useAuthFailureHandler';
 import { recordModuleProgress } from '../services/progressService';
 import { pushVaults } from '../services/syncService';
-import { hapticSuccess, hapticError, hapticLight } from '../services/sounds';
+import { hapticLight, feedbackForScore } from '../services/sounds';
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
@@ -306,7 +306,7 @@ export default function DailyChallenge() {
     setChecked(true);
     nudge.recordInteraction();
     setScreen('running');
-    if (sc >= 70) hapticSuccess(); else hapticError();
+    feedbackForScore(sc);
     announce(dailyT.scoreAnnounce.replace('{score}', String(sc)).replace('{feedback}', result.feedback));
   }
 
@@ -366,7 +366,7 @@ export default function DailyChallenge() {
     // Save to mobile progress store (progress_recent_daily_challenge → progress screen).
     await recordModuleProgress({ exerciseId: 'daily_challenge', score: avg, detail: 'Daily Challenge' });
 
-    hapticSuccess();
+    feedbackForScore(avg);
     announce(dailyT.completeAnnounce.replace('{score}', String(avg)));
     setScreen('complete');
   }

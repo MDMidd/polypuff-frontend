@@ -45,7 +45,7 @@ import { ScreenBackground, BackHeader } from '../components/PolyPuffUI';
 import PolyPuffScene from '../components/PolyPuffScene';
 import AIDisclosureBanner from '../components/AIDisclosureBanner';
 import DiscussWithPuff from '../components/DiscussWithPuff';
-import { hapticError, hapticLight, playCorrectSound, playWrongSound } from '../services/sounds';
+import { hapticError, hapticLight, playCorrectSound, playWrongSound, feedbackForScore } from '../services/sounds';
 import { recordExerciseTime } from '../services/timerService';
 import { recordModuleProgress } from '../services/progressService';
 import { recordXP } from '../services/progressSyncService';
@@ -298,6 +298,7 @@ export default function VocabScreen() {
       const correctTotal  = sessionResults.correct + (correct ? 1 : 0);
       const pct = totalAnswered > 0 ? Math.round((correctTotal / totalAnswered) * 100) : 0;
       await saveVocabProgress(pct, correctTotal, totalAnswered);
+      feedbackForScore(pct);
       // ✅ NEW: Announce completion
       announce(`Session complete! ${correctTotal} correct out of ${totalAnswered}. ${scoreAnnouncement(pct)}`);
     }

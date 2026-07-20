@@ -60,6 +60,7 @@ import { scaledFont, announce, scoreAnnouncement, a11yTab } from '../utils/acces
 import { useFeedbackNudge } from '../hooks/useFeedbackNudge';
 import FeedbackNudgeModal from '../components/FeedbackNudgeModal';
 import { getAuthHeaders } from '../utils/auth';
+import { feedbackForScore } from '../services/sounds';
 import NativeLanguagePicker from '../components/NativeLanguagePicker';
 import SkillLevelBadge from '../components/SkillLevelBadge';
 import { normalizeNativeLanguage } from '../utils/nativeLanguages';
@@ -382,6 +383,7 @@ export default function WordChunksScreen() {
         ? { ...data, score: finalScore, feedback: (data.feedback || '') + ' (-20 hint penalty applied)' }
         : { ...data, score: finalScore };
       setResult(finalData);
+      feedbackForScore(finalScore);
       nudge.recordInteraction();
       setSessionScore(prev => prev + finalScore);
       setSessionCount(prev => prev + 1);
@@ -406,6 +408,7 @@ export default function WordChunksScreen() {
       const fallbackScore = hintUsed ? Math.max(0, Math.min(fallbackRaw, 80)) : fallbackRaw;
       const fallbackFeedback = (ok ? 'Correct!' : `The answer is: "${chunk.english}"`) + (hintUsed && fallbackScore < fallbackRaw ? ' (-20 hint penalty applied)' : '');
       setResult({ score: fallbackScore, feedback: fallbackFeedback, correct: chunk.english });
+      feedbackForScore(fallbackScore);
       setSessionCount(prev => prev + 1);
       if (fallbackScore < 70 && !revealed) {
         queueRetryChunk(chunk);
