@@ -19,7 +19,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
-  Star, ChevronLeft, ChevronRight, ChevronDown, SkipForward, RotateCcw, TrendingUp, Zap, PenTool, BookOpen, Brain,
+  Star, ChevronLeft, ChevronRight, ChevronDown, SkipForward, RotateCcw, TrendingUp, Zap, PenTool, BookOpen, Brain, BookmarkPlus,
 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -63,6 +63,18 @@ interface WritingTask {
   promptText: string;
 }
 type Task = TranslationTask | GrammarTask | WritingTask;
+
+interface DailyCheckResult {
+  score: number;
+  feedback: string;
+  correctAnswer?: string;
+  correct_answer?: string;
+  full_sentence?: string;
+  rule_explanation?: string;
+  mistakes?: { type?: string; found?: string; expected?: string; explanation?: string }[];
+  corrections?: string[];
+  improved?: string;
+}
 
 interface DailyStats {
   streak: number;
@@ -134,6 +146,7 @@ export default function DailyChallenge() {
   const [scores, setScoresArr] = useState<number[]>([]);
   const [feedback, setFeedback] = useState('');
   const [scoreShown, setScoreShown] = useState<number | null>(null);
+  const [resultData, setResultData] = useState<DailyCheckResult | null>(null);
   const [checked, setChecked] = useState(false);
   const [avgScore, setAvgScore] = useState(0);
   const [showSave, setShowSave] = useState(false);
@@ -219,7 +232,11 @@ export default function DailyChallenge() {
   }
 
   // ── Check answer via backend ──────────────────────────────────────────────
-  async function checkAnswer(): Promise<{ score: number; feedback: string }> {
+  // Carries through the same detail fields (mistakes, correctAnswer,
+  // rule_explanation, corrections, improved) that translation.tsx /
+  // grammar.tsx / writing.tsx already show, instead of narrowing the
+  // response down to just score+feedback.
+  async function checkAnswer(): Promise<DailyCheckResult> {
     const BASE = await getServerUrl();
     const profile = await AsyncStorage.getItem('userProfile').then(r => r ? JSON.parse(r) : {}).catch(() => ({}));
     const level = profile.level || 'B1';
@@ -238,11 +255,11 @@ export default function DailyChallenge() {
           });
           if (res.ok) {
             const d = await res.json();
-            return { score: Math.round(d.score || 0), feedback: d.feedback || '' };
+            return { score: Math.round(d.score || 0), feedback: d.feedback || '', correctAnswer: d.correctAnswer || task.correctAnswer, mistakes: d.mistakes || [] };
           }
           await handleAuthFailure(await errorFromResponse(res));
         }
-        return { score: localScore(ans, task.correctAnswer), feedback: `${dailyT.suggestedPrefix}: ${task.correctAnswer}` };
+        return { score: localScore(ans, task.correctAnswer), feedback: `${dailyT.suggestedPrefix}: ${task.correctAnswer}`, correctAnswer: task.correctAnswer };
       }
 
       if (task.type === 'grammar') {
@@ -253,10 +270,17 @@ export default function DailyChallenge() {
         });
         if (res.ok) {
           const d = await res.json();
-          return { score: Math.round(d.score || 0), feedback: d.feedback || `${dailyT.answerPrefix}: ${task.correct_answer}. ${task.full_sentence}` };
+          return {
+            score: Math.round(d.score || 0),
+            feedback: d.feedback || `${dailyT.answerPrefix}: ${task.correct_answer}. ${task.full_sentence}`,
+            correct_answer: d.correct_answer || task.correct_answer,
+            full_sentence: task.full_sentence,
+            rule_explanation: d.rule_explanation || '',
+            mistakes: d.mistakes || [],
+          };
         }
         await handleAuthFailure(await errorFromResponse(res));
-        return { score: localScore(ans, task.correct_answer), feedback: `${dailyT.answerPrefix}: ${task.correct_answer}. ${task.full_sentence}` };
+        return { score: localScore(ans, task.correct_answer), feedback: `${dailyT.answerPrefix}: ${task.correct_answer}. ${task.full_sentence}`, correct_answer: task.correct_answer, full_sentence: task.full_sentence };
       }
 
       if (task.type === 'writing') {
@@ -268,7 +292,7 @@ export default function DailyChallenge() {
         });
         if (res.ok) {
           const d = await res.json();
-          return { score: Math.round(d.score || 0), feedback: d.feedback || '' };
+          return { score: Math.round(d.score || 0), feedback: d.feedback || '', corrections: d.corrections || [], improved: d.improved || '' };
         }
         await handleAuthFailure(await errorFromResponse(res));
         return { score: Math.min(90, Math.max(45, words * 4)), feedback: dailyT.savedLocalAttempt };
@@ -285,6 +309,7 @@ export default function DailyChallenge() {
     setAnswer('');
     setFeedback('');
     setScoreShown(null);
+    setResultData(null);
     setChecked(false);
     setScreen('loading');
     const t = await fetchTask(TASK_ORDER[0]);
@@ -303,6 +328,7 @@ export default function DailyChallenge() {
     setScoresArr([...scoresRef.current]);
     setScoreShown(sc);
     setFeedback(result.feedback);
+    setResultData(result);
     setChecked(true);
     nudge.recordInteraction();
     setScreen('running');
@@ -319,6 +345,7 @@ export default function DailyChallenge() {
     setAnswer('');
     setFeedback('');
     setScoreShown(null);
+    setResultData(null);
     setChecked(false);
     setScreen('loading');
     const t = await fetchTask(TASK_ORDER[nextIndex]);
@@ -338,6 +365,7 @@ export default function DailyChallenge() {
     setAnswer('');
     setFeedback('');
     setScoreShown(null);
+    setResultData(null);
     setChecked(false);
     setScreen('loading');
     fetchTask(TASK_ORDER[nextIndex]).then(t => { setTask(t); setScreen('running'); });
@@ -517,6 +545,96 @@ export default function DailyChallenge() {
                       accessibilityLabel={`${dailyT.averageScoreLabel}: ${scoreShown}`}>{scoreShown}</Text>
                     <Text style={[s.resultFeedback, { color: C.textSec || '#8B95B0', textAlign }]}>{feedback}</Text>
                   </View>
+                )}
+
+                {/* Detailed feedback - mirrors translation.tsx / grammar.tsx / writing.tsx */}
+                {checked && resultData && task.type === 'translation' && (
+                  <>
+                    {!!resultData.correctAnswer && (
+                      <TouchableOpacity
+                        style={[s.saveVaultBtn, { backgroundColor: (C.emerald || '#00E5A0') + '10', borderColor: (C.emerald || '#00E5A0') + '30', flexDirection: rowDirection }]}
+                        onPress={() => saveWordToVault(resultData.correctAnswer || '')}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${dailyT.saveWordToVaultAria}: ${resultData.correctAnswer}`}
+                      >
+                        <BookmarkPlus size={16} color={C.emerald || '#00E5A0'} />
+                        <Text style={[s.saveVaultBtnText, { color: C.emerald || '#00E5A0', textAlign }]} numberOfLines={1}>{resultData.correctAnswer}</Text>
+                      </TouchableOpacity>
+                    )}
+                    {resultData.mistakes && resultData.mistakes.length > 0 && (
+                      <View style={[s.detailBox, { backgroundColor: C.card || 'rgba(255,255,255,0.03)', borderColor: C.border || '#2A3352' }]}>
+                        <Text style={[s.detailLabel, { color: C.textSec || '#8B95B0', textAlign }]}>{dailyT.mistakesLabel || 'Mistakes'}</Text>
+                        {resultData.mistakes.map((m, i) => (
+                          <View key={i} style={[s.mistakeItem, { borderBottomColor: (C.border || '#2A3352') + '30', borderBottomWidth: i === resultData.mistakes!.length - 1 ? 0 : 1 }]}>
+                            <Text style={[s.mistakeWords, { textAlign }]}>
+                              <Text style={{ color: C.red || '#FF6B6B', textDecorationLine: 'line-through' }}>{m.found}</Text>
+                              <Text style={{ color: C.textMuted || '#5A6380' }}> → </Text>
+                              <Text style={{ color: C.emerald || '#00E5A0', fontWeight: '600' }}>{m.expected}</Text>
+                            </Text>
+                            {!!m.explanation && <Text style={[s.mistakeExplain, { color: C.textSec || '#8B95B0', textAlign }]}>{m.explanation}</Text>}
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </>
+                )}
+
+                {checked && resultData && task.type === 'grammar' && (
+                  <>
+                    {!!resultData.correct_answer && (
+                      <TouchableOpacity
+                        style={[s.saveVaultBtn, { backgroundColor: (C.emerald || '#00E5A0') + '10', borderColor: (C.emerald || '#00E5A0') + '30', flexDirection: rowDirection }]}
+                        onPress={() => saveWordToVault(resultData.full_sentence || resultData.correct_answer || '')}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${dailyT.saveWordToVaultAria}: ${resultData.correct_answer}`}
+                      >
+                        <BookmarkPlus size={16} color={C.emerald || '#00E5A0'} />
+                        <Text style={[s.saveVaultBtnText, { color: C.emerald || '#00E5A0', textAlign }]} numberOfLines={1}>{resultData.full_sentence || resultData.correct_answer}</Text>
+                      </TouchableOpacity>
+                    )}
+                    {!!resultData.rule_explanation && (
+                      <View style={[s.detailBox, { backgroundColor: (C.amber || '#FFBE0B') + '0C', borderColor: (C.amber || '#FFBE0B') + '30' }]}>
+                        <Text style={[s.detailLabel, { color: C.amber || '#FFBE0B', textAlign }]}>{dailyT.ruleLabel || 'Grammar rule'}</Text>
+                        <Text style={[s.detailText, { color: C.textSec || '#8B95B0', textAlign }]}>{resultData.rule_explanation}</Text>
+                      </View>
+                    )}
+                    {resultData.mistakes && resultData.mistakes.length > 0 && (
+                      <View style={[s.detailBox, { backgroundColor: C.card || 'rgba(255,255,255,0.03)', borderColor: C.border || '#2A3352' }]}>
+                        <Text style={[s.detailLabel, { color: C.textSec || '#8B95B0', textAlign }]}>{dailyT.mistakesLabel || 'Mistakes'}</Text>
+                        {resultData.mistakes.map((m, i) => (
+                          <View key={i} style={[s.mistakeItem, { borderBottomColor: (C.border || '#2A3352') + '30', borderBottomWidth: i === resultData.mistakes!.length - 1 ? 0 : 1 }]}>
+                            <Text style={[s.mistakeWords, { textAlign }]}>
+                              <Text style={{ color: C.red || '#FF6B6B', textDecorationLine: 'line-through' }}>{m.found}</Text>
+                              <Text style={{ color: C.textMuted || '#5A6380' }}> → </Text>
+                              <Text style={{ color: C.emerald || '#00E5A0', fontWeight: '600' }}>{m.expected}</Text>
+                            </Text>
+                            {!!m.explanation && <Text style={[s.mistakeExplain, { color: C.textSec || '#8B95B0', textAlign }]}>{m.explanation}</Text>}
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </>
+                )}
+
+                {checked && resultData && task.type === 'writing' && (
+                  <>
+                    {resultData.corrections && resultData.corrections.length > 0 && (
+                      <View style={[s.detailBox, { backgroundColor: C.card || 'rgba(255,255,255,0.03)', borderColor: C.border || '#2A3352' }]}>
+                        <Text style={[s.detailLabel, { color: C.textSec || '#8B95B0', textAlign }]}>{dailyT.correctionsLabel || 'Corrections'}</Text>
+                        {resultData.corrections.map((c, i) => (
+                          <Text key={i} style={[s.detailText, { color: C.textSec || '#8B95B0', textAlign, marginTop: i > 0 ? 6 : 0 }]}>• {c}</Text>
+                        ))}
+                      </View>
+                    )}
+                    {!!resultData.improved && (
+                      <View style={[s.detailBox, { backgroundColor: (C.emerald || '#00E5A0') + '0C', borderColor: (C.emerald || '#00E5A0') + '30' }]}>
+                        <Text style={[s.detailLabel, { color: C.emerald || '#00E5A0', textAlign }]}>{dailyT.improvedLabel || 'Improved version'}</Text>
+                        <Text style={[s.detailText, { color: C.text, textAlign }]}>{resultData.improved}</Text>
+                      </View>
+                    )}
+                  </>
                 )}
 
                 {/* Buttons */}
@@ -713,4 +831,12 @@ const s = StyleSheet.create({
   vocabInput: { flex: 1, fontSize: scaledFont(13), borderRadius: 8, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 8, minHeight: 40 },
   vocabBtn: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, minHeight: 40, justifyContent: 'center' },
   vocabBtnText: { fontSize: scaledFont(13), fontWeight: '700', color: '#fff' },
+  detailBox: { borderRadius: 10, borderWidth: 1, padding: 12, marginBottom: 10 },
+  detailLabel: { fontSize: scaledFont(11), fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 6 },
+  detailText: { fontSize: scaledFont(14), lineHeight: 20 },
+  saveVaultBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, borderWidth: 1, padding: 12, marginBottom: 10 },
+  saveVaultBtnText: { fontSize: scaledFont(13), fontWeight: '700', flex: 1 },
+  mistakeItem: { paddingVertical: 8, borderBottomWidth: 1 },
+  mistakeWords: { fontSize: scaledFont(13), lineHeight: 19 },
+  mistakeExplain: { fontSize: scaledFont(12), lineHeight: 17, marginTop: 3 },
 });

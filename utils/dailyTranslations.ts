@@ -56,6 +56,12 @@ export type DailyCopy = {
   fallbackWritingPrompt: string;
   scoreAnnounce: string;
   completeAnnounce: string;
+  // Optional - only English is populated below; other languages fall back
+  // to the English label inline at each call site until translated.
+  mistakesLabel?: string;
+  ruleLabel?: string;
+  correctionsLabel?: string;
+  improvedLabel?: string;
 };
 
 const en: DailyCopy = {
@@ -116,6 +122,10 @@ const en: DailyCopy = {
   fallbackWritingPrompt: 'Write 40-70 words about one small habit that helps you learn English.',
   scoreAnnounce: 'Score: {score}. {feedback}',
   completeAnnounce: 'Daily challenge complete. Average score: {score}.',
+  mistakesLabel: 'Mistakes',
+  ruleLabel: 'Grammar rule',
+  correctionsLabel: 'Corrections',
+  improvedLabel: 'Improved version',
 };
 
 export const dailyTranslations: Partial<Record<LangCode, Partial<DailyCopy>>> = {
