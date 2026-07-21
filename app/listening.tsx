@@ -374,8 +374,9 @@ export default function ListeningScreen() {
       <View style={{ alignItems: 'center', paddingTop: 8 }}>
         <SkillLevelBadge exerciseId="listening" />
       </View>
-      {!answerFocused && <PolyPuffScene size={600} />}
       <ScrollView ref={scrollRef} style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
+
+        {!answerFocused && <PolyPuffScene size={600} />}
 
         {/* EU AI Act Article 50 Disclosure */}
         <AIDisclosureBanner compact />

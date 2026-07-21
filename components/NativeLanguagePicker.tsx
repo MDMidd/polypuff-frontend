@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { NATIVE_LANGUAGE_OPTIONS } from '../utils/nativeLanguages';
@@ -30,6 +31,7 @@ export default function NativeLanguagePicker({
 }: Props) {
   const { colors: C } = useTheme();
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -47,6 +49,7 @@ export default function NativeLanguagePicker({
             {
               backgroundColor: C.card || '#111827',
               borderColor: (C.cyan || '#00E5FF') + '24',
+              paddingBottom: 20 + insets.bottom,
             },
           ]}
           accessibilityViewIsModal
