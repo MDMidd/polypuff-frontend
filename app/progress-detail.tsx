@@ -140,7 +140,7 @@ export default function ProgressDetailScreen() {
       <View style={{ flex: 1, alignItems: "center" }}>
         <Image
           source={{ uri: LOGO_URI }}
-          style={{ height: 36, width: 180, resizeMode: "contain", marginBottom: 6 }}
+          style={{ height: 26, width: 130, resizeMode: "contain", marginBottom: 6 }}
           accessibilityLabel="Poly-Puff"
         />
         <Text style={{
