@@ -411,7 +411,7 @@ export default function DailyChallenge() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <ScreenBackground style={{}}>
+    <ScreenBackground style={{}} noBottomPad>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 

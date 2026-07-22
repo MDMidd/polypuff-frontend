@@ -537,7 +537,7 @@ export default function ProgressScreen() {
 
   if (loading) {
     return (
-      <ScreenBackground>
+      <ScreenBackground noBottomPad>
         <View style={{ flexDirection: rowDir, alignItems: 'center', paddingTop: 52, paddingBottom: 12,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' }}>
           <TouchableOpacity
@@ -565,7 +565,7 @@ export default function ProgressScreen() {
   }
 
   return (
-    <ScreenBackground>
+    <ScreenBackground noBottomPad>
       <View style={{ flexDirection: rowDir, alignItems: 'center', paddingTop: 52, paddingBottom: 12,
           backgroundColor: 'rgba(2,6,18,0.85)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' }}>
           <TouchableOpacity
